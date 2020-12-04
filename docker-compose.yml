@@ -1,0 +1,9 @@
+version: "3.3"
+services:
+  app:
+    image: derhenning/tgtg
+    environment: 
+      - TGTG_LOGIN=
+      - TGTG_PASSWORD=
+      - PUSHSAFER_KEY=
+      - PUSHSAFER_DEVICEID=
