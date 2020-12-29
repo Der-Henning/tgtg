@@ -60,8 +60,12 @@ schedule.every().minute.do(job)
 
 job()
 while True:
-  schedule.run_pending()
-  time.sleep(1)
+  try:
+    schedule.run_pending()
+  except:
+    print("Fehler!")
+  finally:
+    time.sleep(1)
 
 #checkItem(20282)  #Backwaren
 #checkItem(20281)  #Obst & Gemüse
