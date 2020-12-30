@@ -43,6 +43,7 @@ def checkItem(item):
       amounts[itemID] = amount
 
 def job():
+  running = True
   print("Doing the job ...")
   for itemID in itemIDs:
     try:
@@ -59,14 +60,19 @@ def job():
 
 schedule.every().minute.do(job)
 
+running = False
+
 job()
-while True:
+while running:
+  running = False
   try:
     schedule.run_pending()
   except:
     print("schedule Fehler! - {0}".format(sys.exc_info()))
   finally:
     time.sleep(1)
+
+console.log("no schedule - exiting ...")
 
 #checkItem(20282)  #Backwaren
 #checkItem(20281)  #Obst & Gemüse
