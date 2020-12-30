@@ -46,6 +46,7 @@ def checkItem(item):
 running = False
 
 def job():
+  global running
   running = True
   print("Doing the job ...")
   for itemID in itemIDs:
