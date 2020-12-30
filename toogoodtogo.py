@@ -72,7 +72,7 @@ while running:
   except:
     print("schedule Fehler! - {0}".format(sys.exc_info()))
   finally:
-    time.sleep(1)
+    time.sleep(10)
 
 print("no schedule - exiting ...")
 
