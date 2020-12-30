@@ -43,6 +43,8 @@ def checkItem(item):
       print("{0} - New amount: {1}".format(display_name, amount))
       amounts[itemID] = amount
 
+running = False
+
 def job():
   running = True
   print("Doing the job ...")
@@ -60,8 +62,6 @@ def job():
   print("new State: {0}".format(amounts))
 
 schedule.every().minute.do(job)
-
-running = False
 
 job()
 while running:
