@@ -60,14 +60,10 @@ def job():
 
 schedule.every().minute.do(job)
 
-running = False
-
 job()
-while running:
-  running = False
+while True:
   try:
     schedule.run_pending()
-    running = True
   except:
     print("schedule Fehler! - {0}".format(sys.exc_info()))
   finally:
