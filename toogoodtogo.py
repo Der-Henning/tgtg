@@ -72,7 +72,7 @@ while running:
   finally:
     time.sleep(1)
 
-console.log("no schedule - exiting ...")
+print("no schedule - exiting ...")
 
 #checkItem(20282)  #Backwaren
 #checkItem(20281)  #Obst & Gemüse
