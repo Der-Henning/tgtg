@@ -49,12 +49,13 @@ def job():
       item = client.get_item(itemID)
       checkItem(item)
     except:
-      print("{0} - Fehler!".format(itemID))
+      print("itemId {0} - Fehler! - {1}".format(itemID, sys.exc_info()))
   for item in client.get_items(favorites_only=True):
     try:
       checkItem(item)
     except:
-      print("Fehler!")
+      print("checkItem Fehler! - {0}".format(sys.exc_info()))
+  print("new State: {0}".format(amounts))
 
 schedule.every().minute.do(job)
 
@@ -63,7 +64,7 @@ while True:
   try:
     schedule.run_pending()
   except:
-    print("Fehler!")
+    print("schedule Fehler! - {0}".format(sys.exc_info()))
   finally:
     time.sleep(1)
 
