@@ -43,8 +43,12 @@ def checkItem(item):
       print("{0} - New amount: {1}".format(display_name, amount))
       amounts[itemID] = amount
 
+running = False
+
 def job():
   print("Doing the job ...")
+  global running
+  running = True
   for itemID in itemIDs:
     try:
       item = client.get_item(itemID)
@@ -61,13 +65,14 @@ def job():
 schedule.every().minute.do(job)
 
 job()
-while True:
+while running:
   try:
+    running=False
     schedule.run_pending()
   except:
     print("schedule Fehler! - {0}".format(sys.exc_info()))
   finally:
-    time.sleep(10)
+    time.sleep(schedule.idle_seconds() + 1)
 
 print("no schedule - exiting ...")
 
