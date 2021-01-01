@@ -1,9 +1,10 @@
 from tgtg import TgtgClient
 from pushsafer import init, Client
-import schedule
+# import schedule
 import time
 import os
 import sys
+import signal
 
 itemIDs = []
 TgTgLogin = os.getenv('TGTG_LOGIN')
@@ -16,6 +17,10 @@ amounts = {}
 # login with email and password
 client = TgtgClient(email=TgTgLogin, password=TgTgPassword)
 init(PushSaferKey)
+
+def timeoutHandler(signum, frame):
+  print("Job timeout")
+  raise Exception("Timeout")
 
 def getItems():
   return client.get_items(
@@ -43,12 +48,8 @@ def checkItem(item):
       print("{0} - New amount: {1}".format(display_name, amount))
       amounts[itemID] = amount
 
-running = False
-
 def job():
   print("Doing the job ...")
-  global running
-  running = True
   for itemID in itemIDs:
     try:
       item = client.get_item(itemID)
@@ -62,17 +63,19 @@ def job():
       print("checkItem Fehler! - {0}".format(sys.exc_info()))
   print("new State: {0}".format(amounts))
 
-schedule.every().minute.do(job)
+# schedule.every().minute.do(job)
 
-job()
-while running:
+# job()
+while True:
   try:
-    running=False
-    schedule.run_pending()
+    signal.signal(signal.SIGALRM, timeoutHandler)
+    signal.alarm(10)
+    job()
+    signal.alarm(0)
   except:
-    print("schedule Fehler! - {0}".format(sys.exc_info()))
+    print("Job Fehler! - {0}".format(sys.exc_info()))
   finally:
-    time.sleep(schedule.idle_seconds() + 1)
+    time.sleep(60)
 
 print("no schedule - exiting ...")
 
