@@ -1,9 +1,9 @@
-FROM python:3.8-slim
+FROM python:3.9-slim
 
 WORKDIR /usr/src/app
 
-RUN pip install --no-cache-dir tgtg python-pushsafer schedule
+RUN pip install --no-cache-dir tgtg python-pushsafer python-dotenv requests
 
-COPY . .
+COPY ./src .
 
-CMD [ "python","-u","./toogoodtogo.py" ]
+CMD [ "python","-u","scanner.py" ]

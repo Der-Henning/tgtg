@@ -1,0 +1,7 @@
+__pycache__
+build
+dist
+*.spec
+
+docker-compose.dev.yml
+Makefile
