@@ -33,4 +33,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: scanner-linux-${RELEASE_TAG}
-        path: src/dist/linux
+        path: src/dist/scanner

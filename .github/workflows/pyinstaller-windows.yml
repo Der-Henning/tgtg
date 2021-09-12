@@ -33,4 +33,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: scanner-win-${RELEASE_TAG}
-        path: src/dist/windows
+        path: src/dist/scanner
