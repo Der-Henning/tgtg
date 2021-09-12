@@ -17,14 +17,23 @@ Because of the hugh range of possibilities I cannot give an indepth guide for al
 
 If someone wants to make a detailed guide, feel free to contribute to the project.
 
-### Install as a service
+### Use prebuild Release
+
+1. Download Release from https://github.com/Der-Henning/tgtg/releases
+2. Unzip Archiv
+3. Edit ```.env``` as described in the file
+4. Run scanner
+
+### Install from source
+
+#### Install as a service
 
 1. Install python3
 2. Run ```pip3 install -r requirements.txt```
 3. Edit ```/src/.env``` as described in the file
 4. Register ```python {install directory}/src/scanner.py``` as a service or just run it manually
 
-### With Docker
+#### With Docker
 
 1. Install Docker and docker-compose
 2. Edit ```docker-compose.yml``` as described in the file
