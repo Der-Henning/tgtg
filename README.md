@@ -19,9 +19,10 @@ If someone wants to make a detailed guide, feel free to contribute to the projec
 
 ### Install as a service
 
-1. Install python
-2. Edit ```/src/.env``` as described in the file
-3. Register ```python {install directory}/src/scanner.py``` as a service or just run it manually
+1. Install python3
+2. Run ```pip3 install -r requirements.txt```
+3. Edit ```/src/.env``` as described in the file
+4. Register ```python {install directory}/src/scanner.py``` as a service or just run it manually
 
 ### With Docker
 

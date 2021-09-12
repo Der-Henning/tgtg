@@ -2,7 +2,9 @@ FROM python:3.9-slim
 
 WORKDIR /usr/src/app
 
-RUN pip install --no-cache-dir tgtg python-pushsafer python-dotenv requests
+COPY requirements.txt .
+
+RUN pip3 install -r requirements.txt
 
 COPY ./src .
 
