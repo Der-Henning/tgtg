@@ -1,0 +1,17 @@
+version: "3.3"
+services:
+  base:
+    image: python:3.9
+    working_dir: /home/app
+    volumes:
+      - .:/home/app
+  builder:
+    extends:
+      service: base
+    command: /bin/bash ./build.sh
+  bash:
+    extends:
+      service: base
+    stdin_open: true
+    tty: true
+    command: /bin/bash
