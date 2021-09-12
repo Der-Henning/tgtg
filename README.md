@@ -13,31 +13,25 @@ If you use this tool you do it at your own risk. TGTG may stop you from doing so
 You can install this tool on any computer.
 It is recommended to install the tool on a NAS like Synology or a Raspberry Pi. You can also use a virtual cloud server. Starting at 1,00 €/Month at Strato.de or try AWS free tier.
 
-Because of the hugh range of possibilities I cannot give an indepth guide for all of them. First of all I will only give a rough overview. Google is your friend. 
-
-If someone wants to make a detailed guide, feel free to contribute to the project.
-
 ### Use prebuild Release
 
-1. Download Release from https://github.com/Der-Henning/tgtg/releases
+1. Download latest Release from https://github.com/Der-Henning/tgtg/releases for your OS
 2. Unzip Archiv
-3. Create ```config.ini``` as described in the file ```config.template.ini```
+3. Edit ```config.ini``` as described in the file
 4. Run scanner
 
-### Install from source
+### Run with Docker
 
-#### Install as a service
+1. Install Docker and docker-compose
+2. Edit ```docker-compose.yml``` as described in the file
+3. Run ```docker-compose up -d```
+
+### Run from source
 
 1. Install python3
 2. Run ```pip3 install -r requirements.txt```
 3. Create ```/src/config.ini``` as described in the file ```config.template.ini```
 4. Register ```python {install directory}/src/scanner.py``` as a service or just run it manually
-
-#### With Docker
-
-1. Install Docker and docker-compose
-2. Edit ```docker-compose.yml``` as described in the file
-3. Run ```docker-compose up -d```
 
 ### Running
 
