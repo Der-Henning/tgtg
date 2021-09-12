@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 from tgtg import TgtgClient
 from time import sleep
 import sys
@@ -8,13 +7,13 @@ from os import path
 from notifiers import Notifier
 from models import Item, Config
 
-basedir = path.abspath(path.dirname(__file__))
-load_dotenv(path.join(basedir, '.env'))
-
 
 class Scanner():
     def __init__(self):
-        self.config = Config()
+        config_file = path.join(path.dirname(sys.executable), 'config.ini') if getattr(
+            sys, '_MEIPASS', False) else path.join(path.dirname(path.abspath(__file__)), 'config.ini')
+        print(config_file)
+        self.config = Config() if not path.isfile(config_file) else Config(config_file)
         log.basicConfig(level=log.DEBUG if self.config.debug else log.INFO)
         self.item_ids = self.config.item_ids
         self.amounts = {}

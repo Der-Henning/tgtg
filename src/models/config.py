@@ -1,8 +1,55 @@
 from os import environ
+import configparser
 
 
 class Config():
-    def __init__(self):
+    def __init__(self, file=None):
+        self.item_ids = []
+        self.sleep_time = 20
+        self.debug = False
+        self.tgtg = {}
+        self.pushSafer = {}
+        self.smtp = {}
+        self.ifttt = {}
+        self.webhook = {}
+        if file:
+            self._ini_reader(file)
+        else:
+            self._env_reader()
+
+    def _ini_reader(self, file):
+        config = configparser.ConfigParser()
+        config.read(file)
+        self.debug = config["MAIN"]["Debug"].lower() in ('true', '1', 't')
+        self.item_ids = config["MAIN"]["ItemIDs"].split(
+            ',') if "ItemIDs" in config["MAIN"] else []
+        self.sleep_time = int(config["MAIN"]["SleepTime"])
+        self.tgtg = {
+            "username": config["TGTG"]["Username"],
+            "password": config["TGTG"]["Password"]
+        }
+        self.pushSafer = {
+            "enabled": config["PUSHSAFER"]["enabled"].lower() in ('true', '1', 't'),
+            "key": config["PUSHSAFER"]["Key"],
+            "deviceId": config["PUSHSAFER"]["DeviceID"]
+        }
+        self.smtp = {
+            "enabled": config["SMTP"]["enabled"].lower() in ('true', '1', 't'),
+            "host": config["SMTP"]["Host"],
+            "port": config["SMTP"]["Port"],
+            "tls": config["SMTP"]["TLS"].lower() in ('true', '1', 't'),
+            "username": config["SMTP"]["Username"],
+            "password": config["SMTP"]["Password"],
+            "sender": config["SMTP"]["Sender"],
+            "recipient": config["SMTP"]["Recipient"]
+        }
+        self.ifttt = {
+            "enabled": config["IFTTT"]["enabled"].lower() in ('true', '1', 't'),
+            "event": config["IFTTT"]["Event"],
+            "key": config["IFTTT"]["Key"]
+        }
+
+    def _env_reader(self):
         self.item_ids = environ.get("ITEM_IDS").split(
             ",") if environ.get("ITEM_IDS") else []
         self.sleep_time = int(environ.get("SLEEP_TIME", 20))
@@ -33,7 +80,7 @@ class Config():
             "key": environ.get("IFTTT_KEY")
         }
 
-        ## ToDo: create notifier for any WebHook
+        # ToDo: create notifier for any WebHook
         self.webhook = {
             "enabled": False
         }

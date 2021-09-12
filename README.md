@@ -21,7 +21,7 @@ If someone wants to make a detailed guide, feel free to contribute to the projec
 
 1. Download Release from https://github.com/Der-Henning/tgtg/releases
 2. Unzip Archiv
-3. Edit ```.env``` as described in the file
+3. Create ```config.ini``` as described in the file ```config.template.ini```
 4. Run scanner
 
 ### Install from source
@@ -30,7 +30,7 @@ If someone wants to make a detailed guide, feel free to contribute to the projec
 
 1. Install python3
 2. Run ```pip3 install -r requirements.txt```
-3. Edit ```/src/.env``` as described in the file
+3. Create ```/src/config.ini``` as described in the file ```config.template.ini```
 4. Register ```python {install directory}/src/scanner.py``` as a service or just run it manually
 
 #### With Docker
