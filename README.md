@@ -1,3 +1,5 @@
+[![Publish multi-arch Docker images](https://github.com/Der-Henning/tgtg/actions/workflows/docker-multi-arch.yml/badge.svg?branch=main)](https://github.com/Der-Henning/tgtg/actions/workflows/docker-multi-arch.yml)
+
 # TGTG Scanner
 
 Scanns favorite TGTG Magic Bags for new available items and notifies via mail, IFTTT or pushSafer.
