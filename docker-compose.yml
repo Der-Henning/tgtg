@@ -7,7 +7,7 @@ services:
       - TGTG_USERNAME=                                ## TGTG Username / Login EMail
       - TGTG_PASSWORD=                                ## TGTG Login Password
       - SLEEP_TIME=20                                 ## Time to wait till next scan in seconds - default 20 seconds
-      #- ITEM_IDS=                                     ## (optional) Comma seperated list of Item Ids to scan
+      - ITEM_IDS=                                     ## (optional) Comma seperated list of Item Ids to scan
 
       - SMTP=true                                     ## true = enable mail notifications via smtp
       - SMTP_HOST=smtp.gmail.com                      ## smtp Server - smtp.gmail.com for google

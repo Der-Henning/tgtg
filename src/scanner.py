@@ -1,7 +1,6 @@
 from tgtg import TgtgClient
 from time import sleep
 import sys
-import signal
 import logging as log
 from os import path
 from notifiers import Notifier
@@ -12,9 +11,13 @@ class Scanner():
     def __init__(self):
         config_file = path.join(path.dirname(sys.executable), 'config.ini') if getattr(
             sys, '_MEIPASS', False) else path.join(path.dirname(path.abspath(__file__)), 'config.ini')
-        print(config_file)
         self.config = Config() if not path.isfile(config_file) else Config(config_file)
-        log.basicConfig(level=log.DEBUG if self.config.debug else log.INFO)
+        log.basicConfig(
+            format='%(asctime)s %(levelname)-8s %(message)s',
+            level=log.DEBUG if self.config.debug else log.INFO,
+            datefmt='%Y-%m-%d %H:%M:%S')
+        if self.config.debug:
+            log.info("Debugging mode")
         self.item_ids = self.config.item_ids
         self.amounts = {}
         self.tgtg_client = TgtgClient(
@@ -24,8 +27,9 @@ class Scanner():
     def _job(self):
         for item_id in self.item_ids:
             try:
-                data = self.tgtg_client.get_item(item_id)
-                self._checkItem(Item(data))
+                if item_id != "":
+                    data = self.tgtg_client.get_item(item_id)
+                    self._checkItem(Item(data))
             except:
                 log.error(
                     "itemId {0} - Fehler! - {1}".format(item_id, sys.exc_info()))
@@ -60,10 +64,7 @@ class Scanner():
         log.info("Scanner started ...")
         while True:
             try:
-                signal.signal(signal.SIGALRM, self._timeoutHandler)
-                signal.alarm(10)
                 self._job()
-                signal.alarm(0)
             except:
                 log.error(sys.exc_info())
             finally:
