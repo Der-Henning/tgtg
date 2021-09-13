@@ -3,7 +3,7 @@ from time import sleep
 import sys
 import logging as log
 from os import path
-from notifiers import Notifier
+from notifiers import Notifiers
 from models import Item, Config
 
 
@@ -22,7 +22,7 @@ class Scanner():
         self.amounts = {}
         self.tgtg_client = TgtgClient(
             email=self.config.tgtg["username"], password=self.config.tgtg["password"])
-        self.notifiers = Notifier(self.config)
+        self.notifiers = Notifiers(self.config)
 
     def _job(self):
         for item_id in self.item_ids:
@@ -75,6 +75,7 @@ class Scanner():
     def _send_messages(self, item: Item):
         log.info(
             "Sending {0} - new Amount {1}".format(item.display_name, item.items_available))
+        self.notifiers.send(item)
 
     def run(self):
         log.info("Scanner started ...")

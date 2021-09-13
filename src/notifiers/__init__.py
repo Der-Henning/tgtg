@@ -4,7 +4,7 @@ from notifiers.ifttt import IFTTT
 from models import Config, Item
 
 
-class Notifier():
+class Notifiers():
     def __init__(self, config: Config):
         self.pushSafer = PushSafer(config)
         self.smtp = SMTP(config)
