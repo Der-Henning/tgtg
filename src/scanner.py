@@ -29,21 +29,41 @@ class Scanner():
             try:
                 if item_id != "":
                     data = self.tgtg_client.get_item(item_id)
-                    self._checkItem(Item(data))
+                    self._check_item(Item(data))
             except:
                 log.error(
-                    "itemId {0} - Fehler! - {1}".format(item_id, sys.exc_info()))
-        for data in self.tgtg_client.get_items(favorites_only=True):
+                    "itemId {0} - Error! - {1}".format(item_id, sys.exc_info()))
+        for data in self._get_favorites():
             try:
-                self._checkItem(Item(data))
+                self._check_item(Item(data))
             except:
-                log.error("checkItem Fehler! - {0}".format(sys.exc_info()))
+                log.error("checkItem Error! - {0}".format(sys.exc_info()))
         log.debug("new State: {0}".format(self.amounts))
 
-    def _checkItem(self, item: Item):
+    def _get_favorites(self):
+        items = []
+        page = 1
+        page_size = 100
+        while True:
+            try:
+                new_items = self.tgtg_client.get_items(
+                    favorites_only=True,
+                    page_size=page_size,
+                    page=page
+                )
+                items += new_items
+                if len(new_items) < page_size:
+                    break
+            except:
+                log.error("getItem Error! - {0}".format(sys.exc_info()))
+            finally:
+                page += 1
+        return items
+
+    def _check_item(self, item: Item):
         try:
             if self.amounts[item.id] == 0 and item.items_available > self.amounts[item.id]:
-                self._sendMessages(item)
+                self._send_messages(item)
         except:
             self.amounts[item.id] = item.items_available
         finally:
@@ -52,13 +72,9 @@ class Scanner():
                     "{0} - New amount: {1}".format(item.display_name, item.items_available))
                 self.amounts[item.id] = item.items_available
 
-    def _sendMessages(self, item: Item):
+    def _send_messages(self, item: Item):
         log.info(
             "Sending {0} - new Amount {1}".format(item.display_name, item.items_available))
-
-    def _timeoutHandler(self, signum, frame):
-        log.warning("Job timeout")
-        raise Exception("Timeout")
 
     def run(self):
         log.info("Scanner started ...")
