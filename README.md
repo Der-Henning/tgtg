@@ -2,7 +2,7 @@
 
 # TGTG Scanner
 
-Scanns your favorite TGTG Magic Bags for new available items and notifies you via mail, IFTTT or pushSafer.
+Scanns your favorite TGTG Magic Bags for new available items and notifies you via mail, IFTTT or pushSafer. Notifications will be send when the available amount of magic bags rises from zero to something.
 
 ## Disclaimer
 
@@ -16,8 +16,7 @@ The software is provided as is without warranty of any kind. If you have problem
 
 ## Installation
 
-You can install this tool on any computer.
-It is recommended to install the tool on a NAS like Synology or a Raspberry Pi. You can also use a virtual cloud server. Starting at 1,00 €/Month at Strato.de or try AWS free tier.
+You can install this tool on any computer. For 24/7 notifications I recommended to install the tool on a NAS like Synology or a Raspberry Pi. You can also use a virtual cloud server. Starting at 1,00 €/Month at Strato.de or try AWS free tier.
 
 If you have any problems or questions feel free to create an issue.
 
