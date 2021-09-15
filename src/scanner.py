@@ -4,25 +4,53 @@ import sys
 import logging as log
 from os import path
 from notifiers import Notifiers
-from models import Item, Config
+from models import Item, Config, ConfigurationError, TGTGConfigurationError
+
+version = "1.2.1-dev"
 
 
 class Scanner():
     def __init__(self):
-        config_file = path.join(path.dirname(sys.executable), 'config.ini') if getattr(
-            sys, '_MEIPASS', False) else path.join(path.dirname(path.abspath(__file__)), 'config.ini')
-        self.config = Config() if not path.isfile(config_file) else Config(config_file)
+        prog_folder = path.dirname(sys.executable) if getattr(
+            sys, '_MEIPASS', False) else path.dirname(path.abspath(__file__))
+        config_file = path.join(prog_folder, 'config.ini')
+        log_file = path.join(prog_folder, 'scanner.log')
         log.basicConfig(
             format='%(asctime)s %(levelname)-8s %(message)s',
-            level=log.DEBUG if self.config.debug else log.INFO,
-            datefmt='%Y-%m-%d %H:%M:%S')
+            level=log.INFO,
+            datefmt='%Y-%m-%d %H:%M:%S',
+            handlers=[
+                log.FileHandler(log_file, mode="w"),
+                log.StreamHandler()
+            ])
+        self._welcome()
+        self.config = Config(config_file) if path.isfile(config_file) else Config()
         if self.config.debug:
-            log.info("Debugging mode")
+            loggers = [log.getLogger(name)
+                       for name in log.root.manager.loggerDict]
+            for logger in loggers:
+                logger.setLevel(log.DEBUG)
+            log.info("Debugging mode enabled")
         self.item_ids = self.config.item_ids
         self.amounts = {}
-        self.tgtg_client = TgtgClient(
-            email=self.config.tgtg["username"], password=self.config.tgtg["password"])
+        try:
+            self.tgtg_client = TgtgClient(
+                email=self.config.tgtg["username"], password=self.config.tgtg["password"])
+            self.tgtg_client._login()
+        except:
+            raise TGTGConfigurationError()
         self.notifiers = Notifiers(self.config)
+
+    def _welcome(self):
+        log.info("  ____  ___  ____  ___    ____   ___   __   __ _  __ _  ____  ____  ")
+        log.info(" (_  _)/ __)(_  _)/ __)  / ___) / __) / _\ (  ( \(  ( \(  __)(  _ \ ")
+        log.info("   )( ( (_ \  )( ( (_ \  \___ \( (__ /    \/    //    / ) _)  )   / ")
+        log.info("  (__) \___/ (__) \___/  (____/ \___)\_/\_/\_)__)\_)__)(____)(__\_) ")
+        log.info("")
+        log.info(f"Version {version}")
+        log.info("©2021, Henning Merklinger")
+        log.info("For documentation and support please visit https://github.com/Der-Henning/tgtg")
+        log.info("")
 
     def _job(self):
         for item_id in self.item_ids:
@@ -44,7 +72,8 @@ class Scanner():
         items = []
         page = 1
         page_size = 100
-        while True:
+        error_count = 0
+        while True and error_count < 5:
             try:
                 new_items = self.tgtg_client.get_items(
                     favorites_only=True,
@@ -54,10 +83,10 @@ class Scanner():
                 items += new_items
                 if len(new_items) < page_size:
                     break
+                page += 1
             except:
                 log.error("getItem Error! - {0}".format(sys.exc_info()))
-            finally:
-                page += 1
+                error_count += 1
         return items
 
     def _check_item(self, item: Item):
@@ -89,8 +118,11 @@ class Scanner():
 
 
 def main():
-    scanner = Scanner()
-    scanner.run()
+    try:
+        scanner = Scanner()
+        scanner.run()
+    except ConfigurationError as err:
+        log.error("Configuration Error - {0}".format(err))
 
 
 if __name__ == "__main__":

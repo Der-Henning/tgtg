@@ -1,5 +1,5 @@
 from pushsafer import init, Client
-from models import Item, Config
+from models import Item, Config, PushSaferConfigurationError
 
 
 class PushSafer():
@@ -7,15 +7,10 @@ class PushSafer():
         self.key = config.pushSafer["key"]
         self.deviceId = config.pushSafer["deviceId"]
         self.enabled = config.pushSafer["enabled"]
+        if self.enabled and (not self.key or not self.deviceId):
+            raise PushSaferConfigurationError()
         if self.enabled:
             init(self.key)
-            self._test()
-
-    def _test(self):
-        if self.enabled:
-            message = f"This is a Test. If you receive this message you will receive notifications for new magic bags."
-            Client("").send_message(message, "Test Notification", self.deviceId,
-                                    "", "", "", "", "", "", "", "", "", "", "", "", "")
 
     def send(self, item: Item):
         if self.enabled:

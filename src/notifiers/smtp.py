@@ -3,6 +3,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import logging as log
+from models import SMTPConfigurationError
 
 
 class SMTP():
@@ -17,13 +18,20 @@ class SMTP():
         self.sender = config.smtp["sender"]
         self.recipient = config.smtp["recipient"]
         self.enabled = config.smtp["enabled"]
+        if self.enabled and (not self.host or not self.port):
+            raise SMTPConfigurationError()
         if self.enabled:
-            self._connect()
-            self._test()
+            try:
+                self._connect()
+            except:
+                raise SMTPConfigurationError()
 
     def __del__(self):
         if self.server:
-            self.server.quit()
+            try:
+                self.server.quit()
+            except:
+                pass
 
     def _connect(self):
         if self.tls:
@@ -50,12 +58,6 @@ class SMTP():
         body = message.as_string()
         self._stay_connected()
         self.server.sendmail(self.sender, self.recipient, body)
-
-    def _test(self):
-        if self.enabled:
-            log.info("Sending Test Mail")
-            self._send_mail("TGTG Test Notification",
-                            "This is a self test on startup. If you reveive this message you will recive notifications for your magic bags.")
 
     def send(self, item: Item):
         if self.enabled:

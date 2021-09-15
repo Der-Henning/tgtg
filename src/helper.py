@@ -3,9 +3,10 @@ from os import path
 import sys
 import logging as log
 
+
 class Helper(Scanner):
 
-    ## returns item_ids for given latitude, longitude and radius
+    # returns item_ids for given latitude, longitude and radius
     def get_items(self, lat, lng, radius):
         return self.tgtg_client.get_items(
             favorites_only=False,
@@ -14,7 +15,7 @@ class Helper(Scanner):
             radius=radius,
         )
 
-    ## returns all favorites of given tgtg account
+    # returns all favorites of given tgtg account
     def get_favorites(self):
         items = []
         page = 1
@@ -35,15 +36,15 @@ class Helper(Scanner):
                 page += 1
         return items
 
-    ## adds item_id to tgtg account favorites
+    # adds item_id to tgtg account favorites
     def set_favorite(self, item_id):
         self.tgtg_client.set_favorite(item_id=item_id, is_favorite=True)
 
-    ## removes item_id from tgtg account favorites
+    # removes item_id from tgtg account favorites
     def unset_favorite(self, item_id):
         self.tgtg_client.set_favorite(item_id=item_id, is_favorite=False)
 
-    ## removes all favorites from given tgtg account
+    # removes all favorites from given tgtg account
     def remove_all_favorites(self):
         item_ids = [item["item"]["item_id"] for item in self.get_favorites()]
         print(item_ids)
