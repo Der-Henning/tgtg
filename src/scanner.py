@@ -112,7 +112,7 @@ class Scanner():
             try:
                 self._job()
             except:
-                log.error(sys.exc_info())
+                log.error("Job Error! - {0}".format(sys.exc_info()))
             finally:
                 sleep(self.config.sleep_time)
 
@@ -123,6 +123,10 @@ def main():
         scanner.run()
     except ConfigurationError as err:
         log.error("Configuration Error - {0}".format(err))
+    except KeyboardInterrupt:
+        log.info("Shutting down scanner ...")
+    except:
+        log.error("Unexpected Error! - {0}".format(sys.exc_info()))
 
 
 if __name__ == "__main__":
