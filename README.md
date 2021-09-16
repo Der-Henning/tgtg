@@ -71,9 +71,7 @@ For developement I recommend using docker. The Makefile depends on docker and do
 
 The executables are build with pyinstaller.
 
-```pip install -r requirements.txt```
-
-```pip install pyinstaller```
+```pip install -r requirements.dev.txt```
 
 ```pyinstaller scanner.spec```
 

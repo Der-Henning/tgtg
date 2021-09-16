@@ -1,0 +1,10 @@
+altgraph==0.17.2
+certifi==2021.5.30
+chardet==4.0.0
+idna==2.10
+pyinstaller==4.5.1
+pyinstaller-hooks-contrib==2021.3
+python-pushsafer==0.4
+requests==2.25.1
+tgtg==0.5.0
+urllib3==1.26.6

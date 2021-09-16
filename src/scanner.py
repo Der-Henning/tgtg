@@ -6,7 +6,7 @@ from os import path
 from notifiers import Notifiers
 from models import Item, Config, ConfigurationError, TGTGConfigurationError
 
-version = "1.2.1-dev"
+version = "1.2.2"
 
 
 class Scanner():
