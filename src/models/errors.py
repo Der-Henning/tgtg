@@ -1,6 +1,12 @@
 class Error(Exception):
     pass
 
+class TgtgLoginError(Error):
+    pass
+
+class TgtgAPIError(Error):
+    pass
+
 class ConfigurationError(Error):
     pass
 
