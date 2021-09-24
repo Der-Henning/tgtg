@@ -1,9 +1,4 @@
+-r requirements.txt
 altgraph==0.17.2
-certifi==2021.5.30
-charset-normalizer==2.0.5
-idna==3.2
 pyinstaller==4.5.1
 pyinstaller-hooks-contrib==2021.3
-python-pushsafer==0.4
-requests==2.26.0
-urllib3==1.26.6
