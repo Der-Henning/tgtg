@@ -1,5 +1,6 @@
 from os import environ
 import configparser
+import logging as log
 
 
 class Config():
@@ -14,8 +15,10 @@ class Config():
         self.webhook = {}
         if file:
             self._ini_reader(file)
+            log.info("Loaded config from config.ini")
         else:
             self._env_reader()
+            log.info("Loaded config from environment variables")
 
     def _ini_reader(self, file):
         config = configparser.ConfigParser()

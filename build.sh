@@ -1,4 +1,3 @@
-pip install -r requirements.txt
-pip install pyinstaller
+pip install -r requirements.dev.txt
 
 pyinstaller scanner.spec
