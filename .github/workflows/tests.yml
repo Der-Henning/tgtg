@@ -14,8 +14,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      working-directory: ./src
     strategy:
       matrix:
         python: ['3.9']
@@ -27,6 +25,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.dev.txt
       - name: Run tests
+        working-directory: ./src
         run: python -m unittest
         env:
           TGTG_PASSWORD: ${{secrets.TGTG_PASSWORD}}
