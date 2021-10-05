@@ -51,7 +51,8 @@ class TgtgClient:
         self.user_id = user_id
         if self.user_id is not None:
             log.warn("'user_id' is deprecated; use 'email' and 'password'")
-        self.user_agent = user_agent if user_agent else random.choice(USER_AGENTS)
+        #self.user_agent = user_agent if user_agent else random.choice(USER_AGENTS)
+        self.user_agent = None
         self.language = language
         self.proxies = proxies
         self.timeout = timeout

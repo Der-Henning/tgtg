@@ -6,7 +6,7 @@ from os import path
 from notifiers import Notifiers
 from models import Item, Config, ConfigurationError, TGTGConfigurationError
 
-version = "1.2.2"
+version = "1.2.3"
 prog_folder = path.dirname(sys.executable) if getattr(
     sys, '_MEIPASS', False) else path.dirname(path.abspath(__file__))
 config_file = path.join(prog_folder, 'config.ini')
@@ -130,10 +130,12 @@ def main():
         scanner.run()
     except ConfigurationError as err:
         log.error("Configuration Error - {0}".format(err))
+        sys.exit(1)
     except KeyboardInterrupt:
         log.info("Shutting down scanner ...")
     except:
         log.error("Unexpected Error! - {0}".format(sys.exc_info()))
+        sys.exit(1)
 
 
 if __name__ == "__main__":
