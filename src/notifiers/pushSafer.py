@@ -1,5 +1,8 @@
 from pushsafer import init, Client
 from models import Item, Config, PushSaferConfigurationError
+import logging
+
+log = logging.getLogger('tgtg')
 
 
 class PushSafer():
@@ -14,6 +17,7 @@ class PushSafer():
 
     def send(self, item: Item):
         if self.enabled:
+            log.info("Sending PushSafer Notification")
             message = f"New Amount: {item.items_available}"
             Client("").send_message(message, item.display_name, self.deviceId,
                                     "", "", "", "", "", "", "", "", "", "", "", "", "")

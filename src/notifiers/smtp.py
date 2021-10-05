@@ -2,8 +2,10 @@ from models import Item, Config
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import logging as log
+import logging
 from models import SMTPConfigurationError
+
+log = logging.getLogger('tgtg')
 
 
 class SMTP():

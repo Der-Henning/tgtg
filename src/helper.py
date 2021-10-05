@@ -1,7 +1,9 @@
 from scanner import Scanner
 from os import path
 import sys
-import logging as log
+import logging
+
+log = logging.getLogger('tgtg')
 
 
 class Helper(Scanner):

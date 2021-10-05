@@ -1,13 +1,14 @@
 ## copied from https://github.com/ahivert/tgtg-python
 
 import datetime
-import random
-import logging as log
+#import random
+import logging
 from http import HTTPStatus
 from urllib.parse import urljoin
 import requests
 from models import TgtgAPIError, TgtgLoginError
 
+log = logging.getLogger('tgtg')
 BASE_URL = "https://apptoogoodtogo.com/api/"
 API_ITEM_ENDPOINT = "item/v7/"
 LOGIN_ENDPOINT = "auth/v1/loginByEmail"

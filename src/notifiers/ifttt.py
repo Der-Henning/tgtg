@@ -1,7 +1,8 @@
 import requests
 from models import Item, Config, IFTTTConfigurationError
-import logging as log
+import logging
 
+log = logging.getLogger('tgtg')
 
 class IFTTT():
     def __init__(self, config: Config):

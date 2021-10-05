@@ -2,7 +2,9 @@ from notifiers.pushSafer import PushSafer
 from notifiers.smtp import SMTP
 from notifiers.ifttt import IFTTT
 from models import Config, Item
-import logging as log
+import logging
+
+log = logging.getLogger('tgtg')
 
 
 class Notifiers():

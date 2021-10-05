@@ -1,6 +1,8 @@
 from os import environ
 import configparser
-import logging as log
+import logging
+
+log = logging.getLogger('tgtg')
 
 
 class Config():

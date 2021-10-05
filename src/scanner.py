@@ -1,7 +1,7 @@
 from tgtg import TgtgClient
 from time import sleep
 import sys
-import logging as log
+import logging
 from os import path
 from notifiers import Notifiers
 from models import Item, Config, ConfigurationError, TGTGConfigurationError
@@ -11,14 +11,15 @@ prog_folder = path.dirname(sys.executable) if getattr(
     sys, '_MEIPASS', False) else path.dirname(path.abspath(__file__))
 config_file = path.join(prog_folder, 'config.ini')
 log_file = path.join(prog_folder, 'scanner.log')
-log.basicConfig(
+logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
-    level=log.INFO,
+    level=logging.INFO,
     datefmt='%Y-%m-%d %H:%M:%S',
     handlers=[
-        log.FileHandler(log_file, mode="w"),
-        log.StreamHandler()
+        logging.FileHandler(log_file, mode="w"),
+        logging.StreamHandler()
     ])
+log = logging.getLogger('tgtg')
 
 
 class Scanner():
@@ -26,10 +27,10 @@ class Scanner():
         self.config = Config(config_file) if path.isfile(
             config_file) else Config()
         if self.config.debug:
-            loggers = [log.getLogger(name)
-                       for name in log.root.manager.loggerDict]
+            loggers = [logging.getLogger(name)
+                       for name in logging.root.manager.loggerDict]
             for logger in loggers:
-                logger.setLevel(log.DEBUG)
+                logger.setLevel(logging.DEBUG)
             log.info("Debugging mode enabled")
         self.item_ids = self.config.item_ids
         self.amounts = {}
@@ -110,16 +111,13 @@ class Scanner():
 
 def welcome_message():
     log.info("  ____  ___  ____  ___    ____   ___   __   __ _  __ _  ____  ____  ")
-    log.info(
-        " (_  _)/ __)(_  _)/ __)  / ___) / __) / _\ (  ( \(  ( \(  __)(  _ \ ")
-    log.info(
-        "   )( ( (_ \  )( ( (_ \  \___ \( (__ /    \/    //    / ) _)  )   / ")
+    log.info(" (_  _)/ __)(_  _)/ __)  / ___) / __) / _\ (  ( \(  ( \(  __)(  _ \ ")
+    log.info("   )( ( (_ \  )( ( (_ \  \___ \( (__ /    \/    //    / ) _)  )   / ")
     log.info("  (__) \___/ (__) \___/  (____/ \___)\_/\_/\_)__)\_)__)(____)(__\_) ")
     log.info("")
     log.info(f"Version {version}")
     log.info("©2021, Henning Merklinger")
-    log.info(
-        "For documentation and support please visit https://github.com/Der-Henning/tgtg")
+    log.info("For documentation and support please visit https://github.com/Der-Henning/tgtg")
     log.info("")
 
 
