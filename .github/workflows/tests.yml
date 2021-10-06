@@ -1,0 +1,32 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+    tags:
+      - v*
+  pull_request:
+  schedule:
+    - cron: "0 1 * * *"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.9']
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install dependencies
+        run: pip install -r requirements.dev.txt
+      - name: Run tests
+        working-directory: ./src
+        run: python -m unittest
+        env:
+          TGTG_PASSWORD: ${{secrets.TGTG_PASSWORD}}
+          TGTG_USERNAME: ${{secrets.TGTG_USERNAME}}
