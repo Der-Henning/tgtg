@@ -5,6 +5,10 @@
 
 Scanns your favorite TGTG Magic Bags for new available items and notifies you via mail, IFTTT or pushSafer. Notifications will be send when the available amount of magic bags rises from zero to something.
 
+## Update
+
+The TGTG API has been updated! Please update to release 1.2.3 for working notifications!
+
 ## Disclaimer
 
 TGTG forbids the use of their plattform the way this tool does. In their Terms and Conditions it says: "The Consumer must not misuse the Platform (including hacking or 'scraping')."
@@ -59,6 +63,8 @@ When the scanner is started it will send a test notification on all configured n
 
 For developement I recommend using docker. The Makefile depends on docker and docker-compose.
 
+Create ```.env``` based on ```sample.env``` for configuration.
+
 ```make start-dev``` builds and starts the developement docker image
 
 ```make image``` builds docker image
@@ -66,6 +72,8 @@ For developement I recommend using docker. The Makefile depends on docker and do
 ```make bash``` starts python docker image with mounted project
 
 ```make builder``` runs pyinstaller in python docker image
+
+```make test``` runs unittests
 
 ### Building executables
 

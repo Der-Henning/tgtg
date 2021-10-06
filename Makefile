@@ -12,3 +12,6 @@ bash:
 
 builder:
 	docker-compose -f docker-compose.builder.yml run --rm builder
+
+test:
+	docker-compose -f docker-compose.builder.yml run --rm test

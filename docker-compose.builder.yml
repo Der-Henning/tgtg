@@ -8,7 +8,13 @@ services:
   builder:
     extends:
       service: base
-    command: /bin/bash ./build.sh
+    command: /bin/bash -c "pip install -r requirements.dev.txt && pyinstaller scanner.spec"
+  test:
+    extends:
+      service: base
+    env_file: 
+      - .env
+    command: /bin/bash -c "pip install -r requirements.txt && cd src && python -m unittest"
   bash:
     extends:
       service: base

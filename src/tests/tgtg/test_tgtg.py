@@ -6,7 +6,7 @@ from os import environ
 class TGTG_API_Test(unittest.TestCase):
     def test_get_items(self):
         client = TgtgClient(
-            email=environ["TGTG_EMAIL"], password=environ["TGTG_PASSWORD"]
+            email=environ["TGTG_USERNAME"], password=environ["TGTG_PASSWORD"]
         )
         data = client.get_items(
             favorites_only=True
@@ -18,7 +18,7 @@ class TGTG_API_Test(unittest.TestCase):
 
     def test_get_one_item(self):
         client = TgtgClient(
-            email=environ["TGTG_EMAIL"], password=environ["TGTG_PASSWORD"]
+            email=environ["TGTG_USERNAME"], password=environ["TGTG_PASSWORD"]
         )
         item_id = "36684"
         data = client.get_item(item_id)
