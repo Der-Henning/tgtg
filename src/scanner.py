@@ -5,8 +5,12 @@ import logging
 from os import path
 from notifiers import Notifiers
 from models import Item, Config, ConfigurationError, TGTGConfigurationError
+from packaging import version
+import requests
 
-version = "1.2.3"
+VERSION_URL = 'https://api.github.com/repos/Der-Henning/tgtg/releases/latest'
+VERSION = "1.2.4"
+
 prog_folder = path.dirname(sys.executable) if getattr(
     sys, '_MEIPASS', False) else path.dirname(path.abspath(__file__))
 config_file = path.join(prog_folder, 'config.ini')
@@ -110,20 +114,32 @@ class Scanner():
 
 
 def welcome_message():
+    # pylint: disable=W1401
     log.info("  ____  ___  ____  ___    ____   ___   __   __ _  __ _  ____  ____  ")
     log.info(" (_  _)/ __)(_  _)/ __)  / ___) / __) / _\ (  ( \(  ( \(  __)(  _ \ ")
     log.info("   )( ( (_ \  )( ( (_ \  \___ \( (__ /    \/    //    / ) _)  )   / ")
     log.info("  (__) \___/ (__) \___/  (____/ \___)\_/\_/\_)__)\_)__)(____)(__\_) ")
     log.info("")
-    log.info(f"Version {version}")
+    log.info(f"Version {VERSION}")
     log.info("©2021, Henning Merklinger")
     log.info("For documentation and support please visit https://github.com/Der-Henning/tgtg")
     log.info("")
+    # pylint: enable=W1401
 
+def check_version():
+    try:
+        last_release = requests.get(VERSION_URL).json()
+        if version.parse(VERSION) < version.parse(last_release['tag_name']):
+            log.info(f"New Version {version.parse(last_release['tag_name'])} available!")
+            log.info(f"Please visit {last_release['html_url']}")
+            log.info("")
+    except:
+        log.error("Version check Error! - {0}".format(sys.exc_info()))
 
 def main():
     try:
         welcome_message()
+        check_version()
         scanner = Scanner()
         scanner.run()
     except ConfigurationError as err:

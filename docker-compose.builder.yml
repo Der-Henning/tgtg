@@ -14,7 +14,7 @@ services:
       service: base
     env_file: 
       - .env
-    command: /bin/bash -c "pip install -r requirements.txt && cd src && python -m unittest"
+    command: /bin/bash -c "pip install -r requirements.txt && python -m unittest discover -v -s ./src"
   bash:
     extends:
       service: base
