@@ -11,7 +11,7 @@ from models import TgtgAPIError, TgtgLoginError
 log = logging.getLogger('tgtg')
 BASE_URL = "https://apptoogoodtogo.com/api/"
 API_ITEM_ENDPOINT = "item/v7/"
-LOGIN_ENDPOINT = "auth/v1/loginByEmail"
+LOGIN_ENDPOINT = "auth/v2/loginByEmail"
 SIGNUP_BY_EMAIL_ENDPOINT = "auth/v2/signUpByEmail"
 REFRESH_ENDPOINT = "auth/v1/token/refresh"
 ALL_BUSINESS_ENDPOINT = "map/v1/listAllBusinessMap"
@@ -30,6 +30,7 @@ class TgtgClient:
         email=None,
         password=None,
         access_token=None,
+        refresh_token=None,
         user_id=None,
         user_agent=None,
         language="en-UK",
@@ -43,15 +44,11 @@ class TgtgClient:
         self.password = password
 
         self.access_token = access_token
-        if self.access_token is not None:
-            log.warn("'access_token' is deprecated; use 'email' and 'password'")
-        self.refresh_token = None
+        self.refresh_token = refresh_token
+        self.user_id = user_id
         self.last_time_token_refreshed = None
         self.access_token_lifetime = access_token_lifetime
 
-        self.user_id = user_id
-        if self.user_id is not None:
-            log.warn("'user_id' is deprecated; use 'email' and 'password'")
         self.user_agent = user_agent if user_agent else random.choice(USER_AGENTS)
         self.language = language
         self.proxies = proxies
@@ -62,14 +59,18 @@ class TgtgClient:
 
     @property
     def _headers(self):
-        headers = {"user-agent": self.user_agent, "accept-language": self.language}
+        headers = {
+            "user-agent": self.user_agent,
+            "accept-language": self.language,
+            "Accept-Encoding": "gzip"
+        }
         if self.access_token:
             headers["authorization"] = f"Bearer {self.access_token}"
         return headers
 
     @property
     def _already_logged(self):
-        return bool(self.access_token and self.user_id)
+        return bool(self.access_token and self.refresh_token and self.user_id)
 
     def _refresh_token(self):
         if (
@@ -93,15 +94,21 @@ class TgtgClient:
         else:
             raise TgtgAPIError(response.status_code, response.content)
 
-    def _login(self):
+    def login(self):
+        if not (
+            self.password
+            and self.email
+            or self.access_token
+            and self.refresh_token
+            and self.user_id
+        ):
+            raise TypeError(
+                "You must provide at least email and password or access_token, refresh_token and user_id"
+            )
+
         if self._already_logged:
             self._refresh_token()
         else:
-            if not self.email or not self.password:
-                raise ValueError(
-                    "You must fill email and password or access_token and user_id"
-                )
-
             response = requests.post(
                 self._get_url(LOGIN_ENDPOINT),
                 headers=self._headers,
@@ -141,7 +148,7 @@ class TgtgClient:
         hidden_only=False,
         we_care_only=False,
     ):
-        self._login()
+        self.login()
 
         # fields are sorted like in the app
         data = {
@@ -174,7 +181,7 @@ class TgtgClient:
             raise TgtgAPIError(response.status_code, response.content)
 
     def get_item(self, item_id):
-        self._login()
+        self.login()
         response = requests.post(
             urljoin(self._get_url(API_ITEM_ENDPOINT), str(item_id)),
             headers=self._headers,
@@ -188,7 +195,7 @@ class TgtgClient:
             raise TgtgAPIError(response.status_code, response.content)
 
     def set_favorite(self, item_id, is_favorite):
-        self._login()
+        self.login()
         response = requests.post(
             urljoin(self._get_url(API_ITEM_ENDPOINT), f"{item_id}/setFavorite"),
             headers=self._headers,
