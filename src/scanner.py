@@ -9,7 +9,7 @@ from packaging import version
 import requests
 
 VERSION_URL = 'https://api.github.com/repos/Der-Henning/tgtg/releases/latest'
-VERSION = "1.2.4"
+VERSION = "1.3.0"
 
 prog_folder = path.dirname(sys.executable) if getattr(
     sys, '_MEIPASS', False) else path.dirname(path.abspath(__file__))
@@ -43,7 +43,7 @@ class Scanner():
                 email=self.config.tgtg["username"],
                 password=self.config.tgtg["password"],
                 timeout=60)
-            self.tgtg_client._login()
+            self.tgtg_client.login()
         except:
             raise TGTGConfigurationError()
         self.notifiers = Notifiers(self.config)
