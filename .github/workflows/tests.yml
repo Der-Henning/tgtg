@@ -28,9 +28,9 @@ jobs:
         working-directory: ./src
         run: |
           python -m unittest
-          echo "TGTG_ACCESS_TOKEN=${{TGTG_ACCESS_TOKEN}}" >> $GITHUB_ENV
-          echo "TGTG_REFRESH_TOKEN=${{TGTG_REFRESH_TOKEN}}" >> $GITHUB_ENV
-          echo "TGTG_USER_ID=${{TGTG_USER_ID}}" >> $GITHUB_ENV
+          echo "TGTG_ACCESS_TOKEN=${TGTG_ACCESS_TOKEN}" >> $GITHUB_ENV
+          echo "TGTG_REFRESH_TOKEN=${TGTG_REFRESH_TOKEN}" >> $GITHUB_ENV
+          echo "TGTG_USER_ID=${TGTG_USER_ID}" >> $GITHUB_ENV
         env:
           TGTG_USERNAME: ${{secrets.TGTG_USERNAME}}
           TGTG_ACCESS_TOKEN: ${{secrets.TGTG_ACCESS_TOKEN}}
