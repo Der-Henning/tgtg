@@ -32,6 +32,7 @@ jobs:
           echo "::set-env name=TGTG_REFRESH_TOKEN::$TGTG_REFRESH_TOKEN"
           echo "::set-env name=TGTG_USER_ID::$TGTG_USER_ID"
         env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
           TGTG_USERNAME: ${{secrets.TGTG_USERNAME}}
           TGTG_ACCESS_TOKEN: ${{secrets.TGTG_ACCESS_TOKEN}}
           TGTG_REFRESH_TOKEN: ${{secrets.TGTG_REFRESH_TOKEN}}
