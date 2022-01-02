@@ -32,6 +32,8 @@ jobs:
           TGTG_ACCESS_TOKEN: ${{secrets.TGTG_ACCESS_TOKEN}}
           TGTG_REFRESH_TOKEN: ${{secrets.TGTG_REFRESH_TOKEN}}
           TGTG_USER_ID: ${{secrets.TGTG_USER_ID}}
+      - name: test env
+        run: echo ${{env.TGTG_ACCESS_TOKEN}}
       - uses: hmanzur/actions-set-secret@v2.0.0
         with:
           name: 'TGTG_ACCESS_TOKEN'

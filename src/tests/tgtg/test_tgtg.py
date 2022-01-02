@@ -12,7 +12,6 @@ class TGTG_API_Test(unittest.TestCase):
             user_id=environ.get("TGTG_USER_ID", None),
         )
         credentials = client.get_credentials()
-        print(credentials)
         environ["TGTG_ACCESS_TOKEN"] = credentials["access_token"]
         environ["TGTG_REFRESH_TOKEN"] = credentials["refresh_token"]
         environ["TGTG_USER_ID"] = credentials["user_id"]
