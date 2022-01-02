@@ -11,15 +11,13 @@ class TGTG_API_Test(unittest.TestCase):
             refresh_token=environ.get("TGTG_REFRESH_TOKEN", None),
             user_id=environ.get("TGTG_USER_ID", None),
         )
-        print(environ.get("TGTG_USERNAME", "nope"))
-        print(environ.get("TGTG_ACCESS_TOKEN", "nope"))
-        print(environ.get("TGTG_REFRESH_TOKEN", "nope"))
-        print(environ.get("TGTG_USER_ID", "nope"))
         credentials = client.get_credentials()
-        environ["TGTG_ACCESS_TOKEN"] = credentials["access_token"]
-        environ["TGTG_REFRESH_TOKEN"] = credentials["refresh_token"]
-        environ["TGTG_USER_ID"] = credentials["user_id"]
-
+        env_file = environ.get('GITHUB_ENV', None)
+        if env_file:
+            with open(env_file, "a") as myfile:
+                myfile.write("TGTG_ACCESS_TOKEN={}".format(credentials["access_token"]))
+                myfile.write("TGTG_REFRESH_TOKEN={}".format(credentials["refresh_token"]))
+                myfile.write("TGTG_USER_ID={}".format(credentials["user_id"]))
         data = client.get_items(favorites_only=True)
         assert len(data) > 0
         for property in GLOBAL_PROPERTIES:
