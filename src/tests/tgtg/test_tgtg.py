@@ -23,9 +23,9 @@ class TGTG_API_Test(unittest.TestCase):
         env_file = environ.get('GITHUB_ENV', None)
         if env_file:
             with open(env_file, "a") as file:
-                file.write("TGTG_ACCESS_TOKEN=::add-mask::{}\n".format(credentials["access_token"]))
-                file.write("TGTG_REFRESH_TOKEN=::add-mask::{}\n".format(credentials["refresh_token"]))
-                file.write("TGTG_USER_ID=::add-mask::{}\n".format(credentials["user_id"]))
+                file.write("TGTG_ACCESS_TOKEN={}\n".format(credentials["access_token"]))
+                file.write("TGTG_REFRESH_TOKEN={}\n".format(credentials["refresh_token"]))
+                file.write("TGTG_USER_ID={}\n".format(credentials["user_id"]))
         
         data = client.get_items(favorites_only=True)
         assert len(data) > 0
