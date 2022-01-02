@@ -7,6 +7,9 @@ class TgtgLoginError(Error):
 class TgtgAPIError(Error):
     pass
 
+class TgtgPollingError(TgtgAPIError):
+    pass
+
 class ConfigurationError(Error):
     pass
 
