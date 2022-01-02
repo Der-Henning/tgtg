@@ -26,35 +26,13 @@ jobs:
         run: pip install -r requirements.dev.txt
       - name: Run tests
         working-directory: ./src
-        run: |
-          python -m unittest
-
-          export ${{env.GITHUB_ENV}}
-          echo Masking tokens ...
-
-          echo befor masking:
-          echo ${{env.TGTG_ACCESS_TOKEN}}
-          echo ${{env.TGTG_REFRESH_TOKEN}}
-          echo ${{env.TGTG_USER_ID}}
-
-
-          echo ::add-mask::${{env.TGTG_ACCESS_TOKEN}}
-          echo ::add-mask::${{env.TGTG_REFRESH_TOKEN}}
-          echo ::add-mask::${{env.TGTG_USER_ID}}
-          echo after masking:
-          echo $TGTG_ACCESS_TOKEN
-          echo $TGTG_REFRESH_TOKEN
-          echo $TGTG_USER_ID
-
-          echo TGTG_ACCESS_TOKEN="$TGTG_ACCESS_TOKEN" >> $GITHUB_ENV
-          echo TGTG_REFRESH_TOKEN="$TGTG_REFRESH_TOKEN" >> $GITHUB_ENV
-          echo TGTG_USER_ID="$TGTG_USER_ID" >> $GITHUB_ENV
-
+        run: python -m unittest
         env:
           TGTG_USERNAME: ${{secrets.TGTG_USERNAME}}
           TGTG_ACCESS_TOKEN: ${{secrets.TGTG_ACCESS_TOKEN}}
           TGTG_REFRESH_TOKEN: ${{secrets.TGTG_REFRESH_TOKEN}}
           TGTG_USER_ID: ${{secrets.TGTG_USER_ID}}
+          REPO_ACCESS_TOKEN: ${{secrets.REPO_ACCESS_TOKEN}}
       - uses: hmanzur/actions-set-secret@v2.0.0
         with:
           name: 'TGTG_ACCESS_TOKEN'

@@ -2,3 +2,4 @@
 altgraph==0.17.2
 pyinstaller==4.7
 pyinstaller-hooks-contrib==2021.4
+cryptocode==0.1
