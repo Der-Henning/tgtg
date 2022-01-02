@@ -8,7 +8,7 @@ log = logging.getLogger('tgtg')
 class Config():
     def __init__(self, file=None):
         self.item_ids = []
-        self.sleep_time = 20
+        self.sleep_time = 60
         self.debug = False
         self.tgtg = {}
         self.pushSafer = {}
@@ -30,8 +30,7 @@ class Config():
             ',') if "ItemIDs" in config["MAIN"] else []
         self.sleep_time = int(config["MAIN"]["SleepTime"])
         self.tgtg = {
-            "username": config["TGTG"]["Username"],
-            "password": config["TGTG"]["Password"]
+            "username": config["TGTG"]["Username"]
         }
         self.pushSafer = {
             "enabled": config["PUSHSAFER"]["enabled"].lower() in ('true', '1', 't'),
@@ -61,8 +60,7 @@ class Config():
         self.debug = True if environ.get(
             "DEBUG", "").lower() in ('true', '1', 't') else False
         self.tgtg = {
-            "username": environ.get("TGTG_USERNAME"),
-            "password": environ.get("TGTG_PASSWORD")
+            "username": environ.get("TGTG_USERNAME")
         }
         self.pushSafer = {
             "enabled": environ.get("PUSH_SAFER", "").lower() in ('true', '1', 't'),

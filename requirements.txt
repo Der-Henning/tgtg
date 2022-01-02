@@ -1,8 +1,8 @@
 certifi==2021.10.8
-charset-normalizer==2.0.7
+charset-normalizer==2.0.9
 idna==3.3
-packaging==21.2
-pyparsing==2.4.7
+packaging==21.3
+pyparsing==3.0.6
 python-pushsafer==1.0
 requests==2.26.0
 urllib3==1.26.7

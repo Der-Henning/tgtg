@@ -4,12 +4,12 @@ import sys
 import logging
 from os import path
 from notifiers import Notifiers
-from models import Item, Config, ConfigurationError, TGTGConfigurationError
+from models import Item, Config, TgtgAPIError, Error, ConfigurationError, TGTGConfigurationError
 from packaging import version
 import requests
 
 VERSION_URL = 'https://api.github.com/repos/Der-Henning/tgtg/releases/latest'
-VERSION = "1.3.0"
+VERSION = "1.4"
 
 prog_folder = path.dirname(sys.executable) if getattr(
     sys, '_MEIPASS', False) else path.dirname(path.abspath(__file__))
@@ -41,10 +41,12 @@ class Scanner():
         try:
             self.tgtg_client = TgtgClient(
                 email=self.config.tgtg["username"],
-                password=self.config.tgtg["password"],
                 timeout=60)
             self.tgtg_client.login()
-        except:
+        except TgtgAPIError as err:
+            raise
+        except Error as err:
+            log.error(err)
             raise TGTGConfigurationError()
         self.notifiers = Notifiers(self.config)
 
@@ -144,6 +146,9 @@ def main():
         scanner.run()
     except ConfigurationError as err:
         log.error("Configuration Error - {0}".format(err))
+        sys.exit(1)
+    except TgtgAPIError as err:
+        log.error("TGTG API Error: {0}".format(err))
         sys.exit(1)
     except KeyboardInterrupt:
         log.info("Shutting down scanner ...")
