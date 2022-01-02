@@ -28,16 +28,28 @@ jobs:
         working-directory: ./src
         run: |
           python -m unittest
-          echo "Masking tokens ..."
-          tgtg_access_token=${{env.TGTG_ACCESS_TOKEN}}
-          tgtg_refresh_token=${{env.TGTG_REFRESH_TOKEN}}
-          tgtg_user_id=${{env.TGTG_USER_ID}}
-          echo "TGTG_ACCESS_TOKEN=::add-mask::$tgtg_access_token" >> $GITHUB_ENV
-          echo "TGTG_REFRESH_TOKEN=::add-mask::$tgtg_refresh_token" >> $GITHUB_ENV
-          echo "TGTG_USER_ID=::add-mask::$tgtg_user_id" >> $GITHUB_ENV
+          echo Masking tokens ...
+          TGTG_ACCESS_TOKEN=${{env.TGTG_ACCESS_TOKEN}}
+          TGTG_REFRESH_TOKEN=${{env.TGTG_REFRESH_TOKEN}}
+          TGTG_USER_ID=${{env.TGTG_USER_ID}}
+          echo befor masking:
+          echo $TGTG_ACCESS_TOKEN
+          echo $TGTG_REFRESH_TOKEN
+          echo $TGTG_USER_ID
 
-          echo "TGTG_REFRESH_TOKEN=::add-mask::$tgtg_refresh_token"
-          echo "::add-mask::TGTG_REFRESH_TOKEN=$tgtg_refresh_token"
+
+          echo ::add-mask::$TGTG_ACCESS_TOKEN
+          echo ::add-mask::$TGTG_REFRESH_TOKEN
+          echo ::add-mask::$TGTG_USER_ID
+          echo after masking:
+          echo $TGTG_ACCESS_TOKEN
+          echo $TGTG_REFRESH_TOKEN
+          echo $TGTG_USER_ID
+
+          echo TGTG_ACCESS_TOKEN="$TGTG_ACCESS_TOKEN" >> $GITHUB_ENV
+          echo TGTG_REFRESH_TOKEN="$TGTG_REFRESH_TOKEN" >> $GITHUB_ENV
+          echo TGTG_USER_ID="$TGTG_USER_ID" >> $GITHUB_ENV
+
         env:
           TGTG_USERNAME: ${{secrets.TGTG_USERNAME}}
           TGTG_ACCESS_TOKEN: ${{secrets.TGTG_ACCESS_TOKEN}}

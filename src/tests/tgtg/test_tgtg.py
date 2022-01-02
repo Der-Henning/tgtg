@@ -13,6 +13,10 @@ class TGTG_API_Test(unittest.TestCase):
             user_id=environ.get("TGTG_USER_ID", None),
         )
 
+        print("Access Token: {}".format(environ.get("TGTG_ACCESS_TOKEN", None)))
+        print("Refresh Token: {}".format(environ.get("TGTG_REFRESH_TOKEN", None)))
+        print("User ID: {}".format(environ.get("TGTG_USER_ID", None)))
+
         ## get credentials and safe tokens to GITHUB_ENV file
         ## this enables github workflow to reuse the access_token on sheduled runs
         credentials = client.get_credentials()
