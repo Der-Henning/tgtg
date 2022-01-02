@@ -26,7 +26,11 @@ jobs:
         run: pip install -r requirements.dev.txt
       - name: Run tests
         working-directory: ./src
-        run: python -m unittest
+        run: |
+          python -m unittest
+          echo "TGTG_ACCESS_TOKEN=::add-mask::${TGTG_ACCESS_TOKEN}" >> $GITHUB_ENV
+          echo "TGTG_REFRESH_TOKEN=::add-mask::${TGTG_REFRESH_TOKEN}" >> $GITHUB_ENV
+          echo "TGTG_USER_ID=::add-mask::${TGTG_USER_ID}" >> $GITHUB_ENV
         env:
           TGTG_USERNAME: ${{secrets.TGTG_USERNAME}}
           TGTG_ACCESS_TOKEN: ${{secrets.TGTG_ACCESS_TOKEN}}
