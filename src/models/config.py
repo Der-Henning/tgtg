@@ -25,32 +25,37 @@ class Config():
     def _ini_reader(self, file):
         config = configparser.ConfigParser()
         config.read(file)
-        self.debug = config["MAIN"]["Debug"].lower() in ('true', '1', 't')
-        self.item_ids = config["MAIN"]["ItemIDs"].split(
+        self.debug = config["MAIN"].getboolean("Debug")
+        self.item_ids = config["MAIN"].get("ItemIDs").split(
             ',') if "ItemIDs" in config["MAIN"] else []
-        self.sleep_time = int(config["MAIN"]["SleepTime"])
+        #self.sleep_time = int(config["MAIN"]["SleepTime"])
+        self.sleep_time = config["MAIN"].getint("SleepTime")
         self.tgtg = {
-            "username": config["TGTG"]["Username"]
+            "username": config["TGTG"].get("Username"),
+            "timeout": config["TGTG"].getint("Timeout", 60),
+            "access_token_lifetime": config["TGTG"].get("AccessTokenLifetime", 3600 * 4),
+            "max_polling_tries": config["TGTG"].get("MaxPollingTries", 24),
+            "polling_wait_time": config["TGTG"].get("PollingWaitTime", 5)
         }
         self.pushSafer = {
-            "enabled": config["PUSHSAFER"]["enabled"].lower() in ('true', '1', 't'),
-            "key": config["PUSHSAFER"]["Key"],
-            "deviceId": config["PUSHSAFER"]["DeviceID"]
+            "enabled": config["PUSHSAFER"].getboolean("enabled"),
+            "key": config["PUSHSAFER"].get("Key"),
+            "deviceId": config["PUSHSAFER"].get("DeviceID")
         }
         self.smtp = {
-            "enabled": config["SMTP"]["enabled"].lower() in ('true', '1', 't'),
-            "host": config["SMTP"]["Host"],
-            "port": config["SMTP"]["Port"],
-            "tls": config["SMTP"]["TLS"].lower() in ('true', '1', 't'),
-            "username": config["SMTP"]["Username"],
-            "password": config["SMTP"]["Password"],
-            "sender": config["SMTP"]["Sender"],
-            "recipient": config["SMTP"]["Recipient"]
+            "enabled": config["SMTP"].getboolean("enabled"),
+            "host": config["SMTP"].get("Host"),
+            "port": config["SMTP"].getint("Port"),
+            "tls": config["SMTP"].getboolean("TLS"),
+            "username": config["SMTP"].get("Username"),
+            "password": config["SMTP"].get("Password"),
+            "sender": config["SMTP"].get("Sender"),
+            "recipient": config["SMTP"].get("Recipient")
         }
         self.ifttt = {
-            "enabled": config["IFTTT"]["enabled"].lower() in ('true', '1', 't'),
-            "event": config["IFTTT"]["Event"],
-            "key": config["IFTTT"]["Key"]
+            "enabled": config["IFTTT"].getboolean("enabled"),
+            "event": config["IFTTT"].get("Event"),
+            "key": config["IFTTT"].get("Key")
         }
 
     def _env_reader(self):
@@ -60,7 +65,11 @@ class Config():
         self.debug = True if environ.get(
             "DEBUG", "").lower() in ('true', '1', 't') else False
         self.tgtg = {
-            "username": environ.get("TGTG_USERNAME")
+            "username": environ.get("TGTG_USERNAME"),
+            "timeout": environ.get("TGTG_TIMEOUT", 60),
+            "access_token_lifetime": environ.get("TGTG_ACCESS_TOKEN_LIFETIME", 3600 * 4),
+            "max_polling_tries": environ.get("TGTG_MAX_POLLING_TRIES", 24),
+            "polling_wait_time": environ.get("TGTG_POLLING_WAIT_TIME", 5)
         }
         self.pushSafer = {
             "enabled": environ.get("PUSH_SAFER", "").lower() in ('true', '1', 't'),

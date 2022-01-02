@@ -22,8 +22,8 @@ USER_AGENTS = [
     "TGTG/21.9.3 Dalvik/2.1.0 (Linux; Android 6.0.1; SM-G920V Build/MMB29K)",
 ]
 DEFAULT_ACCESS_TOKEN_LIFETIME = 3600 * 4  # 4 hours
-MAX_POLLING_TRIES = 24  # 24 * POLLING_WAIT_TIME = 2 minutes
-POLLING_WAIT_TIME = 5  # Seconds
+DEFAULT_MAX_POLLING_TRIES = 24  # 24 * POLLING_WAIT_TIME = 2 minutes
+DEFAULT_POLLING_WAIT_TIME = 5  # Seconds
 
 
 class TgtgClient:
@@ -39,6 +39,8 @@ class TgtgClient:
         proxies=None,
         timeout=None,
         access_token_lifetime=DEFAULT_ACCESS_TOKEN_LIFETIME,
+        max_polling_tries=DEFAULT_MAX_POLLING_TRIES,
+        polling_wait_time=DEFAULT_POLLING_WAIT_TIME,
         device_type="ANDROID",
     ):
 
@@ -52,6 +54,8 @@ class TgtgClient:
 
         self.last_time_token_refreshed = None
         self.access_token_lifetime = access_token_lifetime
+        self.max_polling_tries = max_polling_tries
+        self.polling_wait_time = polling_wait_time
 
         self.device_type = device_type
 
@@ -148,7 +152,7 @@ class TgtgClient:
                     raise TgtgLoginError(response.status_code, response.content)
 
     def start_polling(self, polling_id):
-        for _ in range(MAX_POLLING_TRIES):
+        for _ in range(self.max_polling_tries):
             response = self.session.post(
                 self._get_url(AUTH_POLLING_ENDPOINT),
                 headers=self._headers,
@@ -161,14 +165,14 @@ class TgtgClient:
                 timeout=self.timeout,
             )
             if response.status_code == HTTPStatus.ACCEPTED:
-                print(
+                log.warning(
                     "Check your mailbox on PC to continue... "
                     "(Mailbox on mobile won't work, if you have installed tgtg app.)"
                 )
-                time.sleep(POLLING_WAIT_TIME)
+                time.sleep(self.polling_wait_time)
                 continue
             elif response.status_code == HTTPStatus.OK:
-                print("Logged in!")
+                log.info("Logged in!")
                 login_response = response.json()
                 self.access_token = login_response["access_token"]
                 self.refresh_token = login_response["refresh_token"]
@@ -182,7 +186,7 @@ class TgtgClient:
                     raise TgtgLoginError(response.status_code, response.content)
 
         raise TgtgPollingError(
-            f"Max retries ({MAX_POLLING_TRIES * POLLING_WAIT_TIME} seconds) reached. Try again."
+            f"Max retries ({self.max_polling_tries * self.polling_wait_time} seconds) reached. Try again."
         )
 
     def get_items(

@@ -6,6 +6,7 @@ from os import path
 from notifiers import Notifiers
 from models import Item, Config, TgtgAPIError, Error, ConfigurationError, TGTGConfigurationError
 from packaging import version
+from random import random
 import requests
 
 VERSION_URL = 'https://api.github.com/repos/Der-Henning/tgtg/releases/latest'
@@ -41,7 +42,11 @@ class Scanner():
         try:
             self.tgtg_client = TgtgClient(
                 email=self.config.tgtg["username"],
-                timeout=60)
+                timeout=self.config.tgtg["timeout"],
+                access_token_lifetime=self.config.tgtg["access_token_lifetime"],
+                max_polling_tries=self.config.tgtg["max_polling_tries"],
+                polling_wait_time=self.config.tgtg["polling_wait_time"]
+            )
             self.tgtg_client.login()
         except TgtgAPIError as err:
             raise
@@ -112,7 +117,7 @@ class Scanner():
             except:
                 log.error("Job Error! - {0}".format(sys.exc_info()))
             finally:
-                sleep(self.config.sleep_time)
+                sleep(self.config.sleep_time * (0.9 + 0.2 * random()))
 
 
 def welcome_message():
