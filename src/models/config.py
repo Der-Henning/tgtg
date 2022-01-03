@@ -38,12 +38,12 @@ class Config():
             "polling_wait_time": config["TGTG"].get("PollingWaitTime", 5)
         }
         self.push_safer = {
-            "enabled": config["PUSHSAFER"].getboolean("enabled"),
+            "enabled": config["PUSHSAFER"].getboolean("enabled", False),
             "key": config["PUSHSAFER"].get("Key"),
             "deviceId": config["PUSHSAFER"].get("DeviceID")
         }
         self.smtp = {
-            "enabled": config["SMTP"].getboolean("enabled"),
+            "enabled": config["SMTP"].getboolean("enabled", False),
             "host": config["SMTP"].get("Host"),
             "port": config["SMTP"].getint("Port"),
             "tls": config["SMTP"].getboolean("TLS"),
@@ -53,9 +53,17 @@ class Config():
             "recipient": config["SMTP"].get("Recipient")
         }
         self.ifttt = {
-            "enabled": config["IFTTT"].getboolean("enabled"),
+            "enabled": config["IFTTT"].getboolean("enabled", False),
             "event": config["IFTTT"].get("Event"),
             "key": config["IFTTT"].get("Key")
+        }
+        self.webhook = {
+            "enabled": config["WEBHOOK"].getboolean("enabled", False),
+            "url": config["WEBHOOK"].get("URL"),
+            "method": config["WEBHOOK"].get("Method", "GET"),
+            "data": config["WEBHOOK"].get("data", None),
+            "json": config["WEBHOOK"].get("json", None),
+            "timeout": config["WEBHOOK"].getint("timeout", 60)
         }
 
     def _env_reader(self):
@@ -91,8 +99,11 @@ class Config():
             "event": environ.get("IFTTT_EVENT", "tgtg_notification"),
             "key": environ.get("IFTTT_KEY")
         }
-
-        # ToDo: create notifier for any WebHook
         self.webhook = {
-            "enabled": False
+            "enabled": environ.get("WEBHOOK", "").lower() in ('true', '1', 't'),
+            "url": environ.get("WEBHOOK_URL"),
+            "method": environ.get("WEBHOOK_METHOD", "GET"),
+            "data": environ.get("WEBHOOK_DATA", None),
+            "json": environ.get("WEBHOOK_JSON", None),
+            "timeout": int(environ.get("WEBHOOK_TIMEOUT", 60))
         }

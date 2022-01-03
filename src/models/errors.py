@@ -40,3 +40,9 @@ class PushSaferConfigurationError(ConfigurationError):
     def __init__(self, message="Invalid PushSafer configuration"):
         self.message = message
         super().__init__(self.message)
+
+
+class WebHookConfigurationError(ConfigurationError):
+    def __init__(self, message="Invalid Webhook configuration"):
+        self.message = message
+        super().__init__(self.message)

@@ -24,3 +24,11 @@ services:
       - IFTTT=true                                    ## true = enable notifications via IFTTT Webhooks
       - IFTTT_EVENT=tgtg_notification                 ## IFTTT Webhooks Event
       - IFTTT_KEY=                                    ## IFTTT Webhooks Key
+
+      ## Possible ${{variable}} variables: item_id, items_available, display_name
+      - WEBHOOK=false                                 ## true = enable notifications via costum WebHook
+      - WEBHOOK_URL=                                  ## URL of your WebHook, can contain ${{variable}}
+      - WEBHOOK_METHO=POST                            ## Request Method
+      - WEBHOOK_DATA=                                 ## Text Data to send, can contain ${{variable}}
+      - WEBHOOK_JSON=                                 ## JSON Data to send, can contain ${{variable}}
+      - WEBHOOK_TIMEOUT=60                            ## Request Timeout
