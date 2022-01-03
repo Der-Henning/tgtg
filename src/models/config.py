@@ -11,7 +11,7 @@ class Config():
         self.sleep_time = 60
         self.debug = False
         self.tgtg = {}
-        self.pushSafer = {}
+        self.push_safer = {}
         self.smtp = {}
         self.ifttt = {}
         self.webhook = {}
@@ -37,7 +37,7 @@ class Config():
             "max_polling_tries": config["TGTG"].get("MaxPollingTries", 24),
             "polling_wait_time": config["TGTG"].get("PollingWaitTime", 5)
         }
-        self.pushSafer = {
+        self.push_safer = {
             "enabled": config["PUSHSAFER"].getboolean("enabled"),
             "key": config["PUSHSAFER"].get("Key"),
             "deviceId": config["PUSHSAFER"].get("DeviceID")
@@ -71,7 +71,7 @@ class Config():
             "max_polling_tries": environ.get("TGTG_MAX_POLLING_TRIES", 24),
             "polling_wait_time": environ.get("TGTG_POLLING_WAIT_TIME", 5)
         }
-        self.pushSafer = {
+        self.push_safer = {
             "enabled": environ.get("PUSH_SAFER", "").lower() in ('true', '1', 't'),
             "key": environ.get("PUSH_SAFER_KEY"),
             "deviceId": environ.get("PUSH_SAFER_DEVICE_ID")

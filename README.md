@@ -31,7 +31,7 @@ You have the following three options to install the scanner, ascending in comple
 
 This is the simplest but least flexible solution suitable for most operating systems.
 
-1. Download latest Release from https://github.com/Der-Henning/tgtg/releases for your OS
+1. Download latest [Releases](https://github.com/Der-Henning/tgtg/releases) for your OS
 2. Unzip Archiv
 3. Edit ```config.ini``` as described in the file
 4. Run scanner
@@ -57,7 +57,9 @@ Method for pros and developers.
 
 ### Running
 
-When the scanner is started it will send a test notification on all configured notifiers. If you don't reveive any notifications, please check your configuration.
+When the scanner is started it will first try to login to yout TGTG account. Similar to loging in to the TGTG app, you have to click on the link send to you by mail. This won't work on your mobile phone if you have installed the TGTG app.
+
+After successfull login the scanner will send a test notification on all configured notifiers. If you don't reveive any notifications, please check your configuration.
 
 ## Developing
 

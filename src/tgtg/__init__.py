@@ -1,1 +1,1 @@
-from tgtg.tgtgClient import TgtgClient
+from tgtg.tgtg_client import TgtgClient

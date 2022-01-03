@@ -1,4 +1,4 @@
-## copied and modified from https://github.com/ahivert/tgtg-python
+# copied and modified from https://github.com/ahivert/tgtg-python
 
 import datetime
 import random
@@ -59,7 +59,8 @@ class TgtgClient:
 
         self.device_type = device_type
 
-        self.user_agent = user_agent if user_agent else random.choice(USER_AGENTS)
+        self.user_agent = user_agent if user_agent else random.choice(
+            USER_AGENTS)
         self.language = language
         self.proxies = proxies
         self.timeout = timeout
@@ -144,12 +145,15 @@ class TgtgClient:
                 elif first_login_response["state"] == "WAIT":
                     self.start_polling(first_login_response["polling_id"])
                 else:
-                    raise TgtgLoginError(response.status_code, response.content)
+                    raise TgtgLoginError(
+                        response.status_code, response.content)
             else:
                 if response.status_code == 429:
-                    raise TgtgAPIError("429 - Too many requests. Try again later.")
+                    raise TgtgAPIError(
+                        "429 - Too many requests. Try again later.")
                 else:
-                    raise TgtgLoginError(response.status_code, response.content)
+                    raise TgtgLoginError(
+                        response.status_code, response.content)
 
     def start_polling(self, polling_id):
         for _ in range(self.max_polling_tries):
@@ -181,13 +185,15 @@ class TgtgClient:
                 return
             else:
                 if response.status_code == HTTPStatus.TOO_MANY_REQUESTS:
-                    raise TgtgAPIError("429 - Too many requests. Try again later.")
+                    raise TgtgAPIError(
+                        "429 - Too many requests. Try again later.")
                 else:
-                    raise TgtgLoginError(response.status_code, response.content)
+                    raise TgtgLoginError(
+                        response.status_code, response.content)
 
-        raise TgtgPollingError(
-            f"Max retries ({self.max_polling_tries * self.polling_wait_time} seconds) reached. Try again."
-        )
+        raise TgtgPollingError("Max retries ({} seconds) reached. Try again.".format(
+                self.max_polling_tries * self.polling_wait_time
+        ))
 
     def get_items(
         self,
@@ -257,7 +263,8 @@ class TgtgClient:
     def set_favorite(self, item_id, is_favorite):
         self.login()
         response = self.session.post(
-            urljoin(self._get_url(API_ITEM_ENDPOINT), f"{item_id}/setFavorite"),
+            urljoin(self._get_url(API_ITEM_ENDPOINT),
+                    f"{item_id}/setFavorite"),
             headers=self._headers,
             json={"is_favorite": is_favorite},
             proxies=self.proxies,
@@ -290,8 +297,10 @@ class TgtgClient:
             timeout=self.timeout,
         )
         if response.status_code == HTTPStatus.OK:
-            self.access_token = response.json()["login_response"]["access_token"]
-            self.refresh_token = response.json()["login_response"]["refresh_token"]
+            self.access_token = response.json(
+            )["login_response"]["access_token"]
+            self.refresh_token = response.json(
+            )["login_response"]["refresh_token"]
             self.last_time_token_refreshed = datetime.datetime.now()
             self.user_id = response.json()["login_response"]["startup_data"]["user"][
                 "user_id"

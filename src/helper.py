@@ -1,7 +1,6 @@
-from scanner import Scanner
-from os import path
 import sys
 import logging
+from scanner import Scanner
 
 log = logging.getLogger('tgtg')
 
@@ -33,7 +32,7 @@ class Helper(Scanner):
                 if len(new_items) < page_size:
                     break
             except:
-                log.error("getItem Error! - {0}".format(sys.exc_info()))
+                log.error("getItem Error! - %s", sys.exc_info())
             finally:
                 page += 1
         return items

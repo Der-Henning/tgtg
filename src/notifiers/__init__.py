@@ -1,31 +1,31 @@
-from notifiers.pushSafer import PushSafer
+import logging
+from notifiers.push_safer import PushSafer
 from notifiers.smtp import SMTP
 from notifiers.ifttt import IFTTT
 from models import Config, Item
-import logging
 
 log = logging.getLogger('tgtg')
 
 
 class Notifiers():
     def __init__(self, config: Config):
-        self.pushSafer = PushSafer(config)
+        self.push_safer = PushSafer(config)
         self.smtp = SMTP(config)
         self.ifttt = IFTTT(config)
-        log.info(f"Activated notifiers:")
+        log.info("Activated notifiers:")
         if self.smtp.enabled:
-            log.info(f"- SMTP: {self.smtp.recipient}")
+            log.info("- SMTP: %s", self.smtp.recipient)
         if self.ifttt.enabled:
-            log.info(f"- IFTTT: {self.ifttt.key}")
-        if self.pushSafer.enabled:
-            log.info(f"- PushSafer: {self.pushSafer.key}")
-        testItem = Item({"item": {"item_id": "12345"},
+            log.info("- IFTTT: %s", self.ifttt.key)
+        if self.push_safer.enabled:
+            log.info("- PushSafer: %s", self.push_safer.key)
+        test_item = Item({"item": {"item_id": "12345"},
                         "display_name": "test_item",
                         "items_available": 1})
         log.info("Sending test notifications ...")
-        self.send(testItem)
+        self.send(test_item)
 
     def send(self, item: Item):
-        self.pushSafer.send(item)
+        self.push_safer.send(item)
         self.smtp.send(item)
         self.ifttt.send(item)
