@@ -5,10 +5,6 @@
 
 Scanns your favorite TGTG Magic Bags for new available items and notifies you via mail, IFTTT or pushSafer. Notifications will be send when the available amount of magic bags rises from zero to something.
 
-## Update
-
-The TGTG API has been updated! Please update to release 1.2.3 for working notifications!
-
 ## Disclaimer
 
 TGTG forbids the use of their plattform the way this tool does. In their Terms and Conditions it says: "The Consumer must not misuse the Platform (including hacking or 'scraping')."
@@ -63,7 +59,7 @@ After successfull login the scanner will send a test notification on all configu
 
 ### Metrics
 
-To save historic data of the available bags you can enable the metrics option and collect and visualize the data with prometheus.
+Enabling the metrics option will expose a http server on the specified port supplying the currently available items. You can scrape the data with prometheus to create and visualize historic data or use it with your home automation.
 
 Scrape config:
 

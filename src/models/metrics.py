@@ -12,7 +12,7 @@ class Metrics():
         self.get_favorites_errors = Counter(
             "tgtg_get_favorites_errors", "Count of request errors fetching tgtg favorites")
         self.send_notifications = Counter(
-            "tgtg_send_notifications", "Count of send notifications")
+            "tgtg_send_notifications", "Count of send notifications", ['item_id', 'display_name'])
 
     def enable_metrics(self):
         start_http_server(self.port)

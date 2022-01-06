@@ -11,7 +11,7 @@ from notifiers import Notifiers
 from tgtg import TgtgClient
 
 VERSION_URL = 'https://api.github.com/repos/Der-Henning/tgtg/releases/latest'
-VERSION = "1.4"
+VERSION = "1.5"
 
 prog_folder = path.dirname(sys.executable) if getattr(
     sys, '_MEIPASS', False) else path.dirname(path.abspath(__file__))
@@ -102,7 +102,8 @@ class Scanner():
         try:
             if self.amounts[item.item_id] == 0 and item.items_available > self.amounts[item.item_id]:
                 self._send_messages(item)
-                self.metrics.send_notifications.inc()
+                self.metrics.send_notifications.labels(
+                    item.item_id, item.display_name).inc()
             self.metrics.item_count.labels(
                 item.item_id, item.display_name).set(item.items_available)
         except:
