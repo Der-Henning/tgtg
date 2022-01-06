@@ -3,15 +3,17 @@
 
 # TGTG Scanner
 
-Scanns your favorite TGTG Magic Bags for new available items and notifies you via mail, IFTTT or pushSafer. Notifications will be send when the available amount of magic bags rises from zero to something.
+Scans your favorite TGTG Magic Bags for new available items and notifies you via mail, IFTTT, pushSafer or any other WebHook. Notifications will be send when the available amount of Magic Bags rises from zero to something.
+
+Additionally the currently available amounts can be provided via a http server.
+
+Running in a docker container the scanner can be seemlessly integrated with openhab, prometheus and other automation, notification and visualization services.
 
 ## Disclaimer
 
 TGTG forbids the use of their plattform the way this tool does. In their Terms and Conditions it says: "The Consumer must not misuse the Platform (including hacking or 'scraping')."
 
 If you use this tool you do it at your own risk. TGTG may stop you from doing so and may even delete your account.
-
-I would recommend to create a new account for the scanner.
 
 The software is provided as is without warranty of any kind. If you have problems, find bugs or have suggestions for improvement feel free to create an issue or contribute to the project.
 
@@ -36,7 +38,7 @@ You can run the scanner manually if you need it, add it to your autostart or cre
 
 ### Run with Docker
 
-My prefered method for servers with a pre build multi-arch linux image.
+My prefered method for servers using the pre build multi-arch linux images.
 
 1. Install Docker and docker-compose
 2. Edit ```docker-compose.yml``` as described in the file
@@ -44,7 +46,7 @@ My prefered method for servers with a pre build multi-arch linux image.
 
 ### Run from source
 
-Method for pros and developers.
+Method for developers.
 
 1. Install python and pip
 2. Run ```pip install -r requirements.txt```
@@ -55,7 +57,7 @@ Method for pros and developers.
 
 When the scanner is started it will first try to login to yout TGTG account. Similar to loging in to the TGTG app, you have to click on the link send to you by mail. This won't work on your mobile phone if you have installed the TGTG app.
 
-After successfull login the scanner will send a test notification on all configured notifiers. If you don't reveive any notifications, please check your configuration.
+After a successfull login the scanner will send a test notification on all configured notifiers. If you don't reveive any notifications, please check your configuration.
 
 ### Metrics
 
