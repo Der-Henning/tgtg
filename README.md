@@ -61,6 +61,22 @@ When the scanner is started it will first try to login to yout TGTG account. Sim
 
 After successfull login the scanner will send a test notification on all configured notifiers. If you don't reveive any notifications, please check your configuration.
 
+### Metrics
+
+To save historic data of the available bags you can enable the metrics option and collect and visualize the data with prometheus.
+
+Scrape config:
+
+````xml
+  - job_name: 'TGTG'
+    scrape_interval: 1m
+    scheme: http
+    metrics_path: /
+    static_configs:
+    - targets:
+      - 'openhab:8000'
+````
+
 ## Developing
 
 For developement I recommend using docker. The Makefile depends on docker and docker-compose.

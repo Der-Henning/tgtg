@@ -7,6 +7,8 @@ services:
       - TGTG_USERNAME=                                ## TGTG Username / Login EMail
       - SLEEP_TIME=60                                 ## Time to wait till next scan in seconds - default 60 seconds
       - ITEM_IDS=                                     ## (optional) Comma seperated list of Item Ids to scan
+      - METRICS=false                                 ## Enable to export metrics for Prometheus
+      - METRICS_PORT=8000                             ## Port for metrics http server
 
       - SMTP=true                                     ## true = enable mail notifications via smtp
       - SMTP_HOST=smtp.gmail.com                      ## smtp Server - smtp.gmail.com for google
@@ -29,6 +31,6 @@ services:
       - WEBHOOK=false                                 ## true = enable notifications via costum WebHook
       - WEBHOOK_URL=                                  ## URL of your WebHook, can contain ${{variable}}
       - WEBHOOK_METHO=POST                            ## Request Method
-      - WEBHOOK_DATA=                                 ## Text Data to send, can contain ${{variable}}
-      - WEBHOOK_JSON=                                 ## JSON Data to send, can contain ${{variable}}
+      - WEBHOOK_BODY=                                 ## Data to send, can contain ${{variable}}
+      - WEBHOOK_TYPE=                                 ## Content-Type for header, default: text/plain
       - WEBHOOK_TIMEOUT=60                            ## Request Timeout

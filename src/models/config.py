@@ -10,6 +10,8 @@ class Config():
         self.item_ids = []
         self.sleep_time = 60
         self.debug = False
+        self.metrics = False
+        self.metrics_port = 8000
         self.tgtg = {}
         self.push_safer = {}
         self.smtp = {}
@@ -25,11 +27,13 @@ class Config():
     def _ini_reader(self, file):
         config = configparser.ConfigParser()
         config.read(file)
-        self.debug = config["MAIN"].getboolean("Debug")
+        self.debug = config["MAIN"].getboolean("Debug", False)
         self.item_ids = config["MAIN"].get("ItemIDs").split(
             ',') if "ItemIDs" in config["MAIN"] else []
         #self.sleep_time = int(config["MAIN"]["SleepTime"])
         self.sleep_time = config["MAIN"].getint("SleepTime")
+        self.metrics = config["MAIN"].getboolean("Metrics", False)
+        self.metrics_port = config["MAIN"].getint("MetricsPort", 8000)
         self.tgtg = {
             "username": config["TGTG"].get("Username"),
             "timeout": config["TGTG"].getint("Timeout", 60),
@@ -61,8 +65,8 @@ class Config():
             "enabled": config["WEBHOOK"].getboolean("enabled", False),
             "url": config["WEBHOOK"].get("URL"),
             "method": config["WEBHOOK"].get("Method", "GET"),
-            "data": config["WEBHOOK"].get("data", None),
-            "json": config["WEBHOOK"].get("json", None),
+            "body": config["WEBHOOK"].get("body", None),
+            "type": config["WEBHOOK"].get("type", "text/plain"),
             "timeout": config["WEBHOOK"].getint("timeout", 60)
         }
 
@@ -70,8 +74,10 @@ class Config():
         self.item_ids = environ.get("ITEM_IDS").split(
             ",") if environ.get("ITEM_IDS") else []
         self.sleep_time = int(environ.get("SLEEP_TIME", 20))
-        self.debug = True if environ.get(
-            "DEBUG", "").lower() in ('true', '1', 't') else False
+        self.debug = environ.get(
+            "DEBUG", "false").lower() in ('true', '1', 't')
+        self.metrics = environ.get("METRICS", "false").lower() in ('true', '1', 't')
+        self.metrics_port = environ.get("METRICS_PORT", 8000)
         self.tgtg = {
             "username": environ.get("TGTG_USERNAME"),
             "timeout": environ.get("TGTG_TIMEOUT", 60),
@@ -80,30 +86,30 @@ class Config():
             "polling_wait_time": environ.get("TGTG_POLLING_WAIT_TIME", 5)
         }
         self.push_safer = {
-            "enabled": environ.get("PUSH_SAFER", "").lower() in ('true', '1', 't'),
+            "enabled": environ.get("PUSH_SAFER", "false").lower() in ('true', '1', 't'),
             "key": environ.get("PUSH_SAFER_KEY"),
             "deviceId": environ.get("PUSH_SAFER_DEVICE_ID")
         }
         self.smtp = {
-            "enabled": environ.get("SMTP", "").lower() in ('true', '1', 't'),
+            "enabled": environ.get("SMTP", "false").lower() in ('true', '1', 't'),
             "host": environ.get("SMTP_HOST"),
             "port": environ.get("SMTP_PORT", 25),
-            "tls": environ.get("SMTP_TLS", "").lower() in ('true', '1', 't'),
+            "tls": environ.get("SMTP_TLS", "false").lower() in ('true', '1', 't'),
             "username": environ.get("SMTP_USERNAME", ""),
             "password": environ.get("SMTP_PASSWORD", ""),
             "sender": environ.get("SMTP_SENDER"),
             "recipient": environ.get("SMTP_RECIPIENT")
         }
         self.ifttt = {
-            "enabled": environ.get("IFTTT", "").lower() in ('true', '1', 't'),
+            "enabled": environ.get("IFTTT", "false").lower() in ('true', '1', 't'),
             "event": environ.get("IFTTT_EVENT", "tgtg_notification"),
             "key": environ.get("IFTTT_KEY")
         }
         self.webhook = {
-            "enabled": environ.get("WEBHOOK", "").lower() in ('true', '1', 't'),
+            "enabled": environ.get("WEBHOOK", "false").lower() in ('true', '1', 't'),
             "url": environ.get("WEBHOOK_URL"),
             "method": environ.get("WEBHOOK_METHOD", "GET"),
-            "data": environ.get("WEBHOOK_DATA", None),
-            "json": environ.get("WEBHOOK_JSON", None),
+            "body": environ.get("WEBHOOK_BODY", None),
+            "type": environ.get("WEBHOOK_TYPE", "text/plain"),
             "timeout": int(environ.get("WEBHOOK_TIMEOUT", 60))
         }

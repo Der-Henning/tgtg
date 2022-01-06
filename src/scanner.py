@@ -6,7 +6,7 @@ from random import random
 from packaging import version
 import requests
 
-from models import Item, Config, TgtgAPIError, Error, ConfigurationError, TGTGConfigurationError
+from models import Item, Config, Metrics, TgtgAPIError, Error, ConfigurationError, TGTGConfigurationError
 from notifiers import Notifiers
 from tgtg import TgtgClient
 
@@ -40,6 +40,8 @@ class Scanner():
             for logger in loggers:
                 logger.setLevel(logging.DEBUG)
             log.info("Debugging mode enabled")
+        self.metrics = Metrics()
+        self.metrics.enable_metrics()
         self.item_ids = self.config.item_ids
         self.amounts = {}
         try:
@@ -93,12 +95,16 @@ class Scanner():
             except:
                 log.error("get item error! - %s", sys.exc_info())
                 error_count += 1
+                self.metrics.get_favorites_errors.inc()
         return items
 
     def _check_item(self, item: Item):
         try:
             if self.amounts[item.item_id] == 0 and item.items_available > self.amounts[item.item_id]:
                 self._send_messages(item)
+                self.metrics.send_notifications.inc()
+            self.metrics.item_count.labels(
+                item.item_id, item.display_name).set(item.items_available)
         except:
             self.amounts[item.item_id] = item.items_available
         finally:

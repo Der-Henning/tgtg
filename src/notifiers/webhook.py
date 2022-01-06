@@ -11,15 +11,12 @@ class WebHook():
         self.enabled = config.webhook["enabled"]
         self.method = config.webhook["method"]
         self.url = config.webhook["url"]
-        self.data = config.webhook["data"]
-        self.json = config.webhook["json"]
+        self.body = config.webhook["body"]
+        self.type = config.webhook["type"]
         self.timeout = config.webhook["timeout"]
         if self.enabled and (not self.method or not self.url):
             raise WebHookConfigurationError()
-        for match in re.finditer(r"\${{([a-zA-Z0-9]+)}}", self.data):
-            if not match.group(1) in Item.__dict__:
-                raise WebHookConfigurationError()
-        for match in re.finditer(r"\${{([a-zA-Z0-9]+)}}", self.json):
+        for match in re.finditer(r"\${{([a-zA-Z0-9]+)}}", self.body):
             if not match.group(1) in Item.__dict__:
                 raise WebHookConfigurationError()
         for match in re.finditer(r"\${{([a-zA-Z0-9]+)}}", self.url):
@@ -28,31 +25,24 @@ class WebHook():
 
     def send(self, item: Item):
         if self.enabled:
-            log.info("Sending Request Notification")
+            log.info("Sending WebHook Notification")
             try:
                 url = self.url
                 for match in re.finditer(r"\${{([a-zA-Z0-9]+)}}", url):
                     url = url.replace(match.group(0), item[match.group(1)])
-                data = None
-                headers = {}
-                if self.data:
-                    data = self.data
-                    for match in re.finditer(r"\${{([a-zA-Z0-9]+)}}", data):
-                        data = data.replace(
+                body = None
+                headers = {
+                    "Content-Type": self.type
+                }
+                if self.body:
+                    body = self.body
+                    for match in re.finditer(r"\${{([a-zA-Z0-9]+)}}", body):
+                        body = body.replace(
                             match.group(0), item[match.group(1)])
-                    headers["Content-Type"] = "text/plain"
-                    headers["Content-Length"] = str(len(data))
-                    log.debug("Webhook data: %s", data)
-                elif self.json:
-                    data = self.json
-                    for match in re.finditer(r"\${{([a-zA-Z0-9]+)}}", data):
-                        data = data.replace(
-                            match.group(0), item[match.group(1)])
-                    headers["Content-Type"] = "application/json"
-                    headers["Content-Length"] = str(len(data))
-                    log.debug("Webhook json: %s", data)
+                    headers["Content-Length"] = str(len(body))
+                    log.debug("Webhook body: %s", body)
                 res = requests.request(method=self.method, url=self.url,
-                                       timeout=self.timeout, data=data, headers=headers)
+                                       timeout=self.timeout, data=body, headers=headers)
                 if res.status_code != 200:
                     log.error(
                         "WebHook Request failed with status code %s", res.status_code)
