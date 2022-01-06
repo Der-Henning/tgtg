@@ -30,7 +30,7 @@ services:
       ## Possible ${{variable}} variables: item_id, items_available, display_name
       - WEBHOOK=false                                 ## true = enable notifications via costum WebHook
       - WEBHOOK_URL=                                  ## URL of your WebHook, can contain ${{variable}}
-      - WEBHOOK_METHO=POST                            ## Request Method
+      - WEBHOOK_METHOD=POST                            ## Request Method
       - WEBHOOK_BODY=                                 ## Data to send, can contain ${{variable}}
       - WEBHOOK_TYPE=                                 ## Content-Type for header, default: text/plain
       - WEBHOOK_TIMEOUT=60                            ## Request Timeout
