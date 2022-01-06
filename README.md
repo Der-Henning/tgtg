@@ -74,7 +74,7 @@ Scrape config:
     metrics_path: /
     static_configs:
     - targets:
-      - 'openhab:8000'
+      - 'localhost:8000'
 ````
 
 ## Developing
