@@ -1,5 +1,5 @@
 -r requirements.txt
 altgraph==0.17.2
 pyinstaller==4.7
-pyinstaller-hooks-contrib==2021.4
+pyinstaller-hooks-contrib==2021.5
 cryptocode==0.1
