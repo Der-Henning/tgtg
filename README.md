@@ -1,5 +1,7 @@
 [![Publish multi-arch Docker images](https://github.com/Der-Henning/tgtg/actions/workflows/docker-multi-arch.yml/badge.svg?branch=main)](https://github.com/Der-Henning/tgtg/actions/workflows/docker-multi-arch.yml)
 [![Tests](https://github.com/Der-Henning/tgtg/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/Der-Henning/tgtg/actions/workflows/tests.yml)
+[![CodeQL](https://github.com/Der-Henning/tgtg/actions/workflows/codeql-analysis.yml/badge.svg?branch=main)](https://github.com/Der-Henning/tgtg/actions/workflows/codeql-analysis.yml)
+[![GitHub release](https://img.shields.io/github/release/Der-Henning/tgtg?include_prereleases=&sort=semver&color=blue)](https://github.com/Der-Henning/tgtg/releases/)
 
 # TGTG Scanner
 
