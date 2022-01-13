@@ -1,8 +1,13 @@
 version: "3.3"
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     environment: 
       - DEBUG=true
     env_file: 
       - .env
+    volumes:
+      - .:/workspace:cached
+    command: /bin/sh -c "while sleep 1000; do :; done"
