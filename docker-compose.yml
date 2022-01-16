@@ -1,8 +1,8 @@
 version: "3.3"
 services:
   app:
-    image: derhenning/tgtg:latest
-    #image: tgtg-scanner:latest
+    image: derhenning/tgtg:latest         ## pre build image from docker hub
+    #image: tgtg-scanner:latest           ## locally build image
     environment: 
       - DEBUG=false                                   ## true for debug log messages
       - TGTG_USERNAME=                                ## TGTG Username / Login EMail
@@ -24,14 +24,18 @@ services:
       - PUSH_SAFER_KEY=
       - PUSH_SAFER_DEVICE_ID=
 
-      - IFTTT=true                                    ## true = enable notifications via IFTTT Webhooks
+      - IFTTT=false                                   ## true = enable notifications via IFTTT Webhooks
       - IFTTT_EVENT=tgtg_notification                 ## IFTTT Webhooks Event
       - IFTTT_KEY=                                    ## IFTTT Webhooks Key
 
       ## Possible ${{variable}} variables: item_id, items_available, display_name
       - WEBHOOK=false                                 ## true = enable notifications via costum WebHook
       - WEBHOOK_URL=                                  ## URL of your WebHook, can contain ${{variable}}
-      - WEBHOOK_METHOD=POST                            ## Request Method
+      - WEBHOOK_METHOD=POST                           ## Request Method
       - WEBHOOK_BODY=                                 ## Data to send, can contain ${{variable}}
       - WEBHOOK_TYPE=                                 ## Content-Type for header, default: text/plain
       - WEBHOOK_TIMEOUT=60                            ## Request Timeout
+    volumes:
+      - tokens:/tokens           ## volume to save TGTG credentials to reuse on next start up and avoid login mail
+volumes:
+  tokens:
