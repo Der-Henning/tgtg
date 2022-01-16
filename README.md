@@ -13,7 +13,7 @@ Running in a docker container the scanner can be seemlessly integrated with open
 
 ## Disclaimer
 
-TGTG forbids the use of their plattform the way this tool does. In their Terms and Conditions it says: "The Consumer must not misuse the Platform (including hacking or 'scraping')."
+Too Good To Go explicitly forbids the use of their plattform the way this tool does. In their Terms and Conditions it says: "The Consumer must not misuse the Platform (including hacking or 'scraping')."
 
 If you use this tool you do it at your own risk. TGTG may stop you from doing so and may even delete your account.
 
@@ -32,21 +32,21 @@ You have the following three options to install the scanner, ascending in comple
 This is the simplest but least flexible solution suitable for most operating systems.
 
 1. Download latest [Releases](https://github.com/Der-Henning/tgtg/releases) for your OS
-2. Unzip Archiv
+2. Unzip the archiv
 3. Edit ```config.ini``` as described in the file
 4. Run scanner
 
-You can run the scanner manually if you need it, add it to your autostart or create a service.
+You can run the scanner manually if you need it, add it to your system startup or create a service.
 
 ### Run with Docker
 
-My prefered method for servers using the pre build multi-arch linux images.
+My prefered method for servers using the pre build multi-arch linux images available on [Docker Hub](https://hub.docker.com/r/derhenning/tgtg).
 
 1. Install Docker and docker-compose
-2. Edit ```docker-compose.yml``` as described in the file
+2. Copy and edit ```docker-compose.yml``` as described in the file
 3. Run ```docker-compose up -d```
 
-The container creates a volume mounting ```\tokens``` where the app saves the TGTG credentials after login. These credentials will be reused on every start of the container. To login with a different account you have to delete the created volume.
+The container creates a volume mounting ```\tokens``` where the app saves the TGTG credentials after login. These credentials will be reused on every start of the container to avoid the mail login process. To login with a different account you have to delete the created volume.
 
 ### Run from source
 
@@ -59,7 +59,7 @@ Method for developers.
 
 ### Running
 
-When the scanner is started it will first try to login to yout TGTG account. Similar to loging in to the TGTG app, you have to click on the link send to you by mail. This won't work on your mobile phone if you have installed the TGTG app.
+When the scanner is started it will first try to login to your TGTG account. Similar to loging in to the TGTG app, you have to click on the link send to you by mail. This won't work on your mobile phone if you have installed the TGTG app, so you have to check your mailbox on PC.
 
 After a successfull login the scanner will send a test notification on all configured notifiers. If you don't reveive any notifications, please check your configuration.
 
@@ -93,7 +93,7 @@ Developing with VSCode you can open the project in the configured developement c
 
 ```make start``` builds and starts the developement docker image
 
-```make stop``` short for docker-compose stop
+```make stop``` short for ```docker-compose stop```
 
 ```make bash``` starts python docker image with mounted project and bash
 
@@ -109,10 +109,11 @@ The executables are build with pyinstaller.
 
 ```pyinstaller scanner.spec```
 
-### Creating notifiers
+### Creating new notifiers
 
-Feel free to create and contribute new notifiers for other services and endpoints.
+Feel free to create and contribute new notifiers for other services and endpoints. You can use an existing notifier as template.
 
 ---
+If you want to support me, feel free to buy me a coffee.
 
 <a href="https://www.buymeacoffee.com/henning" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" width="200"></a>

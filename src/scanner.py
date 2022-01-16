@@ -11,7 +11,7 @@ from notifiers import Notifiers
 from tgtg import TgtgClient
 
 VERSION_URL = 'https://api.github.com/repos/Der-Henning/tgtg/releases/latest'
-VERSION = "1.6"
+VERSION = "1.6.0"
 
 prog_folder = path.dirname(sys.executable) if getattr(
     sys, '_MEIPASS', False) else path.dirname(path.abspath(__file__))
