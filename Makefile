@@ -1,10 +1,10 @@
 image:
-	docker build -f docker/Dockerfile .
+	docker build -f Dockerfile -t tgtg-scanner:latest .
 
-start-dev:
+start:
 	docker-compose -f docker-compose.dev.yml up --build
 
-stop-dev:
+stop:
 	docker-compose -f docker-compose.dev.yml down
 
 bash:

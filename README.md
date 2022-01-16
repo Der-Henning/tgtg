@@ -46,6 +46,8 @@ My prefered method for servers using the pre build multi-arch linux images.
 2. Edit ```docker-compose.yml``` as described in the file
 3. Run ```docker-compose up -d```
 
+The container creates a volume mounting ```\tokens``` where the app saves the TGTG credentials after login. These credentials will be reused on every start of the container. To login with a different account you have to delete the created volume.
+
 ### Run from source
 
 Method for developers.
@@ -83,11 +85,17 @@ For developement I recommend using docker. The Makefile depends on docker and do
 
 Create ```.env``` based on ```sample.env``` for configuration.
 
-```make start-dev``` builds and starts the developement docker image
+Developing with VSCode you can open the project in the configured developement container.
 
-```make image``` builds docker image
+### Makefile commands
 
-```make bash``` starts python docker image with mounted project
+```make image``` builds docker image with tag ```tgtg-scanner```
+
+```make start``` builds and starts the developement docker image
+
+```make stop``` short for docker-compose stop
+
+```make bash``` starts python docker image with mounted project and bash
 
 ```make builder``` runs pyinstaller in python docker image
 

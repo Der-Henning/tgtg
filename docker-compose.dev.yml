@@ -9,5 +9,5 @@ services:
     env_file: 
       - .env
     volumes:
-      - .:/workspace:cached
-    command: /bin/sh -c "while sleep 1000; do :; done"
+      - ./src:/home/app
+    command: python /home/app/scanner.py

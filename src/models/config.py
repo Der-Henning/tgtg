@@ -17,6 +17,7 @@ class Config():
         self.smtp = {}
         self.ifttt = {}
         self.webhook = {}
+        self.token_path = None
         if file:
             self._ini_reader(file)
             log.info("Loaded config from config.ini")
@@ -78,6 +79,7 @@ class Config():
             "DEBUG", "false").lower() in ('true', '1', 't')
         self.metrics = environ.get("METRICS", "false").lower() in ('true', '1', 't')
         self.metrics_port = environ.get("METRICS_PORT", 8000)
+        self.token_path = environ.get("TGTG_TOKEN_PATH", None)
         self.tgtg = {
             "username": environ.get("TGTG_USERNAME"),
             "timeout": environ.get("TGTG_TIMEOUT", 60),

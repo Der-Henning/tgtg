@@ -1,20 +1,22 @@
 version: "2"
 services:
   base:
-    image: python:3.9
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     working_dir: /home/app
     volumes:
       - .:/home/app
   builder:
     extends:
       service: base
-    command: /bin/bash -c "pip install -r requirements.dev.txt && pyinstaller scanner.spec"
+    command: pyinstaller scanner.spec
   test:
     extends:
       service: base
     env_file: 
       - .env
-    command: /bin/bash -c "pip install -r requirements.txt && python -m unittest discover -v -s ./src"
+    command: python -m unittest discover -v -s ./src
   bash:
     extends:
       service: base

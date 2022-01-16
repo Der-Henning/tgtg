@@ -2,6 +2,7 @@ version: "3.3"
 services:
   app:
     image: derhenning/tgtg:latest
+    #image: tgtg-scanner:latest
     environment: 
       - DEBUG=false                                   ## true for debug log messages
       - TGTG_USERNAME=                                ## TGTG Username / Login EMail
