@@ -52,7 +52,7 @@ class Scanner():
                 access_token = open(path.join(self.config.token_path, 'accessToken'), 'r').read()
                 refresh_token = open(path.join(self.config.token_path, 'refreshToken'), 'r').read()
                 user_id = open(path.join(self.config.token_path, 'userID'), 'r').read()
-            except:
+            except Exception:
                 pass
         try:
             self.tgtg_client = TgtgClient(
@@ -79,13 +79,13 @@ class Scanner():
                 if item_id != "":
                     data = self.tgtg_client.get_item(item_id)
                     self._check_item(Item(data))
-            except:
+            except Exception:
                 log.error(
                     "itemID %s Error! - %s", item_id, sys.exc_info())
         for data in self._get_favorites():
             try:
                 self._check_item(Item(data))
-            except:
+            except Exception:
                 log.error("check item error! - %s", sys.exc_info())
         log.debug("new State: %s", self.amounts)
         if self.config.token_path:
@@ -93,7 +93,7 @@ class Scanner():
                 open(path.join(self.config.token_path, 'accessToken'), 'w').write(self.tgtg_client.access_token)
                 open(path.join(self.config.token_path, 'refreshToken'), 'w').write(self.tgtg_client.refresh_token)
                 open(path.join(self.config.token_path, 'userID'), 'w').write(self.tgtg_client.user_id)
-            except:
+            except Exception:
                 log.error("error saving credentials! - %s", sys.exc_info())
 
     def _get_favorites(self):
@@ -112,7 +112,7 @@ class Scanner():
                 if len(new_items) < page_size:
                     break
                 page += 1
-            except:
+            except Exception:
                 log.error("get item error! - %s", sys.exc_info())
                 error_count += 1
                 self.metrics.get_favorites_errors.inc()
@@ -126,7 +126,7 @@ class Scanner():
                     item.item_id, item.display_name).inc()
             self.metrics.item_count.labels(
                 item.item_id, item.display_name).set(item.items_available)
-        except:
+        except Exception:
             self.amounts[item.item_id] = item.items_available
         finally:
             if self.amounts[item.item_id] != item.items_available:
@@ -144,7 +144,7 @@ class Scanner():
         while True:
             try:
                 self._job()
-            except:
+            except Exception:
                 log.error("Job Error! - %s", sys.exc_info())
             finally:
                 sleep(self.config.sleep_time * (0.9 + 0.2 * random()))
@@ -172,7 +172,7 @@ def check_version():
                      version.parse(last_release['tag_name']))
             log.info("Please visit %s", last_release['html_url'])
             log.info("")
-    except:
+    except Exception:
         log.error("Version check Error! - %s", sys.exc_info())
 
 
