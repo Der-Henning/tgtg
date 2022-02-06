@@ -28,7 +28,7 @@ class WebHook():
             log.info("Sending WebHook Notification")
             try:
                 url = self.url
-                for match in re.finditer(r"\${{([a-zA-Z0-9]+)}}", url):
+                for match in re.finditer(r"\${{([a-zA-Z0-9_]+)}}", url):
                     url = url.replace(match.group(0), item[match.group(1)])
                 body = None
                 headers = {
@@ -36,7 +36,7 @@ class WebHook():
                 }
                 if self.body:
                     body = self.body
-                    for match in re.finditer(r"\${{([a-zA-Z0-9]+)}}", body):
+                    for match in re.finditer(r"\${{([a-zA-Z0-9_]+)}}", body):
                         body = body.replace(
                             match.group(0), item[match.group(1)])
                     headers["Content-Length"] = str(len(body))
