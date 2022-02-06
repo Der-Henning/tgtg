@@ -35,6 +35,7 @@ class Config():
         self.sleep_time = config["MAIN"].getint("SleepTime")
         self.metrics = config["MAIN"].getboolean("Metrics", False)
         self.metrics_port = config["MAIN"].getint("MetricsPort", 8000)
+        self.token_path = config["MAIN"].get("TokenPath", None)
         self.tgtg = {
             "username": config["TGTG"].get("Username"),
             "timeout": config["TGTG"].getint("Timeout", 60),

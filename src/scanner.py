@@ -41,7 +41,7 @@ class Scanner():
                 logger.setLevel(logging.DEBUG)
             log.info("Debugging mode enabled")
         self.metrics = Metrics()
-        self.metrics.enable_metrics()
+        if self.config.metrics: self.metrics.enable_metrics()
         self.item_ids = self.config.item_ids
         self.amounts = {}
         access_token = None

@@ -16,11 +16,11 @@ class WebHook():
         self.timeout = config.webhook["timeout"]
         if self.enabled and (not self.method or not self.url):
             raise WebHookConfigurationError()
-        for match in re.finditer(r"\${{([a-zA-Z0-9]+)}}", self.body):
-            if not match.group(1) in Item.__dict__:
+        for match in re.finditer(r"\${{([a-zA-Z0-9_]+)}}", self.body):
+            if not match.group(1) in Item.ATTRS:
                 raise WebHookConfigurationError()
-        for match in re.finditer(r"\${{([a-zA-Z0-9]+)}}", self.url):
-            if not match.group(1) in Item.__dict__:
+        for match in re.finditer(r"\${{([a-zA-Z0-9_]+)}}", self.url):
+            if not match.group(1) in Item.ATTRS:
                 raise WebHookConfigurationError()
 
     def send(self, item: Item):
@@ -29,16 +29,20 @@ class WebHook():
             try:
                 url = self.url
                 for match in re.finditer(r"\${{([a-zA-Z0-9_]+)}}", url):
-                    url = url.replace(match.group(0), item[match.group(1)])
+                    if hasattr(item, match.group(1)):
+                        url = url.replace(match.group(0), str(getattr(item, match.group(1))))
+                log.debug("Webhook url: %s", url)
                 body = None
                 headers = {
                     "Content-Type": self.type
                 }
+                log.debug("Webhook headers: %s", headers)
                 if self.body:
                     body = self.body
                     for match in re.finditer(r"\${{([a-zA-Z0-9_]+)}}", body):
-                        body = body.replace(
-                            match.group(0), item[match.group(1)])
+                        if hasattr(item, match.group(1)):
+                            body = body.replace(
+                                match.group(0), f"\"{getattr(item, match.group(1))}\"")
                     headers["Content-Length"] = str(len(body))
                     log.debug("Webhook body: %s", body)
                 res = requests.request(method=self.method, url=self.url,
