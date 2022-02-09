@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from notifiers.push_safer import PushSafer
 from notifiers.smtp import SMTP
 from notifiers.ifttt import IFTTT
@@ -27,12 +28,20 @@ class Notifiers():
             log.info("- WebHook: %s", self.webhook.url)
         if self.telegram.enabled:
             log.info("- Telegram: %s", self.telegram.chat_id)
-        test_item = Item({"item": {"item_id": "12345","price_including_taxes": {"minor_units": 1099,"code": "EUR"}},
-                        "display_name": "test_item",
-                        "pickup_interval": {
-                            "start": "2022-02-07T20:00:00Z",
-                            "end": "2022-02-07T21:00:00Z"},
-                        "items_available": 1})
+        now = datetime.now()
+        test_item = Item({
+            "item": {
+                "item_id": "12345",
+                "price_including_taxes": {
+                    "minor_units": 1099,
+                    "code": "EUR"
+                }
+            },
+            "display_name": "test_item",
+            "pickup_interval": {
+                "start": f"{now.year}-{now.month}-{now.day}T20:00:00Z",
+                "end": f"{now.year}-{now.month}-{now.day}T21:00:00Z"},
+            "items_available": 1})
         log.info("Sending test notifications ...")
         self.send(test_item)
 
