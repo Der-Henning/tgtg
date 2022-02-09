@@ -17,6 +17,7 @@ class Config():
         self.smtp = {}
         self.ifttt = {}
         self.webhook = {}
+        self.telegram = {}
         self.token_path = None
         if file:
             self._ini_reader(file)
@@ -71,6 +72,11 @@ class Config():
             "type": config["WEBHOOK"].get("type", "text/plain"),
             "timeout": config["WEBHOOK"].getint("timeout", 60)
         }
+        self.telegram = {
+            "enabled": config["TELEGRAM"].getboolean("enabled", False),
+            "token": config["TELEGRAM"].get("token"),
+            "chat_id": config["TELEGRAM"].get("chat_id")
+        }
 
     def _env_reader(self):
         self.item_ids = environ.get("ITEM_IDS").split(
@@ -115,4 +121,9 @@ class Config():
             "body": environ.get("WEBHOOK_BODY", None),
             "type": environ.get("WEBHOOK_TYPE", "text/plain"),
             "timeout": int(environ.get("WEBHOOK_TIMEOUT", 60))
+        }
+        self.telegram = {
+            "enabled": environ.get("TELEGRAM", "false").lower() in ('true', '1', 't'),
+            "token": environ.get("TELEGRAM_TOKEN"),
+            "chat_id": environ.get("TELEGRAM_CHAT_ID")
         }

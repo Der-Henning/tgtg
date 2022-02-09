@@ -46,3 +46,9 @@ class WebHookConfigurationError(ConfigurationError):
     def __init__(self, message="Invalid Webhook configuration"):
         self.message = message
         super().__init__(self.message)
+
+class TelegramConfigurationError(ConfigurationError):
+        def __init__(self, message="Invalid Telegram configuration"):
+            self.message = message
+            super().__init__(self.message)
+
