@@ -30,7 +30,7 @@ ITEM_PROPERTIES = [
     # "sales_taxes",
     # "tax_amount",
     # "price_excluding_taxes",
-    # "price_including_taxes",
+    "price_including_taxes",
     # "value_excluding_taxes",
     # "value_including_taxes",
     # "taxation_policy",
