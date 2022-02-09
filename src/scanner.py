@@ -48,30 +48,30 @@ class Scanner():
         access_token = None
         refresh_token = None
         user_id = None
-        # if self.config.token_path:
-        #     try:
-        #         access_token = open(path.join(self.config.token_path, 'accessToken'), 'r').read()
-        #         refresh_token = open(path.join(self.config.token_path, 'refreshToken'), 'r').read()
-        #         user_id = open(path.join(self.config.token_path, 'userID'), 'r').read()
-        #     except Exception:
-        #         pass
-        # try:
-        #     self.tgtg_client = TgtgClient(
-        #         email=self.config.tgtg["username"],
-        #         timeout=self.config.tgtg["timeout"],
-        #         access_token_lifetime=self.config.tgtg["access_token_lifetime"],
-        #         max_polling_tries=self.config.tgtg["max_polling_tries"],
-        #         polling_wait_time=self.config.tgtg["polling_wait_time"],
-        #         access_token=access_token,
-        #         refresh_token=refresh_token,
-        #         user_id=user_id
-        #     )
-        #     self.tgtg_client.login()
-        # except TgtgAPIError as err:
-        #     raise
-        # except Error as err:
-        #     log.error(err)
-        #     raise TGTGConfigurationError() from err
+        if self.config.token_path:
+            try:
+                access_token = open(path.join(self.config.token_path, 'accessToken'), 'r').read()
+                refresh_token = open(path.join(self.config.token_path, 'refreshToken'), 'r').read()
+                user_id = open(path.join(self.config.token_path, 'userID'), 'r').read()
+            except Exception:
+                pass
+        try:
+            self.tgtg_client = TgtgClient(
+                email=self.config.tgtg["username"],
+                timeout=self.config.tgtg["timeout"],
+                access_token_lifetime=self.config.tgtg["access_token_lifetime"],
+                max_polling_tries=self.config.tgtg["max_polling_tries"],
+                polling_wait_time=self.config.tgtg["polling_wait_time"],
+                access_token=access_token,
+                refresh_token=refresh_token,
+                user_id=user_id
+            )
+            self.tgtg_client.login()
+        except TgtgAPIError as err:
+            raise
+        except Error as err:
+            log.error(err)
+            raise TGTGConfigurationError() from err
         self.notifiers = Notifiers(self.config)
 
     def _job(self):
