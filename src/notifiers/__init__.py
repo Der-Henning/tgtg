@@ -33,8 +33,9 @@ class Notifiers():
             "item": {
                 "item_id": "12345",
                 "price_including_taxes": {
+                    "code": "EUR",
                     "minor_units": 1099,
-                    "code": "EUR"
+                    "decimals": 2
                 }
             },
             "display_name": "test_item",

@@ -48,3 +48,8 @@ ITEM_PROPERTIES = [
     # "favorite_count",
     # "buffet",
 ]
+PRICE_PROPERTIES = [
+    "code",
+    "minor_units",
+    "decimals"
+]

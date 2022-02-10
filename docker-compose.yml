@@ -4,6 +4,7 @@ services:
     image: derhenning/tgtg:latest         ## pre build image from docker hub
     #image: tgtg-scanner:latest           ## locally build image
     environment: 
+      - TZ=Europe/Berlin                              ## Set timezone for pickupdate, otherwise will be utc
       - DEBUG=false                                   ## true for debug log messages
       - TGTG_USERNAME=                                ## TGTG Username / Login EMail
       - SLEEP_TIME=60                                 ## Time to wait till next scan in seconds - default 60 seconds
@@ -32,7 +33,7 @@ services:
       - IFTTT_EVENT=tgtg_notification                 ## IFTTT Webhooks Event
       - IFTTT_KEY=                                    ## IFTTT Webhooks Key
 
-      ## Possible ${{variable}} variables: item_id, items_available, display_name
+      ## Possible ${{variable}} variables: item_id, items_available, display_name, price, currency, pickupdate
       - WEBHOOK=false                                 ## true = enable notifications via costum WebHook
       - WEBHOOK_URL=                                  ## URL of your WebHook, can contain ${{variable}}
       - WEBHOOK_METHOD=POST                           ## Request Method

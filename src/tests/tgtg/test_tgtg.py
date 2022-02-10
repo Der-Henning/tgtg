@@ -2,7 +2,7 @@ import unittest
 from os import environ
 import cryptocode
 from tgtg import TgtgClient
-from .constants import GLOBAL_PROPERTIES
+from .constants import GLOBAL_PROPERTIES, ITEM_PROPERTIES, PRICE_PROPERTIES
 
 
 class TGTGAPITest(unittest.TestCase):
@@ -45,3 +45,7 @@ class TGTGAPITest(unittest.TestCase):
         assert len(data) > 0
         for prop in GLOBAL_PROPERTIES:
             assert prop in data[0]
+        for prop in ITEM_PROPERTIES:
+            assert prop in data[0]["item"]
+        for prop in PRICE_PROPERTIES:
+            assert prop in data[0]["item"]["price_including_taxes"]

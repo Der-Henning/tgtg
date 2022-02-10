@@ -9,19 +9,15 @@ class Item():
         self.item_id = data["item"]["item_id"]
         self.items_available = data["items_available"]
         self.display_name = data["display_name"]
-        self.price = data["item"]["price_including_taxes"]["minor_units"] / 100
-        self.currency = data["item"]["price_including_taxes"]["code"]
+        self.price = 0
+        self.currency = ""
+        if 'price_including_taxes' in data["item"]:
+            self.price = data["item"]["price_including_taxes"]["minor_units"] / \
+                (10**data["item"]["price_including_taxes"]["decimals"])
+            self.currency = data["item"]["price_including_taxes"]["code"]
         if 'pickup_interval' in data:
             self.interval_start = data['pickup_interval']['start']
             self.interval_end = data['pickup_interval']['end']
-
-    @staticmethod
-    def _issameday(interval_start: datetime, interval_end: datetime):
-        return (
-            interval_start.day == interval_end.day and
-            interval_start.month == interval_end.month and
-            interval_start.year == interval_end.year
-        )
 
     @staticmethod
     def _datetimeparse(datestr):
@@ -37,7 +33,9 @@ class Item():
             pto = self._datetimeparse(self.interval_end)
             prange = "%02d:%02d - %02d:%02d" % (pfrom.hour,
                                                 pfrom.minute, pto.hour, pto.minute)
-            if self._issameday(pfrom, now):
+            if now.date() == pfrom.date():
                 return "Today, %s" % prange
+            elif (pfrom.date() - now.date()).days == 1:
+                return "Tomorrow, %s" % prange
             return "%d/%d, %s" % (pfrom.day, pfrom.month, prange)
         return None
