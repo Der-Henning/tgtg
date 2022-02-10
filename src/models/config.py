@@ -1,4 +1,5 @@
-from os import environ
+import sys
+from os import environ, path
 import configparser
 import logging
 
@@ -7,6 +8,7 @@ log = logging.getLogger('tgtg')
 
 class Config():
     def __init__(self, file=None):
+        self.file = file
         self.item_ids = []
         self.sleep_time = 60
         self.debug = False
@@ -24,7 +26,20 @@ class Config():
             log.info("Loaded config from config.ini")
         else:
             self._env_reader()
+            self._load_tokens()
             log.info("Loaded config from environment variables")
+
+    def _load_tokens(self):
+        if self.token_path:
+            try:
+                self.tgtg["access_token"] = open(
+                    path.join(self.token_path, 'accessToken'), 'r').read()
+                self.tgtg["refresh_token"] = open(
+                    path.join(self.token_path, 'refreshToken'), 'r').read()
+                self.tgtg["user_id"] = open(
+                    path.join(self.token_path, 'userID'), 'r').read()
+            except Exception:
+                pass
 
     def _ini_reader(self, file):
         config = configparser.ConfigParser()
@@ -32,13 +47,15 @@ class Config():
         self.debug = config["MAIN"].getboolean("Debug", False)
         self.item_ids = config["MAIN"].get("ItemIDs").split(
             ',') if "ItemIDs" in config["MAIN"] else []
-        #self.sleep_time = int(config["MAIN"]["SleepTime"])
         self.sleep_time = config["MAIN"].getint("SleepTime")
         self.metrics = config["MAIN"].getboolean("Metrics", False)
         self.metrics_port = config["MAIN"].getint("MetricsPort", 8000)
         self.token_path = config["MAIN"].get("TokenPath", None)
         self.tgtg = {
             "username": config["TGTG"].get("Username"),
+            "access_token": config["TGTG"].get("AccessToken"),
+            "refresh_token": config["TGTG"].get("RefreshToken"),
+            "user_id": config["TGTG"].get("UserId"),
             "timeout": config["TGTG"].getint("Timeout", 60),
             "access_token_lifetime": config["TGTG"].get("AccessTokenLifetime", 3600 * 4),
             "max_polling_tries": config["TGTG"].get("MaxPollingTries", 24),
@@ -84,11 +101,15 @@ class Config():
         self.sleep_time = int(environ.get("SLEEP_TIME", 20))
         self.debug = environ.get(
             "DEBUG", "false").lower() in ('true', '1', 't')
-        self.metrics = environ.get("METRICS", "false").lower() in ('true', '1', 't')
+        self.metrics = environ.get(
+            "METRICS", "false").lower() in ('true', '1', 't')
         self.metrics_port = environ.get("METRICS_PORT", 8000)
         self.token_path = environ.get("TGTG_TOKEN_PATH", None)
         self.tgtg = {
             "username": environ.get("TGTG_USERNAME"),
+            "access_token": environ.get("TGTG_ACCESS_TOKEN", None),
+            "refresh_token": environ.get("TGTG_REFRESH_TOKEN", None),
+            "user_id": environ.get("TGTG_USER_ID", None),
             "timeout": environ.get("TGTG_TIMEOUT", 60),
             "access_token_lifetime": environ.get("TGTG_ACCESS_TOKEN_LIFETIME", 3600 * 4),
             "max_polling_tries": environ.get("TGTG_MAX_POLLING_TRIES", 24),
@@ -127,3 +148,42 @@ class Config():
             "token": environ.get("TELEGRAM_TOKEN"),
             "chat_id": environ.get("TELEGRAM_CHAT_ID")
         }
+
+    def set(self, section, option, value):
+        if self.file:
+            try:
+                config = configparser.ConfigParser()
+                config.optionxform = str
+                config.read(self.file)
+                config.set(section, option, value)
+                with open(self.file, 'w') as configfile:
+                    config.write(configfile)
+                return True
+            except Exception:
+                log.error("error writing config.ini! - %s", sys.exc_info())
+        return False
+
+    def save_tokens(self, access_token, refresh_token, user_id):
+        if self.file:
+            try:
+                config = configparser.ConfigParser()
+                config.optionxform = str
+                config.read(self.file)
+                config.set("TGTG", "AccessToken", access_token)
+                config.set("TGTG", "RefreshToken", refresh_token)
+                config.set("TGTG", "UserId", user_id)
+                with open(self.file, 'w') as configfile:
+                    config.write(configfile)
+            except Exception:
+                log.error(
+                    "error saving credentials to config.ini! - %s", sys.exc_info())
+        if self.token_path:
+            try:
+                open(path.join(self.token_path, 'accessToken'),
+                     'w').write(access_token)
+                open(path.join(self.token_path, 'refreshToken'),
+                     'w').write(refresh_token)
+                open(path.join(self.token_path, 'userID'),
+                     'w').write(user_id)
+            except Exception:
+                log.error("error saving credentials! - %s", sys.exc_info())

@@ -11,7 +11,7 @@ from notifiers import Notifiers
 from tgtg import TgtgClient
 
 VERSION_URL = 'https://api.github.com/repos/Der-Henning/tgtg/releases/latest'
-VERSION = "1.7.0"
+VERSION = "1.8.0"
 
 prog_folder = path.dirname(sys.executable) if getattr(
     sys, '_MEIPASS', False) else path.dirname(path.abspath(__file__))
@@ -45,16 +45,6 @@ class Scanner():
             self.metrics.enable_metrics()
         self.item_ids = self.config.item_ids
         self.amounts = {}
-        access_token = None
-        refresh_token = None
-        user_id = None
-        if self.config.token_path:
-            try:
-                access_token = open(path.join(self.config.token_path, 'accessToken'), 'r').read()
-                refresh_token = open(path.join(self.config.token_path, 'refreshToken'), 'r').read()
-                user_id = open(path.join(self.config.token_path, 'userID'), 'r').read()
-            except Exception:
-                pass
         try:
             self.tgtg_client = TgtgClient(
                 email=self.config.tgtg["username"],
@@ -62,9 +52,9 @@ class Scanner():
                 access_token_lifetime=self.config.tgtg["access_token_lifetime"],
                 max_polling_tries=self.config.tgtg["max_polling_tries"],
                 polling_wait_time=self.config.tgtg["polling_wait_time"],
-                access_token=access_token,
-                refresh_token=refresh_token,
-                user_id=user_id
+                access_token=self.config.tgtg["access_token"],
+                refresh_token=self.config.tgtg["refresh_token"],
+                user_id=self.config.tgtg["user_id"]
             )
             self.tgtg_client.login()
         except TgtgAPIError as err:
@@ -89,16 +79,11 @@ class Scanner():
             except Exception:
                 log.error("check item error! - %s", sys.exc_info())
         log.debug("new State: %s", self.amounts)
-        if self.config.token_path:
-            try:
-                open(path.join(self.config.token_path, 'accessToken'),
-                     'w').write(self.tgtg_client.access_token)
-                open(path.join(self.config.token_path, 'refreshToken'),
-                     'w').write(self.tgtg_client.refresh_token)
-                open(path.join(self.config.token_path, 'userID'),
-                     'w').write(self.tgtg_client.user_id)
-            except Exception:
-                log.error("error saving credentials! - %s", sys.exc_info())
+        self.config.save_tokens(
+            self.tgtg_client.access_token, 
+            self.tgtg_client.refresh_token,
+            self.tgtg_client.user_id
+        )
 
     def _get_favorites(self):
         items = []
