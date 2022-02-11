@@ -87,13 +87,11 @@ Create ```.env``` based on ```sample.env``` for configuration.
 
 Developing with VSCode you can open the project in the configured developement container.
 
-### Installing dependencies
-
-```pip install -r requirements.dev.txt```
-
 ### Makefile commands
 
 ```make image``` builds docker image with tag ```tgtg-scanner:latest```
+
+```make install``` installs dependencies
 
 ```make start``` short for ```python src/scanner.py```
 

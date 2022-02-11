@@ -1,6 +1,9 @@
 image:
 	docker build -f Dockerfile -t tgtg-scanner:latest .
 
+install:
+	pip install -r requirements.dev.txt
+
 start:
 	python src/scanner.py
 
