@@ -21,6 +21,7 @@ class Config():
         self.webhook = {}
         self.telegram = {}
         self.token_path = environ.get("TGTG_TOKEN_PATH", None)
+        self.disable_tests = False
         if file:
             self._ini_reader(file)
             log.info("Loaded config from config.ini")
@@ -103,6 +104,8 @@ class Config():
         self.metrics = environ.get(
             "METRICS", "false").lower() in ('true', '1', 't')
         self.metrics_port = environ.get("METRICS_PORT", 8000)
+        self.disable_tests = environ.get(
+            "DISABLE_TESTS", "false").lower() in ('true', '1', 't')
         self.tgtg = {
             "username": environ.get("TGTG_USERNAME"),
             "access_token": environ.get("TGTG_ACCESS_TOKEN", None),
@@ -115,36 +118,36 @@ class Config():
         }
         self.push_safer = {
             "enabled": environ.get("PUSH_SAFER", "false").lower() in ('true', '1', 't'),
-            "key": environ.get("PUSH_SAFER_KEY"),
-            "deviceId": environ.get("PUSH_SAFER_DEVICE_ID")
+            "key": environ.get("PUSH_SAFER_KEY", None),
+            "deviceId": environ.get("PUSH_SAFER_DEVICE_ID", None)
         }
         self.smtp = {
             "enabled": environ.get("SMTP", "false").lower() in ('true', '1', 't'),
-            "host": environ.get("SMTP_HOST"),
+            "host": environ.get("SMTP_HOST", None),
             "port": environ.get("SMTP_PORT", 25),
             "tls": environ.get("SMTP_TLS", "false").lower() in ('true', '1', 't'),
             "username": environ.get("SMTP_USERNAME", ""),
             "password": environ.get("SMTP_PASSWORD", ""),
-            "sender": environ.get("SMTP_SENDER"),
-            "recipient": environ.get("SMTP_RECIPIENT")
+            "sender": environ.get("SMTP_SENDER", None),
+            "recipient": environ.get("SMTP_RECIPIENT", None)
         }
         self.ifttt = {
             "enabled": environ.get("IFTTT", "false").lower() in ('true', '1', 't'),
             "event": environ.get("IFTTT_EVENT", "tgtg_notification"),
-            "key": environ.get("IFTTT_KEY")
+            "key": environ.get("IFTTT_KEY", None)
         }
         self.webhook = {
             "enabled": environ.get("WEBHOOK", "false").lower() in ('true', '1', 't'),
-            "url": environ.get("WEBHOOK_URL"),
+            "url": environ.get("WEBHOOK_URL", ""),
             "method": environ.get("WEBHOOK_METHOD", "GET"),
-            "body": environ.get("WEBHOOK_BODY", None),
+            "body": environ.get("WEBHOOK_BODY", ""),
             "type": environ.get("WEBHOOK_TYPE", "text/plain"),
             "timeout": int(environ.get("WEBHOOK_TIMEOUT", 60))
         }
         self.telegram = {
             "enabled": environ.get("TELEGRAM", "false").lower() in ('true', '1', 't'),
-            "token": environ.get("TELEGRAM_TOKEN"),
-            "chat_id": environ.get("TELEGRAM_CHAT_ID")
+            "token": environ.get("TELEGRAM_TOKEN", None),
+            "chat_id": environ.get("TELEGRAM_CHAT_ID", None)
         }
 
     def set(self, section, option, value):

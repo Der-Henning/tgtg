@@ -11,6 +11,7 @@ services:
       - ITEM_IDS=                                     ## (optional) Comma seperated list of Item Ids to scan
       - METRICS=false                                 ## Enable to export metrics for Prometheus
       - METRICS_PORT=8000                             ## Port for metrics http server
+      - DISABLE_TESTS=false                           ## true to disable test notifications on startup
 
       - SMTP=true                                     ## true = enable mail notifications via smtp
       - SMTP_HOST=smtp.gmail.com                      ## smtp Server - smtp.gmail.com for google

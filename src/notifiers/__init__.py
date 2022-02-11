@@ -29,22 +29,23 @@ class Notifiers():
         if self.telegram.enabled:
             log.info("- Telegram: %s", self.telegram.chat_id)
         now = datetime.now()
-        test_item = Item({
-            "item": {
-                "item_id": "12345",
-                "price_including_taxes": {
-                    "code": "EUR",
-                    "minor_units": 1099,
-                    "decimals": 2
-                }
-            },
-            "display_name": "test_item",
-            "pickup_interval": {
-                "start": f"{now.year}-{now.month}-{now.day}T20:00:00Z",
-                "end": f"{now.year}-{now.month}-{now.day}T21:00:00Z"},
-            "items_available": 1})
-        log.info("Sending test notifications ...")
-        self.send(test_item)
+        if not config.disable_tests:
+            test_item = Item({
+                "item": {
+                    "item_id": "12345",
+                    "price_including_taxes": {
+                        "code": "EUR",
+                        "minor_units": 1099,
+                        "decimals": 2
+                    }
+                },
+                "display_name": "test_item",
+                "pickup_interval": {
+                    "start": f"{now.year}-{now.month}-{now.day}T20:00:00Z",
+                    "end": f"{now.year}-{now.month}-{now.day}T21:00:00Z"},
+                "items_available": 1})
+            log.info("Sending test notifications ...")
+            self.send(test_item)
 
     def send(self, item: Item):
         self.push_safer.send(item)
