@@ -87,27 +87,38 @@ Create ```.env``` based on ```sample.env``` for configuration.
 
 Developing with VSCode you can open the project in the configured developement container.
 
-### Makefile commands
-
-```make image``` builds docker image with tag ```tgtg-scanner```
-
-```make start``` builds and starts the developement docker image
-
-```make stop``` short for ```docker-compose stop```
-
-```make bash``` starts python docker image with mounted project and bash
-
-```make builder``` runs pyinstaller in python docker image
-
-```make test``` runs unittests
-
-### Building executables
-
-The executables are build with pyinstaller.
+### Installing dependencies
 
 ```pip install -r requirements.dev.txt```
 
-```pyinstaller scanner.spec```
+### Makefile commands
+
+```make image``` builds docker image with tag ```tgtg-scanner:latest```
+
+```make start``` short for ```python src/scanner.py```
+
+```make bash``` starts dev python docker image with installed dependencies and mounted project in bash
+
+```make executable``` creates bundled executable in ```/dist```
+
+```make test``` runs unittests
+
+```make clean``` cleans up docker compose
+
+### Helper functions
+
+```src/helper.py``` contains some usefull functions. Running ```python src/helper.py --help``` displays the available commands.
+
+````
+Usage: helper.py command
+  commands:
+  - credentials:            displays your TGTG tokens
+  - favorites:              displays your favorite magic bags data
+  - find [lat] [lng] [rad]: displays items for position and radius
+  - add [item_id]:          adds [item_id] to your favorites
+  - delete all:             removes all your favorites
+  - delete [item_id]:       removes [item_id] from your favorites
+````
 
 ### Creating new notifiers
 

@@ -20,7 +20,7 @@ class Config():
         self.ifttt = {}
         self.webhook = {}
         self.telegram = {}
-        self.token_path = None
+        self.token_path = environ.get("TGTG_TOKEN_PATH", None)
         if file:
             self._ini_reader(file)
             log.info("Loaded config from config.ini")
@@ -50,7 +50,6 @@ class Config():
         self.sleep_time = config["MAIN"].getint("SleepTime")
         self.metrics = config["MAIN"].getboolean("Metrics", False)
         self.metrics_port = config["MAIN"].getint("MetricsPort", 8000)
-        self.token_path = config["MAIN"].get("TokenPath", None)
         self.tgtg = {
             "username": config["TGTG"].get("Username"),
             "access_token": config["TGTG"].get("AccessToken"),
@@ -104,7 +103,6 @@ class Config():
         self.metrics = environ.get(
             "METRICS", "false").lower() in ('true', '1', 't')
         self.metrics_port = environ.get("METRICS_PORT", 8000)
-        self.token_path = environ.get("TGTG_TOKEN_PATH", None)
         self.tgtg = {
             "username": environ.get("TGTG_USERNAME"),
             "access_token": environ.get("TGTG_ACCESS_TOKEN", None),

@@ -1,13 +1,14 @@
 version: "3.3"
 services:
-  app:
+  bash:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    environment: 
-      - DEBUG=true
+    working_dir: /home/app
     env_file: 
       - .env
     volumes:
-      - ./src:/home/app
-    command: python /home/app/scanner.py
+      - .:/home/app
+    stdin_open: true
+    tty: true
+    command: /bin/bash

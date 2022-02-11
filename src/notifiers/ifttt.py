@@ -16,7 +16,7 @@ class IFTTT():
 
     def send(self, item: Item):
         if self.enabled:
-            log.info("Sending IFTTT Notification")
+            log.debug("Sending IFTTT Notification")
             requests.post(self.url,
                           json={"value1": item.display_name,
                                 "value2": item.items_available},

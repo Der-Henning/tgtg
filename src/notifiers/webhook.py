@@ -25,7 +25,7 @@ class WebHook():
 
     def send(self, item: Item):
         if self.enabled:
-            log.info("Sending WebHook Notification")
+            log.debug("Sending WebHook Notification")
             try:
                 url = self.url
                 for match in re.finditer(r"\${{([a-zA-Z0-9_]+)}}", url):

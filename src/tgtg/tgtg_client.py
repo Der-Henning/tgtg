@@ -17,9 +17,9 @@ AUTH_POLLING_ENDPOINT = "auth/v3/authByRequestPollingId"
 SIGNUP_BY_EMAIL_ENDPOINT = "auth/v3/signUpByEmail"
 REFRESH_ENDPOINT = "auth/v3/token/refresh"
 USER_AGENTS = [
-    "TGTG/21.9.3 Dalvik/2.1.0 (Linux; U; Android 6.0.1; Nexus 5 Build/M4B30Z)",
-    "TGTG/21.9.3 Dalvik/2.1.0 (Linux; U; Android 7.0; SM-G935F Build/NRD90M)",
-    "TGTG/21.9.3 Dalvik/2.1.0 (Linux; Android 6.0.1; SM-G920V Build/MMB29K)",
+    "TGTG/21.12.1 Dalvik/2.1.0 (Linux; U; Android 6.0.1; Nexus 5 Build/M4B30Z)",
+    "TGTG/21.12.1 Dalvik/2.1.0 (Linux; U; Android 7.0; SM-G935F Build/NRD90M)",
+    "TGTG/21.12.1 Dalvik/2.1.0 (Linux; Android 6.0.1; SM-G920V Build/MMB29K)",
 ]
 DEFAULT_ACCESS_TOKEN_LIFETIME = 3600 * 4  # 4 hours
 DEFAULT_MAX_POLLING_TRIES = 24  # 24 * POLLING_WAIT_TIME = 2 minutes
@@ -66,6 +66,9 @@ class TgtgClient:
         self.timeout = timeout
         self.session = requests.Session()
         self.session.headers = self._headers
+
+    def __del__(self):
+        self.session.close()
 
     def _get_url(self, path):
         return urljoin(self.base_url, path)

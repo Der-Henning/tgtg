@@ -29,7 +29,7 @@ log = logging.getLogger('tgtg')
 
 
 class Scanner():
-    def __init__(self):
+    def __init__(self, notifiers=True):
         self.config = Config(config_file) if path.isfile(
             config_file) else Config()
         if self.config.debug:
@@ -62,7 +62,8 @@ class Scanner():
         except Error as err:
             log.error(err)
             raise TGTGConfigurationError() from err
-        self.notifiers = Notifiers(self.config)
+        if notifiers:
+            self.notifiers = Notifiers(self.config)
 
     def _job(self):
         for item_id in self.item_ids:

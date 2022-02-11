@@ -17,7 +17,7 @@ class PushSafer():
 
     def send(self, item: Item):
         if self.enabled:
-            log.info("Sending PushSafer Notification")
+            log.debug("Sending PushSafer Notification")
             message = f"New Amount: {item.items_available}"
             self.client.send_message(message, item.display_name, self.device_id,
                                      "", "", "", "", "", "", "", "", "", "", "", "", "")

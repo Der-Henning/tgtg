@@ -2,16 +2,17 @@ image:
 	docker build -f Dockerfile -t tgtg-scanner:latest .
 
 start:
-	docker-compose -f docker-compose.dev.yml up --build
-
-stop:
-	docker-compose -f docker-compose.dev.yml down
+	python src/scanner.py
 
 bash:
-	docker-compose -f docker-compose.builder.yml run --rm bash
+	docker-compose -f docker-compose.dev.yml build
+	docker-compose -f docker-compose.dev.yml run --rm bash
 
-builder:
-	docker-compose -f docker-compose.builder.yml run --rm builder
+executable:
+	pyinstaller scanner.spec
 
 test:
-	docker-compose -f docker-compose.builder.yml run --rm test
+	python -m unittest discover -v -s ./src
+
+clean:
+	docker-compose -f docker-compose.dev.yml down --remove-orphans

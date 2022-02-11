@@ -24,7 +24,7 @@ class Telegram():
 
     def send(self, item: Item):
         if self.enabled:
-            log.info("Sending Telegram Notification")
+            log.debug("Sending Telegram Notification")
             fmt = telegram.ParseMode.MARKDOWN
             name = item.display_name
             items = item.items_available

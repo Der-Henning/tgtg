@@ -63,6 +63,6 @@ class SMTP():
 
     def send(self, item: Item):
         if self.enabled:
-            log.info("Sending Mail Notification")
+            log.debug("Sending Mail Notification")
             self._send_mail(
                 "New Magic Bags", f"{item.display_name} - New Amount: {item.items_available}")
