@@ -16,7 +16,7 @@ class Telegram():
         if self.enabled:
             try:
                 self.bot = telegram.Bot(token=self.token)
-                self.bot.get_updates()
+                self.bot.get_me(timeout=60)
             except Exception as err:
                 raise TelegramConfigurationError()
         if self.enabled and not self.chat_id:
@@ -36,16 +36,22 @@ class Telegram():
                 name, items, price, currency, pickupdate)
             try:
                 self.bot.send_message(
-                    chat_id=self.chat_id, text=message, parse_mode=fmt)
+                    chat_id=self.chat_id,
+                    text=message,
+                    parse_mode=fmt,
+                    timeout=60
+                )
             except Exception:
                 raise TelegramConfigurationError()
 
     def _get_chat_id(self):
         log.warning(
             "You enabled the Telegram notifications without providing a chat id!")
-        messages = self.bot.get_updates()
+        messages = []
+        messages = self.bot.get_updates(timeout=10)
         while len(messages) == 0:
             input("Please send a message to your bot. \n Press Return to continue ...")
+            messages = self.bot.get_updates(timeout=60)
         chat_id = messages[-1].message.chat.id
         log.warning("Chat id of the last message the bot received: %s", chat_id)
         self.chat_id = chat_id
