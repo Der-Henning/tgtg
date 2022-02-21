@@ -5,19 +5,19 @@
 
 # TGTG Scanner
 
-Scans your favorite TGTG Magic Bags for new available items and notifies you via mail, IFTTT, Telegram, pushSafer or any other WebHook. Notifications will be send when the available amount of Magic Bags rises from zero to something.
+TGTG Scanner observes your favorite TGTG Magic Bags for new available items and notifies you via mail, IFTTT, Telegram, pushSafer or any other WebHook. Notifications will be send when the available amount of Magic Bags rises from zero to something.
 
 Additionally the currently available amounts can be provided via a http server.
 
 Running in a docker container the scanner can be seemlessly integrated with openhab, prometheus and other automation, notification and visualization services.
 
+This software is provided as is without warranty of any kind. If you have problems, find bugs or have suggestions for improvement feel free to create an issue or contribute to the project. Before creating an issue please refere to the [FAQ](https://github.com/Der-Henning/tgtg/wiki/FAQ).
+
 ## Disclaimer
 
 Too Good To Go explicitly forbids the use of their plattform the way this tool does. In their Terms and Conditions it says: "The Consumer must not misuse the Platform (including hacking or 'scraping')."
 
-If you use this tool you do it at your own risk. TGTG may stop you from doing so and may even delete your account.
-
-The software is provided as is without warranty of any kind. If you have problems, find bugs or have suggestions for improvement feel free to create an issue or contribute to the project.
+If you use this tool you do it at your own risk. TGTG may stop you from doing so by (temporarily) blocking your access and may even delete your account.
 
 ## Installation
 
