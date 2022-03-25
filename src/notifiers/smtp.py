@@ -59,7 +59,11 @@ class SMTP():
         message.attach(MIMEText(text, 'plain'))
         body = message.as_string()
         self._stay_connected()
-        self.server.sendmail(self.sender, self.recipient, body)
+        try:
+            self.server.sendmail(self.sender, self.recipient, body)
+        except:
+            self._connect()
+            self.server.sendmail(self.sender, self.recipient, body)
 
     def send(self, item: Item):
         if self.enabled:

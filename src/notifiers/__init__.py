@@ -48,8 +48,23 @@ class Notifiers():
             self.send(test_item)
 
     def send(self, item: Item):
-        self.push_safer.send(item)
-        self.smtp.send(item)
-        self.ifttt.send(item)
-        self.webhook.send(item)
-        self.telegram.send(item)
+        try:
+            self.push_safer.send(item)
+        except Exception as err:
+            log.error(err)
+        try:
+            self.smtp.send(item)
+        except Exception as err:
+            log.error(err)
+        try:
+            self.ifttt.send(item)
+        except Exception as err:
+            log.error(err)
+        try:
+            self.webhook.send(item)
+        except Exception as err:
+            log.error(err)
+        try:
+            self.telegram.send(item)
+        except Exception as err:
+            log.error(err)
