@@ -42,7 +42,7 @@ class WebHook():
                     for match in re.finditer(r"\${{([a-zA-Z0-9_]+)}}", body):
                         if hasattr(item, match.group(1)):
                             body = body.replace(
-                                match.group(0), f"\"{getattr(item, match.group(1))}\"")
+                                match.group(0), f"{getattr(item, match.group(1))}")
                     headers["Content-Length"] = str(len(body))
                     log.debug("Webhook body: %s", body)
                 res = requests.request(method=self.method, url=self.url,
