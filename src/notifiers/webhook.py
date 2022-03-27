@@ -45,7 +45,7 @@ class WebHook():
                                 match.group(0), f"{getattr(item, match.group(1))}")
                     headers["Content-Length"] = str(len(body))
                     log.debug("Webhook body: %s", body)
-                res = requests.request(method=self.method, url=self.url,
+                res = requests.request(method=self.method, url=url,
                                        timeout=self.timeout, data=body, headers=headers)
                 if res.status_code != 200:
                     log.error(
