@@ -34,15 +34,17 @@ class Telegram():
 
             message = "*%s*\n*Available*: %d\n*Price*: %.2f %s\n*Pickup*: %s" % (
                 name, items, price, currency, pickupdate)
-            try:
-                self.bot.send_message(
-                    chat_id=self.chat_id,
-                    text=message,
-                    parse_mode=fmt,
-                    timeout=60
-                )
-            except Exception:
-                raise TelegramConfigurationError()
+            for chat_id in self.chat_id.split(','):
+                try:
+                    self.bot.send_message(
+                        chat_id=self.chat_id,
+                        text=message,
+                        parse_mode=fmt,
+                        timeout=60
+                    )
+                except Exception as err:
+                    log.error(err)
+                    #raise TelegramConfigurationError()
 
     def _get_chat_id(self):
         log.warning(
