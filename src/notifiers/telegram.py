@@ -37,7 +37,7 @@ class Telegram():
             for chat_id in self.chat_id.split(','):
                 try:
                     self.bot.send_message(
-                        chat_id=self.chat_id,
+                        chat_id=chat_id,
                         text=message,
                         parse_mode=fmt,
                         timeout=60
