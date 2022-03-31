@@ -8,7 +8,7 @@ prometheus-client==0.13.1
 pyparsing==3.0.7
 python-pushsafer==1.0
 python-telegram-bot==13.11
-pytz==2021.3
+pytz==2022.1
 pytz-deprecation-shim==0.1.0.post0
 requests==2.27.1
 six==1.16.0
