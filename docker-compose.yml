@@ -34,11 +34,14 @@ services:
       - IFTTT_EVENT=tgtg_notification                 ## IFTTT Webhooks Event
       - IFTTT_KEY=                                    ## IFTTT Webhooks Key
 
-      ## Possible ${{variable}} variables: item_id, items_available, display_name, price, currency, pickupdate
+      ## Possible $${{variable}} variables: item_id, items_available, display_name, price, currency, pickupdate
+      ## Example:
+   ## - 'WEBHOOK_BODY={"message": "$${{display_name}} - New Amount: $${{items_available}}", "priority": 2, "title": "New TGTG Items"}'
+      ## Notice that you have to enclose the variable with ''
       - WEBHOOK=false                                 ## true = enable notifications via costum WebHook
-      - WEBHOOK_URL=                                  ## URL of your WebHook, can contain ${{variable}}
+      - WEBHOOK_URL=                                  ## URL of your WebHook, can contain $${{variable}}
       - WEBHOOK_METHOD=POST                           ## Request Method
-      - WEBHOOK_BODY=                                 ## Data to send, can contain ${{variable}}
+      - WEBHOOK_BODY=                                 ## Data to send, can contain $${{variable}}
       - WEBHOOK_TYPE=                                 ## Content-Type for header, default: text/plain
       - WEBHOOK_TIMEOUT=60                            ## Request Timeout
     volumes:
