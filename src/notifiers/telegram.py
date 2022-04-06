@@ -1,4 +1,6 @@
 import logging
+from time import sleep
+import random
 import telegram
 from models import Item, Config, TelegramConfigurationError
 
@@ -34,7 +36,7 @@ class Telegram():
 
             message = "*%s*\n*Available*: %d\n*Price*: %.2f %s\n*Pickup*: %s" % (
                 name, items, price, currency, pickupdate)
-            for chat_id in self.chat_id.split(','):
+            for chat_id in str(self.chat_id).split(','):
                 try:
                     self.bot.send_message(
                         chat_id=chat_id,
@@ -47,18 +49,29 @@ class Telegram():
                     #raise TelegramConfigurationError()
 
     def _get_chat_id(self):
+        """Initializes an interaction with the user to obtain the telegram chat id. \n
+        On using the config.ini configuration the chat id will be stored in the config.ini.
+        """
         log.warning(
             "You enabled the Telegram notifications without providing a chat id!")
-        messages = []
-        messages = self.bot.get_updates(timeout=10)
-        while len(messages) == 0:
-            input("Please send a message to your bot. \n Press Return to continue ...")
-            messages = self.bot.get_updates(timeout=60)
-        chat_id = messages[-1].message.chat.id
-        log.warning("Chat id of the last message the bot received: %s", chat_id)
-        self.chat_id = chat_id
-        if self.config.set("TELEGRAM", "chat_id", str(chat_id)):
+        code = random.randint(1111, 9999)
+        log.warning("Send %s to the bot in your desired chat.", code)
+        log.warning("Waiting for code ...")
+        while not self.chat_id:
+            updates = self.bot.get_updates(timeout=60)
+            for update in reversed(updates):
+                if int(update.message.text) == code:
+                    log.warning(
+                        "Received code from %s %s on chat id %s",
+                        update.message.from_user.first_name,
+                        update.message.from_user.last_name,
+                        update.message.chat_id
+                    )
+                    self.chat_id = str(update.message.chat_id)
+            sleep(1)
+        if self.config.set("TELEGRAM", "chat_id", self.chat_id):
             log.warning("Saved chat id in your config file")
         else:
             log.warning(
-                "It is recommended to set the TELEGRAM_CHAT_ID variable")
+                "For persistence please set TELEGRAM_CHAT_ID=%s", self.chat_id
+            )
