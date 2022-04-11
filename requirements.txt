@@ -4,7 +4,7 @@ certifi==2021.10.8
 charset-normalizer==2.0.12
 idna==3.3
 packaging==21.3
-prometheus-client==0.14.0
+prometheus-client==0.14.1
 pyparsing==3.0.7
 python-pushsafer==1.0
 python-telegram-bot==13.11
