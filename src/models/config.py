@@ -92,7 +92,8 @@ class Config():
         self.telegram = {
             "enabled": config["TELEGRAM"].getboolean("enabled", False),
             "token": config["TELEGRAM"].get("token"),
-            "chat_id": config["TELEGRAM"].get("chat_id")
+            "chat_id": config["TELEGRAM"].get("chat_id"),
+            "body": config["TELEGRAM"].get("body", "*${{display_name}}*\n*Available*: ${{items_available}}\n*Price*: ${{price}} ${{currency}}\n*Pickup*: ${{pickupdate}}").replace('\\n', '\n')
         }
 
     def _env_reader(self):
@@ -147,7 +148,8 @@ class Config():
         self.telegram = {
             "enabled": environ.get("TELEGRAM", "false").lower() in ('true', '1', 't'),
             "token": environ.get("TELEGRAM_TOKEN", None),
-            "chat_id": environ.get("TELEGRAM_CHAT_ID", None)
+            "chat_id": environ.get("TELEGRAM_CHAT_ID", None),
+            "body": environ.get("TELEGRAM_BODY", "*${{display_name}}*\n*Available*: ${{items_available}}\n*Price*: ${{price}} ${{currency}}\n*Pickup*: ${{pickupdate}}").replace('\\n', '\n')
         }
 
     def set(self, section, option, value):

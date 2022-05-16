@@ -27,12 +27,16 @@ class Notifiers():
         if self.webhook.enabled:
             log.info("- WebHook: %s", self.webhook.url)
         if self.telegram.enabled:
-            log.info("- Telegram: %s", self.telegram.chat_id)
+            log.info("- Telegram: %s", self.telegram.chat_ids)
         now = datetime.now()
         if not config.disable_tests:
             test_item = Item({
                 "item": {
                     "item_id": "12345",
+                    "average_overall_rating": {
+                        "average_overall_rating": 4.5
+                    },
+                    "description": "This is a test item",
                     "price_including_taxes": {
                         "code": "EUR",
                         "minor_units": 1099,
@@ -40,6 +44,7 @@ class Notifiers():
                     }
                 },
                 "display_name": "test_item",
+                "favorite": True,
                 "pickup_interval": {
                     "start": f"{now.year}-{now.month}-{now.day}T20:00:00Z",
                     "end": f"{now.year}-{now.month}-{now.day}T21:00:00Z"},

@@ -139,6 +139,13 @@ class Scanner():
             finally:
                 sleep(self.config.sleep_time * (0.9 + 0.2 * random()))
 
+    def __del__(self):
+        try:
+            if self.notifiers.telegram.updater:
+                self.notifiers.telegram.updater.stop()
+        except:
+            pass
+
 
 def welcome_message():
     # pylint: disable=W1401
@@ -180,6 +187,7 @@ def main():
         sys.exit(1)
     except KeyboardInterrupt:
         log.info("Shutting down scanner ...")
+
     except SystemExit:
         sys.exit(1)
     except:

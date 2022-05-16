@@ -1,5 +1,4 @@
 import logging
-import re
 import requests
 from models import Item, Config, WebHookConfigurationError
 
@@ -16,21 +15,15 @@ class WebHook():
         self.timeout = config.webhook["timeout"]
         if self.enabled and (not self.method or not self.url):
             raise WebHookConfigurationError()
-        for match in re.finditer(r"\${{([a-zA-Z0-9_]+)}}", self.body):
-            if not match.group(1) in Item.ATTRS:
-                raise WebHookConfigurationError()
-        for match in re.finditer(r"\${{([a-zA-Z0-9_]+)}}", self.url):
-            if not match.group(1) in Item.ATTRS:
-                raise WebHookConfigurationError()
+        if self.enabled:
+            Item.check_mask(self.body)
+            Item.check_mask(self.url)
 
     def send(self, item: Item):
         if self.enabled:
             log.debug("Sending WebHook Notification")
             try:
-                url = self.url
-                for match in re.finditer(r"\${{([a-zA-Z0-9_]+)}}", url):
-                    if hasattr(item, match.group(1)):
-                        url = url.replace(match.group(0), str(getattr(item, match.group(1))))
+                url = item.unmask(self.url)
                 log.debug("Webhook url: %s", url)
                 body = None
                 headers = {
@@ -38,16 +31,12 @@ class WebHook():
                 }
                 log.debug("Webhook headers: %s", headers)
                 if self.body:
-                    body = self.body
-                    for match in re.finditer(r"\${{([a-zA-Z0-9_]+)}}", body):
-                        if hasattr(item, match.group(1)):
-                            body = body.replace(
-                                match.group(0), f"{getattr(item, match.group(1))}")
+                    body = item.unmask(self.body)
                     headers["Content-Length"] = str(len(body))
                     log.debug("Webhook body: %s", body)
                 res = requests.request(method=self.method, url=url,
                                        timeout=self.timeout, data=body, headers=headers)
-                if res.status_code != 200:
+                if not res.ok:
                     log.error(
                         "WebHook Request failed with status code %s", res.status_code)
             except Exception as err:

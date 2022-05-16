@@ -18,6 +18,12 @@ class ConfigurationError(Error):
     pass
 
 
+class MaskConfigurationError(ConfigurationError):
+    def __init__(self, variable):
+        self.message = f"Unrecognized variable {variable}"
+        super().__init__(self.message)
+
+
 class TGTGConfigurationError(ConfigurationError):
     def __init__(self, message="Invalid TGTG configuration"):
         self.message = message
