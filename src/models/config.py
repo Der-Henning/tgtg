@@ -29,6 +29,7 @@ class Config():
             self._env_reader()
             self._load_tokens()
             log.info("Loaded config from environment variables")
+        self.telegram["chat_ids"] = [] if not self.telegram["chat_ids"] else self.telegram["chat_ids"].split(',')
 
     def _load_tokens(self):
         if self.token_path:
@@ -92,7 +93,8 @@ class Config():
         self.telegram = {
             "enabled": config["TELEGRAM"].getboolean("enabled", False),
             "token": config["TELEGRAM"].get("token"),
-            "chat_id": config["TELEGRAM"].get("chat_id"),
+            "chat_ids": config["TELEGRAM"].get("chat_id"), #only for backwards compability
+            "chat_ids": config["TELEGRAM"].get("chat_ids"),
             "body": config["TELEGRAM"].get("body", "*${{display_name}}*\n*Available*: ${{items_available}}\n*Price*: ${{price}} ${{currency}}\n*Pickup*: ${{pickupdate}}").replace('\\n', '\n')
         }
 
@@ -148,7 +150,8 @@ class Config():
         self.telegram = {
             "enabled": environ.get("TELEGRAM", "false").lower() in ('true', '1', 't'),
             "token": environ.get("TELEGRAM_TOKEN", None),
-            "chat_id": environ.get("TELEGRAM_CHAT_ID", None),
+            "chat_ids": environ.get("TELEGRAM_CHAT_ID", None), #only for backwards compability
+            "chat_ids": environ.get("TELEGRAM_CHAT_IDS", None),
             "body": environ.get("TELEGRAM_BODY", "*${{display_name}}*\n*Available*: ${{items_available}}\n*Price*: ${{price}} ${{currency}}\n*Pickup*: ${{pickupdate}}").replace('\\n', '\n')
         }
 

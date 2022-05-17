@@ -2,7 +2,9 @@ import logging
 from time import sleep
 import random
 import telegram
+import datetime
 from telegram.ext import Updater, CommandHandler
+from telegram.bot import BotCommand
 from models import Item, Config, TelegramConfigurationError
 
 log = logging.getLogger('tgtg')
@@ -15,28 +17,37 @@ class Telegram():
         self.enabled = config.telegram["enabled"]
         self.token = config.telegram["token"]
         self.body = config.telegram["body"]
-        self.chat_ids = config.telegram["chat_id"]
+        self.chat_ids = config.telegram["chat_ids"]
+        self.mute = None
         if self.enabled and not self.token:
             raise TelegramConfigurationError("Missing Telegram token")
         if self.enabled:
             Item.check_mask(self.body)
             try:
-                # self.bot = telegram.Bot(token=self.token)
-                # self.bot.get_me(timeout=60)
                 self.updater = Updater(token=self.token)
                 self.updater.bot.get_me(timeout=60)
             except Exception as err:
                 raise TelegramConfigurationError()
             if not self.chat_ids:
                 self._get_chat_id()
-            else:
-                self.chat_ids = self.chat_ids.split(',')
-            self.updater.dispatcher.add_handler(CommandHandler("start", self._test))
+            self.updater.dispatcher.add_handler(CommandHandler("help", self._help))
+            self.updater.dispatcher.add_handler(CommandHandler("mute", self._mute))
+            self.updater.dispatcher.add_handler(CommandHandler("unmute", self._unmute))
             self.updater.dispatcher.add_error_handler(self._error)
+            self.updater.bot.set_my_commands([
+                BotCommand('help', 'Displays available Commands'),
+                BotCommand('mute', 'Deaktivates Telegram Notifications for x days'),
+                BotCommand('unmute', 'Reactivates Telegram Notifications')
+            ])
             self.updater.start_polling()
 
     def send(self, item: Item):
         if self.enabled:
+            if self.mute and self.mute > datetime.datetime.now():
+                return
+            elif self.mute:
+                log.info("Reactivated Telegram Notifications")
+                self.mute = None
             log.debug("Sending Telegram Notification")
             fmt = telegram.ParseMode.MARKDOWN
             message = item.unmask(self.body)
@@ -47,15 +58,30 @@ class Telegram():
                         chat_id=chat_id,
                         text=message,
                         parse_mode=fmt,
-                        timeout=60
+                        timeout=60,
+                        disable_web_page_preview=True
                     )
                 except Exception as err:
                     log.error(err)
                     #raise TelegramConfigurationError()
 
-    def _test(self, update, context):
-        """Send a message when the command /start is issued."""
-        update.message.reply_text('Hi!')
+    def _help(self, update, context):
+        """Send message containing available bot commands"""
+        update.message.reply_text('Deactivate Telegram Notifications for x days using\n/mute x\nReactivate with /unmute')
+
+    def _mute(self, update, context):
+        """Deactivates Telegram Notifications for x days"""
+        days = int(context.args[0]) if context.args and context.args[0].isnumeric() else 1
+        self.mute = datetime.datetime.now() + datetime.timedelta(days=days)
+        log.info('Deactivated Telegram Notifications for %s days', days)
+        log.info('Reactivation at %s', self.mute)
+        update.message.reply_text(f"Deactivated Telegram Notifications for {days} days.\nReactivating at {self.mute} or use /unmute.")
+
+    def _unmute(self, update, context):
+        """Reactivate Telegram Notifications"""
+        self.mute = None
+        log.info("Reactivated Telegram Notifications")
+        update.message.reply_text("Reactivated Telegram Notifications")
     
     def _error(self, update, context):
         """Log Errors caused by Updates."""
@@ -82,9 +108,9 @@ class Telegram():
                     )
                     self.chat_ids = [str(update.message.chat_id)]
             sleep(1)
-        if self.config.set("TELEGRAM", "chat_id", ','.join(self.chat_ids)):
+        if self.config.set("TELEGRAM", "chat_ids", ','.join(self.chat_ids)):
             log.warning("Saved chat id in your config file")
         else:
             log.warning(
-                "For persistence please set TELEGRAM_CHAT_ID=%s", ','.join(self.chat_ids)
+                "For persistence please set TELEGRAM_CHAT_IDS=%s", ','.join(self.chat_ids)
             )
