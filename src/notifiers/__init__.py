@@ -41,6 +41,11 @@ class Notifiers():
                         "code": "EUR",
                         "minor_units": 1099,
                         "decimals": 2
+                    },
+                    "pickup_location": {
+                        "address": {
+                            "address_line": "M\u00f6llner Landstra\u00dfe 119, 21509 Glinde, Deutschland"
+                        }
                     }
                 },
                 "display_name": "test_item",
@@ -48,7 +53,11 @@ class Notifiers():
                 "pickup_interval": {
                     "start": f"{now.year}-{now.month}-{now.day}T20:00:00Z",
                     "end": f"{now.year}-{now.month}-{now.day}T21:00:00Z"},
-                "items_available": 1})
+                "items_available": 1,
+                "store": {
+                    "store_name": "test_store"
+                }
+            })
             log.info("Sending test notifications ...")
             self.send(test_item)
 

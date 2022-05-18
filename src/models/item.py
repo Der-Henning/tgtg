@@ -4,36 +4,35 @@ from .errors import MaskConfigurationError
 
 
 ATTRS = ["item_id", "items_available", "display_name", "description",
-             "price", "currency", "pickupdate", "favorite", "rating"]
+             "price", "currency", "pickupdate", "favorite", "rating",
+             "buffet", "item_category", "item_name", "packaging_option",
+             "pickup_location", "store_name"]
 
 class Item():
-    item_id: str
-    items_available: int
-    display_name: str = None
-    price: float = 0.0
-    currency: str = None
-    favorite: bool = False
-    description: str = None
-    rating: float = 0.0
-
     def __init__(self, data: dict):
-        self.item_id = data["item"]["item_id"]
-        self.items_available = data["items_available"]
-        self.display_name = data["display_name"]
-        self.favorite = data["favorite"]
-        self.price = 0
-        self.currency = ""
-        if 'price_including_taxes' in data["item"]:
-            self.price = data["item"]["price_including_taxes"]["minor_units"] / \
-                (10**data["item"]["price_including_taxes"]["decimals"])
-            self.currency = data["item"]["price_including_taxes"]["code"]
-        if 'pickup_interval' in data:
-            self.interval_start = data['pickup_interval']['start']
-            self.interval_end = data['pickup_interval']['end']
-        if 'average_overall_rating' in data["item"]:
-            self.rating = round(data["item"]["average_overall_rating"]["average_overall_rating"], 1)
-        if 'description' in data["item"]:
-            self.description = data["item"]["description"]
+        self.items_available = data.get("items_available", 0)
+        self.display_name = data.get("display_name", "-")
+        self.favorite = "Yes" if data.get("favorite", False) else "No"
+        self.pickup_interval_start = data.get("pickup_interval", {}).get("start", None)
+        self.pickup_interval_end = data.get("pickup_interval", {}).get("end", None)
+
+        item = data.get("item", {})
+        self.item_id = item.get("item_id")
+        self.rating = item.get("average_overall_rating", {}).get("average_overall_rating", 0)
+        self.rating = "-" if self.rating == 0 else f"{self.rating:.1f}"
+        self.pickup_location = item.get("pickup_location", {}).get("address", {}).get("address_line", "-")
+        self.packaging_option = item.get("packaging_option", "-")
+        self.item_name = item.get("name", "-")
+        self.buffet = "Yes" if item.get("buffet", False) else "No"
+        self.item_category = item.get("item_category", "-")
+        self.description = item.get("description", "-")
+        self.price = item.get("price_including_taxes", {}).get("minor_units", 0) / \
+            (10**item.get("price_including_taxes", {}).get("decimals", 0))
+        self.price = f"{self.price:.2f}"
+        self.currency = item.get("price_including_taxes", {}).get("code", "-")
+
+        store = data.get("store", {})
+        self.store_name = store.get("name", "-")
 
     @staticmethod
     def _datetimeparse(datestr: str) -> datetime.datetime:
@@ -55,10 +54,10 @@ class Item():
 
     @property
     def pickupdate(self):
-        if (hasattr(self, "interval_start") and hasattr(self, "interval_end")):
+        if (self.pickup_interval_start and self.pickup_interval_end):
             now = datetime.datetime.now()
-            pfrom = self._datetimeparse(self.interval_start)
-            pto = self._datetimeparse(self.interval_end)
+            pfrom = self._datetimeparse(self.pickup_interval_start)
+            pto = self._datetimeparse(self.pickup_interval_end)
             prange = "%02d:%02d - %02d:%02d" % (pfrom.hour,
                                                 pfrom.minute, pto.hour, pto.minute)
             if now.date() == pfrom.date():
@@ -66,4 +65,4 @@ class Item():
             elif (pfrom.date() - now.date()).days == 1:
                 return "Tomorrow, %s" % prange
             return "%d/%d, %s" % (pfrom.day, pfrom.month, prange)
-        return None
+        return "-"
