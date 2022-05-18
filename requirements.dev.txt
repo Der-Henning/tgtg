@@ -2,5 +2,5 @@
 altgraph==0.17.2
 cryptocode==0.1
 pycryptodomex==3.14.1
-pyinstaller==5.0.1
+pyinstaller==5.1
 pyinstaller-hooks-contrib==2022.5
