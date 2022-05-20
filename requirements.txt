@@ -1,6 +1,6 @@
 APScheduler==3.6.3
 cachetools==4.2.2
-certifi==2021.10.8
+certifi==2022.5.18.1
 charset-normalizer==2.0.12
 idna==3.3
 packaging==21.3
