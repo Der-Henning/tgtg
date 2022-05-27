@@ -1,4 +1,3 @@
-import sys
 from os import environ, path
 import configparser
 import logging
@@ -7,7 +6,12 @@ log = logging.getLogger('tgtg')
 
 
 class Config():
-    def __init__(self, file=None):
+    """
+    Reads and provides configuration.\n
+    If file is provided the config is read from the file.\n
+    Else the config is read from environment variables.
+    """
+    def __init__(self, file: str = None):
         self.file = file
         self.item_ids = []
         self.sleep_time = 60
@@ -31,21 +35,29 @@ class Config():
             log.info("Loaded config from environment variables")
         self.telegram["chat_ids"] = [] if not self.telegram["chat_ids"] else self.telegram["chat_ids"].split(',')
 
-    def _load_tokens(self):
+    def _load_tokens(self) -> None:
+        """
+        Reads tokens from token files
+        """
         if self.token_path:
             try:
-                self.tgtg["access_token"] = open(
-                    path.join(self.token_path, 'accessToken'), 'r').read()
-                self.tgtg["refresh_token"] = open(
-                    path.join(self.token_path, 'refreshToken'), 'r').read()
-                self.tgtg["user_id"] = open(
-                    path.join(self.token_path, 'userID'), 'r').read()
-            except Exception:
-                pass
+                with open(path.join(self.token_path, 'accessToken'), 'r', encoding='utf-8') as file:
+                    self.tgtg["access_token"] = file.read()
+                with open(path.join(self.token_path, 'refreshToken'), 'r', encoding='utf-8') as file:
+                    self.tgtg["refresh_token"] = file.read()
+                with open(path.join(self.token_path, 'userID'), 'r', encoding='utf-8') as file:
+                    self.tgtg["user_id"] = file.read()
+            except FileNotFoundError:
+                log.warning("No token files in token path.")
+            except EnvironmentError as err:
+                log.error("Error loading Tokens - %s", err)
 
-    def _ini_reader(self, file):
+    def _ini_reader(self, file: str) -> None:
+        """
+        Reads config from config.ini
+        """
         config = configparser.ConfigParser()
-        config.read(file)
+        config.read(file, encoding='utf-8')
         self.debug = config["MAIN"].getboolean("Debug", False)
         self.item_ids = config["MAIN"].get("ItemIDs").split(
             ',') if "ItemIDs" in config["MAIN"] else []
@@ -75,7 +87,9 @@ class Config():
             "username": config["SMTP"].get("Username"),
             "password": config["SMTP"].get("Password"),
             "sender": config["SMTP"].get("Sender"),
-            "recipient": config["SMTP"].get("Recipient")
+            "recipient": config["SMTP"].get("Recipient"),
+            "subject": config["SMTP"].get("Subject", "New Magic Bags"),
+            "body": config["SMTP"].get("Body", "<b>${{display_name}}</b> </br>New Amount: ${{items_available}}")
         }
         self.ifttt = {
             "enabled": config["IFTTT"].getboolean("enabled", False),
@@ -92,13 +106,18 @@ class Config():
         }
         self.telegram = {
             "enabled": config["TELEGRAM"].getboolean("enabled", False),
-            "token": config["TELEGRAM"].get("token"),
-            "chat_ids": config["TELEGRAM"].get("chat_id"), #only for backwards compability
-            "chat_ids": config["TELEGRAM"].get("chat_ids"),
+            "token": config["TELEGRAM"].get("token", None),
+            "chat_ids": config["TELEGRAM"].get("chat_ids", None),
             "body": config["TELEGRAM"].get("body", "*${{display_name}}*\n*Available*: ${{items_available}}\n*Price*: ${{price}} ${{currency}}\n*Pickup*: ${{pickupdate}}").replace('\\n', '\n')
         }
+        #only for backwards compability
+        if not self.telegram["chat_ids"] and config["TELEGRAM"].get("chat_id", None):
+            self.telegram["chat_ids"] = config["TELEGRAM"].get("chat_id", None)
 
-    def _env_reader(self):
+    def _env_reader(self) -> None:
+        """
+        Reads config from environment variables
+        """
         self.item_ids = environ.get("ITEM_IDS").split(
             ",") if environ.get("ITEM_IDS") else []
         self.sleep_time = int(environ.get("SLEEP_TIME", 20))
@@ -132,7 +151,9 @@ class Config():
             "username": environ.get("SMTP_USERNAME", ""),
             "password": environ.get("SMTP_PASSWORD", ""),
             "sender": environ.get("SMTP_SENDER", None),
-            "recipient": environ.get("SMTP_RECIPIENT", None)
+            "recipient": environ.get("SMTP_RECIPIENT", None),
+            "subject": environ.get("SMTP_SUBJECT", "New Magic Bags"),
+            "body": environ.get("SMTP_BODY", "<b>${{display_name}}</b> </br>New Amount: ${{items_available}}")
         }
         self.ifttt = {
             "enabled": environ.get("IFTTT", "false").lower() in ('true', '1', 't'),
@@ -150,26 +171,34 @@ class Config():
         self.telegram = {
             "enabled": environ.get("TELEGRAM", "false").lower() in ('true', '1', 't'),
             "token": environ.get("TELEGRAM_TOKEN", None),
-            "chat_ids": environ.get("TELEGRAM_CHAT_ID", None), #only for backwards compability
             "chat_ids": environ.get("TELEGRAM_CHAT_IDS", None),
             "body": environ.get("TELEGRAM_BODY", "*${{display_name}}*\n*Available*: ${{items_available}}\n*Price*: ${{price}} ${{currency}}\n*Pickup*: ${{pickupdate}}").replace('\\n', '\n')
         }
+        #only for backwards compability
+        if not self.telegram["chat_ids"] and environ.get("TELEGRAM_CHAT_ID", None):
+            self.telegram["chat_ids"] = environ.get("TELEGRAM_CHAT_ID", None)
 
-    def set(self, section, option, value):
+    def set(self, section: str, option: str, value: str) -> bool:
+        """
+        Sets an option in config.ini if provided.
+        """
         if self.file:
             try:
                 config = configparser.ConfigParser()
                 config.optionxform = str
                 config.read(self.file)
                 config.set(section, option, value)
-                with open(self.file, 'w') as configfile:
+                with open(self.file, 'w', encoding='utf-8') as configfile:
                     config.write(configfile)
                 return True
-            except Exception:
-                log.error("error writing config.ini! - %s", sys.exc_info())
+            except EnvironmentError as err:
+                log.error("error writing config.ini! - %s", err)
         return False
 
     def save_tokens(self, access_token, refresh_token, user_id):
+        """
+        Saves TGTG Access Tokens to config.ini if provided or as textfiles to token_path.
+        """
         if self.file:
             try:
                 config = configparser.ConfigParser()
@@ -178,18 +207,17 @@ class Config():
                 config.set("TGTG", "AccessToken", access_token)
                 config.set("TGTG", "RefreshToken", refresh_token)
                 config.set("TGTG", "UserId", user_id)
-                with open(self.file, 'w') as configfile:
+                with open(self.file, 'w', encoding='utf-8') as configfile:
                     config.write(configfile)
-            except Exception:
-                log.error(
-                    "error saving credentials to config.ini! - %s", sys.exc_info())
+            except EnvironmentError as err:
+                log.error("error saving credentials to config.ini! - %s", err)
         if self.token_path:
             try:
-                open(path.join(self.token_path, 'accessToken'),
-                     'w').write(access_token)
-                open(path.join(self.token_path, 'refreshToken'),
-                     'w').write(refresh_token)
-                open(path.join(self.token_path, 'userID'),
-                     'w').write(user_id)
-            except Exception:
-                log.error("error saving credentials! - %s", sys.exc_info())
+                with open(path.join(self.token_path, 'accessToken'), 'w', encoding='utf-8') as file:
+                    file.write(access_token)
+                with open(path.join(self.token_path, 'refreshToken'), 'w', encoding='utf-8') as file:
+                    file.write(refresh_token)
+                with open(path.join(self.token_path, 'userID'), 'w', encoding='utf-8') as file:
+                    file.write(user_id)
+            except EnvironmentError as err:
+                log.error("error saving credentials! - %s", err)

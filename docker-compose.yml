@@ -21,6 +21,9 @@ services:
       - SMTP_TLS=true                                 ## enable TLS - true for google and most smtp servers
       - SMTP_SENDER=max.mustermann@gmail.com          ## sender adress - same as Login for google and most smtp servers
       - SMTP_RECIPIENT=max.mustermann@gmail.com       ## recipient for notifications - can be the same as sender
+      #-SMTP_SUBJECT=                                 ## Subject and Body options are optional.
+      #-SMTP_BODY=                                    ## Subject and Body options can use variables as described below
+                                                      ## The Body option is interpreted as HTML
 
       - PUSH_SAFER=false                              ## true = enable notifications via pushsafer.com
       - PUSH_SAFER_KEY=

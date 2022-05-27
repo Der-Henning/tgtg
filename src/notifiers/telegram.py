@@ -1,16 +1,20 @@
 import logging
 from time import sleep
 import random
-import telegram
 import datetime
-from telegram.ext import Updater, CommandHandler
+from telegram import Update, ParseMode
+from telegram.ext import Updater, CommandHandler, CallbackContext
 from telegram.bot import BotCommand
-from models import Item, Config, TelegramConfigurationError
+from models import Item, Config
+from models.errors import TelegramConfigurationError, MaskConfigurationError
 
 log = logging.getLogger('tgtg')
 
 
 class Telegram():
+    """
+    Notifier for Telegram.
+    """
     def __init__(self, config: Config):
         self.updater = None
         self.config = config
@@ -22,12 +26,14 @@ class Telegram():
         if self.enabled and not self.token:
             raise TelegramConfigurationError("Missing Telegram token")
         if self.enabled:
-            Item.check_mask(self.body)
             try:
+                Item.check_mask(self.body)
                 self.updater = Updater(token=self.token)
                 self.updater.bot.get_me(timeout=60)
-            except Exception as err:
-                raise TelegramConfigurationError()
+            except MaskConfigurationError as exc:
+                raise TelegramConfigurationError(exc.message) from exc
+            except Exception as exc:
+                raise TelegramConfigurationError() from exc
             if not self.chat_ids:
                 self._get_chat_id()
             self.updater.dispatcher.add_handler(CommandHandler("help", self._help))
@@ -35,21 +41,22 @@ class Telegram():
             self.updater.dispatcher.add_handler(CommandHandler("unmute", self._unmute))
             self.updater.dispatcher.add_error_handler(self._error)
             self.updater.bot.set_my_commands([
-                BotCommand('help', 'Displays available Commands'),
-                BotCommand('mute', 'Deaktivates Telegram Notifications for x days'),
-                BotCommand('unmute', 'Reactivates Telegram Notifications')
+                BotCommand('help', 'Display available Commands'),
+                BotCommand('mute', 'Deactivate Telegram Notifications for 1 or x days'),
+                BotCommand('unmute', 'Reactivate Telegram Notifications')
             ])
             self.updater.start_polling()
 
-    def send(self, item: Item):
+    def send(self, item: Item) -> None:
+        """Send item information as Telegram message"""
         if self.enabled:
             if self.mute and self.mute > datetime.datetime.now():
                 return
-            elif self.mute:
+            if self.mute:
                 log.info("Reactivated Telegram Notifications")
                 self.mute = None
             log.debug("Sending Telegram Notification")
-            fmt = telegram.ParseMode.MARKDOWN
+            fmt = ParseMode.MARKDOWN
             message = item.unmask(self.body)
             log.debug(message)
             for chat_id in self.chat_ids:
@@ -65,11 +72,12 @@ class Telegram():
                     log.error(err)
                     #raise TelegramConfigurationError()
 
-    def _help(self, update, context):
+    def _help(self, update: Update, context: CallbackContext) -> None:
         """Send message containing available bot commands"""
+        del context
         update.message.reply_text('Deactivate Telegram Notifications for x days using\n/mute x\nReactivate with /unmute')
 
-    def _mute(self, update, context):
+    def _mute(self, update: Update, context: CallbackContext) -> None:
         """Deactivates Telegram Notifications for x days"""
         days = int(context.args[0]) if context.args and context.args[0].isnumeric() else 1
         self.mute = datetime.datetime.now() + datetime.timedelta(days=days)
@@ -77,17 +85,18 @@ class Telegram():
         log.info('Reactivation at %s', self.mute)
         update.message.reply_text(f"Deactivated Telegram Notifications for {days} days.\nReactivating at {self.mute} or use /unmute.")
 
-    def _unmute(self, update, context):
+    def _unmute(self, update: Update, context: CallbackContext) -> None:
         """Reactivate Telegram Notifications"""
+        del context
         self.mute = None
         log.info("Reactivated Telegram Notifications")
         update.message.reply_text("Reactivated Telegram Notifications")
     
-    def _error(self, update, context):
+    def _error(self, update: Update, context: CallbackContext) -> None:
         """Log Errors caused by Updates."""
         log.warning('Update "%s" caused error "%s"', update, context.error)
 
-    def _get_chat_id(self):
+    def _get_chat_id(self) -> None:
         """Initializes an interaction with the user to obtain the telegram chat id. \n
         On using the config.ini configuration the chat id will be stored in the config.ini.
         """

@@ -19,9 +19,9 @@ REFRESH_ENDPOINT = "auth/v3/token/refresh"
 ACTIVE_ORDER_ENDPOINT = "order/v6/active"
 INACTIVE_ORDER_ENDPOINT = "order/v6/inactive"
 USER_AGENTS = [
-    "TGTG/22.2.1 Dalvik/2.1.0 (Linux; U; Android 6.0.1; Nexus 5 Build/M4B30Z)",
-    "TGTG/22.2.1 Dalvik/2.1.0 (Linux; U; Android 7.0; SM-G935F Build/NRD90M)",
-    "TGTG/22.2.1 Dalvik/2.1.0 (Linux; Android 6.0.1; SM-G920V Build/MMB29K)",
+    "TGTG/22.5.5 Dalvik/2.1.0 (Linux; U; Android 6.0.1; Nexus 5 Build/M4B30Z)",
+    "TGTG/22.5.5 Dalvik/2.1.0 (Linux; U; Android 7.0; SM-G935F Build/NRD90M)",
+    "TGTG/22.5.5 Dalvik/2.1.0 (Linux; Android 6.0.1; SM-G920V Build/MMB29K)",
 ]
 DEFAULT_ACCESS_TOKEN_LIFETIME = 3600 * 4  # 4 hours
 DEFAULT_MAX_POLLING_TRIES = 24  # 24 * POLLING_WAIT_TIME = 2 minutes
@@ -69,13 +69,13 @@ class TgtgClient:
         self.session = requests.Session()
         self.session.headers = self._headers
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.session.close()
 
-    def _get_url(self, path):
+    def _get_url(self, path) -> str:
         return urljoin(self.base_url, path)
 
-    def get_credentials(self):
+    def get_credentials(self) -> dict:
         self.login()
         return {
             "access_token": self.access_token,
@@ -84,7 +84,7 @@ class TgtgClient:
         }
 
     @property
-    def _headers(self):
+    def _headers(self) -> dict:
         headers = {
             "user-agent": self.user_agent,
             "accept-language": self.language,
@@ -95,10 +95,10 @@ class TgtgClient:
         return headers
 
     @property
-    def _already_logged(self):
+    def _already_logged(self) -> bool:
         return bool(self.access_token and self.refresh_token and self.user_id)
 
-    def _refresh_token(self):
+    def _refresh_token(self) -> None:
         if (
             self.last_time_token_refreshed
             and (datetime.datetime.now() - self.last_time_token_refreshed).seconds
@@ -120,7 +120,7 @@ class TgtgClient:
         else:
             raise TgtgAPIError(response.status_code, response.content)
 
-    def login(self):
+    def login(self) -> None:
         if not (
             self.email or self.access_token and self.refresh_token and self.user_id
         ):
@@ -160,7 +160,7 @@ class TgtgClient:
                     raise TgtgLoginError(
                         response.status_code, response.content)
 
-    def start_polling(self, polling_id):
+    def start_polling(self, polling_id) -> None:
         for _ in range(self.max_polling_tries):
             response = self.session.post(
                 self._get_url(AUTH_POLLING_ENDPOINT),
@@ -218,7 +218,7 @@ class TgtgClient:
         with_stock_only=False,
         hidden_only=False,
         we_care_only=False,
-    ):
+    ) -> dict:
         self.login()
 
         # fields are sorted like in the app
@@ -251,7 +251,7 @@ class TgtgClient:
         else:
             raise TgtgAPIError(response.status_code, response.content)
 
-    def get_item(self, item_id):
+    def get_item(self, item_id) -> dict:
         self.login()
         response = self.session.post(
             urljoin(self._get_url(API_ITEM_ENDPOINT), str(item_id)),
@@ -265,7 +265,7 @@ class TgtgClient:
         else:
             raise TgtgAPIError(response.status_code, response.content)
 
-    def set_favorite(self, item_id, is_favorite):
+    def set_favorite(self, item_id, is_favorite) -> None:
         self.login()
         response = self.session.post(
             urljoin(self._get_url(API_ITEM_ENDPOINT),

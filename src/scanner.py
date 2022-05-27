@@ -3,15 +3,17 @@ import logging
 from time import sleep
 from os import path
 from random import random
+from typing import NoReturn
 from packaging import version
 import requests
 
-from models import Item, Config, Metrics, TgtgAPIError, Error, ConfigurationError, TGTGConfigurationError
+from models import Item, Config, Metrics
+from models.errors import TgtgAPIError, Error, ConfigurationError, TGTGConfigurationError
 from notifiers import Notifiers
 from tgtg import TgtgClient
 
 VERSION_URL = 'https://api.github.com/repos/Der-Henning/tgtg/releases/latest'
-VERSION = "1.10.1"
+VERSION = "1.10.2"
 
 prog_folder = path.dirname(sys.executable) if getattr(
     sys, '_MEIPASS', False) else path.dirname(path.abspath(__file__))
@@ -29,7 +31,7 @@ log = logging.getLogger('tgtg')
 
 
 class Scanner():
-    def __init__(self, notifiers=True):
+    def __init__(self, notifiers: bool = True):
         self.config = Config(config_file) if path.isfile(
             config_file) else Config()
         if self.config.debug:
@@ -58,25 +60,33 @@ class Scanner():
             )
             self.tgtg_client.login()
         except TgtgAPIError as err:
-            raise
+            raise err
         except Error as err:
             log.error(err)
             raise TGTGConfigurationError() from err
         if notifiers:
             self.notifiers = Notifiers(self.config)
+            if not self.config.disable_tests:
+                log.info("Sending test Notifications ...")
+                items = self._get_favorites()
+                items = sorted(items, key=lambda x: x.items_available, reverse=True)
+                self.notifiers.send(items[0])
 
-    def _job(self):
+    def _job(self) -> None:
+        """
+        Job iterates over all monitored items
+        """
         for item_id in self.item_ids:
             try:
                 if item_id != "":
-                    data = self.tgtg_client.get_item(item_id)
-                    self._check_item(Item(data))
+                    item = Item(self.tgtg_client.get_item(item_id))
+                    self._check_item(item)
             except Exception:
                 log.error(
                     "itemID %s Error! - %s", item_id, sys.exc_info())
-        for data in self._get_favorites():
+        for item in self._get_favorites():
             try:
-                self._check_item(Item(data))
+                self._check_item(item)
             except Exception:
                 log.error("check item error! - %s", sys.exc_info())
         log.debug("new State: %s", self.amounts)
@@ -86,7 +96,10 @@ class Scanner():
             self.tgtg_client.user_id
         )
 
-    def _get_favorites(self):
+    def _get_favorites(self) -> list[Item]:
+        """
+        Get favorites as list of Items
+        """
         items = []
         page = 1
         page_size = 100
@@ -106,9 +119,12 @@ class Scanner():
                 log.error("get item error! - %s", sys.exc_info())
                 error_count += 1
                 self.metrics.get_favorites_errors.inc()
-        return items
+        return [Item(item) for item in items]
 
-    def _check_item(self, item: Item):
+    def _check_item(self, item: Item) -> None:
+        """
+        Checks if the available item amount raised from zero to something and triggers notifications.
+        """
         try:
             if self.amounts[item.item_id] == 0 and item.items_available > self.amounts[item.item_id]:
                 self._send_messages(item)
@@ -124,12 +140,18 @@ class Scanner():
                          item.display_name, item.items_available)
                 self.amounts[item.item_id] = item.items_available
 
-    def _send_messages(self, item: Item):
+    def _send_messages(self, item: Item) -> None:
+        """
+        Send notifications for Item
+        """
         log.info("Sending notifications for %s - %s bags available",
                  item.display_name, item.items_available)
         self.notifiers.send(item)
 
-    def run(self):
+    def run(self) -> NoReturn:
+        """
+        Main Loop of the Scanner
+        """
         log.info("Scanner started ...")
         while True:
             try:
@@ -139,15 +161,18 @@ class Scanner():
             finally:
                 sleep(self.config.sleep_time * (0.9 + 0.2 * random()))
 
-    def __del__(self):
+    def __del__(self) -> None:
+        """
+        Cleanup on shutdown
+        """
         try:
-            if self.notifiers.telegram.updater:
+            if hasattr(self, 'notifiers') and self.notifiers.telegram.updater:
                 self.notifiers.telegram.updater.stop()
-        except:
-            pass
+        except Exception as exc:
+            log.warning(exc)
 
 
-def welcome_message():
+def welcome_message() -> None:
     # pylint: disable=W1401
     log.info("  ____  ___  ____  ___    ____   ___   __   __ _  __ _  ____  ____  ")
     log.info(" (_  _)/ __)(_  _)/ __)  / ___) / __) / _\ (  ( \(  ( \(  __)(  _ \ ")
@@ -161,19 +186,19 @@ def welcome_message():
     # pylint: enable=W1401
 
 
-def check_version():
+def check_version() -> None:
     try:
-        last_release = requests.get(VERSION_URL).json()
-        if version.parse(VERSION) < version.parse(last_release['tag_name']):
+        lastest_release = requests.get(VERSION_URL).json()
+        if version.parse(VERSION) < version.parse(lastest_release['tag_name']):
             log.info("New Version %s available!",
-                     version.parse(last_release['tag_name']))
-            log.info("Please visit %s", last_release['html_url'])
+                     version.parse(lastest_release['tag_name']))
+            log.info("Please visit %s", lastest_release['html_url'])
             log.info("")
     except Exception:
-        log.error("Version check Error! - %s", sys.exc_info())
+        log.error("Failed checking for new Version! - %s", sys.exc_info())
 
 
-def main():
+def main() -> NoReturn:
     try:
         welcome_message()
         check_version()
@@ -187,11 +212,7 @@ def main():
         sys.exit(1)
     except KeyboardInterrupt:
         log.info("Shutting down scanner ...")
-
     except SystemExit:
-        sys.exit(1)
-    except:
-        log.error("Unexpected Error! - %s", sys.exc_info())
         sys.exit(1)
 
 

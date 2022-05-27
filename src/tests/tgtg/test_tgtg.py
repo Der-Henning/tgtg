@@ -40,13 +40,10 @@ class TGTGAPITest(unittest.TestCase):
         # the credentials are encrypted with the REPO_ACCESS_TOKEN
         credentials = client.get_credentials()
         if env_file:
-            with open(env_file, "a") as file:
-                file.write("TGTG_ACCESS_TOKEN={}\n".format(
-                    cryptocode.encrypt(credentials["access_token"], passkey)))
-                file.write("TGTG_REFRESH_TOKEN={}\n".format(
-                    cryptocode.encrypt(credentials["refresh_token"], passkey)))
-                file.write("TGTG_USER_ID={}\n".format(
-                    cryptocode.encrypt(credentials["user_id"], passkey)))
+            with open(env_file, "a", encoding='utf-8') as file:
+                file.write(f"TGTG_ACCESS_TOKEN={cryptocode.encrypt(credentials['access_token'], passkey)}\n")
+                file.write(f"TGTG_REFRESH_TOKEN={cryptocode.encrypt(credentials['refresh_token'], passkey)}\n")
+                file.write(f"TGTG_USER_ID={cryptocode.encrypt(credentials['user_id'], passkey)}\n")
 
         # Tests
         data = client.get_items(favorites_only=True)
