@@ -7,7 +7,7 @@ import time
 from http import HTTPStatus
 from urllib.parse import urljoin
 import requests
-from models import TgtgAPIError, TgtgLoginError, TgtgPollingError
+from models.errors import TGTGConfigurationError, TgtgAPIError, TgtgLoginError, TgtgPollingError
 
 log = logging.getLogger('tgtg')
 BASE_URL = "https://apptoogoodtogo.com/api/"
@@ -124,7 +124,7 @@ class TgtgClient:
         if not (
             self.email or self.access_token and self.refresh_token and self.user_id
         ):
-            raise TypeError(
+            raise TGTGConfigurationError(
                 "You must provide at least email or access_token, refresh_token and user_id"
             )
         if self._already_logged:
