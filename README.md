@@ -19,6 +19,9 @@ Too Good To Go explicitly forbids the use of their plattform the way this tool d
 
 If you use this tool you do it at your own risk. TGTG may stop you from doing so by (temporarily) blocking your access and may even delete your account.
 
+## Error 403
+If you see the Error 403 in your logs please refere to the [FAQ](https://github.com/Der-Henning/tgtg/wiki/FAQ#1-i-am-getting-error-403-all-the-time).
+
 ## Installation
 
 You can install this tool on any computer. For 24/7 notifications I recommended to install the tool on a NAS like Synology or a Raspberry Pi. You can also use a virtual cloud server. Starting at 1,00 €/Month at Strato.de or try AWS free tier.

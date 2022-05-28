@@ -5,7 +5,7 @@ import logging
 from scanner import Scanner
 
 log = logging.getLogger('tgtg')
-log.setLevel(logging.WARNING)
+log.setLevel(logging.INFO)
 
 
 class Helper(Scanner):

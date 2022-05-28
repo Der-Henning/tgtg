@@ -43,8 +43,6 @@ class Scanner():
                 logger.setLevel(logging.DEBUG)
             log.info("Debugging mode enabled")
         self.metrics = Metrics()
-        if self.config.metrics:
-            self.metrics.enable_metrics()
         self.item_ids = self.config.item_ids
         self.amounts = {}
         try:
@@ -65,6 +63,8 @@ class Scanner():
             log.error(err)
             raise TGTGConfigurationError() from err
         if notifiers:
+            if self.config.metrics:
+                self.metrics.enable_metrics()
             self.notifiers = Notifiers(self.config)
             if not self.config.disable_tests:
                 log.info("Sending test Notifications ...")
@@ -188,14 +188,16 @@ def welcome_message() -> None:
 
 def check_version() -> None:
     try:
-        lastest_release = requests.get(VERSION_URL).json()
+        res = requests.get(VERSION_URL)
+        res.raise_for_status()
+        lastest_release=res.json()
         if version.parse(VERSION) < version.parse(lastest_release['tag_name']):
             log.info("New Version %s available!",
                      version.parse(lastest_release['tag_name']))
             log.info("Please visit %s", lastest_release['html_url'])
             log.info("")
-    except Exception:
-        log.error("Failed checking for new Version! - %s", sys.exc_info())
+    except (requests.exceptions.RequestException, version.InvalidVersion, ValueError) as err:
+        log.error("Failed checking for new Version! - %s", err)
 
 
 def main() -> NoReturn:
