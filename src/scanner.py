@@ -68,9 +68,20 @@ class Scanner():
             self.notifiers = Notifiers(self.config)
             if not self.config.disable_tests:
                 log.info("Sending test Notifications ...")
-                items = self._get_favorites()
-                items = sorted(items, key=lambda x: x.items_available, reverse=True)
-                self.notifiers.send(items[0])
+                self.notifiers.send(self._test_item)
+
+    @property
+    def _test_item(self) -> Item:
+        """
+        Returns an item for test notifications
+        """
+        items = sorted(self._get_favorites(), key=lambda x: x.items_available, reverse=True)
+        if items:
+            return items[0]
+        items = sorted([Item(item) for item in self.tgtg_client.get_items(
+            favorites_only=False, latitude=53.5511, longitude=9.9937, radius=50
+        )], key=lambda x: x.items_available, reverse=True)
+        return items[0]
 
     def _job(self) -> None:
         """
