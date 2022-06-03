@@ -13,7 +13,7 @@ from notifiers import Notifiers
 from tgtg import TgtgClient
 
 VERSION_URL = 'https://api.github.com/repos/Der-Henning/tgtg/releases/latest'
-VERSION = "1.10.3"
+VERSION = "1.10.4rc1"
 
 prog_folder = path.dirname(sys.executable) if getattr(
     sys, '_MEIPASS', False) else path.dirname(path.abspath(__file__))
@@ -57,6 +57,11 @@ class Scanner():
                 user_id=self.config.tgtg["user_id"]
             )
             self.tgtg_client.login()
+            self.config.save_tokens(
+                self.tgtg_client.access_token,
+                self.tgtg_client.refresh_token,
+                self.tgtg_client.user_id
+            )
         except TgtgAPIError as err:
             raise err
         except Error as err:
@@ -102,7 +107,7 @@ class Scanner():
                 log.error("check item error! - %s", sys.exc_info())
         log.debug("new State: %s", self.amounts)
         self.config.save_tokens(
-            self.tgtg_client.access_token, 
+            self.tgtg_client.access_token,
             self.tgtg_client.refresh_token,
             self.tgtg_client.user_id
         )
