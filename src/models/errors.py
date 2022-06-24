@@ -10,6 +10,10 @@ class TgtgAPIError(Error):
     pass
 
 
+class TgtgCaptchaError(TgtgAPIError):
+    pass
+
+
 class TgtgPollingError(TgtgAPIError):
     pass
 

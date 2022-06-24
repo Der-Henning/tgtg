@@ -4,12 +4,22 @@ import datetime
 import random
 import logging
 import time
+import re
+import json
 from http import HTTPStatus
 from urllib.parse import urljoin
+from requests.adapters import HTTPAdapter
 import requests
-from models.errors import TGTGConfigurationError, TgtgAPIError, TgtgLoginError, TgtgPollingError
+from urllib3.util import Retry
+from models.errors import (
+    TGTGConfigurationError,
+    TgtgAPIError,
+    TgtgCaptchaError,
+    TgtgLoginError,
+    TgtgPollingError,
+)
 
-log = logging.getLogger('tgtg')
+log = logging.getLogger("tgtg")
 BASE_URL = "https://apptoogoodtogo.com/api/"
 API_ITEM_ENDPOINT = "item/v7/"
 AUTH_BY_EMAIL_ENDPOINT = "auth/v3/authByEmail"
@@ -19,14 +29,18 @@ REFRESH_ENDPOINT = "auth/v3/token/refresh"
 ACTIVE_ORDER_ENDPOINT = "order/v6/active"
 INACTIVE_ORDER_ENDPOINT = "order/v6/inactive"
 USER_AGENTS = [
-    "TGTG/22.5.5 Dalvik/2.1.0 (Linux; U; Android 9; SM-G955F Build/PPR1.180610.011)",
-    # "TGTG/22.5.5 Dalvik/2.1.0 (Linux; U; Android 6.0.1; Nexus 5 Build/M4B30Z)",
-    # "TGTG/22.5.5 Dalvik/2.1.0 (Linux; U; Android 7.0; SM-G935F Build/NRD90M)",
-    # "TGTG/22.5.5 Dalvik/2.1.0 (Linux; Android 6.0.1; SM-G920V Build/MMB29K)",
+    "TGTG/{} Dalvik/2.1.0 (Linux; U; Android 9; Nexus 5 Build/M4B30Z)",
+    "TGTG/{} Dalvik/2.1.0 (Linux; U; Android 10; SM-G935F Build/NRD90M)",
+    "TGTG/{} Dalvik/2.1.0 (Linux; Android 12; SM-G920V Build/MMB29K)",
 ]
 DEFAULT_ACCESS_TOKEN_LIFETIME = 3600 * 4  # 4 hours
 DEFAULT_MAX_POLLING_TRIES = 24  # 24 * POLLING_WAIT_TIME = 2 minutes
 DEFAULT_POLLING_WAIT_TIME = 5  # Seconds
+DEFAULT_APK_VERSION = "22.5.5"
+
+RE_SCRIPT = re.compile(
+    r"AF_initDataCallback\({key:\s*'ds:4'.*?data:([\s\S]*?), sideChannel:.+<\/script"
+)
 
 
 class TgtgClient:
@@ -46,11 +60,9 @@ class TgtgClient:
         polling_wait_time=DEFAULT_POLLING_WAIT_TIME,
         device_type="ANDROID",
     ):
-
         self.base_url = url
 
         self.email = email
-
         self.access_token = access_token
         self.refresh_token = refresh_token
         self.user_id = user_id
@@ -61,14 +73,25 @@ class TgtgClient:
         self.polling_wait_time = polling_wait_time
 
         self.device_type = device_type
-
-        self.user_agent = user_agent if user_agent else random.choice(
-            USER_AGENTS)
+        self.fixed_user_agent = user_agent
+        self.user_agent = self._get_user_agent()
         self.language = language
         self.proxies = proxies
         self.timeout = timeout
+        self.http_adapter = HTTPAdapter(
+            max_retries=Retry(
+                total=5,
+                status_forcelist=[429, 500, 502, 503, 504],
+                allowed_methods=["GET", "POST"],
+                backoff_factor=1,
+            )
+        )
         self.session = requests.Session()
+        self.session.mount("https://", self.http_adapter)
+        self.session.mount("http://", self.http_adapter)
         self.session.headers = self._headers
+
+        self.captcha_error_count = 0
 
     def __del__(self) -> None:
         self.session.close()
@@ -84,12 +107,56 @@ class TgtgClient:
             "user_id": self.user_id,
         }
 
+    def _post(self, path, retry: int = 0, **kwargs) -> requests.Response:
+        max_retries = 1
+        response = self.session.post(
+            self._get_url(path),
+            headers=self._headers,
+            proxies=self.proxies,
+            timeout=self.timeout,
+            **kwargs,
+        )
+        if response.status_code in (HTTPStatus.OK, HTTPStatus.ACCEPTED):
+            self.captcha_error_count = 0
+            return response
+        try:
+            response.json()
+        except ValueError:
+            # Status Code == 403 and no json contend --> Blocked due to rate limit / wrong user_agent.
+            # Get latest APK Version from google and retry
+            if response.status_code == 403 and retry < max_retries:
+                self.user_agent = self._get_user_agent()
+                return self._post(path, retry=retry + 1, **kwargs)
+            self.captcha_error_count += 1
+            raise TgtgCaptchaError(response.status_code, response.content)
+        raise TgtgAPIError(response.status_code, response.content)
+
+    def _get_user_agent(self) -> str:
+        if self.fixed_user_agent:
+            return self.fixed_user_agent
+        version = DEFAULT_APK_VERSION
+        try:
+            version = self.get_latest_apk_version()
+        except Exception:
+            log.warning("Failed to get latest APK version!")
+        log.debug("Using APK version %s.", version)
+        return random.choice(USER_AGENTS).format(version)
+
+    @staticmethod
+    def get_latest_apk_version() -> str:
+        response = requests.get(
+            "https://play.google.com/store/apps/details?id=com.app.tgtg&hl=en&gl=US"
+        )
+        match = RE_SCRIPT.search(response.text)
+        data = json.loads(match.group(1))
+        return data[1][2][140][0][0][0]
+
     @property
     def _headers(self) -> dict:
         headers = {
             "user-agent": self.user_agent,
             "accept-language": self.language,
-            "Accept-Encoding": "gzip"
+            "Accept-Encoding": "gzip",
         }
         if self.access_token:
             headers["authorization"] = f"Bearer {self.access_token}"
@@ -106,20 +173,12 @@ class TgtgClient:
             <= self.access_token_lifetime
         ):
             return
-
-        response = self.session.post(
-            self._get_url(REFRESH_ENDPOINT),
-            json={"refresh_token": self.refresh_token},
-            headers=self._headers,
-            proxies=self.proxies,
-            timeout=self.timeout,
+        response = self._post(
+            REFRESH_ENDPOINT, json={"refresh_token": self.refresh_token}
         )
-        if response.status_code == HTTPStatus.OK:
-            self.access_token = response.json()["access_token"]
-            self.refresh_token = response.json()["refresh_token"]
-            self.last_time_token_refreshed = datetime.datetime.now()
-        else:
-            raise TgtgAPIError(response.status_code, response.content)
+        self.access_token = response.json()["access_token"]
+        self.refresh_token = response.json()["refresh_token"]
+        self.last_time_token_refreshed = datetime.datetime.now()
 
     def login(self) -> None:
         if not (
@@ -131,48 +190,33 @@ class TgtgClient:
         if self._already_logged:
             self._refresh_token()
         else:
-            response = self.session.post(
-                self._get_url(AUTH_BY_EMAIL_ENDPOINT),
-                headers=self._headers,
+            response = self._post(
+                AUTH_BY_EMAIL_ENDPOINT,
                 json={
                     "device_type": self.device_type,
                     "email": self.email,
                 },
-                proxies=self.proxies,
-                timeout=self.timeout,
             )
-            if response.status_code == HTTPStatus.OK:
-                first_login_response = response.json()
-                if first_login_response["state"] == "TERMS":
-                    raise TgtgPollingError(
-                        f"This email {self.email} is not linked to a tgtg account. "
-                        "Please signup with this email first."
-                    )
-                elif first_login_response["state"] == "WAIT":
-                    self.start_polling(first_login_response["polling_id"])
-                else:
-                    raise TgtgLoginError(
-                        response.status_code, response.content)
+            first_login_response = response.json()
+            if first_login_response["state"] == "TERMS":
+                raise TgtgPollingError(
+                    f"This email {self.email} is not linked to a tgtg account. "
+                    "Please signup with this email first."
+                )
+            if first_login_response["state"] == "WAIT":
+                self.start_polling(first_login_response["polling_id"])
             else:
-                if response.status_code == 429:
-                    raise TgtgAPIError(
-                        "429 - Too many requests. Try again later.")
-                else:
-                    raise TgtgLoginError(
-                        response.status_code, response.content)
+                raise TgtgLoginError(response.status_code, response.content)
 
     def start_polling(self, polling_id) -> None:
         for _ in range(self.max_polling_tries):
-            response = self.session.post(
-                self._get_url(AUTH_POLLING_ENDPOINT),
-                headers=self._headers,
+            response = self._post(
+                AUTH_POLLING_ENDPOINT,
                 json={
                     "device_type": self.device_type,
                     "email": self.email,
                     "request_polling_id": polling_id,
                 },
-                proxies=self.proxies,
-                timeout=self.timeout,
             )
             if response.status_code == HTTPStatus.ACCEPTED:
                 log.warning(
@@ -181,7 +225,7 @@ class TgtgClient:
                 )
                 time.sleep(self.polling_wait_time)
                 continue
-            elif response.status_code == HTTPStatus.OK:
+            if response.status_code == HTTPStatus.OK:
                 log.info("Logged in!")
                 login_response = response.json()
                 self.access_token = login_response["access_token"]
@@ -189,17 +233,7 @@ class TgtgClient:
                 self.last_time_token_refreshed = datetime.datetime.now()
                 self.user_id = login_response["startup_data"]["user"]["user_id"]
                 return
-            else:
-                if response.status_code == HTTPStatus.TOO_MANY_REQUESTS:
-                    raise TgtgAPIError(
-                        "429 - Too many requests. Try again later.")
-                else:
-                    raise TgtgLoginError(
-                        response.status_code, response.content)
-
-        raise TgtgPollingError("Max retries ({} seconds) reached. Try again.".format(
-                self.max_polling_tries * self.polling_wait_time
-        ))
+        raise TgtgPollingError("Max polling retries reached. Try again.")
 
     def get_items(
         self,
@@ -240,44 +274,23 @@ class TgtgClient:
             "hidden_only": hidden_only,
             "we_care_only": we_care_only,
         }
-        response = self.session.post(
-            self._get_url(API_ITEM_ENDPOINT),
-            headers=self._headers,
-            json=data,
-            proxies=self.proxies,
-            timeout=self.timeout,
-        )
-        if response.status_code == HTTPStatus.OK:
-            return response.json()["items"]
-        else:
-            raise TgtgAPIError(response.status_code, response.content)
+        response = self._post(API_ITEM_ENDPOINT, json=data)
+        return response.json()["items"]
 
     def get_item(self, item_id) -> dict:
         self.login()
-        response = self.session.post(
-            urljoin(self._get_url(API_ITEM_ENDPOINT), str(item_id)),
-            headers=self._headers,
+        response = self._post(
+            f"{API_ITEM_ENDPOINT}/{item_id}",
             json={"user_id": self.user_id, "origin": None},
-            proxies=self.proxies,
-            timeout=self.timeout,
         )
-        if response.status_code == HTTPStatus.OK:
-            return response.json()
-        else:
-            raise TgtgAPIError(response.status_code, response.content)
+        return response.json()
 
     def set_favorite(self, item_id, is_favorite) -> None:
         self.login()
-        response = self.session.post(
-            urljoin(self._get_url(API_ITEM_ENDPOINT),
-                    f"{item_id}/setFavorite"),
-            headers=self._headers,
+        self._post(
+            f"{API_ITEM_ENDPOINT}/{item_id}/setFavorite",
             json={"is_favorite": is_favorite},
-            proxies=self.proxies,
-            timeout=self.timeout,
         )
-        if response.status_code != HTTPStatus.OK:
-            raise TgtgAPIError(response.status_code, response.content)
 
     def signup_by_email(
         self,
@@ -288,9 +301,8 @@ class TgtgClient:
         newsletter_opt_in=False,
         push_notification_opt_in=True,
     ):
-        response = self.session.post(
-            self._get_url(SIGNUP_BY_EMAIL_ENDPOINT),
-            headers=self._headers,
+        response = self._post(
+            SIGNUP_BY_EMAIL_ENDPOINT,
             json={
                 "country_id": country_id,
                 "device_type": self.device_type,
@@ -299,18 +311,11 @@ class TgtgClient:
                 "newsletter_opt_in": newsletter_opt_in,
                 "push_notification_opt_in": push_notification_opt_in,
             },
-            proxies=self.proxies,
-            timeout=self.timeout,
         )
-        if response.status_code == HTTPStatus.OK:
-            self.access_token = response.json(
-            )["login_response"]["access_token"]
-            self.refresh_token = response.json(
-            )["login_response"]["refresh_token"]
-            self.last_time_token_refreshed = datetime.datetime.now()
-            self.user_id = response.json()["login_response"]["startup_data"]["user"][
-                "user_id"
-            ]
-            return self
-        else:
-            raise TgtgAPIError(response.status_code, response.content)
+        self.access_token = response.json()["login_response"]["access_token"]
+        self.refresh_token = response.json()["login_response"]["refresh_token"]
+        self.last_time_token_refreshed = datetime.datetime.now()
+        self.user_id = response.json()["login_response"]["startup_data"]["user"][
+            "user_id"
+        ]
+        return self

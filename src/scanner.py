@@ -13,7 +13,7 @@ from notifiers import Notifiers
 from tgtg import TgtgClient
 
 VERSION_URL = 'https://api.github.com/repos/Der-Henning/tgtg/releases/latest'
-VERSION = "1.10.4"
+VERSION = "1.11.0-rc1"
 
 prog_folder = path.dirname(sys.executable) if getattr(
     sys, '_MEIPASS', False) else path.dirname(path.abspath(__file__))
@@ -120,7 +120,7 @@ class Scanner():
         page = 1
         page_size = 100
         error_count = 0
-        while True and error_count < 5:
+        while error_count < 5:
             try:
                 new_items = self.tgtg_client.get_items(
                     favorites_only=True,
@@ -172,6 +172,11 @@ class Scanner():
         while True:
             try:
                 self._job()
+                if self.tgtg_client.captcha_error_count > 10:
+                    log.warning("Too many 403 Errors. Sleeping for 1 hour.")
+                    sleep(60 * 60)
+                    log.info("Continuing scanning.")
+                    self.tgtg_client.captcha_error_count = 0
             except Exception:
                 log.error("Job Error! - %s", sys.exc_info())
             finally:
