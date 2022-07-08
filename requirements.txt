@@ -15,4 +15,4 @@ six==1.16.0
 tornado==6.1
 tzdata==2022.1
 tzlocal==4.2
-urllib3==1.26.9
+urllib3==1.26.10
