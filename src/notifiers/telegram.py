@@ -108,14 +108,15 @@ class Telegram():
         while not self.chat_ids:
             updates = self.updater.bot.get_updates(timeout=60)
             for update in reversed(updates):
-                if int(update.message.text) == code:
-                    log.warning(
+                if update.message and update.message.text:
+                    if update.message.text.isdecimal() and int(update.message.text) == code:
+                        log.warning(
                         "Received code from %s %s on chat id %s",
                         update.message.from_user.first_name,
                         update.message.from_user.last_name,
                         update.message.chat_id
-                    )
-                    self.chat_ids = [str(update.message.chat_id)]
+                        )
+                        self.chat_ids = [str(update.message.chat_id)]
             sleep(1)
         if self.config.set("TELEGRAM", "chat_ids", ','.join(self.chat_ids)):
             log.warning("Saved chat id in your config file")
