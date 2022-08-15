@@ -1,5 +1,8 @@
 FROM python:3.9
 
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt update && apt install -y zip && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt /tmp/pip-tmp/
 COPY requirements.dev.txt /tmp/pip-tmp/
 
