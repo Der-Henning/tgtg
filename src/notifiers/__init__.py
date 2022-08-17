@@ -35,20 +35,20 @@ class Notifiers():
         try:
             self.push_safer.send(item)
         except Exception as err:
-            log.error(err)
+            log.error('Failed sending Push Safer Notification: %s', err)
         try:
             self.smtp.send(item)
         except Exception as err:
-            log.error(err)
+            log.error('Failed sending SMTP Notification: %s', err)
         try:
             self.ifttt.send(item)
         except Exception as err:
-            log.error(err)
+            log.error('Failed sending IFTTT Notification: %s', err)
         try:
             self.webhook.send(item)
         except Exception as err:
-            log.error(err)
+            log.error('Failed sending WebHook Notification: %s', err)
         try:
             self.telegram.send(item)
         except Exception as err:
-            log.error(err)
+            log.error('Failed sending Telegram Notification: %s', err)

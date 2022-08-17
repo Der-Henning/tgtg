@@ -2,6 +2,7 @@ import logging
 from time import sleep
 import random
 import datetime
+from urllib3.exceptions import HTTPError
 from telegram import Update, ParseMode
 from telegram.ext import Updater, CommandHandler, CallbackContext
 from telegram.bot import BotCommand
@@ -15,6 +16,8 @@ class Telegram():
     """
     Notifier for Telegram.
     """
+    MAX_RETRIES = 10
+
     def __init__(self, config: Config):
         self.updater = None
         self.config = config
@@ -23,6 +26,7 @@ class Telegram():
         self.body = config.telegram["body"]
         self.chat_ids = config.telegram["chat_ids"]
         self.mute = None
+        self.retries = 0
         if self.enabled and not self.token:
             raise TelegramConfigurationError("Missing Telegram token")
         if self.enabled:
@@ -66,10 +70,18 @@ class Telegram():
                         text=message,
                         parse_mode=fmt,
                         timeout=60,
-                        disable_web_page_preview=True
-                    )
+                        disable_web_page_preview=True)
+                    self.retries = 0
+                except HTTPError as err:
+                    log.error('Telegram Error: %s', err)
+                    self.retries += 1
+                    if self.retries > Telegram.MAX_RETRIES:
+                        raise err
+                    self.updater.stop()
+                    self.updater.start_polling()
+                    self.send(item)
                 except Exception as err:
-                    log.error(err)
+                    log.error('Telegram Error: %s', err)
                     #raise TelegramConfigurationError()
 
     def _help(self, update: Update, context: CallbackContext) -> None:
