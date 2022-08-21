@@ -41,12 +41,6 @@ jobs:
             name: Available platforms
             run: echo ${{ steps.buildx.outputs.platforms }}
         -
-            name: Set up Docker Buildx
-            id: buildx
-            uses: crazy-max/ghaction-docker-buildx@v1
-            with:
-                buildx-version: latest
-        -
             name: Build and push
             uses: docker/build-push-action@v3
             with:
