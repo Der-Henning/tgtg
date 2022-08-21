@@ -48,7 +48,7 @@ jobs:
                 file: ./Dockerfile
                 platforms: linux/arm64, linux/amd64, linux/arm/v7
                 push: true
-                tags: ${{ secrets.DOCKER_USERNAME }}/tgtg:${RELEASE_TAG}
+                tags: ${{ secrets.DOCKER_USERNAME }}/tgtg:${{ env.RELEASE_TAG }}
     ubuntu:
         runs-on: ubuntu-latest
         steps:
@@ -69,7 +69,7 @@ jobs:
         - 
             uses: actions/upload-artifact@v3
             with: 
-                name: scanner-linux-${GITHUB_REF#refs/*/}
+                name: scanner-linux-${{ env.GITHUB_REF#refs/*/ }}
                 path: ./dist/*
     windows:
         runs-on: windows-latest
@@ -91,7 +91,7 @@ jobs:
         - 
             uses: actions/upload-artifact@v3
             with: 
-                name: scanner-win-${GITHUB_REF#refs/*/}
+                name: scanner-win-${{ env.GITHUB_REF#refs/*/ }}
                 path: ./dist/*
     macos:
         runs-on: macos-latest
@@ -113,5 +113,5 @@ jobs:
         - 
             uses: actions/upload-artifact@v3
             with: 
-                name: scanner-macos-${GITHUB_REF#refs/*/}
+                name: scanner-macos-${{ env.GITHUB_REF#refs/*/ }}
                 path: ./dist/*
