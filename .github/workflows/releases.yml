@@ -1,0 +1,123 @@
+name: Build Releases
+
+on:
+    push:
+        branches:
+            - main
+            - dev
+        tags:
+            - v*
+
+jobs:
+    docker:
+        runs-on: ubuntu-latest
+        steps:
+        -
+            uses: actions/checkout@v3
+        -
+            name: Set Release Tag
+            run: |
+                if [ "${GITHUB_REF#refs/*/}" = "main" ]; \
+                then echo "RELEASE_TAG=latest"; \
+                elif [ "${GITHUB_REF#refs/*/}" = "dev" ]; \
+                then echo "RELEASE_TAG=dev"; \
+                else echo "RELEASE_TAG=${GITHUB_REF#refs/*/}"; fi \
+                >> $GITHUB_ENV
+        -
+            name: Dockerhub login
+            env:
+                DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+                DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+            run: |
+                echo "${DOCKER_PASSWORD}" | docker login --username ${DOCKER_USERNAME} --password-stdin
+        -
+            name: Set up QEMU
+            uses: docker/setup-qemu-action@v2
+        -
+            name: Set up Docker Buildx
+            id: buildx
+            uses: docker/setup-buildx-action@v2
+        -
+            name: Available platforms
+            run: echo ${{ steps.buildx.outputs.platforms }}
+        -
+            name: Set up Docker Buildx
+            id: buildx
+            uses: crazy-max/ghaction-docker-buildx@v1
+            with:
+                buildx-version: latest
+        -
+            name: Build and push
+            uses: docker/build-push-action@v3
+            with:
+                context: ./
+                file: ./Dockerfile
+                platforms: linux/arm64, linux/amd64, linux/arm/v7
+                push: true
+                tags: ${{ secrets.DOCKER_USERNAME }}/tgtg:${RELEASE_TAG}
+    ubuntu:
+        runs-on: ubuntu-latest
+        steps:
+        - 
+            uses: actions/checkout@v3
+        -
+            uses: actions/setup-python@v4
+            with:
+                python-version: 3.9
+        -
+            name: Install dependencies
+            run: pip install -r requirements.dev.txt
+        - 
+            name: Build
+            run: |
+                pyinstaller scanner.spec
+                cp ./src/config.sample.ini ./dist/config.ini
+        - 
+            uses: actions/upload-artifact@v3
+            with: 
+                name: scanner-linux-${GITHUB_REF#refs/*/}
+                path: ./dist/*
+    windows:
+        runs-on: windows-latest
+        steps:
+        - 
+            uses: actions/checkout@v3
+        - 
+            uses: actions/setup-python@v4
+            with:
+                python-version: 3.9
+        - 
+            name: Install dependencies
+            run: pip install -r requirements.dev.txt
+        - 
+            name: Build
+            run: |
+                pyinstaller scanner.spec
+                cp ./src/config.sample.ini ./dist/config.ini
+        - 
+            uses: actions/upload-artifact@v3
+            with: 
+                name: scanner-win-${GITHUB_REF#refs/*/}
+                path: ./dist/*
+    macos:
+        runs-on: macos-latest
+        steps:
+        - 
+            uses: actions/checkout@v3
+        - 
+            uses: actions/setup-python@v4
+            with:
+                python-version: 3.9
+        - 
+            name: Install dependencies
+            run: pip install -r requirements.dev.txt
+        - 
+            name: Build
+            run: |
+                pyinstaller scanner.spec
+                cp ./src/config.sample.ini ./dist/config.ini
+        - 
+            uses: actions/upload-artifact@v3
+            with: 
+                name: scanner-macos-${GITHUB_REF#refs/*/}
+                path: ./dist/*
