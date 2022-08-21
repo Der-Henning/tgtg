@@ -38,7 +38,7 @@ DEFAULT_MAX_POLLING_TRIES = 24  # 24 * POLLING_WAIT_TIME = 2 minutes
 DEFAULT_POLLING_WAIT_TIME = 5  # Seconds
 DEFAULT_APK_VERSION = "22.8.0"
 
-RE_SCRIPT = re.compile(
+APK_RE_SCRIPT = re.compile(
     r"AF_initDataCallback\({key:\s*'ds:5'.*?data:([\s\S]*?), sideChannel:.+<\/script"
 )
 
@@ -147,7 +147,7 @@ class TgtgClient:
         response = requests.get(
             "https://play.google.com/store/apps/details?id=com.app.tgtg&hl=en&gl=US"
         )
-        match = RE_SCRIPT.search(response.text)
+        match = APK_RE_SCRIPT.search(response.text)
         data = json.loads(match.group(1))
         return data[1][2][140][0][0][0]
 

@@ -73,7 +73,7 @@ class Telegram():
                         disable_web_page_preview=True)
                     self.retries = 0
                 except HTTPError as err:
-                    log.error('Telegram Error: %s', err)
+                    log.warning('Telegram Error: %s', err)
                     self.retries += 1
                     if self.retries > Telegram.MAX_RETRIES:
                         raise err
