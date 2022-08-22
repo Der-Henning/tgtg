@@ -13,7 +13,23 @@ on:
     - cron: "0 1 * * *"
 
 jobs:
+    code-ql:
+        name: CodeQL
+        runs-on: ubuntu-latest
+        permissions:
+            actions: read
+            contents: read
+            security-events: write
+        strategy:
+            fail-fast: false
+        steps:
+            -   uses: actions/checkout@v3
+            -   uses: github/codeql-action/init@v2
+                with:
+                    languages: 'python'
+            -   uses: github/codeql-action/analyze@v2
     update-tokens:
+        name: Update Tokens
         runs-on: ubuntu-latest
         steps:
             -   uses: actions/checkout@v3
@@ -21,7 +37,7 @@ jobs:
                 with:
                     python-version: 3.9
             -   name: Install dependencies
-                run: pip install -r requirements.dev.txt
+                run: pip install -r requirements.txt
             -   name: Login
                 run: |
                     python ./src/login.py
@@ -56,6 +72,7 @@ jobs:
                     repository: Der-Henning/tgtg
                     token: ${{ secrets.REPO_ACCESS_TOKEN }}
     tests:
+        name: Run Tests
         runs-on: ${{ matrix.os }}
         needs: update-tokens
         strategy:
@@ -68,7 +85,7 @@ jobs:
                 with:
                     python-version: ${{ matrix.python }}
             -   name: Install dependencies
-                run: pip install -r requirements.dev.txt
+                run: pip install -r requirements.txt
             -   name: Run tests
                 run: python -m unittest discover -v -s ./src
                 env:
@@ -77,20 +94,23 @@ jobs:
                     TGTG_REFRESH_TOKEN: ${{ secrets.TGTG_REFRESH_TOKEN }}
                     TGTG_USER_ID: ${{ secrets.TGTG_USER_ID }}
     release-tag:
+        name: Generate Release Tag
         runs-on: ubuntu-latest
         needs: tests
         if: ${{ github.event_name == 'push' }}
         outputs:
             tag: ${{ steps.tag.outputs.tag }}
         steps:
-            -   id: tag
+            -   name: Generate Release Tag
+                id: tag
                 run: |
                     if [ "${{ github.ref_name }}" = "main" ]; \
                     then echo "::set-output name=tag::latest"; \
                     elif [ "${{ github.ref_name }}" = "dev" ]; \
                     then echo "::set-output name=tag::dev"; \
                     else echo "::set-output name=tag::${{ github.ref_name }}"; fi
-    docker:
+    docker-images:
+        name: Build Docker Images
         runs-on: ubuntu-latest
         needs: release-tag
         steps:
@@ -115,7 +135,8 @@ jobs:
                 platforms: linux/arm64, linux/amd64, linux/arm/v7
                 push: true
                 tags: ${{ secrets.DOCKER_USERNAME }}/tgtg:${{ needs.release-tag.outputs.tag }}
-    release:
+    releases:
+        name: Build Release Files
         runs-on: ${{ matrix.os }}
         needs: release-tag
         strategy:
