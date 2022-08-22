@@ -26,9 +26,8 @@ jobs:
             -   name: Install dependencies
                 run: pip install -r requirements.dev.txt
             -   name: Run tests
-                working-directory: ./src
                 run: |
-                    python -m unittest
+                    python -m unittest discover -v -s ./src
                     echo "::add-mask::${{env.TGTG_ACCESS_TOKEN}}"
                     echo "::add-mask::${{env.TGTG_REFRESH_TOKEN}}"
                     echo "::add-mask::${{env.TGTG_USER_ID}}"
