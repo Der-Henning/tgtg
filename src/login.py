@@ -4,7 +4,7 @@ from tgtg import TgtgClient
 
 def login():
     username = environ.get("TGTG_USERNAME", None)
-    env_file = environ.get("GITHUB_ENV", None)
+    # env_file = environ.get("GITHUB_ENV", None)
     timeout = environ.get("TGTG_TIMEOUT", 60)
     access_token = environ.get("TGTG_ACCESS_TOKEN", None)
     refresh_token = environ.get("TGTG_REFRESH_TOKEN", None)

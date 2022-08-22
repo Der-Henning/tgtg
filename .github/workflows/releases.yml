@@ -23,7 +23,7 @@ jobs:
             -   name: Install dependencies
                 run: pip install -r requirements.dev.txt
             -   name: Login
-                run: python ./src/tests/tgtg/login.py
+                run: python ./src/login.py
                     echo "::add-mask::${{env.TGTG_ACCESS_TOKEN}}"
                     echo "::add-mask::${{env.TGTG_REFRESH_TOKEN}}"
                     echo "::add-mask::${{env.TGTG_USER_ID}}"
