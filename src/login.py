@@ -24,6 +24,7 @@ def login():
     environ["TGTG_ACCESS_TOKEN"] = str(credentials['access_token'])
     environ["TGTG_REFRESH_TOKEN"] = str(credentials['refresh_token'])
     environ["TGTG_USER_ID"] = str(credentials['user_id'])
+    environ["TGTG_TEST"] = "test_variable"
     # if env_file:
     #     with open(env_file, "a", encoding="utf-8") as file:
     #         file.write(f"TGTG_ACCESS_TOKEN={credentials['access_token']}\n")
