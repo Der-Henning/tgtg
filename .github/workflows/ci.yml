@@ -149,10 +149,12 @@ jobs:
             run: |
                 pyinstaller scanner.spec
                 cp ./src/config.sample.ini ./dist/config.ini
-                if [[ "${{ matrix.tag }}" = "win" ]]
-                then Compress-Archive ./dist/* ./scanner-${{ matrix.tag }}-${{ github.ref_name }}.zip
-                else zip -j ./scanner-${{ matrix.tag }}-${{ github.ref_name }}.zip ./dist/*
-                fi
+        -   name: Zip files
+            if: matrix.tag == 'linux' || matrix.tag == 'macos'
+            run: zip -j ./scanner-${{ matrix.tag }}-${{ github.ref_name }}.zip ./dist/*
+        -   name: Zip files
+            if: matrix.tag == 'win'
+            run: Compress-Archive ./dist/* ./scanner-${{ matrix.tag }}-${{ github.ref_name }}.zip
         -   uses: actions/upload-artifact@v3
             with: 
                 name: releases
