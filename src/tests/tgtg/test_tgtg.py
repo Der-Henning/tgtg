@@ -24,7 +24,6 @@ class TGTGAPITest(unittest.TestCase):
 
         # get credentials and safe tokens to GITHUB_ENV file
         # this enables github workflow to reuse the access_token on sheduled runs
-        # the credentials are encrypted with the REPO_ACCESS_TOKEN
         credentials = client.get_credentials()
         if env_file:
             with open(env_file, "a", encoding="utf-8") as file:
