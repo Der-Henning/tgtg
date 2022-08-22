@@ -127,7 +127,7 @@ jobs:
         name: Build Release Files
         runs-on: ${{ matrix.os }}
         # needs: tests
-        if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_type == 'tag')
+        # if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_type == 'tag')
         strategy:
             matrix:
                 os: [ubuntu-latest, windows-latest, macos-latest]
