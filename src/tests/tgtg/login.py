@@ -21,11 +21,14 @@ def login():
     # get credentials and safe tokens to GITHUB_ENV file
     # this enables github workflow to reuse the access_token on sheduled runs
     credentials = client.get_credentials()
-    if env_file:
-        with open(env_file, "a", encoding="utf-8") as file:
-            file.write(f"TGTG_ACCESS_TOKEN={credentials['access_token']}\n")
-            file.write(f"TGTG_REFRESH_TOKEN={credentials['refresh_token']}\n")
-            file.write(f"TGTG_USER_ID={credentials['user_id']}\n")
+    environ["TGTG_ACCESS_TOKEN"] = str(credentials['access_token'])
+    environ["TGTG_REFRESH_TOKEN"] = str(credentials['refresh_token'])
+    environ["TGTG_USER_ID"] = str(credentials['user_id'])
+    # if env_file:
+    #     with open(env_file, "a", encoding="utf-8") as file:
+    #         file.write(f"TGTG_ACCESS_TOKEN={credentials['access_token']}\n")
+    #         file.write(f"TGTG_REFRESH_TOKEN={credentials['refresh_token']}\n")
+    #         file.write(f"TGTG_USER_ID={credentials['user_id']}\n")
 
 
 if __name__ == "__main__":
