@@ -121,14 +121,14 @@ class TgtgClient:
             return response
         try:
             response.json()
-        except ValueError:
+        except ValueError as err:
             # Status Code == 403 and no json contend --> Blocked due to rate limit / wrong user_agent.
             # Get latest APK Version from google and retry
             if response.status_code == 403 and retry < max_retries:
                 self.user_agent = self._get_user_agent()
                 return self._post(path, retry=retry + 1, **kwargs)
             self.captcha_error_count += 1
-            raise TgtgCaptchaError(response.status_code, response.content)
+            raise TgtgCaptchaError(response.status_code, response.content) from err
         raise TgtgAPIError(response.status_code, response.content)
 
     def _get_user_agent(self) -> str:
