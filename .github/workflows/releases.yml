@@ -13,12 +13,8 @@ on:
     - cron: "0 1 * * *"
 
 jobs:
-    tests:
-        runs-on: ${{ matrix.os }}
-        strategy:
-            matrix:
-                python: ['3.9', '3.10']
-                os: [ubuntu-latest, windows-latest, macos-latest]
+    login:
+        runs-on: ubuntu-latest
         steps:
             -   uses: actions/checkout@v3
             -   uses: actions/setup-python@v4
@@ -26,9 +22,8 @@ jobs:
                     python-version: ${{ matrix.python }}
             -   name: Install dependencies
                 run: pip install -r requirements.dev.txt
-            -   name: Run tests
-                run: |
-                    python -m unittest discover -v -s ./src
+            -   name: Login
+                run: python src/tests/login.py
                     echo "::add-mask::${{env.TGTG_ACCESS_TOKEN}}"
                     echo "::add-mask::${{env.TGTG_REFRESH_TOKEN}}"
                     echo "::add-mask::${{env.TGTG_USER_ID}}"
@@ -58,6 +53,28 @@ jobs:
                     value: ${{env.TGTG_USER_ID}}
                     repository: Der-Henning/tgtg
                     token: ${{ secrets.REPO_ACCESS_TOKEN }}
+    tests:
+        runs-on: ${{ matrix.os }}
+        need: login
+        strategy:
+            matrix:
+                python: ['3.9', '3.10']
+                os: [ubuntu-latest, windows-latest, macos-latest]
+        steps:
+            -   uses: actions/checkout@v3
+            -   uses: actions/setup-python@v4
+                with:
+                    python-version: ${{ matrix.python }}
+            -   name: Install dependencies
+                run: pip install -r requirements.dev.txt
+            -   name: Run tests
+                run: |
+                    python -m unittest discover -v -s ./src
+                env:
+                    TGTG_USERNAME: ${{secrets.TGTG_USERNAME}}
+                    TGTG_ACCESS_TOKEN: ${{secrets.TGTG_ACCESS_TOKEN}}
+                    TGTG_REFRESH_TOKEN: ${{secrets.TGTG_REFRESH_TOKEN}}
+                    TGTG_USER_ID: ${{secrets.TGTG_USER_ID}}
     release-tag:
         runs-on: ubuntu-latest
         needs: tests
