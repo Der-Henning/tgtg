@@ -39,6 +39,9 @@ This is the simplest but least flexible solution suitable for most operating sys
 
 You can run the scanner manually if you need it, add it to your system startup or create a service.
 
+The executables for Windows and MacOS are not signed by Microsoft and Apple, which would be very expensive.
+On Mac you need to hold the control key while opening the file and on Windows you need to confirm the displayed dialog.
+
 ### Run with Docker
 
 My prefered method for servers using the pre build multi-arch linux images available on [Docker Hub](https://hub.docker.com/r/derhenning/tgtg).
@@ -57,6 +60,8 @@ Method for developers.
 2. Run ```pip install -r requirements.txt```
 3. Create ```src/config.ini``` as described in the file ```config.template.ini```
 4. Run ```python src/scanner.py```
+
+Alternitively you can use environment variables as described in the ```sample.env``` file. The scanner will look for environment variables if no ```config.ini``` is present.
 
 ### Running
 
