@@ -4,7 +4,7 @@ from tgtg import TgtgClient
 
 def login():
     username = environ.get("TGTG_USERNAME", None)
-    # env_file = environ.get("GITHUB_ENV", None)
+    env_file = environ.get("GITHUB_ENV", None)
     timeout = environ.get("TGTG_TIMEOUT", 60)
     access_token = environ.get("TGTG_ACCESS_TOKEN", None)
     refresh_token = environ.get("TGTG_REFRESH_TOKEN", None)
@@ -21,15 +21,11 @@ def login():
     # get credentials and safe tokens to GITHUB_ENV file
     # this enables github workflow to reuse the access_token on sheduled runs
     credentials = client.get_credentials()
-    environ["TGTG_ACCESS_TOKEN"] = str(credentials['access_token'])
-    environ["TGTG_REFRESH_TOKEN"] = str(credentials['refresh_token'])
-    environ["TGTG_USER_ID"] = str(credentials['user_id'])
-    environ["TGTG_TEST"] = "test_variable"
-    # if env_file:
-    #     with open(env_file, "a", encoding="utf-8") as file:
-    #         file.write(f"TGTG_ACCESS_TOKEN={credentials['access_token']}\n")
-    #         file.write(f"TGTG_REFRESH_TOKEN={credentials['refresh_token']}\n")
-    #         file.write(f"TGTG_USER_ID={credentials['user_id']}\n")
+    if env_file:
+        with open(env_file, "a", encoding="utf-8") as file:
+            file.write(f"TGTG_ACCESS_TOKEN={credentials['access_token']}\n")
+            file.write(f"TGTG_REFRESH_TOKEN={credentials['refresh_token']}\n")
+            file.write(f"TGTG_USER_ID={credentials['user_id']}\n")
 
 
 if __name__ == "__main__":
