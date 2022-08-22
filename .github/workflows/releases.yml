@@ -55,7 +55,7 @@ jobs:
                     token: ${{ secrets.REPO_ACCESS_TOKEN }}
     tests:
         runs-on: ${{ matrix.os }}
-        need: login
+        needs: login
         strategy:
             matrix:
                 python: ['3.9', '3.10']
