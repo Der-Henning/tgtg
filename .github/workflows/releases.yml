@@ -23,7 +23,8 @@ jobs:
             -   name: Install dependencies
                 run: pip install -r requirements.dev.txt
             -   name: Login
-                run: python ./src/login.py
+                run: |
+                    python ./src/login.py
                     echo "::add-mask::${{ env.TGTG_ACCESS_TOKEN }}"
                     echo "::add-mask::${{ env.TGTG_REFRESH_TOKEN }}"
                     echo "::add-mask::${{ env.TGTG_USER_ID }}"
@@ -69,8 +70,7 @@ jobs:
             -   name: Install dependencies
                 run: pip install -r requirements.dev.txt
             -   name: Run tests
-                run: |
-                    python -m unittest discover -v -s ./src
+                run: python -m unittest discover -v -s ./src
                 env:
                     TGTG_USERNAME: ${{ secrets.TGTG_USERNAME }}
                     TGTG_ACCESS_TOKEN: ${{ secrets.TGTG_ACCESS_TOKEN }}
