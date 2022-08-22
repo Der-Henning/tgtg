@@ -93,26 +93,11 @@ jobs:
                     TGTG_ACCESS_TOKEN: ${{ secrets.TGTG_ACCESS_TOKEN }}
                     TGTG_REFRESH_TOKEN: ${{ secrets.TGTG_REFRESH_TOKEN }}
                     TGTG_USER_ID: ${{ secrets.TGTG_USER_ID }}
-    # release-tag:
-    #     name: Generate Release Tag
-    #     runs-on: ubuntu-latest
-    #     # needs: tests
-    #     if: ${{ github.event_name == 'push' }}
-    #     outputs:
-    #         tag: ${{ steps.tag.outputs.tag }}
-    #     steps:
-    #         -   name: Generate Release Tag
-    #             id: tag
-    #             run: |
-    #                 if [ "${{ github.ref_name }}" = "main" ]; \
-    #                 then echo "::set-output name=tag::latest"; \
-    #                 elif [ "${{ github.ref_name }}" = "dev" ]; \
-    #                 then echo "::set-output name=tag::dev"; \
-    #                 else echo "::set-output name=tag::${{ github.ref_name }}"; fi
     docker-images:
         name: Build Docker Images
         runs-on: ubuntu-latest
-        # needs: release-tag
+        needs: tests
+        if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_type == 'tag')
         steps:
         -   uses: actions/checkout@v3
         -   uses: docker/metadata-action@v4
@@ -120,7 +105,7 @@ jobs:
             with:
                 images: ${{ secrets.DOCKER_USERNAME }}/tgtg
                 tags: |
-                    type=edge,branch=test
+                    type=edge,branch=main
                     type=semver,pattern={{version}}
                     type=semver,pattern={{major}}.{{minor}}
         -   name: Dockerhub login
@@ -147,6 +132,8 @@ jobs:
     releases:
         name: Build Release Files
         runs-on: ${{ matrix.os }}
+        needs: tests
+        if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_type == 'tag')
         strategy:
             matrix:
                 os: [ubuntu-latest, windows-latest, macos-latest]
