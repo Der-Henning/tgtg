@@ -77,8 +77,8 @@ jobs:
         needs: update-tokens
         strategy:
             matrix:
-                python: ['3.9']
-                os: [ubuntu-latest, windows-latest, macos-latest]
+                python: [ '3.9' ]
+                os: [ ubuntu-latest, windows-latest, macos-latest ]
         steps:
             -   uses: actions/checkout@v3
             -   uses: actions/setup-python@v4
@@ -126,11 +126,11 @@ jobs:
     releases:
         name: Build Release Files
         runs-on: ${{ matrix.os }}
-        # needs: tests
-        # if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_type == 'tag')
+        needs: tests
+        if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_type == 'tag')
         strategy:
             matrix:
-                os: [ubuntu-latest, windows-latest, macos-latest]
+                os: [ ubuntu-latest, windows-latest, macos-latest ]
                 include:
                     -   os: ubuntu-latest
                         tag: linux
