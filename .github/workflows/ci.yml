@@ -127,6 +127,8 @@ jobs:
             id: meta
             with:
                 images: ${{ secrets.DOCKER_USERNAME }}/tgtg
+                flavours: |
+                    suffixLatest=true
                 tags: |
                     type=edge,branch=main,suffix=${{ matrix.tag }}
                     type=semver,pattern=v{{version}},suffix=${{ matrix.tag }}
