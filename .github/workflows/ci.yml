@@ -17,6 +17,7 @@ jobs:
     code-ql:
         name: CodeQL
         runs-on: ubuntu-latest
+        if: github.actor != 'dependabot[bot]'
         permissions:
             actions: read
             contents: read
