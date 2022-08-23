@@ -111,12 +111,12 @@ jobs:
         if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_type == 'tag')
         strategy:
             matrix:
-                base: [ python:3.9-slim, python:3.9-alpine ]
+                base: [ slim, alpine ]
                 include:
-                    -   base: python:3.9-slim
+                    -   base: slim
                         file: ./Dockerfile
                         context: ./
-                    -   base: python:3.9-alpine
+                    -   base: alpine
                         file: ./Dockerfile.alpine
                         context: ./
         steps:
