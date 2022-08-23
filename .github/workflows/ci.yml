@@ -127,13 +127,13 @@ jobs:
             id: meta
             with:
                 images: ${{ secrets.DOCKER_USERNAME }}/tgtg
-                flavours: |
-                    suffixLatest=true
+                flavour: |
+                    suffix=${{ matrix.tag }},onlatest=true
                 tags: |
                     type=edge,branch=main,suffix=${{ matrix.tag }}
-                    type=semver,pattern=v{{version}},suffix=${{ matrix.tag }}
-                    type=semver,pattern=v{{major}}.{{minor}},suffix=${{ matrix.tag }}
-                    type=semver,pattern=v{{major}},suffix=${{ matrix.tag }}
+                    type=semver,pattern=v{{version}}
+                    type=semver,pattern=v{{major}}.{{minor}}
+                    type=semver,pattern=v{{major}}
         -   uses: docker/login-action@v2
             with:
                 username: ${{ secrets.DOCKER_USERNAME }}
