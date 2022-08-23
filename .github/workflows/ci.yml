@@ -109,6 +109,16 @@ jobs:
         runs-on: ubuntu-latest
         needs: tests
         if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_type == 'tag')
+        strategy:
+            matrix:
+                base: [ python:3.9-slim, python:3.9-alpine ]
+                include:
+                    -   base: python:3.9-slim
+                        file: ./Dockerfile
+                        context: ./
+                    -   base: python:3.9-alpine
+                        file: ./Dockerfile.alpine
+                        context: ./
         steps:
         -   uses: actions/checkout@v3
         -   uses: docker/metadata-action@v4
@@ -129,8 +139,8 @@ jobs:
             id: buildx
         -   uses: docker/build-push-action@v3
             with:
-                context: ./
-                file: ./Dockerfile
+                context: ${{ matrix.context }}
+                file: ${{ matrix.file }}
                 platforms: linux/arm64, linux/amd64, linux/arm/v7, linux/386, linux/arm/v6
                 push: true
                 tags: ${{ steps.meta.outputs.tags }}
