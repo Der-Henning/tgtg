@@ -21,8 +21,6 @@ jobs:
             actions: read
             contents: read
             security-events: write
-        strategy:
-            fail-fast: false
         steps:
             -   uses: actions/checkout@v3
             -   uses: github/codeql-action/init@v2
@@ -32,6 +30,7 @@ jobs:
     update-tokens:
         name: Update Tokens
         runs-on: ubuntu-latest
+        if: github.actor != 'dependabot[bot]'
         steps:
             -   uses: actions/checkout@v3
             -   uses: actions/setup-python@v4
@@ -71,6 +70,17 @@ jobs:
                     value: ${{ env.TGTG_USER_ID }}
                     repository: Der-Henning/tgtg
                     token: ${{ secrets.REPO_ACCESS_TOKEN }}
+    test-dependencies:
+        name: Test Dependencies
+        runs-on: ubuntu-latest
+        if: github.actor == 'dependabot[bot]'
+        steps:
+            -   uses: actions/checkout@v3
+            -   uses: actions/setup-python@v4
+                with:
+                    python-version: 3.9
+            -   name: Install dependencies
+                run: pip install -r requirements.txt
     tests:
         name: Run Tests
         runs-on: ${{ matrix.os }}
