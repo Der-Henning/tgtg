@@ -197,11 +197,17 @@ jobs:
             with: 
                 name: releases
                 path: ./${{ steps.filename.outputs.filename }}
+        -   uses: bruceadams/get-release@v1.2.3
+            if: github.ref_type == 'tag'
+            id: get_release
+            env:
+                GITHUB_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }}
         -   uses: actions/upload-release-asset@v1
+            if: github.ref_type == 'tag'
             env:
                 GITHUB_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }}
             with:
-                upload_url: "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ github.ref_name }}/assets{?name,label}"
+                upload_url: ${{ steps.get_release.outputs.upload_url }}
                 asset_path: ./${{ steps.filename.outputs.filename }}
                 asset_name: ${{ steps.filename.outputs.filename }}
                 asset_content_type: application/zip
