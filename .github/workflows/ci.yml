@@ -96,6 +96,8 @@ jobs:
         runs-on: ${{ matrix.os }}
         needs: prep-tests
         strategy:
+            fail-fast: false
+            max-parallel: 1
             matrix:
                 python: [ '3.9' ]
                 os: ${{fromJson(needs.prep-tests.outputs.matrix)}}
