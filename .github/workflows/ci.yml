@@ -184,13 +184,24 @@ jobs:
             run: |
                 pyinstaller scanner.spec
                 cp ./src/config.sample.ini ./dist/config.ini
+        -   name: Make filename
+            id: filename
+            run: echo ::set-output name=filename::scanner-${{ github.ref_name }}-${{ matrix.tag }}.zip
         -   name: Zip files
             if: matrix.tag == 'linux' || matrix.tag == 'macos'
-            run: zip -j ./scanner-${{ matrix.tag }}-${{ github.ref_name }}.zip ./dist/*
+            run: zip -j ./${{ steps.filename.outputs.filename }} ./dist/*
         -   name: Zip files
             if: matrix.tag == 'win'
-            run: Compress-Archive ./dist/* ./scanner-${{ matrix.tag }}-${{ github.ref_name }}.zip
+            run: Compress-Archive ./dist/* ./${{ steps.filename.outputs.filename }}
         -   uses: actions/upload-artifact@v3
             with: 
                 name: releases
-                path: ./scanner-${{ matrix.tag }}-${{ github.ref_name }}.zip
+                path: ./${{ steps.filename.outputs.filename }}
+        -   uses: actions/upload-release-asset@v1
+            env:
+                GITHUB_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }}
+            with:
+                upload_url: "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ github.ref_name }}/assets{?name,label}"
+                asset_path: ./${{ steps.filename.outputs.filename }}
+                asset_name: ${{ steps.filename.outputs.filename }}
+                asset_content_type: application/zip
