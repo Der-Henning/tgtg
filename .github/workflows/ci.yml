@@ -186,7 +186,7 @@ jobs:
                 cp ./src/config.sample.ini ./dist/config.ini
         -   name: Make filename
             id: filename
-            run: "echo ::set-output name=filename::scanner-${{ github.ref_name }}-${{ matrix.tag }}.zip"
+            run: echo "::set-output name=filename::scanner-${{ github.ref_name }}-${{ matrix.tag }}.zip"
         -   name: Zip files
             if: matrix.tag == 'linux' || matrix.tag == 'macos'
             run: zip -j ./${{ steps.filename.outputs.filename }} ./dist/*
