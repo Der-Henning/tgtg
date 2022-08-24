@@ -73,7 +73,8 @@ jobs:
                     value: ${{ env.TGTG_USER_ID }}
                     repository: Der-Henning/tgtg
                     token: ${{ secrets.REPO_ACCESS_TOKEN }}
-            -   id: set-matrix
+            -   name: Create Test Matrix
+                id: set-matrix
                 run: |
                     if [[ "${{ github.event_name }}" = "schedule" ]]
                     then echo ::set-output name=matrix::[\"ubuntu-latest\"]
@@ -119,7 +120,6 @@ jobs:
         if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_type == 'tag')
         strategy:
             matrix:
-                base: [ slim, alpine ]
                 include:
                     -   base: slim
                         tag: ''
@@ -164,7 +164,6 @@ jobs:
         if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_type == 'tag')
         strategy:
             matrix:
-                os: [ ubuntu-latest, windows-latest, macos-latest ]
                 include:
                     -   os: ubuntu-latest
                         tag: linux
