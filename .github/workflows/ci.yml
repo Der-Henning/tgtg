@@ -28,10 +28,12 @@ jobs:
                 with:
                     languages: 'python'
             -   uses: github/codeql-action/analyze@v2
-    update-tokens:
-        name: Update Tokens
+    prep-tests:
+        name: Prepare Tests
         runs-on: ubuntu-latest
         if: github.actor != 'dependabot[bot]'
+        outputs:
+            matrix: ${{ steps.set-matrix.outputs.matrix }}
         steps:
             -   uses: actions/checkout@v3
             -   uses: actions/setup-python@v4
@@ -71,6 +73,13 @@ jobs:
                     value: ${{ env.TGTG_USER_ID }}
                     repository: Der-Henning/tgtg
                     token: ${{ secrets.REPO_ACCESS_TOKEN }}
+            -   name: Create Test Matrix
+                id: set-matrix
+                run: |
+                    if [[ "${{ github.event_name }}" = "schedule" ]]
+                    then echo ::set-output name=matrix::[\"ubuntu-latest\"]
+                    else echo ::set-output name=matrix::[\"ubuntu-latest\",\"windows-latest\",\"macos-latest\"]
+                    fi
     test-dependencies:
         name: Test Dependencies
         runs-on: ubuntu-latest
@@ -85,11 +94,13 @@ jobs:
     tests:
         name: Run Tests
         runs-on: ${{ matrix.os }}
-        needs: update-tokens
+        needs: prep-tests
         strategy:
+            fail-fast: false
+            max-parallel: 1
             matrix:
                 python: [ '3.9' ]
-                os: [ ubuntu-latest, windows-latest, macos-latest ]
+                os: ${{fromJson(needs.prep-tests.outputs.matrix)}}
         steps:
             -   uses: actions/checkout@v3
             -   uses: actions/setup-python@v4
@@ -111,7 +122,6 @@ jobs:
         if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_type == 'tag')
         strategy:
             matrix:
-                base: [ slim, alpine ]
                 include:
                     -   base: slim
                         tag: ''
@@ -156,7 +166,6 @@ jobs:
         if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_type == 'tag')
         strategy:
             matrix:
-                os: [ ubuntu-latest, windows-latest, macos-latest ]
                 include:
                     -   os: ubuntu-latest
                         tag: linux
@@ -175,13 +184,30 @@ jobs:
             run: |
                 pyinstaller scanner.spec
                 cp ./src/config.sample.ini ./dist/config.ini
+        -   name: Make filename
+            id: filename
+            run: echo "::set-output name=filename::scanner-${{ github.ref_name }}-${{ matrix.tag }}.zip"
         -   name: Zip files
             if: matrix.tag == 'linux' || matrix.tag == 'macos'
-            run: zip -j ./scanner-${{ matrix.tag }}-${{ github.ref_name }}.zip ./dist/*
+            run: zip -j ./${{ steps.filename.outputs.filename }} ./dist/*
         -   name: Zip files
             if: matrix.tag == 'win'
-            run: Compress-Archive ./dist/* ./scanner-${{ matrix.tag }}-${{ github.ref_name }}.zip
+            run: Compress-Archive ./dist/* ./${{ steps.filename.outputs.filename }}
         -   uses: actions/upload-artifact@v3
             with: 
                 name: releases
-                path: ./scanner-${{ matrix.tag }}-${{ github.ref_name }}.zip
+                path: ./${{ steps.filename.outputs.filename }}
+        -   uses: bruceadams/get-release@v1.2.3
+            if: github.ref_type == 'tag'
+            id: get_release
+            env:
+                GITHUB_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }}
+        -   uses: actions/upload-release-asset@v1
+            if: github.ref_type == 'tag'
+            env:
+                GITHUB_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }}
+            with:
+                upload_url: ${{ steps.get_release.outputs.upload_url }}
+                asset_path: ./${{ steps.filename.outputs.filename }}
+                asset_name: ${{ steps.filename.outputs.filename }}
+                asset_content_type: application/zip
