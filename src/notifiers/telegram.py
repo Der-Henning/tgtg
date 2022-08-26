@@ -2,8 +2,8 @@ import logging
 from time import sleep
 import random
 import datetime
-from urllib3.exceptions import HTTPError
 from telegram import Update, ParseMode
+from telegram.error import TelegramError
 from telegram.ext import Updater, CommandHandler, CallbackContext
 from telegram.bot import BotCommand
 from models import Item, Config
@@ -72,7 +72,7 @@ class Telegram():
                         timeout=60,
                         disable_web_page_preview=True)
                     self.retries = 0
-                except HTTPError as err:
+                except TelegramError as err:
                     log.warning('Telegram Error: %s', err)
                     self.retries += 1
                     if self.retries > Telegram.MAX_RETRIES:
