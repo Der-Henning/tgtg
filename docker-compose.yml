@@ -34,7 +34,7 @@ services:
       - TELEGRAM_CHAT_IDS=                            ## Telegram Chat id, multiple ids separated by comma
       #- TELEGRAM_BODY=                               ## Optional message body as markdown, variables as described below
                                                       ## Example: 
-                                                      ## 'TELEGRAM_BODY={{`*$${{display_name}}*\n*Available*: $${{items_available}}\n*Rating*: $${{rating}}\n*Price*: $${{price}} $${{currency}}\n*Pickup*: $${{pickupdate}}`}}'
+                                                      ## 'TELEGRAM_BODY=*$${{display_name}}*\n*Available*: $${{items_available}}\n*Rating*: $${{rating}}\n*Price*: $${{price}} $${{currency}}\n*Pickup*: $${{pickupdate}}'
 
       - IFTTT=false                                   ## true = enable notifications via IFTTT Webhooks
       - IFTTT_EVENT=tgtg_notification                 ## IFTTT Webhooks Event
