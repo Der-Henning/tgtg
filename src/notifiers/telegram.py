@@ -3,7 +3,7 @@ from time import sleep
 import random
 import datetime
 from telegram import Update, ParseMode
-from telegram.error import TelegramError
+from telegram.error import TelegramError, NetworkError, TimedOut, BadRequest
 from telegram.ext import Updater, CommandHandler, CallbackContext
 from telegram.bot import BotCommand
 from models import Item, Config
@@ -34,10 +34,10 @@ class Telegram():
                 Item.check_mask(self.body)
                 self.updater = Updater(token=self.token)
                 self.updater.bot.get_me(timeout=60)
-            except MaskConfigurationError as exc:
-                raise TelegramConfigurationError(exc.message) from exc
-            except Exception as exc:
-                raise TelegramConfigurationError() from exc
+            except MaskConfigurationError as err:
+                raise TelegramConfigurationError(err.message) from err
+            except TelegramError as err:
+                raise TelegramConfigurationError() from err
             if not self.chat_ids:
                 self._get_chat_id()
             self.updater.dispatcher.add_handler(CommandHandler("help", self._help))
@@ -72,7 +72,9 @@ class Telegram():
                         timeout=60,
                         disable_web_page_preview=True)
                     self.retries = 0
-                except TelegramError as err:
+                except BadRequest as err:
+                    log.error('Telegram Error: %s', err)
+                except (NetworkError, TimedOut) as err:
                     log.warning('Telegram Error: %s', err)
                     self.retries += 1
                     if self.retries > Telegram.MAX_RETRIES:
@@ -80,9 +82,8 @@ class Telegram():
                     self.updater.stop()
                     self.updater.start_polling()
                     self.send(item)
-                except Exception as err:
+                except TelegramError as err:
                     log.error('Telegram Error: %s', err)
-                    #raise TelegramConfigurationError()
 
     def _help(self, update: Update, context: CallbackContext) -> None:
         """Send message containing available bot commands"""
