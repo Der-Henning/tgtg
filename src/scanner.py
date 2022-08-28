@@ -106,6 +106,8 @@ class Scanner():
             except Exception:
                 log.error("check item error! - %s", sys.exc_info())
         log.debug("new State: %s", self.amounts)
+        if len(self.amounts) == 0:
+            log.warning("No items in observation! Did you add any favorites?")
         self.config.save_tokens(
             self.tgtg_client.access_token,
             self.tgtg_client.refresh_token,
