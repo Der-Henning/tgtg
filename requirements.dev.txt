@@ -2,4 +2,4 @@
 altgraph==0.17.2
 pycryptodomex==3.15.0
 pyinstaller==5.3
-pyinstaller-hooks-contrib==2022.8
+pyinstaller-hooks-contrib==2022.9
