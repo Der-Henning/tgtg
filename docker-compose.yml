@@ -8,6 +8,10 @@ services:
       - DEBUG=false                                   ## true for debug log messages
       - TGTG_USERNAME=                                ## TGTG Username / Login EMail
       - SLEEP_TIME=60                                 ## Time to wait till next scan in seconds - default 60 seconds
+      - SCHEDULE_CRON=                               ## (optional) Scheuler in cron schedule expression 
+      ## Example of cron schedule expression:
+      #¤ - SCHEDULE_CRON=*/1 12-14 * * 1-5     = allowed to run every 1 minute at hours 12-14 on monday to friday
+      ## more help with formatting at https://crontab.guru/#*/1_12-14_*_*_1-5
       - ITEM_IDS=                                     ## (optional) Comma seperated list of Item Ids to scan
       - METRICS=false                                 ## Enable to export metrics for Prometheus
       - METRICS_PORT=8000                             ## Port for metrics http server

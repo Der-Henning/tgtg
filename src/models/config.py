@@ -15,6 +15,7 @@ class Config():
         self.file = file
         self.item_ids = []
         self.sleep_time = 60
+        self.schedule_cron='* * * * *'
         self.debug = False
         self.metrics = False
         self.metrics_port = 8000
@@ -62,6 +63,7 @@ class Config():
         self.item_ids = config["MAIN"].get("ItemIDs").split(
             ',') if "ItemIDs" in config["MAIN"] else []
         self.sleep_time = config["MAIN"].getint("SleepTime")
+        self.schedule_cron = config["MAIN"].getint("ScheduleCron")
         self.metrics = config["MAIN"].getboolean("Metrics", False)
         self.metrics_port = config["MAIN"].getint("MetricsPort", 8000)
         self.tgtg = {
@@ -121,6 +123,7 @@ class Config():
         self.item_ids = environ.get("ITEM_IDS").split(
             ",") if environ.get("ITEM_IDS") else []
         self.sleep_time = int(environ.get("SLEEP_TIME", 20))
+        self.schedule_cron = environ.get("SCHEDULE_CRON", '* * * * *')
         self.debug = environ.get(
             "DEBUG", "false").lower() in ('true', '1', 't')
         self.metrics = environ.get(
