@@ -63,7 +63,7 @@ class SMTP():
         try:
             status = self.server.noop()[0]
         except SMTPServerDisconnected:
-            self._connect()
+            status = -1
         if status != 250:
             self._connect()
 

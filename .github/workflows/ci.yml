@@ -159,6 +159,13 @@ jobs:
                 push: true
                 tags: ${{ steps.meta.outputs.tags }}
                 labels: ${{ steps.meta.outputs.labels }}
+        -   uses: peter-evans/dockerhub-description@v3
+            with:
+                username: ${{ secrets.DOCKER_USERNAME }}
+                password: ${{ secrets.DOCKER_PASSWORD }}
+                repository: ${{ secrets.DOCKER_USERNAME }}/tgtg
+                short-description: ${{ github.event.repository.description }}
+                readme-filepath: ./DOCKER_README.md
     releases:
         name: Build Release Files
         runs-on: ${{ matrix.os }}
