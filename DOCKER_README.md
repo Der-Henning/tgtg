@@ -10,8 +10,8 @@ Readme, source and documentation on [https://github.com/Der-Henning/tgtg](https:
 
 - `edge`
 - `edge-alpine`
-- `v1`, `v1.11`, `v1.11.4`, `latest`
-- `v1-alpine`, `v1.11-alpine`, `v1.11.4-alpine`, `latest-alpine`
+- `v1`, `v1.11`, `v1.11.5`, `latest`
+- `v1-alpine`, `v1.11-alpine`, `v1.11.5-alpine`, `latest-alpine`
 
 ## Docker Compose Example
 
