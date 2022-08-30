@@ -63,7 +63,7 @@ class Config():
         self.item_ids = config["MAIN"].get("ItemIDs").split(
             ',') if "ItemIDs" in config["MAIN"] else []
         self.sleep_time = config["MAIN"].getint("SleepTime")
-        self.schedule_cron = config["MAIN"].getint("ScheduleCron")
+        self.schedule_cron = config["MAIN"].get("ScheduleCron")
         self.metrics = config["MAIN"].getboolean("Metrics", False)
         self.metrics_port = config["MAIN"].getint("MetricsPort", 8000)
         self.tgtg = {
