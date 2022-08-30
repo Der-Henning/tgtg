@@ -173,24 +173,25 @@ class Scanner():
         Main Loop of the Scanner
         """
         log.info("Scanner started ...")
-        if (self.config.schedule_cron != '* * * * *'):
+        if (self.config.schedule_cron):
             try:
+                pycron.is_now(self.config.schedule_cron)
                 log.info("Schedule cron expression: " + get_description(self.config.schedule_cron))
-            except Exception:
+            except:
                 log.warning("Schedule cron expression parsing error - %s", sys.exc_info())
-                log.info("Schedule cron expression is ignored")
-                self.config.schedule_cron = '* * * * *'
-        while True:
-            if (pycron.is_now(self.config.schedule_cron)):
-                try:
+                log.info("Schedule cron expression '"+str(self.config.schedule_cron)+"' is ignored")
+                self.config.schedule_cron = None
+        while True:            
+            try:
+                if (not self.config.schedule_cron or pycron.is_now(self.config.schedule_cron)):
                     self._job()
                     if self.tgtg_client.captcha_error_count > 10:
                         log.warning("Too many 403 Errors. Sleeping for 1 hour.")
                         sleep(60 * 60)
                         log.info("Continuing scanning.")
                         self.tgtg_client.captcha_error_count = 0
-                except Exception:
-                    log.error("Job Error! - %s", sys.exc_info())
+            except Exception:
+                log.error("Job Error! - %s", sys.exc_info())
             sleep(self.config.sleep_time * (0.9 + 0.2 * random()))
 
     def __del__(self) -> None:
