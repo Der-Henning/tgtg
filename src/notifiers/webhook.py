@@ -35,7 +35,7 @@ class WebHook():
                 "Content-Type": self.type
             }
             if self.body:
-                body = item.unmask(self.body)
+                body = item.unmask(self.body).encode()
                 headers["Content-Length"] = str(len(body))
                 log.debug("Webhook body: %s", body)
             log.debug("Webhook headers: %s", headers)
