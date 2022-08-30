@@ -181,7 +181,7 @@ class Scanner():
                 log.warning("Schedule cron expression parsing error - %s", sys.exc_info())
                 log.info("Schedule cron expression '"+str(self.config.schedule_cron)+"' is ignored")
                 self.config.schedule_cron = None
-        while True:            
+        while True:
             try:
                 if (not self.config.schedule_cron or pycron.is_now(self.config.schedule_cron)):
                     self._job()
