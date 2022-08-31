@@ -179,7 +179,7 @@ class Scanner():
                 log.info("Schedule cron expression: %s", get_description(self.config.schedule_cron))
             except:
                 log.warning("Schedule cron expression parsing error - %s", sys.exc_info())
-                log.info("Schedule cron expression '"+str(self.config.schedule_cron)+"' is ignored")
+                log.info("Schedule cron expression '%s' is ignored", str(self.config.schedule_cron))
                 self.config.schedule_cron = None
         while True:
             try:
