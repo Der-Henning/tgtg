@@ -176,7 +176,7 @@ class Scanner():
         if (self.config.schedule_cron):
             try:
                 pycron.is_now(self.config.schedule_cron)
-                log.info("Schedule cron expression: " + get_description(self.config.schedule_cron))
+                log.info("Schedule cron expression: %s", get_description(self.config.schedule_cron))
             except:
                 log.warning("Schedule cron expression parsing error - %s", sys.exc_info())
                 log.info("Schedule cron expression '"+str(self.config.schedule_cron)+"' is ignored")
