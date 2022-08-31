@@ -173,17 +173,9 @@ class Scanner():
         Main Loop of the Scanner
         """
         log.info("Scanner started ...")
-        if (self.config.schedule_cron):
-            try:
-                pycron.is_now(self.config.schedule_cron)
-                log.info("Schedule cron expression: %s", get_description(self.config.schedule_cron))
-            except:
-                log.warning("Schedule cron expression parsing error - %s", sys.exc_info())
-                log.info("Schedule cron expression '%s' is ignored", str(self.config.schedule_cron))
-                self.config.schedule_cron = None
         while True:
             try:
-                if (not self.config.schedule_cron or pycron.is_now(self.config.schedule_cron)):
+                if (pycron.is_now(self.config.schedule_cron)):
                     self._job()
                     if self.tgtg_client.captcha_error_count > 10:
                         log.warning("Too many 403 Errors. Sleeping for 1 hour.")
@@ -238,6 +230,12 @@ def main() -> NoReturn:
         welcome_message()
         check_version()
         scanner = Scanner()
+        if (scanner.config.schedule_cron != '* * * * *'):
+            try:
+                pycron.is_now(scanner.config.schedule_cron)
+                log.info("Schedule cron expression: %s", get_description(scanner.config.schedule_cron))
+            except:
+                raise ConfigurationError("Schedule cron expression parsing error - %s", sys.exc_info())
         scanner.run()
     except ConfigurationError as err:
         log.error("Configuration Error - %s", err)
