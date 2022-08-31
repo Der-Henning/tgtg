@@ -15,7 +15,7 @@ class Config():
         self.file = file
         self.item_ids = []
         self.sleep_time = 60
-        self.schedule_cron=None
+        self.schedule_cron = None
         self.debug = False
         self.metrics = False
         self.metrics_port = 8000
