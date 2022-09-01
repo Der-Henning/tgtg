@@ -6,6 +6,8 @@ from random import random
 from typing import NoReturn
 from packaging import version
 import requests
+import pycron
+from cron_descriptor import get_description
 
 from models import Item, Config, Metrics
 from models.errors import TgtgAPIError, Error, ConfigurationError, TGTGConfigurationError
@@ -173,16 +175,16 @@ class Scanner():
         log.info("Scanner started ...")
         while True:
             try:
-                self._job()
-                if self.tgtg_client.captcha_error_count > 10:
-                    log.warning("Too many 403 Errors. Sleeping for 1 hour.")
-                    sleep(60 * 60)
-                    log.info("Continuing scanning.")
-                    self.tgtg_client.captcha_error_count = 0
+                if (pycron.is_now(self.config.schedule_cron)):
+                    self._job()
+                    if self.tgtg_client.captcha_error_count > 10:
+                        log.warning("Too many 403 Errors. Sleeping for 1 hour.")
+                        sleep(60 * 60)
+                        log.info("Continuing scanning.")
+                        self.tgtg_client.captcha_error_count = 0
             except Exception:
                 log.error("Job Error! - %s", sys.exc_info())
-            finally:
-                sleep(self.config.sleep_time * (0.9 + 0.2 * random()))
+            sleep(self.config.sleep_time * (0.9 + 0.2 * random()))
 
     def __del__(self) -> None:
         """
@@ -228,6 +230,12 @@ def main() -> NoReturn:
         welcome_message()
         check_version()
         scanner = Scanner()
+        if (scanner.config.schedule_cron != '* * * * *'):
+            try:
+                pycron.is_now(scanner.config.schedule_cron)
+                log.info("Schedule cron expression: %s", get_description(scanner.config.schedule_cron))
+            except:
+                raise ConfigurationError("Schedule cron expression parsing error - %s", sys.exc_info())
         scanner.run()
     except ConfigurationError as err:
         log.error("Configuration Error - %s", err)

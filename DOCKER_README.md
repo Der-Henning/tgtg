@@ -25,6 +25,7 @@ services:
       - DEBUG=false
       - TGTG_USERNAME=
       - SLEEP_TIME=60
+      - SCHEDULE_CRON=
       - ITEM_IDS=
       - METRICS=false
       - METRICS_PORT=8000
