@@ -49,6 +49,7 @@ services:
       - TELEGRAM=false
       - TELEGRAM_TOKEN=
       - TELEGRAM_CHAT_IDS=
+      - TELEGRAM_TIMEOUT=60
       #- TELEGRAM_BODY=
 
       - IFTTT=false
