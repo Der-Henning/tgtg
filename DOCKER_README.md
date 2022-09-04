@@ -1,19 +1,21 @@
-# TGTG Scanner
+# Quick reference
 
 Readme, source and documentation on [https://github.com/Der-Henning/tgtg](https://github.com/Der-Henning/tgtg).
 
-## Supported Tags
+# Supported Tags and respective `Dockerfile` links
 
  The `latest` images represent the latest stable release.
  The `edge` images contain the latest commits to the main branch.
  The `alpine` images are based on the alpine linux distribution and are significantly smaller.
 
-- `edge`
-- `edge-alpine`
-- `v1`, `v1.11`, `v1.11.5`, `latest`
-- `v1-alpine`, `v1.11-alpine`, `v1.11.5-alpine`, `latest-alpine`
+- [`edge`](https://github.com/Der-Henning/tgtg/blob/main/Dockerfile)
+- [`edge-alpine`](https://github.com/Der-Henning/tgtg/blob/main/Dockerfile.alpine)
+- [`v1`, `v1.12`, `v1.12.0`, `latest`](https://github.com/Der-Henning/tgtg/blob/main/Dockerfile)
+- [`v1-alpine`, `v1.12-alpine`, `v1.12.0-alpine`, `latest-alpine`](https://github.com/Der-Henning/tgtg/blob/main/Dockerfile.alpine)
 
-## Docker Compose Example
+# Quick Start
+
+**Docker Compose Example:**
 
 ````xml
 version: "3.3"
