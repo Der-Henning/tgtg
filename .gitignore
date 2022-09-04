@@ -3,6 +3,7 @@ build
 dist
 .vscode
 .DS_Store
+.venv
 
 .env
 config.ini
