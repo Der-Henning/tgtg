@@ -7,7 +7,7 @@ from typing import NoReturn
 from packaging import version
 import requests
 
-from models import Item, Config, Metrics
+from models import Item, Config, Metrics, Cron
 from models.errors import TgtgAPIError, Error, ConfigurationError, TGTGConfigurationError
 from notifiers import Notifiers
 from tgtg import TgtgClient
@@ -42,8 +42,9 @@ class Scanner():
             for logger in loggers:
                 logger.setLevel(logging.DEBUG)
             log.info("Debugging mode enabled")
-        self.metrics = Metrics()
+        self.metrics = Metrics(self.config.metrics_port)
         self.item_ids = self.config.item_ids
+        self.cron = Cron(self.config.schedule_cron)
         self.amounts = {}
         try:
             self.tgtg_client = TgtgClient(
@@ -172,17 +173,17 @@ class Scanner():
         """
         log.info("Scanner started ...")
         while True:
-            try:
-                self._job()
-                if self.tgtg_client.captcha_error_count > 10:
-                    log.warning("Too many 403 Errors. Sleeping for 1 hour.")
-                    sleep(60 * 60)
-                    log.info("Continuing scanning.")
-                    self.tgtg_client.captcha_error_count = 0
-            except Exception:
-                log.error("Job Error! - %s", sys.exc_info())
-            finally:
-                sleep(self.config.sleep_time * (0.9 + 0.2 * random()))
+            if self.cron.is_now:
+                try:
+                    self._job()
+                    if self.tgtg_client.captcha_error_count > 10:
+                        log.warning("Too many 403 Errors. Sleeping for 1 hour.")
+                        sleep(60 * 60)
+                        log.info("Continuing scanning.")
+                        self.tgtg_client.captcha_error_count = 0
+                except Exception:
+                    log.error("Job Error! - %s", sys.exc_info())
+            sleep(self.config.sleep_time * (0.9 + 0.2 * random()))
 
     def __del__(self) -> None:
         """

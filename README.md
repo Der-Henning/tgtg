@@ -7,18 +7,19 @@ TGTG Scanner observes your favorite TGTG Magic Bags for new available items and 
 
 Additionally the currently available amounts can be provided via a http server.
 
-Running in a docker container the scanner can be seemlessly integrated with openhab, prometheus and other automation, notification and visualization services.
+Running in a docker container the scanner can be seamlessly integrated with OpenHab, Prometheus and other automation, notification and visualization services.
 
-This software is provided as is without warranty of any kind. If you have problems, find bugs or have suggestions for improvement feel free to create an issue or contribute to the project. Before creating an issue please refere to the [FAQ](https://github.com/Der-Henning/tgtg/wiki/FAQ).
+This software is provided as is without warranty of any kind. If you have problems, find bugs or have suggestions for improvement feel free to create an issue or contribute to the project. Before creating an issue please refer to the [FAQ](https://github.com/Der-Henning/tgtg/wiki/FAQ).
 
 ## Disclaimer
 
-Too Good To Go explicitly forbids the use of their plattform the way this tool does. In their Terms and Conditions it says: "The Consumer must not misuse the Platform (including hacking or 'scraping')."
+Too Good To Go explicitly forbids the use of their platform the way this tool does. In their Terms and Conditions it says: "The Consumer must not misuse the Platform (including hacking or 'scraping')."
 
 If you use this tool you do it at your own risk. TGTG may stop you from doing so by (temporarily) blocking your access and may even delete your account.
 
 ## Error 403
-If you see the Error 403 in your logs please refere to the [FAQ](https://github.com/Der-Henning/tgtg/wiki/FAQ#1-i-am-getting-error-403-all-the-time).
+
+If you see the Error 403 in your logs please refer to the [FAQ](https://github.com/Der-Henning/tgtg/wiki/FAQ#1-i-am-getting-error-403-all-the-time).
 
 ## Installation
 
@@ -33,7 +34,7 @@ You have the following three options to install the scanner, ascending in comple
 This is the simplest but least flexible solution suitable for most operating systems.
 
 1. Download latest [Releases](https://github.com/Der-Henning/tgtg/releases) for your OS
-2. Unzip the archiv
+2. Unzip the archive
 3. Edit ```config.ini``` as described in the file
 4. Run scanner
 
@@ -44,7 +45,7 @@ On Mac you need to hold the control key while opening the file and on Windows yo
 
 ### Run with Docker
 
-My prefered method for servers using the pre build multi-arch linux images available on [Docker Hub](https://hub.docker.com/r/derhenning/tgtg).
+My preferred method for servers using the pre build multi-arch linux images available on [Docker Hub](https://hub.docker.com/r/derhenning/tgtg).
 
 1. Install Docker and docker-compose
 2. Copy and edit ```docker-compose.yml``` as described in the file
@@ -61,13 +62,13 @@ Method for developers.
 3. Create ```src/config.ini``` as described in the file ```config.template.ini```
 4. Run ```python src/scanner.py```
 
-Alternitively you can use environment variables as described in the ```sample.env``` file. The scanner will look for environment variables if no ```config.ini``` is present.
+Alternatively you can use environment variables as described in the ```sample.env``` file. The scanner will look for environment variables if no ```config.ini``` is present.
 
 ### Running
 
-When the scanner is started it will first try to login to your TGTG account. Similar to loging in to the TGTG app, you have to click on the link send to you by mail. This won't work on your mobile phone if you have installed the TGTG app, so you have to check your mailbox on PC.
+When the scanner is started it will first try to login to your TGTG account. Similar to logging in to the TGTG app, you have to click on the link send to you by mail. This won't work on your mobile phone if you have installed the TGTG app, so you have to check your mailbox on PC.
 
-After a successfull login the scanner will send a test notification on all configured notifiers. If you don't reveive any notifications, please check your configuration.
+After a successful login the scanner will send a test notification on all configured notifiers. If you don't receive any notifications, please check your configuration.
 
 ### Metrics
 
@@ -87,11 +88,11 @@ Scrape config:
 
 ## Developing
 
-For developement I recommend using docker. The Makefile depends on docker and docker-compose.
+For development I recommend using docker. The Makefile depends on docker and docker-compose.
 
 Create ```.env``` based on ```sample.env``` for configuration.
 
-Developing with VSCode you can open the project in the configured developement container.
+Developing with VSCode you can open the project in the configured development container.
 
 ### Makefile commands
 
@@ -111,7 +112,7 @@ Developing with VSCode you can open the project in the configured developement c
 
 ### Helper functions
 
-```src/helper.py``` contains some usefull functions. Running ```python src/helper.py --help``` displays the available commands.
+```src/helper.py``` contains some useful functions. Running ```python src/helper.py --help``` displays the available commands.
 
 ````
 Usage: helper.py command

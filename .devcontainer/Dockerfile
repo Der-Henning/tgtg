@@ -14,7 +14,7 @@ COPY requirements.dev.txt /tmp/pip-tmp/
 
 RUN pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements.dev.txt \
     && rm -rf /tmp/pip-tmp
-RUN pip3 install pylint
+RUN pip3 --disable-pip-version-check --no-cache-dir install pylint
 
 # [Optional] Uncomment this section to install additional OS packages.
 # RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \

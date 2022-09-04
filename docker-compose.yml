@@ -8,12 +8,18 @@ services:
       - DEBUG=false                                   ## true for debug log messages
       - TGTG_USERNAME=                                ## TGTG Username / Login EMail
       - SLEEP_TIME=60                                 ## Time to wait till next scan in seconds - default 60 seconds
+      #- SCHEDULE_CRON=                               ## (optional) Scheduler in cron schedule expression 
+                                                      ## Example of cron schedule expression:
+                                                      ## - SCHEDULE_CRON=* 12-14 * * 1-5     
+                                                      ## => allowed to run at hours between 12:00 and 14:59 on monday to friday
+                                                      ## more help with formatting at https://crontab.guru/#*_12-14_*_*_1-5
+                                                      ## The Scanner will not make any requests to the TGTG API in the excluded periods
       - ITEM_IDS=                                     ## (optional) Comma seperated list of Item Ids to scan
       - METRICS=false                                 ## Enable to export metrics for Prometheus
       - METRICS_PORT=8000                             ## Port for metrics http server
       - DISABLE_TESTS=false                           ## true to disable test notifications on startup
 
-      - SMTP=true                                     ## true = enable mail notifications via smtp
+      - SMTP=false                                    ## true = enable mail notifications via smtp
       - SMTP_HOST=smtp.gmail.com                      ## smtp Server - smtp.gmail.com for google
       - SMTP_PORT=465                                 ## smtp Server Port - 465 for google
       - SMTP_USERNAME=max.mustermann@gmail.com        ## smtp Login - your EMail for google
@@ -32,6 +38,7 @@ services:
       - TELEGRAM=false                                ## true = enable notifications via Telegram
       - TELEGRAM_TOKEN=                               ## Telegram Bot token - see @botfather
       - TELEGRAM_CHAT_IDS=                            ## Telegram Chat id, multiple ids separated by comma
+      - TELEGRAM_TIMEOUT=60                           ## Timeout for Telegram API requests
       #- TELEGRAM_BODY=                               ## Optional message body as markdown, variables as described below
                                                       ## Example: 
                                                       ## 'TELEGRAM_BODY=*$${{display_name}}*\n*Available*: $${{items_available}}\n*Rating*: $${{rating}}\n*Price*: $${{price}} $${{currency}}\n*Pickup*: $${{pickupdate}}'

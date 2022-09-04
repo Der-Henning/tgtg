@@ -25,6 +25,7 @@ class Telegram():
         self.token = config.telegram["token"]
         self.body = config.telegram["body"]
         self.chat_ids = config.telegram["chat_ids"]
+        self.timeout = config.telegram["timeout"]
         self.mute = None
         self.retries = 0
         if self.enabled and not self.token:
@@ -33,7 +34,7 @@ class Telegram():
             try:
                 Item.check_mask(self.body)
                 self.updater = Updater(token=self.token)
-                self.updater.bot.get_me(timeout=60)
+                self.updater.bot.get_me(timeout=self.timeout)
             except MaskConfigurationError as err:
                 raise TelegramConfigurationError(err.message) from err
             except TelegramError as err:
@@ -69,7 +70,7 @@ class Telegram():
                         chat_id=chat_id,
                         text=message,
                         parse_mode=fmt,
-                        timeout=60,
+                        timeout=self.timeout,
                         disable_web_page_preview=True)
                     self.retries = 0
                 except BadRequest as err:
@@ -119,7 +120,7 @@ class Telegram():
         log.warning("Send %s to the bot in your desired chat.", code)
         log.warning("Waiting for code ...")
         while not self.chat_ids:
-            updates = self.updater.bot.get_updates(timeout=60)
+            updates = self.updater.bot.get_updates(timeout=self.timeout)
             for update in reversed(updates):
                 if update.message and update.message.text:
                     if update.message.text.isdecimal() and int(update.message.text) == code:

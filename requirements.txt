@@ -16,3 +16,5 @@ tornado==6.2
 tzdata==2022.2
 tzlocal==4.2
 urllib3==1.26.12
+pycron===3.0.0
+cron-descriptor==1.2.31
