@@ -84,7 +84,8 @@ class Config():
             self.push_safer = {
                 "enabled": config["PUSHSAFER"].getboolean("enabled", False),
                 "key": config["PUSHSAFER"].get("Key"),
-                "deviceId": config["PUSHSAFER"].get("DeviceID")
+                "deviceId": config["PUSHSAFER"].get("DeviceID"),
+                "cron": config["PUSHSAFER"].get("cron", '* * * * *')
             }
             self.smtp = {
                 "enabled": config["SMTP"].getboolean("enabled", False),
@@ -93,6 +94,7 @@ class Config():
                 "tls": config["SMTP"].getboolean("TLS"),
                 "username": config["SMTP"].get("Username"),
                 "password": config["SMTP"].get("Password"),
+                "cron": config["SMTP"].get("cron", '* * * * *'),
                 "sender": config["SMTP"].get("Sender"),
                 "recipient": config["SMTP"].get("Recipient"),
                 "subject": config["SMTP"].get("Subject", "New Magic Bags"),
@@ -101,7 +103,8 @@ class Config():
             self.ifttt = {
                 "enabled": config["IFTTT"].getboolean("enabled", False),
                 "event": config["IFTTT"].get("Event"),
-                "key": config["IFTTT"].get("Key")
+                "key": config["IFTTT"].get("Key"),
+                "cron": config["IFTTT"].get("cron", '* * * * *')
             }
             self.webhook = {
                 "enabled": config["WEBHOOK"].getboolean("enabled", False),
@@ -109,16 +112,18 @@ class Config():
                 "method": config["WEBHOOK"].get("Method", "GET"),
                 "body": config["WEBHOOK"].get("body", None),
                 "type": config["WEBHOOK"].get("type", "text/plain"),
-                "timeout": config["WEBHOOK"].getint("timeout", 60)
+                "timeout": config["WEBHOOK"].getint("timeout", 60),
+                "cron": config["WEBHOOK"].get("cron", '* * * * *')
             }
             self.telegram = {
                 "enabled": config["TELEGRAM"].getboolean("enabled", False),
                 "token": config["TELEGRAM"].get("token", None),
                 "chat_ids": config["TELEGRAM"].get("chat_ids", None),
                 "timeout": config["TELEGRAM"].getint("timeout", 60),
+                "cron": config["TELEGRAM"].get("cron", '* * * * *'),
                 "body": config["TELEGRAM"].get("body", "*${{display_name}}*\n*Available*: ${{items_available}}\n*Price*: ${{price}} ${{currency}}\n*Pickup*: ${{pickupdate}}").replace('\\n', '\n')
             }
-            #only for backwards compability
+            #only for backwards compatibility
             if not self.telegram["chat_ids"] and config["TELEGRAM"].get("chat_id", None):
                 self.telegram["chat_ids"] = config["TELEGRAM"].get("chat_id", None)
         except ValueError as err:
@@ -153,7 +158,8 @@ class Config():
             self.push_safer = {
                 "enabled": environ.get("PUSH_SAFER", "false").lower() in ('true', '1', 't'),
                 "key": environ.get("PUSH_SAFER_KEY", None),
-                "deviceId": environ.get("PUSH_SAFER_DEVICE_ID", None)
+                "deviceId": environ.get("PUSH_SAFER_DEVICE_ID", None),
+                "cron": environ.get("PUSH_SAFER_CRON", '* * * * *')
             }
             self.smtp = {
                 "enabled": environ.get("SMTP", "false").lower() in ('true', '1', 't'),
@@ -164,13 +170,15 @@ class Config():
                 "password": environ.get("SMTP_PASSWORD", ""),
                 "sender": environ.get("SMTP_SENDER", None),
                 "recipient": environ.get("SMTP_RECIPIENT", None),
+                "cron": environ.get("SMTP_CRON", '* * * * *'),
                 "subject": environ.get("SMTP_SUBJECT", "New Magic Bags"),
                 "body": environ.get("SMTP_BODY", "<b>${{display_name}}</b> </br>New Amount: ${{items_available}}")
             }
             self.ifttt = {
                 "enabled": environ.get("IFTTT", "false").lower() in ('true', '1', 't'),
                 "event": environ.get("IFTTT_EVENT", "tgtg_notification"),
-                "key": environ.get("IFTTT_KEY", None)
+                "key": environ.get("IFTTT_KEY", None),
+                "cron": environ.get("IFTTT_CRON", '* * * * *')
             }
             self.webhook = {
                 "enabled": environ.get("WEBHOOK", "false").lower() in ('true', '1', 't'),
@@ -178,13 +186,15 @@ class Config():
                 "method": environ.get("WEBHOOK_METHOD", "GET"),
                 "body": environ.get("WEBHOOK_BODY", ""),
                 "type": environ.get("WEBHOOK_TYPE", "text/plain"),
-                "timeout": int(environ.get("WEBHOOK_TIMEOUT", 60))
+                "timeout": int(environ.get("WEBHOOK_TIMEOUT", 60)),
+                "cron": environ.get("WEBHOOK_CRON", '* * * * *')
             }
             self.telegram = {
                 "enabled": environ.get("TELEGRAM", "false").lower() in ('true', '1', 't'),
                 "token": environ.get("TELEGRAM_TOKEN", None),
                 "chat_ids": environ.get("TELEGRAM_CHAT_IDS", None),
                 "timeout": int(environ.get("TELEGRAM_TIMEOUT", 60)),
+                "cron": environ.get("TELEGRAM_CRON", '* * * * *'),
                 "body": environ.get("TELEGRAM_BODY", "*${{display_name}}*\n*Available*: ${{items_available}}\n*Price*: ${{price}} ${{currency}}\n*Pickup*: ${{pickupdate}}").replace('\\n', '\n')
             }
             #only for backwards compability

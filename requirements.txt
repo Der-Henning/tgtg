@@ -7,12 +7,12 @@ packaging==21.3
 prometheus-client==0.14.1
 pyparsing==3.0.9
 python-pushsafer==1.0
-python-telegram-bot==13.13
+python-telegram-bot==13.14
 pytz==2022.2.1
 pytz-deprecation-shim==0.1.0.post0
 requests==2.28.1
 six==1.16.0
-tornado==6.2
+tornado==6.1
 tzdata==2022.2
 tzlocal==4.2
 urllib3==1.26.12

@@ -6,13 +6,14 @@ from telegram import Update, ParseMode
 from telegram.error import TelegramError, NetworkError, TimedOut, BadRequest
 from telegram.ext import Updater, CommandHandler, CallbackContext
 from telegram.bot import BotCommand
-from models import Item, Config
+from models import Item, Config, Cron
 from models.errors import TelegramConfigurationError, MaskConfigurationError
+from notifiers import Notifier
 
 log = logging.getLogger('tgtg')
 
 
-class Telegram():
+class Telegram(Notifier):
     """
     Notifier for Telegram.
     """
@@ -26,6 +27,7 @@ class Telegram():
         self.body = config.telegram["body"]
         self.chat_ids = config.telegram["chat_ids"]
         self.timeout = config.telegram["timeout"]
+        self.cron = Cron(config.telegram["cron"])
         self.mute = None
         self.retries = 0
         if self.enabled and not self.token:
@@ -54,7 +56,7 @@ class Telegram():
 
     def send(self, item: Item) -> None:
         """Send item information as Telegram message"""
-        if self.enabled:
+        if self.enabled and self.cron.is_now:
             if self.mute and self.mute > datetime.datetime.now():
                 return
             if self.mute:
@@ -138,3 +140,10 @@ class Telegram():
             log.warning(
                 "For persistence please set TELEGRAM_CHAT_IDS=%s", ','.join(self.chat_ids)
             )
+
+    def stop(self):
+        if self.updater is not None:
+            self.updater.stop()
+
+    def __repr__(self) -> str:
+        return f"Telegram: {self.chat_ids}"
