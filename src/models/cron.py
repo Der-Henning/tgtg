@@ -1,6 +1,6 @@
 import logging
 import pycron
-from cron_descriptor import get_description
+# from cron_descriptor import get_description
 
 from models.errors import ConfigurationError
 
@@ -23,4 +23,5 @@ class Cron():
 
     @property
     def description(self) -> str:
-        return get_description(self.cron)
+        return self.cron
+        # return get_description(self.cron)
