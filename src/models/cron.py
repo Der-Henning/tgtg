@@ -23,5 +23,7 @@ class Cron():
 
     @property
     def description(self) -> str:
+        ## The cron_descriptor uses separate language files, that are not automatically included
+        ## in the pyinstaller build. Deactivated as a quick workaround.
         return self.cron
         # return get_description(self.cron)
