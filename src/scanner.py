@@ -31,7 +31,7 @@ log = logging.getLogger('tgtg')
 
 
 class Scanner():
-    def __init__(self, notifiers: bool = True):
+    def __init__(self, disable_notifiers: bool = False):
         self.config = Config(config_file) if path.isfile(
             config_file) else Config()
         if self.config.debug:
@@ -45,6 +45,8 @@ class Scanner():
         self.metrics = Metrics(self.config.metrics_port)
         self.item_ids = self.config.item_ids
         self.cron = Cron(self.config.schedule_cron)
+        if self.cron.cron != '* * * * *':
+            log.info("Active on schedule: %s", self.cron.description)
         self.amounts = {}
         try:
             self.tgtg_client = TgtgClient(
@@ -68,16 +70,15 @@ class Scanner():
         except Error as err:
             log.error(err)
             raise TGTGConfigurationError() from err
-        if notifiers:
+        if not disable_notifiers:
             if self.config.metrics:
                 self.metrics.enable_metrics()
             self.notifiers = Notifiers(self.config)
             if not self.config.disable_tests:
                 log.info("Sending test Notifications ...")
-                self.notifiers.send(self._test_item)
+                self.notifiers.send(self._get_test_item())
 
-    @property
-    def _test_item(self) -> Item:
+    def _get_test_item(self) -> Item:
         """
         Returns an item for test notifications
         """
@@ -189,11 +190,8 @@ class Scanner():
         """
         Cleanup on shutdown
         """
-        try:
-            if hasattr(self, 'notifiers') and self.notifiers.telegram.updater:
-                self.notifiers.telegram.updater.stop()
-        except Exception as exc:
-            log.warning(exc)
+        if hasattr(self, "notifiers"):
+            self.notifiers.stop()
 
 
 def welcome_message() -> None:
@@ -204,7 +202,7 @@ def welcome_message() -> None:
     log.info("  (__) \___/ (__) \___/  (____/ \___)\_/\_/\_)__)\_)__)(____)(__\_) ")
     log.info("")
     log.info("Version %s", VERSION)
-    log.info("©2021, Henning Merklinger")
+    log.info("©2022, Henning Merklinger")
     log.info("For documentation and support please visit https://github.com/Der-Henning/tgtg")
     log.info("")
     # pylint: enable=W1401

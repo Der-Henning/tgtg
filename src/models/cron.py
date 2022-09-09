@@ -14,8 +14,6 @@ class Cron():
             self.is_now
         except ValueError as err:
             raise ConfigurationError(f"Schedule cron expression parsing error - {err}") from err
-        if self.cron != '* * * * *':
-            log.info("Active on schedule: %s", self.description)
 
     @property
     def is_now(self) -> bool:

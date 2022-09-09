@@ -3,13 +3,14 @@ import smtplib
 from smtplib import SMTPServerDisconnected, SMTPException
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from models import Item, Config
+from models import Item, Config, Cron
 from models.errors import SMTPConfigurationError, MaskConfigurationError
+from notifiers import Notifier
 
 log = logging.getLogger('tgtg')
 
 
-class SMTP():
+class SMTP(Notifier):
     """
     Notifier for SMTP.
     """
@@ -26,6 +27,7 @@ class SMTP():
         self.enabled = config.smtp["enabled"]
         self.subject = config.smtp["subject"]
         self.body = config.smtp["body"]
+        self.cron = Cron(config.smtp["cron"])
         if self.enabled and (not self.host or not self.port):
             raise SMTPConfigurationError()
         if self.enabled:
@@ -84,9 +86,12 @@ class SMTP():
 
     def send(self, item: Item) -> None:
         """Sends item information via Mail."""
-        if self.enabled:
+        if self.enabled and self.cron.is_now:
             log.debug("Sending Mail Notification")
             self._send_mail(
                 item.unmask(self.subject),
                 item.unmask(self.body)
             )
+
+    def __repr__(self) -> str:
+        return f"SMTP: {self.recipient}"

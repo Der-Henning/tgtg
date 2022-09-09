@@ -75,7 +75,7 @@ def main(argv):
         usage()
         sys.exit(2)
 
-    helper = Helper(notifiers=False)
+    helper = Helper(disable_notifiers=True)
 
     if len(args) == 1 and args[0] == "credentials":
         credentials = helper.credentials
