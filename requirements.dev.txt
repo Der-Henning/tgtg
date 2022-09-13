@@ -1,5 +1,5 @@
 -r requirements.txt
 altgraph==0.17.2
 pycryptodomex==3.15.0
-pyinstaller==5.3
+pyinstaller==5.4.1
 pyinstaller-hooks-contrib==2022.10
