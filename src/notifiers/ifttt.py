@@ -29,9 +29,10 @@ class IFTTT(Notifier):
         if self.enabled and self.cron.is_now:
             log.debug("Sending IFTTT Notification")
             requests.post(self.url,
-                          json={"value1": item.display_name,
-                                "value2": item.items_available},
-                          timeout=60)
+                json={"value1": item.display_name,
+                      "value2": item.items_available,
+                      "value3": f"https://share.toogoodtogo.com/item/{item.item_id}"},
+                timeout=60)
 
     def __repr__(self) -> str:
         return f"IFTTT: {self.key}"
