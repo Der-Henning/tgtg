@@ -104,6 +104,7 @@ class Config():
                 "enabled": config["IFTTT"].getboolean("enabled", False),
                 "event": config["IFTTT"].get("Event"),
                 "key": config["IFTTT"].get("Key"),
+                "body": config["IFTTT"].get("Body", None),
                 "cron": config["IFTTT"].get("cron", '* * * * *')
             }
             self.webhook = {
@@ -178,6 +179,7 @@ class Config():
                 "enabled": environ.get("IFTTT", "false").lower() in ('true', '1', 't'),
                 "event": environ.get("IFTTT_EVENT", "tgtg_notification"),
                 "key": environ.get("IFTTT_KEY", None),
+                "body": environ.get("IFTTT_BODY", None),
                 "cron": environ.get("IFTTT_CRON", '* * * * *')
             }
             self.webhook = {
