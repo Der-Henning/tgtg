@@ -1,8 +1,8 @@
 APScheduler==3.6.3
 cachetools==4.2.2
-certifi==2022.6.15.1
+certifi==2022.6.15.2
 charset-normalizer==2.1.1
-idna==3.3
+idna==3.4
 packaging==21.3
 prometheus-client==0.14.1
 pyparsing==3.0.9
