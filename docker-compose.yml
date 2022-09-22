@@ -52,7 +52,7 @@ services:
                                                       ## Default: {"value1": "$${{display_name}}", "value2": $${{items_available}}, "value3": "https://share.toogoodtogo.com/item/$${{item_id}}"}
 
       ## Possible $${{variable}} variables: item_id, items_available, display_name, price, currency, pickupdate
-      ## Link to item in App (Android only): https://share.toogoodtogo.com/item/${{item_id}}
+      ## Link to item in App: https://share.toogoodtogo.com/item/${{item_id}}
       ## Example:
    ## - 'WEBHOOK_BODY={"message": "$${{display_name}} - New Amount: $${{items_available}}", "priority": 2, "title": "New TGTG Items"}'
       ## Notice that you have to enclose the variable with ''
