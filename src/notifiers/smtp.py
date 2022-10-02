@@ -52,7 +52,8 @@ class SMTP(Notifier):
     def _connect(self) -> None:
         """Connect to SMTP Server"""
         if self.tls:
-            self.server = smtplib.SMTP_SSL(self.host, self.port)
+            self.server = smtplib.SMTP(self.host, self.port)
+            self.server.starttls()
         else:
             self.server = smtplib.SMTP(self.host, self.port)
         self.server.set_debuglevel(self.debug)
