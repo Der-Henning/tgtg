@@ -40,7 +40,7 @@ class SMTP(Notifier):
             try:
                 self._connect()
             except Exception as exc:
-                raise SMTPConfigurationError() from exc
+                raise SMTPConfigurationError(exc) from exc
 
     def __del__(self):
         """Closes SMTP connection when shutdown"""

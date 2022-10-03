@@ -21,11 +21,11 @@ services:
 
       - SMTP=false                                    ## true = enable mail notifications via smtp
       - SMTP_HOST=smtp.gmail.com                      ## smtp Server - smtp.gmail.com for google
-      - SMTP_PORT=465                                 ## smtp Server Port - 465 for google
+      - SMTP_PORT=587                                 ## smtp Server Port - 587 for TLS, 465 for SSL, 25 for unsecured
       - SMTP_USERNAME=max.mustermann@gmail.com        ## smtp Login - your EMail for google
       - SMTP_PASSWORD=                                ## smtp Login Password - your Login PW for google
-      - SMTP_TLS=false                                ## enable TLS - false for gmail
-      - SMTP_SSL=true                                 ## enable SSL - true for gmail
+      - SMTP_TLS=true                                 ## enable TLS
+      - SMTP_SSL=false                                ## enable SSL
       - SMTP_SENDER=max.mustermann@gmail.com          ## sender adress - same as Login for google and most smtp servers
       - SMTP_RECIPIENT=max.mustermann@gmail.com       ## recipient for notifications - can be the same as sender
       #-SMTP_SUBJECT=                                 ## Subject and Body options are optional.
