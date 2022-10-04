@@ -36,7 +36,7 @@ USER_AGENTS = [
 DEFAULT_ACCESS_TOKEN_LIFETIME = 3600 * 4  # 4 hours
 DEFAULT_MAX_POLLING_TRIES = 24  # 24 * POLLING_WAIT_TIME = 2 minutes
 DEFAULT_POLLING_WAIT_TIME = 5  # Seconds
-DEFAULT_APK_VERSION = "22.8.0"
+DEFAULT_APK_VERSION = "22.9.10"
 
 APK_RE_SCRIPT = re.compile(
     r"AF_initDataCallback\({key:\s*'ds:5'.*?data:([\s\S]*?), sideChannel:.+<\/script"
@@ -145,8 +145,8 @@ class TgtgClient:
     @staticmethod
     def get_latest_apk_version() -> str:
         response = requests.get(
-            "https://play.google.com/store/apps/details?id=com.app.tgtg&hl=en&gl=US"
-        )
+            "https://play.google.com/store/apps/details?id=com.app.tgtg&hl=en&gl=US",
+            timeout=30)
         match = APK_RE_SCRIPT.search(response.text)
         data = json.loads(match.group(1))
         return data[1][2][140][0][0][0]
