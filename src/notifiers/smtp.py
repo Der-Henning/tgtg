@@ -20,6 +20,7 @@ class SMTP(Notifier):
         self.host = config.smtp["host"]
         self.port = config.smtp["port"]
         self.tls = config.smtp["tls"]
+        self.ssl = config.smtp["ssl"]
         self.username = config.smtp["username"]
         self.password = config.smtp["password"]
         self.sender = config.smtp["sender"]
@@ -39,7 +40,7 @@ class SMTP(Notifier):
             try:
                 self._connect()
             except Exception as exc:
-                raise SMTPConfigurationError() from exc
+                raise SMTPConfigurationError(exc) from exc
 
     def __del__(self):
         """Closes SMTP connection when shutdown"""
@@ -51,10 +52,12 @@ class SMTP(Notifier):
 
     def _connect(self) -> None:
         """Connect to SMTP Server"""
-        if self.tls:
+        if self.ssl:
             self.server = smtplib.SMTP_SSL(self.host, self.port)
         else:
             self.server = smtplib.SMTP(self.host, self.port)
+        if self.tls:
+            self.server.starttls()
         self.server.set_debuglevel(self.debug)
         self.server.ehlo()
         if self.username and self.password:
