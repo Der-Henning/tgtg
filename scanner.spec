@@ -9,7 +9,7 @@ block_cipher = None
 
 
 a = Analysis(
-    ['src/scanner.py'],
+    ['src/main.py'],
     pathex=[],
     binaries=[],
     datas=datas,

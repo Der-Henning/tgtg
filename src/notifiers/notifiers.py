@@ -8,36 +8,50 @@ from notifiers.webhook import WebHook
 from notifiers.telegram import Telegram
 from models import Config, Item
 
-log = logging.getLogger('tgtg')
+log = logging.getLogger("tgtg")
 
 
-class Notifiers():
+class Notifiers:
     def __init__(self, config: Config):
         self._notifiers: List[Notifier] = [
             PushSafer(config),
             SMTP(config),
             IFTTT(config),
             WebHook(config),
-            Telegram(config)
+            Telegram(config),
         ]
-        enabled_notifiers = [notifier for notifier in self._notifiers if notifier.enabled]
         log.info("Activated notifiers:")
-        if len(enabled_notifiers) == 0:
+        if self.notifier_count == 0:
             log.warning("No notifiers configured!")
-        for notifier in enabled_notifiers:
+        for notifier in self._enabled_notifiers:
             log.info("- %s", notifier)
-            if notifier.cron.cron != '* * * * *':
+            if notifier.cron.cron != "* * * * *":
                 log.info("  Schedule: %s", notifier.cron.description)
 
+    @property
+    def _enabled_notifiers(self) -> List[Notifier]:
+        return [notifier for notifier in self._notifiers if notifier.enabled]
+
+    @property
+    def notifier_count(self) -> int:
+        """Number of enabled notifiers
+
+        Returns:
+            int: notifier count
+        """
+        return len(self._enabled_notifiers)
+
     def send(self, item: Item) -> None:
+        """Send notifications on all enabled notifiers.
+
+        Args:
+            item (Item): Item information to send
         """
-        Send Notification on all notifiers
-        """
-        for notifier in self._notifiers:
+        for notifier in self._enabled_notifiers:
             try:
                 notifier.send(item)
             except Exception as exc:
-                log.error('Failed sending %s: %s', notifier, exc)
+                log.error("Failed sending %s: %s", notifier, exc)
 
     def stop(self):
         """Stop all notifiers"""

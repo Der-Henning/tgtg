@@ -1,5 +1,6 @@
 # copied and modified from https://github.com/ahivert/tgtg-python
 
+from typing import List
 import datetime
 import random
 import logging
@@ -100,6 +101,11 @@ class TgtgClient:
         return urljoin(self.base_url, path)
 
     def get_credentials(self) -> dict:
+        """Returns current tgtg api credentials.
+
+        Returns:
+            dict: Dictionary containing access token, refresh token and user id
+        """
         self.login()
         return {
             "access_token": self.access_token,
@@ -122,7 +128,8 @@ class TgtgClient:
         try:
             response.json()
         except ValueError as err:
-            # Status Code == 403 and no json contend --> Blocked due to rate limit / wrong user_agent.
+            # Status Code == 403 and no json contend
+            # --> Blocked due to rate limit / wrong user_agent.
             # Get latest APK Version from google and retry
             if response.status_code == 403 and retry < max_retries:
                 self.user_agent = self._get_user_agent()
@@ -144,6 +151,11 @@ class TgtgClient:
 
     @staticmethod
     def get_latest_apk_version() -> str:
+        """Returns latest APK version of the official Android TGTG App.
+
+        Returns:
+            str: APK Version string
+        """
         response = requests.get(
             "https://play.google.com/store/apps/details?id=com.app.tgtg&hl=en&gl=US",
             timeout=30)
@@ -253,7 +265,7 @@ class TgtgClient:
         with_stock_only=False,
         hidden_only=False,
         we_care_only=False,
-    ) -> dict:
+    ) -> List[dict]:
         self.login()
 
         # fields are sorted like in the app

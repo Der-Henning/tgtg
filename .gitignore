@@ -4,6 +4,7 @@ dist
 .vscode
 .DS_Store
 .venv
+.ipynb_checkpoints
 
 .env
 config.ini

@@ -60,7 +60,7 @@ Method for developers.
 1. Install Python>=3.9 and pip
 2. Run ```pip install -r requirements.txt```
 3. Create ```src/config.ini``` as described in the file ```config.template.ini```
-4. Run ```python src/scanner.py```
+4. Run ```python src/main.py```
 
 Alternatively you can use environment variables as described in the ```sample.env``` file. The scanner will look for environment variables if no ```config.ini``` is present.
 
@@ -100,7 +100,7 @@ Developing with VSCode you can open the project in the configured development co
 
 ```make install``` installs dependencies
 
-```make start``` short for ```python src/scanner.py```
+```make start``` short for ```python src/main.py```
 
 ```make bash``` starts dev python docker image with installed dependencies and mounted project in bash
 
@@ -112,17 +112,23 @@ Developing with VSCode you can open the project in the configured development co
 
 ### Helper functions
 
-```src/helper.py``` contains some useful functions. Running ```python src/helper.py --help``` displays the available commands.
+```src/main.py``` contains some useful helper functions that can be accessed via optional command line arguments. Running ```python src/main.py --help``` displays the available commands.
 
 ````
-Usage: helper.py command
-  commands:
-  - credentials:            displays your TGTG tokens
-  - favorites:              displays your favorite magic bags data
-  - find [lat] [lng] [rad]: displays items for position and radius
-  - add [item_id]:          adds [item_id] to your favorites
-  - delete all:             removes all your favorites
-  - delete [item_id]:       removes [item_id] from your favorites
+usage: main.py [-h] [-v] [-d] [-t] [-f] [-F] [-a item_id [item_id ...]] [-r item_id [item_id ...]] [-R]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --version         show program's version number and exit
+  -d, --debug           activate debugging mode
+  -t, --tokens          display your current access tokens and exit
+  -f, --favorites       display your favorites and exit
+  -F, --favorite_ids    display the item ids of your favorites and exit
+  -a item_id [item_id ...], --add item_id [item_id ...]
+                        add item ids to favorites and exit
+  -r item_id [item_id ...], --remove item_id [item_id ...]
+                        remove item ids from favorites and exit
+  -R, --remove_all      remove all favorites and exit
 ````
 
 ### Creating new notifiers

@@ -1,1 +1,1 @@
-worker: python src/scanner.py
+worker: python src/main.py

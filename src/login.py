@@ -3,6 +3,8 @@ from tgtg import TgtgClient
 
 
 def login():
+    """Login function for Github CI
+    """
     username = environ.get("TGTG_USERNAME", None)
     env_file = environ.get("GITHUB_ENV", None)
     timeout = environ.get("TGTG_TIMEOUT", 60)

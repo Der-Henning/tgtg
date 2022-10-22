@@ -17,4 +17,4 @@ RUN pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requ
 
 COPY --chown=tgtg:tgtg ./src .
 
-CMD [ "python", "-u", "scanner.py" ]
+CMD [ "python", "-u", "main.py" ]
