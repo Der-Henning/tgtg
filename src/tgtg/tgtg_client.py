@@ -158,7 +158,8 @@ class TgtgClient:
         """
         response = requests.get(
             "https://play.google.com/store/apps/details?id=com.app.tgtg&hl=en&gl=US",
-            timeout=30)
+            timeout=30,
+        )
         match = APK_RE_SCRIPT.search(response.text)
         data = json.loads(match.group(1))
         return data[1][2][140][0][0][0]
@@ -289,7 +290,7 @@ class TgtgClient:
         response = self._post(API_ITEM_ENDPOINT, json=data)
         return response.json()["items"]
 
-    def get_item(self, item_id) -> dict:
+    def get_item(self, item_id: str) -> dict:
         self.login()
         response = self._post(
             f"{API_ITEM_ENDPOINT}/{item_id}",
@@ -297,7 +298,7 @@ class TgtgClient:
         )
         return response.json()
 
-    def set_favorite(self, item_id, is_favorite) -> None:
+    def set_favorite(self, item_id: str, is_favorite: bool) -> None:
         self.login()
         self._post(
             f"{API_ITEM_ENDPOINT}/{item_id}/setFavorite",

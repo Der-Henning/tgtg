@@ -121,8 +121,9 @@ def main() -> NoReturn:
             helper.unset_favorite(item_id)
         print("done.")
     elif args.remove_all:
-        Helper(config).unset_all_favorites()
-        print("done.")
+        if query_yes_no("Remove all favorites from your account?", default='no'):
+            Helper(config).unset_all_favorites()
+            print("done.")
     else:
         _start_scanner(config)
 
@@ -149,6 +150,7 @@ def _start_scanner(config: Config) -> NoReturn:
         sys.exit(1)
     except KeyboardInterrupt:
         log.info("Shutting down scanner ...")
+        sys.exit(0)
     except SystemExit:
         sys.exit(1)
 
@@ -195,6 +197,36 @@ def _print_welcome_message() -> None:
     )
     log.info("")
     # pylint: enable=W1401
+
+
+def query_yes_no(question, default="yes") -> bool:
+    """Ask a yes/no question via raw_input() and return their answer.
+
+    "question" is a string that is presented to the user.
+    "default" is the presumed answer if the user just hits <Enter>.
+            It must be "yes" (the default), "no" or None (meaning
+            an answer is required of the user).
+
+    The "answer" return value is True for "yes" or False for "no".
+    """
+    valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
+    if default is None:
+        prompt = " [y/n] "
+    elif default == "yes":
+        prompt = " [Y/n] "
+    elif default == "no":
+        prompt = " [y/N] "
+    else:
+        raise ValueError(f"invalid default answer: '{default}'")
+
+    while True:
+        print(question + prompt)
+        choice = input().lower()
+        if default is not None and choice == "":
+            return valid[default]
+        if choice in valid:
+            return valid[choice]
+        print("Please respond with 'yes' or 'no' (or 'y' or 'n').")
 
 
 if __name__ == "__main__":

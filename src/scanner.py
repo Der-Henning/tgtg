@@ -159,10 +159,14 @@ class Scanner:
         Main Loop of the Scanner
         """
         log.info("Scanner started ...")
+        running = True
         if self.cron.cron != "* * * * *":
             log.info("Active on schedule: %s", self.cron.description)
         while True:
             if self.cron.is_now:
+                if not running:
+                    log.info("Scanner reenabled by cron schedule.")
+                    running = True
                 try:
                     self._job()
                     if self.tgtg_client.captcha_error_count > 10:
@@ -172,6 +176,9 @@ class Scanner:
                         self.tgtg_client.captcha_error_count = 0
                 except Exception:
                     log.error("Job Error! - %s", sys.exc_info())
+            elif running:
+                log.info("Scanner disabled by cron schedule.")
+                running = False
             sleep(self.config.sleep_time * (0.9 + 0.2 * random()))
 
     def __del__(self) -> None:
