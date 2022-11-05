@@ -33,7 +33,7 @@ class Item():
             (10**item.get("price_including_taxes", {}).get("decimals", 0))
         self.price = f"{self.price:.2f}"
         self.currency = item.get("price_including_taxes", {}).get("code", "-")
-        self.next_sales_window_purchase_start = item.get("next_sales_window_purchase_start")
+        self.next_sales_window_purchase_start = item.get("next_sales_window_purchase_start", "NA")
 
         store = data.get("store", {})
         self.store_name = store.get("name", "-")
