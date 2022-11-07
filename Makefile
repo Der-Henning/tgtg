@@ -23,3 +23,11 @@ test:
 
 clean:
 	docker-compose -f docker-compose.dev.yml down --remove-orphans
+update:
+	git add .
+	git stash
+	git pull
+	git stash pop
+	docker-compose down
+	docker-compose build
+	docker-compose up -d
