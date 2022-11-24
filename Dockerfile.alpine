@@ -1,4 +1,4 @@
-FROM python:3.9-alpine
+FROM python:3.10-alpine
 
 RUN addgroup --gid 1001 --system tgtg && \
     adduser --shell /bin/false --disabled-password --uid 1001 --system --ingroup tgtg tgtg
