@@ -18,3 +18,4 @@ tornado==6.1
 tzdata==2022.5
 tzlocal==4.2
 urllib3==1.26.12
+colorlog==6.7.0

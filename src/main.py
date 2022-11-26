@@ -6,7 +6,7 @@ from os import path
 from typing import NoReturn
 from packaging import version
 import requests
-
+import colorlog
 from scanner import Scanner
 from helper import Helper
 from models import Config
@@ -73,13 +73,29 @@ def main() -> NoReturn:
     )
     config_file = path.join(prog_folder, "config.ini")
     log_file = path.join(prog_folder, "scanner.log")
-    logging.basicConfig(
-        format="%(asctime)s %(levelname)-8s %(message)s",
-        level=logging.INFO,
+
+    for handler in logging.root.handlers:
+        logging.root.removeHandler(handler)
+
+    logging.root.setLevel(logging.INFO)
+    formatter = colorlog.ColoredFormatter(
+        fmt="[%(cyan)s%(asctime)s%(reset)s][%(blue)s%(name)s%(reset)s][%(purple)s%(funcName)s%(reset)s][%(log_color)s%(levelname)s%(reset)s] - %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
-        handlers=[logging.FileHandler(log_file, mode="w"), logging.StreamHandler()],
+        log_colors={
+            "DEBUG": "purple",
+            "INFO": "green",
+            "WARNING": "yellow",
+            "ERROR": "red",
+            "CRITICAL": "red",
+        },
     )
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(formatter)
+    logging.root.addHandler(logging.FileHandler(log_file, mode="w"))
+    logging.root.addHandler(stream_handler)
+
     log = logging.getLogger("tgtg")
+
     config = Config(config_file) if path.isfile(config_file) else Config()
     if config.debug or args.debug:
         # pylint: disable=E1103
