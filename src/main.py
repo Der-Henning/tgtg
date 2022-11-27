@@ -74,12 +74,14 @@ def main() -> NoReturn:
     config_file = path.join(prog_folder, "config.ini")
     log_file = path.join(prog_folder, "scanner.log")
 
+    # Remove all handlers
     for handler in logging.root.handlers:
         logging.root.removeHandler(handler)
 
     logging.root.setLevel(logging.INFO)
-    formatter = colorlog.ColoredFormatter(
-        fmt="[%(cyan)s%(asctime)s%(reset)s][%(blue)s%(name)s%(reset)s][%(purple)s%(funcName)s%(reset)s][%(log_color)s%(levelname)s%(reset)s] - %(message)s",
+    # Define stream formatter and handler
+    stream_formatter = colorlog.ColoredFormatter(
+        fmt="[%(cyan)s%(asctime)s%(reset)s][%(log_color)s%(levelname)s%(reset)s] - %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
         log_colors={
             "DEBUG": "purple",
@@ -90,10 +92,14 @@ def main() -> NoReturn:
         },
     )
     stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(formatter)
-    logging.root.addHandler(logging.FileHandler(log_file, mode="w"))
+    stream_handler.setFormatter(stream_formatter)
+    # Define file formatter and handler
+    file_handler = logging.FileHandler(log_file, mode="w", encoding='utf-8')
+    file_formatter = logging.Formatter(fmt="[%(asctime)s][%(name)s][%(filename)s:%(funcName)s:%(lineno)d][%(levelname)s] - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+    file_handler.setFormatter(file_formatter)
+    logging.root.addHandler(file_handler)
     logging.root.addHandler(stream_handler)
-
+    
     log = logging.getLogger("tgtg")
 
     config = Config(config_file) if path.isfile(config_file) else Config()
