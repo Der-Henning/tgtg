@@ -6,7 +6,7 @@ from os import path
 from typing import NoReturn
 from packaging import version
 import requests
-
+import colorlog
 from scanner import Scanner
 from helper import Helper
 from models import Config
@@ -73,13 +73,35 @@ def main() -> NoReturn:
     )
     config_file = path.join(prog_folder, "config.ini")
     log_file = path.join(prog_folder, "scanner.log")
-    logging.basicConfig(
-        format="%(asctime)s %(levelname)-8s %(message)s",
-        level=logging.INFO,
+
+    # Remove all handlers
+    for handler in logging.root.handlers:
+        logging.root.removeHandler(handler)
+
+    logging.root.setLevel(logging.INFO)
+    # Define stream formatter and handler
+    stream_formatter = colorlog.ColoredFormatter(
+        fmt="%(cyan)s%(asctime)s%(reset)s %(log_color)s%(levelname)-8s%(reset)s %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
-        handlers=[logging.FileHandler(log_file, mode="w"), logging.StreamHandler()],
+        log_colors={
+            "DEBUG": "purple",
+            "INFO": "green",
+            "WARNING": "yellow",
+            "ERROR": "red",
+            "CRITICAL": "red",
+        },
     )
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(stream_formatter)
+    # Define file formatter and handler
+    file_handler = logging.FileHandler(log_file, mode="w", encoding='utf-8')
+    file_formatter = logging.Formatter(fmt="[%(asctime)s][%(name)s][%(filename)s:%(funcName)s:%(lineno)d][%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+    file_handler.setFormatter(file_formatter)
+    logging.root.addHandler(file_handler)
+    logging.root.addHandler(stream_handler)
+    
     log = logging.getLogger("tgtg")
+
     config = Config(config_file) if path.isfile(config_file) else Config()
     if config.debug or args.debug:
         # pylint: disable=E1103
