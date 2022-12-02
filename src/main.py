@@ -95,7 +95,7 @@ def main() -> NoReturn:
     stream_handler.setFormatter(stream_formatter)
     # Define file formatter and handler
     file_handler = logging.FileHandler(log_file, mode="w", encoding='utf-8')
-    file_formatter = logging.Formatter(fmt="[%(asctime)s][%(name)s][%(filename)s:%(funcName)s:%(lineno)d][%(levelname)s] - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+    file_formatter = logging.Formatter(fmt="[%(asctime)s][%(name)s][%(filename)s:%(funcName)s:%(lineno)d][%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
     file_handler.setFormatter(file_formatter)
     logging.root.addHandler(file_handler)
     logging.root.addHandler(stream_handler)
