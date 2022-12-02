@@ -81,7 +81,7 @@ def main() -> NoReturn:
     logging.root.setLevel(logging.INFO)
     # Define stream formatter and handler
     stream_formatter = colorlog.ColoredFormatter(
-        fmt="[%(cyan)s%(asctime)s%(reset)s][%(log_color)s%(levelname)s%(reset)s] - %(message)s",
+        fmt="%(cyan)s%(asctime)s%(reset)s %(log_color)s%(levelname)-8s%(reset)s %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
         log_colors={
             "DEBUG": "purple",
