@@ -81,7 +81,9 @@ def main() -> NoReturn:
     logging.root.setLevel(logging.INFO)
     # Define stream formatter and handler
     stream_formatter = colorlog.ColoredFormatter(
-        fmt="%(cyan)s%(asctime)s%(reset)s %(log_color)s%(levelname)-8s%(reset)s %(message)s",
+        fmt=("%(cyan)s%(asctime)s%(reset)s "
+             "%(log_color)s%(levelname)-8s%(reset)s "
+             "%(message)s"),
         datefmt="%Y-%m-%d %H:%M:%S",
         log_colors={
             "DEBUG": "purple",
@@ -95,17 +97,22 @@ def main() -> NoReturn:
     stream_handler.setFormatter(stream_formatter)
     # Define file formatter and handler
     file_handler = logging.FileHandler(log_file, mode="w", encoding='utf-8')
-    file_formatter = logging.Formatter(fmt="[%(asctime)s][%(name)s][%(filename)s:%(funcName)s:%(lineno)d][%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+    file_formatter = logging.Formatter(
+        fmt=("[%(asctime)s][%(name)s]"
+             "[%(filename)s:%(funcName)s:%(lineno)d]"
+             "[%(levelname)s] %(message)s"),
+        datefmt="%Y-%m-%d %H:%M:%S")
     file_handler.setFormatter(file_formatter)
     logging.root.addHandler(file_handler)
     logging.root.addHandler(stream_handler)
-    
+
     log = logging.getLogger("tgtg")
 
     config = Config(config_file) if path.isfile(config_file) else Config()
     if config.debug or args.debug:
         # pylint: disable=E1103
-        loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
+        loggers = [logging.getLogger(name)
+                   for name in logging.root.manager.loggerDict]
         # pylint: enable=E1103
         for logger in loggers:
             logger.setLevel(logging.DEBUG)
@@ -192,7 +199,8 @@ def _print_version_check() -> None:
         lastest_release = _get_new_version()
         if not lastest_release is None:
             log.info(
-                "New Version %s available!", version.parse(lastest_release["tag_name"])
+                "New Version %s available!", version.parse(
+                    lastest_release["tag_name"])
             )
             log.info("Please visit %s", lastest_release["html_url"])
             log.info("")
@@ -208,8 +216,10 @@ def _print_welcome_message() -> None:
     log = logging.getLogger("tgtg")
     # pylint: disable=W1401
     log.info("  ____  ___  ____  ___    ____   ___   __   __ _  __ _  ____  ____  ")
-    log.info(" (_  _)/ __)(_  _)/ __)  / ___) / __) / _\ (  ( \(  ( \(  __)(  _ \ ")
-    log.info("   )( ( (_ \  )( ( (_ \  \___ \( (__ /    \/    //    / ) _)  )   / ")
+    log.info(
+        " (_  _)/ __)(_  _)/ __)  / ___) / __) / _\ (  ( \(  ( \(  __)(  _ \ ")
+    log.info(
+        "   )( ( (_ \  )( ( (_ \  \___ \( (__ /    \/    //    / ) _)  )   / ")
     log.info("  (__) \___/ (__) \___/  (____/ \___)\_/\_/\_)__)\_)__)(____)(__\_) ")
     log.info("")
     log.info("Version %s", VERSION)
