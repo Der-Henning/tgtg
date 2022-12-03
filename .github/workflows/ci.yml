@@ -23,11 +23,11 @@ jobs:
             contents: read
             security-events: write
         steps:
-            -   uses: actions/checkout@v3
-            -   uses: github/codeql-action/init@v2
-                with:
-                    languages: 'python'
-            -   uses: github/codeql-action/analyze@v2
+            - uses: actions/checkout@v3
+            - uses: github/codeql-action/init@v2
+              with:
+                  languages: "python"
+            - uses: github/codeql-action/analyze@v2
     prep-tests:
         name: Prepare Tests
         runs-on: ubuntu-latest
@@ -35,59 +35,59 @@ jobs:
         outputs:
             matrix: ${{ steps.set-matrix.outputs.matrix }}
         steps:
-            -   uses: actions/checkout@v3
-            -   uses: actions/setup-python@v4
-                with:
-                    python-version: '3.10'
-            -   name: Install dependencies
-                run: pip install -r requirements.txt
-            -   name: Login
-                run: |
-                    python ./src/login.py
-                    echo "::add-mask::${{ env.TGTG_ACCESS_TOKEN }}"
-                    echo "::add-mask::${{ env.TGTG_REFRESH_TOKEN }}"
-                    echo "::add-mask::${{ env.TGTG_USER_ID }}"
-                    echo "TGTG_ACCESS_TOKEN=${{ env.TGTG_ACCESS_TOKEN }}" >> $GITHUB_ENV
-                    echo "TGTG_REFRESH_TOKEN=${{ env.TGTG_REFRESH_TOKEN }}" >> $GITHUB_ENV
-                    echo "TGTG_USER_ID=${{ env.TGTG_USER_ID }}" >> $GITHUB_ENV
-                env:
-                    TGTG_USERNAME: ${{ secrets.TGTG_USERNAME }}
-                    TGTG_ACCESS_TOKEN: ${{ secrets.TGTG_ACCESS_TOKEN }}
-                    TGTG_REFRESH_TOKEN: ${{ secrets.TGTG_REFRESH_TOKEN }}
-                    TGTG_USER_ID: ${{ secrets.TGTG_USER_ID }}
-            -   uses: hmanzur/actions-set-secret@v2.0.0
-                with:
-                    name: 'TGTG_ACCESS_TOKEN'
-                    value: ${{ env.TGTG_ACCESS_TOKEN }}
-                    repository: Der-Henning/tgtg
-                    token: ${{ secrets.REPO_ACCESS_TOKEN }}
-            -   uses: hmanzur/actions-set-secret@v2.0.0
-                with:
-                    name: 'TGTG_REFRESH_TOKEN'
-                    value: ${{ env.TGTG_REFRESH_TOKEN }}
-                    repository: Der-Henning/tgtg
-                    token: ${{ secrets.REPO_ACCESS_TOKEN }}
-            -   uses: hmanzur/actions-set-secret@v2.0.0
-                with:
-                    name: 'TGTG_USER_ID'
-                    value: ${{ env.TGTG_USER_ID }}
-                    repository: Der-Henning/tgtg
-                    token: ${{ secrets.REPO_ACCESS_TOKEN }}
+            - uses: actions/checkout@v3
+            - uses: actions/setup-python@v4
+              with:
+                  python-version: "3.10"
+            - name: Install dependencies
+              run: pip install -r requirements.txt
+            - name: Login
+              run: |
+                  python ./src/login.py
+                  echo "::add-mask::${{ env.TGTG_ACCESS_TOKEN }}"
+                  echo "::add-mask::${{ env.TGTG_REFRESH_TOKEN }}"
+                  echo "::add-mask::${{ env.TGTG_USER_ID }}"
+                  echo "TGTG_ACCESS_TOKEN=${{ env.TGTG_ACCESS_TOKEN }}" >> $GITHUB_ENV
+                  echo "TGTG_REFRESH_TOKEN=${{ env.TGTG_REFRESH_TOKEN }}" >> $GITHUB_ENV
+                  echo "TGTG_USER_ID=${{ env.TGTG_USER_ID }}" >> $GITHUB_ENV
+              env:
+                  TGTG_USERNAME: ${{ secrets.TGTG_USERNAME }}
+                  TGTG_ACCESS_TOKEN: ${{ secrets.TGTG_ACCESS_TOKEN }}
+                  TGTG_REFRESH_TOKEN: ${{ secrets.TGTG_REFRESH_TOKEN }}
+                  TGTG_USER_ID: ${{ secrets.TGTG_USER_ID }}
+            - uses: hmanzur/actions-set-secret@v2.0.0
+              with:
+                  name: "TGTG_ACCESS_TOKEN"
+                  value: ${{ env.TGTG_ACCESS_TOKEN }}
+                  repository: ${{ github.repository }}
+                  token: ${{ secrets.REPO_ACCESS_TOKEN }}
+            - uses: hmanzur/actions-set-secret@v2.0.0
+              with:
+                  name: "TGTG_REFRESH_TOKEN"
+                  value: ${{ env.TGTG_REFRESH_TOKEN }}
+                  repository: ${{ github.repository }}
+                  token: ${{ secrets.REPO_ACCESS_TOKEN }}
+            - uses: hmanzur/actions-set-secret@v2.0.0
+              with:
+                  name: "TGTG_USER_ID"
+                  value: ${{ env.TGTG_USER_ID }}
+                  repository: ${{ github.repository }}
+                  token: ${{ secrets.REPO_ACCESS_TOKEN }}
     test-dependencies:
         name: Test Dependencies
         runs-on: ${{ matrix.os }}
         strategy:
-          fail-fast: false
-          matrix:
-            python: [ '3.10' ]
-            os: [ 'ubuntu-latest', 'windows-latest', 'macos-latest' ]
+            fail-fast: false
+            matrix:
+                python: ["3.10"]
+                os: ["ubuntu-latest", "windows-latest", "macos-latest"]
         steps:
-            -   uses: actions/checkout@v3
-            -   uses: actions/setup-python@v4
-                with:
-                    python-version: ${{ matrix.python }}
-            -   name: Install dependencies
-                run: pip install -r requirements.dev.txt
+            - uses: actions/checkout@v3
+            - uses: actions/setup-python@v4
+              with:
+                  python-version: ${{ matrix.python }}
+            - name: Install dependencies
+              run: pip install -r requirements.dev.txt
     tests:
         name: Run Tests
         runs-on: ubuntu-latest
@@ -96,21 +96,21 @@ jobs:
             fail-fast: false
             max-parallel: 1
             matrix:
-                python: [ '3.10' ]
+                python: ["3.10"]
         steps:
-            -   uses: actions/checkout@v3
-            -   uses: actions/setup-python@v4
-                with:
-                    python-version: ${{ matrix.python }}
-            -   name: Install dependencies
-                run: pip install -r requirements.txt
-            -   name: Run tests
-                run: python -m unittest discover -v -s ./src
-                env:
-                    TGTG_USERNAME: ${{ secrets.TGTG_USERNAME }}
-                    TGTG_ACCESS_TOKEN: ${{ secrets.TGTG_ACCESS_TOKEN }}
-                    TGTG_REFRESH_TOKEN: ${{ secrets.TGTG_REFRESH_TOKEN }}
-                    TGTG_USER_ID: ${{ secrets.TGTG_USER_ID }}
+            - uses: actions/checkout@v3
+            - uses: actions/setup-python@v4
+              with:
+                  python-version: ${{ matrix.python }}
+            - name: Install dependencies
+              run: pip install -r requirements.txt
+            - name: Run tests
+              run: python -m unittest discover -v -s ./src
+              env:
+                  TGTG_USERNAME: ${{ secrets.TGTG_USERNAME }}
+                  TGTG_ACCESS_TOKEN: ${{ secrets.TGTG_ACCESS_TOKEN }}
+                  TGTG_REFRESH_TOKEN: ${{ secrets.TGTG_REFRESH_TOKEN }}
+                  TGTG_USER_ID: ${{ secrets.TGTG_USER_ID }}
     docker-images:
         name: Build Docker Images
         runs-on: ubuntu-latest
@@ -119,49 +119,49 @@ jobs:
         strategy:
             matrix:
                 include:
-                    -   base: slim
-                        tag: ''
-                        file: ./Dockerfile
-                        context: ./
-                    -   base: alpine
-                        tag: -alpine
-                        file: ./Dockerfile.alpine
-                        context: ./
+                    - base: slim
+                      tag: ""
+                      file: ./Dockerfile
+                      context: ./
+                    - base: alpine
+                      tag: -alpine
+                      file: ./Dockerfile.alpine
+                      context: ./
         steps:
-        -   uses: actions/checkout@v3
-        -   uses: docker/metadata-action@v4
-            id: meta
-            with:
-                images: ${{ secrets.DOCKER_USERNAME }}/tgtg
-                flavor: |
-                    suffix=${{ matrix.tag }},onlatest=true
-                tags: |
-                    type=edge,branch=main,suffix=${{ matrix.tag }}
-                    type=semver,pattern=v{{version}}
-                    type=semver,pattern=v{{major}}.{{minor}}
-                    type=semver,pattern=v{{major}}
-        -   uses: docker/login-action@v2
-            with:
-                username: ${{ secrets.DOCKER_USERNAME }}
-                password: ${{ secrets.DOCKER_PASSWORD }}
-        -   uses: docker/setup-qemu-action@v2
-        -   uses: docker/setup-buildx-action@v2
-            id: buildx
-        -   uses: docker/build-push-action@v3
-            with:
-                context: ${{ matrix.context }}
-                file: ${{ matrix.file }}
-                platforms: linux/arm64, linux/amd64, linux/arm/v7, linux/386, linux/arm/v6
-                push: true
-                tags: ${{ steps.meta.outputs.tags }}
-                labels: ${{ steps.meta.outputs.labels }}
-        -   uses: peter-evans/dockerhub-description@v3
-            with:
-                username: ${{ secrets.DOCKER_USERNAME }}
-                password: ${{ secrets.DOCKER_PASSWORD }}
-                repository: ${{ secrets.DOCKER_USERNAME }}/tgtg
-                short-description: ${{ github.event.repository.description }}
-                readme-filepath: ./DOCKER_README.md
+            - uses: actions/checkout@v3
+            - uses: docker/metadata-action@v4
+              id: meta
+              with:
+                  images: ${{ secrets.DOCKER_USERNAME }}/tgtg
+                  flavor: |
+                      suffix=${{ matrix.tag }},onlatest=true
+                  tags: |
+                      type=edge,branch=main,suffix=${{ matrix.tag }}
+                      type=semver,pattern=v{{version}}
+                      type=semver,pattern=v{{major}}.{{minor}}
+                      type=semver,pattern=v{{major}}
+            - uses: docker/login-action@v2
+              with:
+                  username: ${{ secrets.DOCKER_USERNAME }}
+                  password: ${{ secrets.DOCKER_PASSWORD }}
+            - uses: docker/setup-qemu-action@v2
+            - uses: docker/setup-buildx-action@v2
+              id: buildx
+            - uses: docker/build-push-action@v3
+              with:
+                  context: ${{ matrix.context }}
+                  file: ${{ matrix.file }}
+                  platforms: linux/arm64, linux/amd64, linux/arm/v7, linux/386, linux/arm/v6
+                  push: true
+                  tags: ${{ steps.meta.outputs.tags }}
+                  labels: ${{ steps.meta.outputs.labels }}
+            - uses: peter-evans/dockerhub-description@v3
+              with:
+                  username: ${{ secrets.DOCKER_USERNAME }}
+                  password: ${{ secrets.DOCKER_PASSWORD }}
+                  repository: ${{ secrets.DOCKER_USERNAME }}/tgtg
+                  short-description: ${{ github.event.repository.description }}
+                  readme-filepath: ./DOCKER_README.md
     releases:
         name: Build Release Files
         runs-on: ${{ matrix.os }}
@@ -170,47 +170,47 @@ jobs:
         strategy:
             matrix:
                 include:
-                    -   os: ubuntu-latest
-                        tag: linux
-                    -   os: windows-latest
-                        tag: win
-                    -   os: macos-latest
-                        tag: macos
+                    - os: ubuntu-latest
+                      tag: linux
+                    - os: windows-latest
+                      tag: win
+                    - os: macos-latest
+                      tag: macos
         steps:
-        -   uses: actions/checkout@v3
-        -   uses: actions/setup-python@v4
-            with:
-                python-version: '3.10'
-        -   name: Install dependencies
-            run: pip install -r requirements.dev.txt
-        -   name: Run PyInstaller
-            run: |
-                pyinstaller scanner.spec
-                cp ./src/config.sample.ini ./dist/config.ini
-        -   name: Make filename
-            id: filename
-            run: echo "::set-output name=filename::scanner-${{ github.ref_name }}-${{ matrix.tag }}.zip"
-        -   name: Zip files
-            if: matrix.tag == 'linux' || matrix.tag == 'macos'
-            run: zip -j ./${{ steps.filename.outputs.filename }} ./dist/*
-        -   name: Zip files
-            if: matrix.tag == 'win'
-            run: Compress-Archive ./dist/* ./${{ steps.filename.outputs.filename }}
-        -   uses: actions/upload-artifact@v3
-            with: 
-                name: releases
-                path: ./${{ steps.filename.outputs.filename }}
-        -   uses: bruceadams/get-release@v1.2.3
-            if: github.ref_type == 'tag'
-            id: get_release
-            env:
-                GITHUB_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }}
-        -   uses: actions/upload-release-asset@v1
-            if: github.ref_type == 'tag'
-            env:
-                GITHUB_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }}
-            with:
-                upload_url: ${{ steps.get_release.outputs.upload_url }}
-                asset_path: ./${{ steps.filename.outputs.filename }}
-                asset_name: ${{ steps.filename.outputs.filename }}
-                asset_content_type: application/zip
+            - uses: actions/checkout@v3
+            - uses: actions/setup-python@v4
+              with:
+                  python-version: "3.10"
+            - name: Install dependencies
+              run: pip install -r requirements.dev.txt
+            - name: Run PyInstaller
+              run: |
+                  pyinstaller scanner.spec
+                  cp ./src/config.sample.ini ./dist/config.ini
+            - name: Make filename
+              id: filename
+              run: echo "::set-output name=filename::scanner-${{ github.ref_name }}-${{ matrix.tag }}.zip"
+            - name: Zip files
+              if: matrix.tag == 'linux' || matrix.tag == 'macos'
+              run: zip -j ./${{ steps.filename.outputs.filename }} ./dist/*
+            - name: Zip files
+              if: matrix.tag == 'win'
+              run: Compress-Archive ./dist/* ./${{ steps.filename.outputs.filename }}
+            - uses: actions/upload-artifact@v3
+              with:
+                  name: releases
+                  path: ./${{ steps.filename.outputs.filename }}
+            - uses: bruceadams/get-release@v1.2.3
+              if: github.ref_type == 'tag'
+              id: get_release
+              env:
+                  GITHUB_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }}
+            - uses: actions/upload-release-asset@v1
+              if: github.ref_type == 'tag'
+              env:
+                  GITHUB_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }}
+              with:
+                  upload_url: ${{ steps.get_release.outputs.upload_url }}
+                  asset_path: ./${{ steps.filename.outputs.filename }}
+                  asset_name: ${{ steps.filename.outputs.filename }}
+                  asset_content_type: application/zip
