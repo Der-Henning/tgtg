@@ -5,6 +5,7 @@ on:
         branches:
             - main
             - dev
+            - update_ci
         tags:
             - v*
     pull_request:
@@ -55,19 +56,19 @@ jobs:
                   TGTG_ACCESS_TOKEN: ${{ secrets.TGTG_ACCESS_TOKEN }}
                   TGTG_REFRESH_TOKEN: ${{ secrets.TGTG_REFRESH_TOKEN }}
                   TGTG_USER_ID: ${{ secrets.TGTG_USER_ID }}
-            - uses: hmanzur/actions-set-secret@v2.0.0
+            - uses: Der-Henning/actions-set-secret@v2.1.0
               with:
                   name: "TGTG_ACCESS_TOKEN"
                   value: ${{ env.TGTG_ACCESS_TOKEN }}
                   repository: ${{ github.repository }}
                   token: ${{ secrets.REPO_ACCESS_TOKEN }}
-            - uses: hmanzur/actions-set-secret@v2.0.0
+            - uses: Der-Henning/actions-set-secret@v2.1.0
               with:
                   name: "TGTG_REFRESH_TOKEN"
                   value: ${{ env.TGTG_REFRESH_TOKEN }}
                   repository: ${{ github.repository }}
                   token: ${{ secrets.REPO_ACCESS_TOKEN }}
-            - uses: hmanzur/actions-set-secret@v2.0.0
+            - uses: Der-Henning/actions-set-secret@v2.1.0
               with:
                   name: "TGTG_USER_ID"
                   value: ${{ env.TGTG_USER_ID }}
