@@ -1,4 +1,4 @@
-APScheduler==3.6.3
+APScheduler==3.9.1.post1
 cachetools==4.2.2
 certifi==2022.12.7
 charset-normalizer==2.1.1
