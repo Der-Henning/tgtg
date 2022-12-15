@@ -1,4 +1,4 @@
-FROM python:3.9-slim
+FROM python:3.10-slim
 
 RUN addgroup --gid 1001 --system tgtg && \
     adduser --shell /bin/false --disabled-password --uid 1001 --system --group tgtg

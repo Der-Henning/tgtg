@@ -1,6 +1,6 @@
 APScheduler==3.6.3
 cachetools==4.2.2
-certifi==2022.9.24
+certifi==2022.12.7
 charset-normalizer==2.1.1
 cron-descriptor==1.2.31
 idna==3.4
@@ -18,3 +18,4 @@ tornado==6.1
 tzdata==2022.5
 tzlocal==4.2
 urllib3==1.26.12
+colorlog==6.7.0

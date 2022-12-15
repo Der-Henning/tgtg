@@ -140,7 +140,8 @@ class Scanner:
             self.amounts[item.item_id] = item.items_available
         finally:
             if self.amounts[item.item_id] != item.items_available:
-                log.info("%s - new amount: %s", item.display_name, item.items_available)
+                log.info("%s - new amount: %s",
+                         item.display_name, item.items_available)
                 self.amounts[item.item_id] = item.items_available
 
     def _send_messages(self, item: Item) -> None:
@@ -170,7 +171,8 @@ class Scanner:
                 try:
                     self._job()
                     if self.tgtg_client.captcha_error_count > 10:
-                        log.warning("Too many 403 Errors. Sleeping for 1 hour.")
+                        log.warning(
+                            "Too many 403 Errors. Sleeping for 1 hour.")
                         sleep(60 * 60)
                         log.info("Continuing scanning.")
                         self.tgtg_client.captcha_error_count = 0
