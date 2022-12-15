@@ -43,14 +43,19 @@ jobs:
             - name: Install dependencies
               run: pip install -r requirements.txt
             - name: Login
-              run: |
-                  python ./src/login.py
-                  echo "::add-mask::${{ env.TGTG_ACCESS_TOKEN }}"
-                  echo "::add-mask::${{ env.TGTG_REFRESH_TOKEN }}"
-                  echo "::add-mask::${{ env.TGTG_USER_ID }}"
-                  echo "TGTG_ACCESS_TOKEN=${{ env.TGTG_ACCESS_TOKEN }}" >> $GITHUB_ENV
-                  echo "TGTG_REFRESH_TOKEN=${{ env.TGTG_REFRESH_TOKEN }}" >> $GITHUB_ENV
-                  echo "TGTG_USER_ID=${{ env.TGTG_USER_ID }}" >> $GITHUB_ENV
+              uses: nick-fields/retry@v2
+              with:
+                timeout_minutes: 10
+                max_attempts: 10
+                retry_wait_seconds: 1800
+                command: |
+                    python ./src/login.py
+                    echo "::add-mask::${{ env.TGTG_ACCESS_TOKEN }}"
+                    echo "::add-mask::${{ env.TGTG_REFRESH_TOKEN }}"
+                    echo "::add-mask::${{ env.TGTG_USER_ID }}"
+                    echo "TGTG_ACCESS_TOKEN=${{ env.TGTG_ACCESS_TOKEN }}" >> $GITHUB_ENV
+                    echo "TGTG_REFRESH_TOKEN=${{ env.TGTG_REFRESH_TOKEN }}" >> $GITHUB_ENV
+                    echo "TGTG_USER_ID=${{ env.TGTG_USER_ID }}" >> $GITHUB_ENV
               env:
                   TGTG_USERNAME: ${{ secrets.TGTG_USERNAME }}
                   TGTG_ACCESS_TOKEN: ${{ secrets.TGTG_ACCESS_TOKEN }}
@@ -106,7 +111,12 @@ jobs:
             - name: Install dependencies
               run: pip install -r requirements.txt
             - name: Run tests
-              run: python -m unittest discover -v -s ./src
+              uses: nick-fields/retry@v2
+              with:
+                timeout_minutes: 10
+                max_attempts: 10
+                retry_wait_seconds: 1800
+                command: python -m unittest discover -v -s ./src
               env:
                   TGTG_USERNAME: ${{ secrets.TGTG_USERNAME }}
                   TGTG_ACCESS_TOKEN: ${{ secrets.TGTG_ACCESS_TOKEN }}
