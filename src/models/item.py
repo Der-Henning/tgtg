@@ -6,7 +6,7 @@ from .errors import MaskConfigurationError
 ATTRS = ["item_id", "items_available", "display_name", "description",
              "price", "currency", "pickupdate", "favorite", "rating",
              "buffet", "item_category", "item_name", "packaging_option",
-             "pickup_location", "store_name"]
+             "pickup_location", "store_name", "next_sales_window_purchase_start"]
 
 class Item():
     """
@@ -33,6 +33,7 @@ class Item():
             (10**item.get("price_including_taxes", {}).get("decimals", 0))
         self.price = f"{self.price:.2f}"
         self.currency = item.get("price_including_taxes", {}).get("code", "-")
+        self.next_sales_window_purchase_start = item.get("next_sales_window_purchase_start", "NA")
 
         store = data.get("store", {})
         self.store_name = store.get("name", "-")
