@@ -13,7 +13,7 @@ from models import Config
 from models.errors import TgtgAPIError, ConfigurationError
 
 VERSION_URL = "https://api.github.com/repos/Der-Henning/tgtg/releases/latest"
-VERSION = "1.14.0_rc1"
+VERSION = "1.14.0"
 
 
 def main() -> NoReturn:
