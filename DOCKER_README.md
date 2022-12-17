@@ -10,8 +10,8 @@ Readme, source and documentation on [https://github.com/Der-Henning/tgtg](https:
 
 - [`edge`](https://github.com/Der-Henning/tgtg/blob/main/Dockerfile)
 - [`edge-alpine`](https://github.com/Der-Henning/tgtg/blob/main/Dockerfile.alpine)
-- [`v1`, `v1.13`, `v1.13.0`, `latest`](https://github.com/Der-Henning/tgtg/blob/v1.12.1/Dockerfile)
-- [`v1-alpine`, `v1.13-alpine`, `v1.13.0-alpine`, `latest-alpine`](https://github.com/Der-Henning/tgtg/blob/v1.12.1/Dockerfile.alpine)
+- [`v1`, `v1.14`, `v1.14.0`, `latest`](https://github.com/Der-Henning/tgtg/blob/v1.14.0/Dockerfile)
+- [`v1-alpine`, `v1.14-alpine`, `v1.14.0-alpine`, `latest-alpine`](https://github.com/Der-Henning/tgtg/blob/v1.14.0/Dockerfile.alpine)
 
 # Quick Start
 
@@ -19,10 +19,11 @@ Readme, source and documentation on [https://github.com/Der-Henning/tgtg](https:
 
 ````xml
 version: "3.3"
+
 services:
-  app:
+  tgtg:
     image: derhenning/tgtg:latest
-    environment: 
+    environment:
       - TZ=Europe/Berlin
       - DEBUG=false
       - TGTG_USERNAME=
@@ -66,6 +67,7 @@ services:
       - WEBHOOK_TIMEOUT=60
     volumes:
       - tokens:/tokens
+
 volumes:
   tokens:
 ````
