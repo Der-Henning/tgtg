@@ -94,7 +94,7 @@ jobs:
               with:
                   python-version: ${{ matrix.python }}
             - name: Install dependencies
-              run: pip install -r requirements.dev.txt
+              run: pip install -r requirements-dev.txt
     tests:
         name: Run Tests
         runs-on: ubuntu-latest
@@ -110,19 +110,20 @@ jobs:
               with:
                   python-version: ${{ matrix.python }}
             - name: Install dependencies
-              run: pip install -r requirements.txt
+              run: pip install -r requirements-dev.txt
             - name: Run tests
               uses: nick-fields/retry@v2
               with:
                 timeout_minutes: 10
                 max_attempts: 10
                 retry_wait_seconds: 1800
-                command: python -m unittest discover -v -s ./src
+                command: python -m pytest --cov src/ --cov-report=xml
               env:
                   TGTG_USERNAME: ${{ secrets.TGTG_USERNAME }}
                   TGTG_ACCESS_TOKEN: ${{ secrets.TGTG_ACCESS_TOKEN }}
                   TGTG_REFRESH_TOKEN: ${{ secrets.TGTG_REFRESH_TOKEN }}
                   TGTG_USER_ID: ${{ secrets.TGTG_USER_ID }}
+            - uses: codecov/codecov-action@v3
     docker-images:
         name: Build Docker Images
         runs-on: ubuntu-latest
@@ -194,7 +195,7 @@ jobs:
               with:
                   python-version: "3.10"
             - name: Install dependencies
-              run: pip install -r requirements.dev.txt
+              run: pip install -r requirements-dev.txt
             - name: Run PyInstaller
               run: |
                   pyinstaller scanner.spec

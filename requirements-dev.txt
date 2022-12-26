@@ -2,3 +2,5 @@
 altgraph==0.17.3
 pyinstaller==5.7.0
 pyinstaller-hooks-contrib==2022.14
+pytest==7.2.0
+pytest-cov==4.0.0

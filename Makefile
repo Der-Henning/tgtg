@@ -2,7 +2,7 @@ image:
 	docker build -f Dockerfile -t tgtg-scanner:latest .
 
 install:
-	pip install -r requirements.dev.txt
+	pip install -r requirements-dev.txt
 
 start:
 	python src/scanner.py
@@ -19,7 +19,7 @@ executable:
 	zip -j dist/scanner.zip dist/*
 
 test:
-	python -m unittest discover -v -s ./src
+	python -m pytest --cov src/
 
 clean:
 	docker-compose -f docker-compose.dev.yml down --remove-orphans

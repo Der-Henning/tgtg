@@ -5,6 +5,7 @@ dist
 .DS_Store
 .venv
 .ipynb_checkpoints
+.coverage
 
 .env
 config.ini
