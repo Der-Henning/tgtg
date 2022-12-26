@@ -6,6 +6,7 @@ dist
 .venv
 .ipynb_checkpoints
 .coverage
+.pytest_cache
 
 .env
 config.ini
