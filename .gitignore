@@ -6,6 +6,7 @@ dist
 .venv
 .ipynb_checkpoints
 .coverage
+coverage.xml
 .pytest_cache
 
 .env

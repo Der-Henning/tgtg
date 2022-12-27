@@ -1,20 +1,23 @@
-from os import environ
+import pathlib
 from tgtg import TgtgClient
+from models import Config
 
 
 def test_get_items(properties: dict):
-    username = environ.get("TGTG_USERNAME", None)
-    timeout = environ.get("TGTG_TIMEOUT", 60)
-    access_token = environ.get("TGTG_ACCESS_TOKEN", None)
-    refresh_token = environ.get("TGTG_REFRESH_TOKEN", None)
-    user_id = environ.get("TGTG_USER_ID", None)
+    if pathlib.Path('src/config.ini').exists():
+        config = Config('src/config.ini')
+    else:
+        config = Config()
 
     client = TgtgClient(
-        email=username,
-        timeout=timeout,
-        access_token=access_token,
-        refresh_token=refresh_token,
-        user_id=user_id,
+        email=config.tgtg["username"],
+        timeout=config.tgtg["timeout"],
+        access_token_lifetime=config.tgtg["access_token_lifetime"],
+        max_polling_tries=config.tgtg["max_polling_tries"],
+        polling_wait_time=config.tgtg["polling_wait_time"],
+        access_token=config.tgtg["access_token"],
+        refresh_token=config.tgtg["refresh_token"],
+        user_id=config.tgtg["user_id"],
     )
 
     # Tests

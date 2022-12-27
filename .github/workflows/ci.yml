@@ -44,12 +44,7 @@ jobs:
             - name: Install dependencies
               run: pip install -r requirements.txt
             - name: Login
-              uses: nick-fields/retry@v2
-              with:
-                timeout_minutes: 10
-                max_attempts: 10
-                retry_wait_seconds: 1800
-                command: |
+              run: |
                     python ./src/login.py
                     echo "::add-mask::${{ env.TGTG_ACCESS_TOKEN }}"
                     echo "::add-mask::${{ env.TGTG_REFRESH_TOKEN }}"
@@ -112,12 +107,7 @@ jobs:
             - name: Install dependencies
               run: pip install -r requirements-dev.txt
             - name: Run tests
-              uses: nick-fields/retry@v2
-              with:
-                timeout_minutes: 10
-                max_attempts: 10
-                retry_wait_seconds: 1800
-                command: python -m pytest --cov src/ --cov-report=xml
+              run: python -m pytest --cov src/ --cov-report=xml
               env:
                   TGTG_USERNAME: ${{ secrets.TGTG_USERNAME }}
                   TGTG_ACCESS_TOKEN: ${{ secrets.TGTG_ACCESS_TOKEN }}

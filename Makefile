@@ -19,7 +19,7 @@ executable:
 	zip -j dist/scanner.zip dist/*
 
 test:
-	python -m pytest --cov src/
+	python -m pytest --cov src/ --cov-report xml
 
 clean:
 	docker-compose -f docker-compose.dev.yml down --remove-orphans
