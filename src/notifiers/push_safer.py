@@ -1,6 +1,8 @@
 import logging
+
 from pushsafer import Client
-from models import Item, Config, Cron
+
+from models import Config, Cron, Item
 from models.errors import PushSaferConfigurationError
 from notifiers import Notifier
 
@@ -13,6 +15,7 @@ class PushSafer(Notifier):
     For more information visit:\n
     https://www.pushsafer.com/
     """
+
     def __init__(self, config: Config):
         self.key = config.push_safer["key"]
         self.device_id = config.push_safer["deviceId"]

@@ -1,7 +1,9 @@
 import logging
+
 import requests
-from models import Item, Config, Cron
-from models.errors import WebHookConfigurationError, MaskConfigurationError
+
+from models import Config, Cron, Item
+from models.errors import MaskConfigurationError, WebHookConfigurationError
 from notifiers import Notifier
 
 log = logging.getLogger('tgtg')
@@ -9,6 +11,7 @@ log = logging.getLogger('tgtg')
 
 class WebHook(Notifier):
     """Notifier for custom Webhooks"""
+
     def __init__(self, config: Config):
         self.enabled = config.webhook["enabled"]
         self.method = config.webhook["method"]
@@ -42,7 +45,7 @@ class WebHook(Notifier):
                 log.debug("Webhook body: %s", body)
             log.debug("Webhook headers: %s", headers)
             res = requests.request(method=self.method, url=url,
-                                    timeout=self.timeout, data=body, headers=headers)
+                                   timeout=self.timeout, data=body, headers=headers)
             if not res.ok:
                 log.error(
                     "WebHook Request failed with status code %s", res.status_code)

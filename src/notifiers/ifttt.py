@@ -1,7 +1,9 @@
-import logging
-import requests
 import json
-from models import Item, Config, Cron
+import logging
+
+import requests
+
+from models import Config, Cron, Item
 from models.errors import IFTTTConfigurationError, MaskConfigurationError
 from notifiers import Notifier
 
@@ -14,6 +16,7 @@ class IFTTT(Notifier):
     For more information on IFTTT visit\n
     https://ifttt.com/maker_webhooks
     """
+
     def __init__(self, config: Config):
         self.enabled = config.ifttt["enabled"]
         self.event = config.ifttt["event"]

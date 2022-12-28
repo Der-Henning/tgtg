@@ -1,24 +1,22 @@
 # copied and modified from https://github.com/ahivert/tgtg-python
 
-from typing import List
 import datetime
-import random
-import logging
-import time
-import re
 import json
+import logging
+import random
+import re
+import time
 from http import HTTPStatus
+from typing import List
 from urllib.parse import urljoin
-from requests.adapters import HTTPAdapter
+
 import requests
+from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
-from models.errors import (
-    TGTGConfigurationError,
-    TgtgAPIError,
-    TgtgCaptchaError,
-    TgtgLoginError,
-    TgtgPollingError,
-)
+
+from models.errors import (TgtgAPIError, TgtgCaptchaError,
+                           TGTGConfigurationError, TgtgLoginError,
+                           TgtgPollingError)
 
 log = logging.getLogger("tgtg")
 BASE_URL = "https://apptoogoodtogo.com/api/"

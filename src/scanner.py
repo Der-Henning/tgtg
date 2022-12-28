@@ -1,14 +1,13 @@
-import sys
 import logging
-from time import sleep
+import sys
 from random import random
+from time import sleep
 from typing import NoReturn
 
-from models import Item, Config, Metrics, Cron
-from models.errors import TgtgAPIError, Error, TGTGConfigurationError
+from models import Config, Cron, Item, Metrics
+from models.errors import Error, TgtgAPIError, TGTGConfigurationError
 from notifiers import Notifiers
 from tgtg import TgtgClient
-
 
 log = logging.getLogger("tgtg")
 

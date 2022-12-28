@@ -1,6 +1,6 @@
-from os import environ, path
 import configparser
 import logging
+from os import environ, path
 
 from models.errors import ConfigurationError
 
@@ -13,6 +13,7 @@ class Config():
     If file is provided the config is read from the file.\n
     Else the config is read from environment variables.
     """
+
     def __init__(self, file: str = None):
         self.file = file
         self.item_ids = []
@@ -36,7 +37,8 @@ class Config():
             self._env_reader()
             self._load_tokens()
             log.info("Loaded config from environment variables")
-        self.telegram["chat_ids"] = [] if not self.telegram["chat_ids"] else self.telegram["chat_ids"].split(',')
+        self.telegram["chat_ids"] = [] if not self.telegram["chat_ids"] \
+            else self.telegram["chat_ids"].split(',')
         if self.schedule_cron.strip() == "":
             self.schedule_cron = '* * * * *'
 
@@ -125,7 +127,7 @@ class Config():
                 "cron": config["TELEGRAM"].get("cron", '* * * * *'),
                 "body": config["TELEGRAM"].get("body", "*${{display_name}}*\n*Available*: ${{items_available}}\n*Price*: ${{price}} ${{currency}}\n*Pickup*: ${{pickupdate}}").replace('\\n', '\n')
             }
-            #only for backwards compatibility
+            # only for backwards compatibility
             if not self.telegram["chat_ids"] and config["TELEGRAM"].get("chat_id", None):
                 self.telegram["chat_ids"] = config["TELEGRAM"].get("chat_id", None)
         except ValueError as err:
@@ -201,7 +203,7 @@ class Config():
                 "cron": environ.get("TELEGRAM_CRON", '* * * * *'),
                 "body": environ.get("TELEGRAM_BODY", "*${{display_name}}*\n*Available*: ${{items_available}}\n*Price*: ${{price}} ${{currency}}\n*Pickup*: ${{pickupdate}}").replace('\\n', '\n')
             }
-            #only for backwards compability
+            # only for backwards compability
             if not self.telegram["chat_ids"] and environ.get("TELEGRAM_CHAT_ID", None):
                 self.telegram["chat_ids"] = environ.get("TELEGRAM_CHAT_ID", None)
         except ValueError as err:

@@ -1,10 +1,11 @@
 import logging
 import smtplib
-from smtplib import SMTPServerDisconnected, SMTPException
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from models import Item, Config, Cron
-from models.errors import SMTPConfigurationError, MaskConfigurationError
+from smtplib import SMTPException, SMTPServerDisconnected
+
+from models import Config, Cron, Item
+from models.errors import MaskConfigurationError, SMTPConfigurationError
 from notifiers import Notifier
 
 log = logging.getLogger('tgtg')
@@ -14,6 +15,7 @@ class SMTP(Notifier):
     """
     Notifier for SMTP.
     """
+
     def __init__(self, config: Config):
         self.server = None
         self.debug = 1 if config.debug else 0

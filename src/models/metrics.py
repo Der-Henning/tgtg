@@ -1,5 +1,6 @@
 import logging
-from prometheus_client import start_http_server, Gauge, Counter
+
+from prometheus_client import Counter, Gauge, start_http_server
 
 log = logging.getLogger('tgtg')
 
@@ -8,6 +9,7 @@ class Metrics():
     """
     Provides a prometheus metrics client.
     """
+
     def __init__(self, port: int = 8000):
         self.port = port
         self.item_count = Gauge("tgtg_item_count", "Currently available bags", [

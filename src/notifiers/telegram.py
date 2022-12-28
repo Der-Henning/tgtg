@@ -1,13 +1,15 @@
-import logging
-from time import sleep
-import random
 import datetime
-from telegram import Update, ParseMode
-from telegram.error import TelegramError, NetworkError, TimedOut, BadRequest
-from telegram.ext import Updater, CommandHandler, CallbackContext
+import logging
+import random
+from time import sleep
+
+from telegram import ParseMode, Update
 from telegram.bot import BotCommand
-from models import Item, Config, Cron
-from models.errors import TelegramConfigurationError, MaskConfigurationError
+from telegram.error import BadRequest, NetworkError, TelegramError, TimedOut
+from telegram.ext import CallbackContext, CommandHandler, Updater
+
+from models import Config, Cron, Item
+from models.errors import MaskConfigurationError, TelegramConfigurationError
 from notifiers import Notifier
 
 log = logging.getLogger('tgtg')
@@ -91,7 +93,8 @@ class Telegram(Notifier):
     def _help(self, update: Update, context: CallbackContext) -> None:
         """Send message containing available bot commands"""
         del context
-        update.message.reply_text('Deactivate Telegram Notifications for x days using\n/mute x\nReactivate with /unmute')
+        update.message.reply_text(
+            'Deactivate Telegram Notifications for x days using\n/mute x\nReactivate with /unmute')
 
     def _mute(self, update: Update, context: CallbackContext) -> None:
         """Deactivates Telegram Notifications for x days"""
@@ -99,7 +102,8 @@ class Telegram(Notifier):
         self.mute = datetime.datetime.now() + datetime.timedelta(days=days)
         log.info('Deactivated Telegram Notifications for %s days', days)
         log.info('Reactivation at %s', self.mute)
-        update.message.reply_text(f"Deactivated Telegram Notifications for {days} days.\nReactivating at {self.mute} or use /unmute.")
+        update.message.reply_text(
+            f"Deactivated Telegram Notifications for {days} days.\nReactivating at {self.mute} or use /unmute.")
 
     def _unmute(self, update: Update, context: CallbackContext) -> None:
         """Reactivate Telegram Notifications"""
@@ -107,7 +111,7 @@ class Telegram(Notifier):
         self.mute = None
         log.info("Reactivated Telegram Notifications")
         update.message.reply_text("Reactivated Telegram Notifications")
-    
+
     def _error(self, update: Update, context: CallbackContext) -> None:
         """Log Errors caused by Updates."""
         log.warning('Update "%s" caused error "%s"', update, context.error)
@@ -127,10 +131,10 @@ class Telegram(Notifier):
                 if update.message and update.message.text:
                     if update.message.text.isdecimal() and int(update.message.text) == code:
                         log.warning(
-                        "Received code from %s %s on chat id %s",
-                        update.message.from_user.first_name,
-                        update.message.from_user.last_name,
-                        update.message.chat_id
+                            "Received code from %s %s on chat id %s",
+                            update.message.from_user.first_name,
+                            update.message.from_user.last_name,
+                            update.message.chat_id
                         )
                         self.chat_ids = [str(update.message.chat_id)]
             sleep(1)

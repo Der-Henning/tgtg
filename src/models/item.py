@@ -1,24 +1,27 @@
 import datetime
 import re
-from .errors import MaskConfigurationError
 
+from models.errors import MaskConfigurationError
 
 ATTRS = ["item_id", "items_available", "display_name", "description",
-             "price", "currency", "pickupdate", "favorite", "rating",
-             "buffet", "item_category", "item_name", "packaging_option",
-             "pickup_location", "store_name"]
+         "price", "currency", "pickupdate", "favorite", "rating",
+         "buffet", "item_category", "item_name", "packaging_option",
+         "pickup_location", "store_name"]
+
 
 class Item():
     """
     Takes the raw data from the TGTG API and returns well formated data for notifications.
     """
+
     def __init__(self, data: dict):
         self.items_available = data.get("items_available", 0)
         self.display_name = data.get("display_name", "-")
         self.favorite = "Yes" if data.get("favorite", False) else "No"
         self.pickup_interval_start = data.get("pickup_interval", {}).get("start", None)
         self.pickup_interval_end = data.get("pickup_interval", {}).get("end", None)
-        self.pickup_location = data.get("pickup_location", {}).get("address", {}).get("address_line", "-")
+        self.pickup_location = data.get("pickup_location", {}).get(
+            "address", {}).get("address_line", "-")
 
         item = data.get("item", {})
         self.item_id = item.get("item_id")

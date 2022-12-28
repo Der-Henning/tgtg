@@ -1,19 +1,21 @@
-import sys
-import logging
-import json
 import argparse
+import json
+import logging
+import sys
 from os import path
 from typing import NoReturn
-from packaging import version
-import requests
+
 import colorlog
-from scanner import Scanner
+import requests
+from packaging import version
+
+from _version import __author__, __url__, __version__
 from helper import Helper
 from models import Config
-from models.errors import TgtgAPIError, ConfigurationError
+from models.errors import ConfigurationError, TgtgAPIError
+from scanner import Scanner
 
 VERSION_URL = "https://api.github.com/repos/Der-Henning/tgtg/releases/latest"
-VERSION = "1.14.0"
 
 
 def main() -> NoReturn:
@@ -139,12 +141,12 @@ def main() -> NoReturn:
         print("Item IDs:")
         print(" ".join(item_ids))
         print("")
-    elif not args.add is None:
+    elif args.add is not None:
         helper = Helper(config)
         for item_id in args.add:
             helper.set_favorite(item_id)
         print("done.")
-    elif not args.remove is None:
+    elif args.remove is not None:
         helper = Helper(config)
         for item_id in args.remove:
             helper.unset_favorite(item_id)
@@ -160,8 +162,8 @@ def main() -> NoReturn:
 def _get_version_info() -> str:
     lastest_release = _get_new_version()
     if lastest_release is None:
-        return VERSION
-    return f"{VERSION} - Update available! See {lastest_release['html_url']}"
+        return __version__
+    return f"{__version__} - Update available! See {lastest_release['html_url']}"
 
 
 def _start_scanner(config: Config) -> NoReturn:
@@ -188,7 +190,7 @@ def _get_new_version() -> str:
     res = requests.get(VERSION_URL, timeout=60)
     res.raise_for_status()
     lastest_release = res.json()
-    if version.parse(VERSION) < version.parse(lastest_release["tag_name"]):
+    if version.parse(__version__) < version.parse(lastest_release["tag_name"]):
         return lastest_release
     return None
 
@@ -197,7 +199,7 @@ def _print_version_check() -> None:
     log = logging.getLogger("tgtg")
     try:
         lastest_release = _get_new_version()
-        if not lastest_release is None:
+        if lastest_release is not None:
             log.info(
                 "New Version %s available!", version.parse(
                     lastest_release["tag_name"])
@@ -216,17 +218,13 @@ def _print_welcome_message() -> None:
     log = logging.getLogger("tgtg")
     # pylint: disable=W1401
     log.info("  ____  ___  ____  ___    ____   ___   __   __ _  __ _  ____  ____  ")
-    log.info(
-        " (_  _)/ __)(_  _)/ __)  / ___) / __) / _\ (  ( \(  ( \(  __)(  _ \ ")
-    log.info(
-        "   )( ( (_ \  )( ( (_ \  \___ \( (__ /    \/    //    / ) _)  )   / ")
-    log.info("  (__) \___/ (__) \___/  (____/ \___)\_/\_/\_)__)\_)__)(____)(__\_) ")
+    log.info(" (_  _)/ __)(_  _)/ __)  / ___) / __) / _\\ (  ( \\(  ( \\(  __)(  _ \\ ")
+    log.info("   )( ( (_ \\  )( ( (_ \\  \\___ \\( (__ /    \\/    //    / ) _)  )   / ")
+    log.info("  (__) \\___/ (__) \\___/  (____/ \\___)\\_/\\_/\\_)__)\\_)__)(____)(__\\_) ")
     log.info("")
-    log.info("Version %s", VERSION)
-    log.info("©2022, Henning Merklinger")
-    log.info(
-        "For documentation and support please visit https://github.com/Der-Henning/tgtg"
-    )
+    log.info("Version %s", __version__)
+    log.info("©2022, %s", __author__)
+    log.info("For documentation and support please visit %s", __url__)
     log.info("")
     # pylint: enable=W1401
 
