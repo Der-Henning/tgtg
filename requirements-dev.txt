@@ -7,9 +7,9 @@ iniconfig==1.1.1
 pluggy==1.0.0
 pyinstaller==5.7.0
 pyinstaller-hooks-contrib==2022.14
-pytest==7.2.0
-pytest-cov==4.0.0
-tomli==2.0.1
+
+pytest
+pytest-cov
 autopep8
 ipykernel
 flake8

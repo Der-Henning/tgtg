@@ -9,7 +9,7 @@ log = logging.getLogger('tgtg')
 
 
 class Cron():
-    def __init__(self, cron_str: str) -> None:
+    def __init__(self, cron_str: str = None) -> None:
         self.cron = (cron_str if cron_str is not None else '* * * * *').strip()
         try:
             self.is_now

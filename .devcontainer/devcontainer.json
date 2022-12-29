@@ -22,18 +22,11 @@
 		"python.linting.enabled": true,
 		"python.linting.flake8Enabled": true,
 		"python.linting.flake8Args": ["--max-line-length=100"],
+		"python.linting.pylintEnabled": false,
 		"python.formatting.provider": "autopep8",
 		"python.formatting.autopep8Args": ["--in-place", "--max-line-length=100"],
-		"python.formatting.autopep8Path": "/usr/local/py-utils/bin/autopep8",
-		"python.formatting.blackPath": "/usr/local/py-utils/bin/black",
-		"python.formatting.yapfPath": "/usr/local/py-utils/bin/yapf",
-		"python.linting.banditPath": "/usr/local/py-utils/bin/bandit",
-		"python.linting.flake8Path": "/usr/local/py-utils/bin/flake8",
-		"python.linting.mypyPath": "/usr/local/py-utils/bin/mypy",
-		"python.linting.pycodestylePath": "/usr/local/py-utils/bin/pycodestyle",
-		"python.linting.pydocstylePath": "/usr/local/py-utils/bin/pydocstyle",
-		"python.linting.pylintPath": "/usr/local/py-utils/bin/pylint",
-		"python.testing.pytestEnabled": true
+		"python.testing.pytestEnabled": true,
+		"python.testing.pytestArgs": ["tests"]
 	},
 
 	// Add the IDs of extensions you want installed when the container is created.

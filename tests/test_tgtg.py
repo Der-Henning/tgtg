@@ -1,6 +1,7 @@
 import pathlib
-from tgtg import TgtgClient
+
 from models import Config
+from tgtg import TgtgClient
 
 
 def test_get_items(properties: dict):
