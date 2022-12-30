@@ -5,7 +5,7 @@ install:
 	pip install -r requirements-dev.txt
 
 start:
-	python src/scanner.py
+	python src/main.py
 
 bash:
 	docker-compose -f docker-compose.dev.yml build

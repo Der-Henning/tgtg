@@ -10,6 +10,7 @@ pyinstaller-hooks-contrib==2022.14
 
 pytest
 pytest-cov
+responses
 autopep8
 ipykernel
 flake8

@@ -216,7 +216,6 @@ def _print_version_check() -> None:
 
 def _print_welcome_message() -> None:
     log = logging.getLogger("tgtg")
-    # pylint: disable=W1401
     log.info("  ____  ___  ____  ___    ____   ___   __   __ _  __ _  ____  ____  ")
     log.info(" (_  _)/ __)(_  _)/ __)  / ___) / __) / _\\ (  ( \\(  ( \\(  __)(  _ \\ ")
     log.info("   )( ( (_ \\  )( ( (_ \\  \\___ \\( (__ /    \\/    //    / ) _)  )   / ")
@@ -226,7 +225,6 @@ def _print_welcome_message() -> None:
     log.info("©2022, %s", __author__)
     log.info("For documentation and support please visit %s", __url__)
     log.info("")
-    # pylint: enable=W1401
 
 
 def query_yes_no(question, default="yes") -> bool:

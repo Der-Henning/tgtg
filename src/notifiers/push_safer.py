@@ -2,7 +2,7 @@ import logging
 
 from pushsafer import Client
 
-from models import Config, Cron, Item
+from models import Config, Item
 from models.errors import PushSaferConfigurationError
 from notifiers import Notifier
 
@@ -17,10 +17,10 @@ class PushSafer(Notifier):
     """
 
     def __init__(self, config: Config):
-        self.key = config.push_safer["key"]
-        self.device_id = config.push_safer["deviceId"]
-        self.enabled = config.push_safer["enabled"]
-        self.cron = Cron(config.push_safer["cron"])
+        self.enabled = config.push_safer.get("enabled", False)
+        self.key = config.push_safer.get("key")
+        self.device_id = config.push_safer.get("deviceId")
+        self.cron = config.push_safer.get("cron")
         if self.enabled and (not self.key or not self.device_id):
             raise PushSaferConfigurationError()
         if self.enabled:

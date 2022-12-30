@@ -1,16 +1,13 @@
-import json
 import logging
 
-import requests
-
-from models import Config, Cron, Item
+from models import Config, Item
 from models.errors import IFTTTConfigurationError, MaskConfigurationError
-from notifiers import Notifier
+from notifiers.webhook import WebHook
 
 log = logging.getLogger('tgtg')
 
 
-class IFTTT(Notifier):
+class IFTTT(WebHook):
     """
     Notifier for IFTTT Webhooks.\n
     For more information on IFTTT visit\n
@@ -18,31 +15,23 @@ class IFTTT(Notifier):
     """
 
     def __init__(self, config: Config):
-        self.enabled = config.ifttt["enabled"]
-        self.event = config.ifttt["event"]
-        self.key = config.ifttt["key"]
-        self.body = config.ifttt["body"]
-        self.cron = Cron(config.ifttt["cron"])
+        self.enabled = config.ifttt.get("enabled", False)
+        self.event = config.ifttt.get("event")
+        self.key = config.ifttt.get("key")
+        self.body = config.ifttt.get("body")
+        self.cron = config.ifttt.get("cron")
+        self.timeout = config.ifttt.get("timeout")
+        self.method = "POST"
+        self.url = f"https://maker.ifttt.com/trigger/{self.event}/with/key/{self.key}"
+        self.type = "application/json"
+
         if self.enabled and (not self.event or not self.key):
             raise IFTTTConfigurationError()
-        if self.enabled:
-            if self.body is None:
-                self.body = '{"value1": "${{display_name}}", "value2": ${{items_available}}, "value3": "https://share.toogoodtogo.com/item/${{item_id}}"}'
+        if self.enabled and self.body is not None:
             try:
                 Item.check_mask(self.body)
             except MaskConfigurationError as exc:
                 raise IFTTTConfigurationError(exc.message) from exc
-        self.url = f"https://maker.ifttt.com/trigger/{self.event}/with/key/{self.key}"
-
-    def send(self, item: Item) -> None:
-        """
-        Sends item information to the IFTTT webhook endpoint.
-        """
-        if self.enabled and self.cron.is_now:
-            log.debug("Sending IFTTT Notification")
-            data = json.loads(item.unmask(self.body).encode(encoding='UTF-8', errors='replace'))
-            log.debug("IFTTT data: %s", data)
-            requests.post(self.url, timeout=60, json=data)
 
     def __repr__(self) -> str:
         return f"IFTTT: {self.key}"

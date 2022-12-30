@@ -4,7 +4,7 @@ from random import random
 from time import sleep
 from typing import NoReturn
 
-from models import Config, Cron, Item, Metrics
+from models import Config, Item, Metrics
 from models.errors import Error, TgtgAPIError, TGTGConfigurationError
 from notifiers import Notifiers
 from tgtg import TgtgClient
@@ -17,18 +17,18 @@ class Scanner:
         self.config = config
         self.metrics = Metrics(self.config.metrics_port)
         self.item_ids = self.config.item_ids
-        self.cron = Cron(self.config.schedule_cron)
+        self.cron = self.config.schedule_cron
         self.amounts = {}
         try:
             self.tgtg_client = TgtgClient(
-                email=self.config.tgtg["username"],
-                timeout=self.config.tgtg["timeout"],
-                access_token_lifetime=self.config.tgtg["access_token_lifetime"],
-                max_polling_tries=self.config.tgtg["max_polling_tries"],
-                polling_wait_time=self.config.tgtg["polling_wait_time"],
-                access_token=self.config.tgtg["access_token"],
-                refresh_token=self.config.tgtg["refresh_token"],
-                user_id=self.config.tgtg["user_id"],
+                email=self.config.tgtg.get("username"),
+                timeout=self.config.tgtg.get("timeout"),
+                access_token_lifetime=self.config.tgtg.get("access_token_lifetime"),
+                max_polling_tries=self.config.tgtg.get("max_polling_tries"),
+                polling_wait_time=self.config.tgtg.get("polling_wait_time"),
+                access_token=self.config.tgtg.get("access_token"),
+                refresh_token=self.config.tgtg.get("refresh_token"),
+                user_id=self.config.tgtg.get("user_id"),
             )
             self.tgtg_client.login()
             self.config.save_tokens(

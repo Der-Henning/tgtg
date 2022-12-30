@@ -12,3 +12,5 @@ coverage.xml
 .env
 config.ini
 scanner.log
+pytest_tmp
+out.toml

@@ -4,7 +4,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from smtplib import SMTPException, SMTPServerDisconnected
 
-from models import Config, Cron, Item
+from models import Config, Item
 from models.errors import MaskConfigurationError, SMTPConfigurationError
 from notifiers import Notifier
 
@@ -19,18 +19,18 @@ class SMTP(Notifier):
     def __init__(self, config: Config):
         self.server = None
         self.debug = 1 if config.debug else 0
-        self.host = config.smtp["host"]
-        self.port = config.smtp["port"]
-        self.tls = config.smtp["tls"]
-        self.ssl = config.smtp["ssl"]
-        self.username = config.smtp["username"]
-        self.password = config.smtp["password"]
-        self.sender = config.smtp["sender"]
-        self.recipient = config.smtp["recipient"]
-        self.enabled = config.smtp["enabled"]
-        self.subject = config.smtp["subject"]
-        self.body = config.smtp["body"]
-        self.cron = Cron(config.smtp["cron"])
+        self.enabled = config.smtp.get("enabled", False)
+        self.host = config.smtp.get("host")
+        self.port = config.smtp.get("port", 25)
+        self.tls = config.smtp.get("tls", False)
+        self.ssl = config.smtp.get("ssl", False)
+        self.username = config.smtp.get("username")
+        self.password = config.smtp.get("password")
+        self.sender = config.smtp.get("sender")
+        self.recipient = config.smtp.get("recipient")
+        self.subject = config.smtp.get("subject")
+        self.body = config.smtp.get("body")
+        self.cron = config.smtp.get("cron")
         if self.enabled and (not self.host or not self.port):
             raise SMTPConfigurationError()
         if self.enabled:

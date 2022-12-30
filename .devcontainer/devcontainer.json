@@ -26,7 +26,8 @@
 		"python.formatting.provider": "autopep8",
 		"python.formatting.autopep8Args": ["--in-place", "--max-line-length=100"],
 		"python.testing.pytestEnabled": true,
-		"python.testing.pytestArgs": ["tests"]
+		"python.testing.pytestArgs": ["tests"],
+		"isort.check": false
 	},
 
 	// Add the IDs of extensions you want installed when the container is created.

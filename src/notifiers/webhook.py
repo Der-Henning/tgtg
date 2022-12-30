@@ -2,7 +2,7 @@ import logging
 
 import requests
 
-from models import Config, Cron, Item
+from models import Config, Item
 from models.errors import MaskConfigurationError, WebHookConfigurationError
 from notifiers import Notifier
 
@@ -13,13 +13,13 @@ class WebHook(Notifier):
     """Notifier for custom Webhooks"""
 
     def __init__(self, config: Config):
-        self.enabled = config.webhook["enabled"]
-        self.method = config.webhook["method"]
-        self.url = config.webhook["url"]
-        self.body = config.webhook["body"]
-        self.type = config.webhook["type"]
-        self.timeout = config.webhook["timeout"]
-        self.cron = Cron(config.webhook["cron"])
+        self.enabled = config.webhook.get("enabled", False)
+        self.method = config.webhook.get("method")
+        self.url = config.webhook.get("url")
+        self.body = config.webhook.get("body")
+        self.type = config.webhook.get("type")
+        self.timeout = config.webhook.get("timeout", 60)
+        self.cron = config.webhook.get("cron")
         if self.enabled and (not self.method or not self.url):
             raise WebHookConfigurationError()
         if self.enabled:

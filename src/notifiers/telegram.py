@@ -8,7 +8,7 @@ from telegram.bot import BotCommand
 from telegram.error import BadRequest, NetworkError, TelegramError, TimedOut
 from telegram.ext import CallbackContext, CommandHandler, Updater
 
-from models import Config, Cron, Item
+from models import Config, Item
 from models.errors import MaskConfigurationError, TelegramConfigurationError
 from notifiers import Notifier
 
@@ -24,12 +24,12 @@ class Telegram(Notifier):
     def __init__(self, config: Config):
         self.updater = None
         self.config = config
-        self.enabled = config.telegram["enabled"]
-        self.token = config.telegram["token"]
-        self.body = config.telegram["body"]
-        self.chat_ids = config.telegram["chat_ids"]
-        self.timeout = config.telegram["timeout"]
-        self.cron = Cron(config.telegram["cron"])
+        self.enabled = config.telegram.get("enabled", False)
+        self.token = config.telegram.get("token")
+        self.body = config.telegram.get("body")
+        self.chat_ids = config.telegram.get("chat_ids")
+        self.timeout = config.telegram.get("timeout", 60)
+        self.cron = config.telegram.get("cron")
         self.mute = None
         self.retries = 0
         if self.enabled and not self.token:
