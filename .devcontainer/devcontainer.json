@@ -5,7 +5,7 @@
 	"build": {
 		"dockerfile": "Dockerfile",
 		"context": "..",
-		"args": { 
+		"args": {
 			// Update 'VARIANT' to pick a Python version: 3, 3.10, 3.9, 3.8, 3.7, 3.6
 			// Append -bullseye or -buster to pin to an OS version.
 			// Use -bullseye variants on local on arm64/Apple Silicon.
@@ -14,37 +14,42 @@
 			// "NODE_VERSION": "lts/*"
 		}
 	},
-	"runArgs": ["--env-file",".env"],
-
+	"runArgs": [
+		"--env-file",
+		".env"
+	],
 	// Set *default* container specific settings.json values on container create.
-	"settings": { 
+	"settings": {
 		"python.defaultInterpreterPath": "/usr/local/bin/python",
 		"python.linting.enabled": true,
 		"python.linting.flake8Enabled": true,
-		"python.linting.flake8Args": ["--max-line-length=100"],
+		"python.linting.flake8Args": [
+			"--max-line-length=79"
+		],
 		"python.linting.pylintEnabled": false,
 		"python.formatting.provider": "autopep8",
-		"python.formatting.autopep8Args": ["--in-place", "--max-line-length=100"],
+		"python.formatting.autopep8Args": [
+			"--in-place",
+			"--max-line-length=79"
+		],
 		"python.testing.pytestEnabled": true,
-		"python.testing.pytestArgs": ["tests"],
-		"isort.check": false
+		"python.testing.pytestArgs": [
+			"tests"
+		],
+		"isort.check": true
 	},
-
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
 		"ms-python.python",
 		"njpwerner.autodocstring"
 	],
-
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
-
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// "postCreateCommand": "pip3 install --user -r requirements.txt",
-
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "vscode",
 	"features": {
-	//	"git": "latest"
+		//	"git": "latest"
 	}
 }

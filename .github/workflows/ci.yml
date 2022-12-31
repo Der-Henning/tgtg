@@ -111,6 +111,8 @@ jobs:
                   python-version: ${{ matrix.python }}
             - name: Install dependencies
               run: pip install -r requirements-dev.txt
+            - name: Run linting
+              run: pre-commit run -a
             - name: Run tests
               uses: nick-fields/retry@v2
               with:

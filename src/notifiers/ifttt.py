@@ -22,7 +22,8 @@ class IFTTT(WebHook):
         self.cron = config.ifttt.get("cron")
         self.timeout = config.ifttt.get("timeout")
         self.method = "POST"
-        self.url = f"https://maker.ifttt.com/trigger/{self.event}/with/key/{self.key}"
+        self.url = (f"https://maker.ifttt.com/trigger/"
+                    f"{self.event}/with/key/{self.key}")
         self.type = "application/json"
 
         if self.enabled and (not self.event or not self.key):

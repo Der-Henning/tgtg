@@ -18,7 +18,7 @@ class SMTP(Notifier):
 
     def __init__(self, config: Config):
         self.server = None
-        self.debug = 1 if config.debug else 0
+        self.debug = config.debug
         self.enabled = config.smtp.get("enabled", False)
         self.host = config.smtp.get("host")
         self.port = config.smtp.get("port", 25)
@@ -58,9 +58,9 @@ class SMTP(Notifier):
             self.server = smtplib.SMTP_SSL(self.host, self.port)
         else:
             self.server = smtplib.SMTP(self.host, self.port)
+        self.server.set_debuglevel(self.debug)
         if self.tls:
             self.server.starttls()
-        self.server.set_debuglevel(self.debug)
         self.server.ehlo()
         if self.username and self.password:
             self.server.login(self.username, self.password)

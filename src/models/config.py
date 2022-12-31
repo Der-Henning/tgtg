@@ -1,5 +1,6 @@
 import configparser
 import logging
+from io import TextIOWrapper
 from os import environ
 from pathlib import Path
 from typing import Any
@@ -46,13 +47,16 @@ DEFAULT_CONFIG = {
         'recipient': '',
         'cron': Cron('* * * * *'),
         'subject': 'New Magic Bags',
-        'body': '<b>${{display_name}}</b> </br>New Amount: ${{items_available}}'
+        'body': '<b>${{display_name}}</b> </br>'
+                'New Amount: ${{items_available}}'
     },
     'ifttt': {
         'enabled': False,
         'event': 'tgtg_notification',
         'key': '',
-        'body': '{"value1": "${{display_name}}", "value2": ${{items_available}}, "value3": "https://share.toogoodtogo.com/item/${{item_id}}"}',
+        'body': '{"value1": "${{display_name}}", '
+                '"value2": ${{items_available}}, '
+                '"value3": "https://share.toogoodtogo.com/item/${{item_id}}"}',
         'timeout': 60,
         'cron': Cron('* * * * *')
     },
@@ -71,7 +75,10 @@ DEFAULT_CONFIG = {
         'chat_ids': [],
         'timeout': 60,
         'cron': Cron('* * * * *'),
-        'body': '*${{display_name}}*\n*Available*: ${{items_available}}\n*Price*: ${{price}} ${{currency}}\n*Pickup*: ${{pickupdate}}'
+        'body': '*${{display_name}}*\n'
+                '*Available*: ${{items_available}}\n'
+                '*Price*: ${{price}} ${{currency}}\n'
+                '*Pickup*: ${{pickupdate}}'
     }
 }
 
@@ -105,7 +112,8 @@ class Config():
         if self.file is not None:
             if not self.file.exists():
                 raise ConfigurationError(
-                    f"Configuration file '{self.file.absolute()}' does not exist!")
+                    f"Configuration file '{self.file.absolute()}' "
+                    "does not exist!")
             self._read_ini()
             log.info("Loaded config from %s", self.file.absolute())
         else:
@@ -115,17 +123,20 @@ class Config():
         self.token_path = environ.get("TGTG_TOKEN_PATH", None)
         self._load_tokens()
 
+    def _open(self, file: str, mode: str) -> TextIOWrapper:
+        return open(Path(self.token_path, file), mode, encoding='utf-8')
+
     def _load_tokens(self) -> None:
         """
         Reads tokens from token files
         """
         if self.token_path is not None:
             try:
-                with open(Path(self.token_path, 'accessToken'), 'r', encoding='utf-8') as file:
+                with self._open('accessToken', 'r') as file:
                     self.tgtg["access_token"] = file.read()
-                with open(Path(self.token_path, 'refreshToken'), 'r', encoding='utf-8') as file:
+                with self._open('refreshToken', 'r') as file:
                     self.tgtg["refresh_token"] = file.read()
-                with open(Path(self.token_path, 'userID'), 'r', encoding='utf-8') as file:
+                with self._open('userID', 'r') as file:
                     self.tgtg["user_id"] = file.read()
             except FileNotFoundError:
                 log.warning("No token files in token path.")
@@ -145,31 +156,39 @@ class Config():
         else:
             setattr(self, attr, value)
 
-    def _ini_get(self, config: configparser.ConfigParser, section: str, key: str, attr: str) -> None:
+    def _ini_get(self, config: configparser.ConfigParser,
+                 section: str, key: str, attr: str) -> None:
         if section in config:
             self._setattr(attr, config[section].get(key, self._getattr(attr)))
 
-    def _ini_get_boolean(self, config: configparser.ConfigParser, section: str, key: str, attr: str) -> None:
+    def _ini_get_boolean(self, config: configparser.ConfigParser,
+                         section: str, key: str, attr: str) -> None:
         if section in config:
-            self._setattr(attr, config[section].getboolean(key, self._getattr(attr)))
+            self._setattr(attr, config[section].getboolean(
+                key, self._getattr(attr)))
 
-    def _ini_get_int(self, config: configparser.ConfigParser, section: str, key: str, attr: str) -> None:
+    def _ini_get_int(self, config: configparser.ConfigParser,
+                     section: str, key: str, attr: str) -> None:
         if section in config:
-            self._setattr(attr, config[section].getint(key, self._getattr(attr)))
+            self._setattr(attr, config[section].getint(
+                key, self._getattr(attr)))
 
-    def _ini_get_float(self, config: configparser.ConfigParser, section: str, key: str, attr: str) -> None:
+    def _ini_get_float(self, config: configparser.ConfigParser,
+                       section: str, key: str, attr: str) -> None:
         if section in config:
-            self._setattr(attr, config[section].getfloat(key, self._getattr(attr)))
+            self._setattr(attr, config[section].getfloat(
+                key, self._getattr(attr)))
 
-    def _ini_get_array(self, config: configparser.ConfigParser, section: str, key: str, attr: str) -> None:
+    def _ini_get_array(self, config: configparser.ConfigParser,
+                       section: str, key: str, attr: str) -> None:
         if section in config:
             value = config[section].get(key, None)
-            if value is not None:
+            if value:
                 arr = value.split(',')
-                arr.remove('')
                 self._setattr(attr, arr)
 
-    def _ini_get_cron(self, config: configparser.ConfigParser, section: str, key: str, attr: str) -> None:
+    def _ini_get_cron(self, config: configparser.ConfigParser,
+                      section: str, key: str, attr: str) -> None:
         if section in config:
             value = config[section].get(key, None)
             if value is not None:
@@ -186,20 +205,26 @@ class Config():
             self._ini_get_cron(config, "MAIN", "ScheduleCron", "schedule_cron")
             self._ini_get_boolean(config, "MAIN", "Metrics", "metrics")
             self._ini_get_int(config, "MAIN", "MetricsPort", "metrics_port")
-            self._ini_get_boolean(config, "MAIN", "DisableTests", "disable_tests")
+            self._ini_get_boolean(config, "MAIN", "DisableTests",
+                                  "disable_tests")
 
             self._ini_get(config, "TGTG", "Username", "tgtg.username")
             self._ini_get(config, "TGTG", "AccessToken", "tgtg.access_token")
             self._ini_get(config, "TGTG", "RefreshToken", "tgtg.refresh_token")
             self._ini_get(config, "TGTG", "UserId", "tgtg.user_id")
             self._ini_get_int(config, "TGTG", "Timeout", "tgtg.timeout")
-            self._ini_get_int(config, "TGTG", "AccessTokenLifetime", "tgtg.access_token_lifetime")
-            self._ini_get_int(config, "TGTG", "MaxPollingTries", "tgtg.max_polling_tries")
-            self._ini_get_int(config, "TGTG", "PollingWaitTime", "tgtg.polling_wait_time")
+            self._ini_get_int(config, "TGTG", "AccessTokenLifetime",
+                              "tgtg.access_token_lifetime")
+            self._ini_get_int(config, "TGTG", "MaxPollingTries",
+                              "tgtg.max_polling_tries")
+            self._ini_get_int(config, "TGTG", "PollingWaitTime",
+                              "tgtg.polling_wait_time")
 
-            self._ini_get_boolean(config, "PUSHSAFER", "enabled", "push_safer.enabled")
+            self._ini_get_boolean(config, "PUSHSAFER",
+                                  "enabled", "push_safer.enabled")
             self._ini_get(config, "PUSHSAFER", "Key", "push_safer.key")
-            self._ini_get(config, "PUSHSAFER", "DeviceID", "push_safer.deviceId")
+            self._ini_get(config, "PUSHSAFER", "DeviceID",
+                          "push_safer.deviceId")
             self._ini_get_cron(config, "PUSHSAFER", "cron", "push_safer.cron")
 
             self._ini_get_boolean(config, "SMTP", "enabled", "smtp.enabled")
@@ -222,7 +247,8 @@ class Config():
             self._ini_get_int(config, "IFTTT", "Timeout", "ifttt.timeout")
             self._ini_get_cron(config, "IFTTT", "cron", "ifttt.cron")
 
-            self._ini_get_boolean(config, "WEBHOOK", "enabled", "webhook.enabled")
+            self._ini_get_boolean(config, "WEBHOOK", "enabled",
+                                  "webhook.enabled")
             self._ini_get(config, "WEBHOOK", "URL", "webhook.url")
             self._ini_get(config, "WEBHOOK", "Method", "webhook.method")
             self._ini_get(config, "WEBHOOK", "body", "webhook.body")
@@ -230,10 +256,13 @@ class Config():
             self._ini_get_int(config, "WEBHOOK", "timeout", "webhook.timeout")
             self._ini_get_cron(config, "WEBHOOK", "cron", "webhook.cron")
 
-            self._ini_get_boolean(config, "TELEGRAM", "enabled", "telegram.enabled")
+            self._ini_get_boolean(config, "TELEGRAM",
+                                  "enabled", "telegram.enabled")
             self._ini_get(config, "TELEGRAM", "token", "telegram.token")
-            self._ini_get_array(config, "TELEGRAM", "chat_ids", "telegram.chat_ids")
-            self._ini_get_int(config, "TELEGRAM", "timeout", "telegram.timeout")
+            self._ini_get_array(config, "TELEGRAM",
+                                "chat_ids", "telegram.chat_ids")
+            self._ini_get_int(config, "TELEGRAM",
+                              "timeout", "telegram.timeout")
             self._ini_get_cron(config, "TELEGRAM", "cron", "telegram.cron")
             self._ini_get(config, "TELEGRAM", "body", "telegram.body")
         except ValueError as err:
@@ -255,9 +284,8 @@ class Config():
 
     def _env_get_array(self, key: str, attr: str) -> None:
         value = environ.get(key, None)
-        if value is not None:
+        if value:
             arr = value.split(',')
-            arr.remove('')
             self._setattr(attr, arr)
 
     def _env_get_cron(self, key: str, attr: str) -> None:
@@ -280,9 +308,12 @@ class Config():
             self._env_get("TGTG_REFRESH_TOKEN", "tgtg.refresh_token")
             self._env_get("TGTG_USER_ID", "tgtg.user_id")
             self._env_get("TGTG_TIMEOUT", "tgtg.timeout")
-            self._env_get_int("TGTG_ACCESS_TOKEN_LIFETIME", "tgtg.access_token_lifetime")
-            self._env_get_int("TGTG_MAX_POLLING_TRIES", "tgtg.max_polling_tries")
-            self._env_get_int("TGTG_POLLING_WAIT_TIME", "tgtg.polling_wait_time")
+            self._env_get_int("TGTG_ACCESS_TOKEN_LIFETIME",
+                              "tgtg.access_token_lifetime")
+            self._env_get_int("TGTG_MAX_POLLING_TRIES",
+                              "tgtg.max_polling_tries")
+            self._env_get_int("TGTG_POLLING_WAIT_TIME",
+                              "tgtg.polling_wait_time")
 
             self._env_get_boolean("PUSH_SAFER", "push_safer.enabled")
             self._env_get("PUSH_SAFER_KEY", "push_safer.key")
@@ -344,9 +375,11 @@ class Config():
                 log.error("error writing config.ini! - %s", err)
         return False
 
-    def save_tokens(self, access_token: str, refresh_token: str, user_id: str) -> None:
+    def save_tokens(self, access_token: str, refresh_token: str,
+                    user_id: str) -> None:
         """
-        Saves TGTG Access Tokens to config.ini if provided or as files to token_path.
+        Saves TGTG Access Tokens to config.ini
+        if provided or as files to token_path.
         """
         if self.file is not None:
             try:
@@ -364,11 +397,11 @@ class Config():
                 log.error("error saving credentials to config.ini! - %s", err)
         if self.token_path is not None:
             try:
-                with open(Path(self.token_path, 'accessToken'), 'w', encoding='utf-8') as file:
+                with self._open('accessToken', 'w') as file:
                     file.write(access_token)
-                with open(Path(self.token_path, 'refreshToken'), 'w', encoding='utf-8') as file:
+                with self._open('refreshToken', 'w') as file:
                     file.write(refresh_token)
-                with open(Path(self.token_path, 'userID'), 'w', encoding='utf-8') as file:
+                with self._open('userID', 'w') as file:
                     file.write(user_id)
             except EnvironmentError as err:
                 log.error("error saving credentials! - %s", err)

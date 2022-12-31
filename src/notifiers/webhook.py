@@ -40,15 +40,17 @@ class WebHook(Notifier):
                 "Content-Type": self.type
             }
             if self.body:
-                body = item.unmask(self.body).encode(encoding='UTF-8', errors='replace')
+                body = item.unmask(self.body).encode(
+                    encoding='UTF-8', errors='replace')
                 headers["Content-Length"] = str(len(body))
                 log.debug("Webhook body: %s", body)
             log.debug("Webhook headers: %s", headers)
             res = requests.request(method=self.method, url=url,
-                                   timeout=self.timeout, data=body, headers=headers)
+                                   timeout=self.timeout, data=body,
+                                   headers=headers)
             if not res.ok:
-                log.error(
-                    "WebHook Request failed with status code %s", res.status_code)
+                log.error("WebHook Request failed with status code %s",
+                          res.status_code)
 
     def __repr__(self) -> str:
         return f"WebHook: {self.url}"

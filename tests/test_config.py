@@ -38,7 +38,8 @@ def test_save_tokens_to_ini(temp_path: Path):
     config_path = Path(temp_path, "config.ini")
     config_path.touch(exist_ok=True)
     config = Config(config_path.absolute())
-    config.save_tokens("test_access_token", "test_refresh_token", "test_user_id")
+    config.save_tokens("test_access_token",
+                       "test_refresh_token", "test_user_id")
 
     config_parser = configparser.ConfigParser()
     config_parser.read(config_path, encoding='utf-8')
@@ -52,7 +53,8 @@ def test_token_path(temp_path: Path, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("TGTG_TOKEN_PATH", str(temp_path.absolute()))
 
     config = Config()
-    config.save_tokens("test_access_token", "test_refresh_token", "test_user_id")
+    config.save_tokens("test_access_token",
+                       "test_refresh_token", "test_user_id")
     config._load_tokens()
 
     assert config.tgtg.get("access_token") == "test_access_token"

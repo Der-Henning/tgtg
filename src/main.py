@@ -17,6 +17,12 @@ from scanner import Scanner
 
 VERSION_URL = "https://api.github.com/repos/Der-Henning/tgtg/releases/latest"
 
+HEADER = (
+    "  ____  ___  ____  ___    ____   ___   __   __ _  __ _  ____  ____  ",  # noqa: W605,E501
+    " (_  _)/ __)(_  _)/ __)  / ___) / __) / _\ (  ( \(  ( \(  __)(  _ \ ",  # noqa: W605,E501
+    "   )( ( (_ \  )( ( (_ \  \___ \( (__ /    \/    //    / ) _)  )   / ",  # noqa: W605,E501
+    "  (__) \___/ (__) \___/  (____/ \___)\_/\_/\_)__)\_)__)(____)(__\_) ")  # noqa: W605,E501
+
 
 def main() -> NoReturn:
     """Wrapper for Scanner and Helper functions."""
@@ -111,11 +117,11 @@ def main() -> NoReturn:
     log = logging.getLogger("tgtg")
 
     config = Config(config_file) if path.isfile(config_file) else Config()
-    if config.debug or args.debug:
-        # pylint: disable=E1103
+    if args.debug:
+        config.debug = True
+    if config.debug:
         loggers = [logging.getLogger(name)
                    for name in logging.root.manager.loggerDict]
-        # pylint: enable=E1103
         for logger in loggers:
             logger.setLevel(logging.DEBUG)
         log.info("Debugging mode enabled")
@@ -152,7 +158,8 @@ def main() -> NoReturn:
             helper.unset_favorite(item_id)
         print("done.")
     elif args.remove_all:
-        if query_yes_no("Remove all favorites from your account?", default='no'):
+        if query_yes_no("Remove all favorites from your account?",
+                        default='no'):
             Helper(config).unset_all_favorites()
             print("done.")
     else:
@@ -163,7 +170,8 @@ def _get_version_info() -> str:
     lastest_release = _get_new_version()
     if lastest_release is None:
         return __version__
-    return f"{__version__} - Update available! See {lastest_release['html_url']}"
+    return (f"{__version__} - Update available! "
+            f"See {lastest_release['html_url']}")
 
 
 def _start_scanner(config: Config) -> NoReturn:
@@ -216,10 +224,8 @@ def _print_version_check() -> None:
 
 def _print_welcome_message() -> None:
     log = logging.getLogger("tgtg")
-    log.info("  ____  ___  ____  ___    ____   ___   __   __ _  __ _  ____  ____  ")
-    log.info(" (_  _)/ __)(_  _)/ __)  / ___) / __) / _\\ (  ( \\(  ( \\(  __)(  _ \\ ")
-    log.info("   )( ( (_ \\  )( ( (_ \\  \\___ \\( (__ /    \\/    //    / ) _)  )   / ")
-    log.info("  (__) \\___/ (__) \\___/  (____/ \\___)\\_/\\_/\\_)__)\\_)__)(____)(__\\_) ")
+    for line in HEADER:
+        log.info(line)
     log.info("")
     log.info("Version %s", __version__)
     log.info("©2022, %s", __author__)

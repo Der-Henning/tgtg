@@ -33,8 +33,8 @@ class PushSafer(Notifier):
         if self.enabled and self.cron.is_now:
             log.debug("Sending PushSafer Notification")
             message = f"New Amount: {item.items_available}"
-            self.client.send_message(message, item.display_name, self.device_id,
-                                     "", "", "", "", "", "", "", "", "", "", "", "", "")
+            self.client.send_message(message, item.display_name,
+                                     self.device_id)
 
     def __repr__(self) -> str:
         return f"PushSafer: {self.key}"
