@@ -2,6 +2,9 @@
 addopts = [
     "--import-mode=importlib",
 ]
+markers = [
+    "tgtg_api: test directly calls the tgtg API (deselect with '-m \"not tgtg_api\"')"
+]
 pythonpath = [
   "src"
 ]

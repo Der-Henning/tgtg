@@ -1,9 +1,12 @@
 import pathlib
 
+import pytest
+
 from models import Config
 from tgtg import TgtgClient
 
 
+@pytest.mark.tgtg_api
 def test_get_items(item_properties: dict):
     if pathlib.Path('src/config.ini').exists():
         config = Config('src/config.ini')
