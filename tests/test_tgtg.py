@@ -1,4 +1,5 @@
 import pathlib
+from os import environ
 
 import pytest
 
@@ -13,6 +14,8 @@ def test_get_items(item_properties: dict):
     else:
         config = Config()
 
+    env_file = environ.get("GITHUB_ENV", None)
+
     client = TgtgClient(
         email=config.tgtg.get("username"),
         timeout=config.tgtg.get("timeout"),
@@ -23,6 +26,15 @@ def test_get_items(item_properties: dict):
         refresh_token=config.tgtg.get("refresh_token"),
         user_id=config.tgtg.get("user_id")
     )
+
+    # get credentials and safe tokens to GITHUB_ENV file
+    # this enables github workflow to reuse the access_token on sheduled runs
+    if env_file:
+        credentials = client.get_credentials()
+        with open(env_file, "a", encoding="utf-8") as file:
+            file.write(f"TGTG_ACCESS_TOKEN={credentials['access_token']}\n")
+            file.write(f"TGTG_REFRESH_TOKEN={credentials['refresh_token']}\n")
+            file.write(f"TGTG_USER_ID={credentials['user_id']}\n")
 
     # Tests
     items = client.get_items(favorites_only=True)
