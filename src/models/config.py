@@ -269,8 +269,10 @@ class Config():
             raise ConfigurationError(err) from err
 
     def _env_get(self, key: str, attr: str) -> None:
-        self._setattr(attr, environ.get(
-            key, self._getattr(attr)).replace('\\n', '\n'))
+        value = environ.get(key, None)
+        if value is not None:
+            value = value.replace('\\n', '\n')
+            self._setattr(attr, value)
 
     def _env_get_boolean(self, key: str, attr: str) -> None:
         value = environ.get(key, None)
