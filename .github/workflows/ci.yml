@@ -46,17 +46,17 @@ jobs:
             - name: Login
               uses: nick-fields/retry@v2
               with:
-                timeout_minutes: 10
-                max_attempts: 10
-                retry_wait_seconds: 1800
-                command: |
-                    python ./src/login.py
-                    echo "::add-mask::${{ env.TGTG_ACCESS_TOKEN }}"
-                    echo "::add-mask::${{ env.TGTG_REFRESH_TOKEN }}"
-                    echo "::add-mask::${{ env.TGTG_USER_ID }}"
-                    echo "TGTG_ACCESS_TOKEN=${{ env.TGTG_ACCESS_TOKEN }}" >> $GITHUB_ENV
-                    echo "TGTG_REFRESH_TOKEN=${{ env.TGTG_REFRESH_TOKEN }}" >> $GITHUB_ENV
-                    echo "TGTG_USER_ID=${{ env.TGTG_USER_ID }}" >> $GITHUB_ENV
+                  timeout_minutes: 10
+                  max_attempts: 10
+                  retry_wait_seconds: 1800
+                  command: |
+                      python ./src/login.py
+                      echo "::add-mask::${{ env.TGTG_ACCESS_TOKEN }}"
+                      echo "::add-mask::${{ env.TGTG_REFRESH_TOKEN }}"
+                      echo "::add-mask::${{ env.TGTG_USER_ID }}"
+                      echo "TGTG_ACCESS_TOKEN=${{ env.TGTG_ACCESS_TOKEN }}" >> $GITHUB_ENV
+                      echo "TGTG_REFRESH_TOKEN=${{ env.TGTG_REFRESH_TOKEN }}" >> $GITHUB_ENV
+                      echo "TGTG_USER_ID=${{ env.TGTG_USER_ID }}" >> $GITHUB_ENV
               env:
                   TGTG_USERNAME: ${{ secrets.TGTG_USERNAME }}
                   TGTG_ACCESS_TOKEN: ${{ secrets.TGTG_ACCESS_TOKEN }}
@@ -94,7 +94,7 @@ jobs:
               with:
                   python-version: ${{ matrix.python }}
             - name: Install dependencies
-              run: pip install -r requirements-dev.txt
+              run: pip install -r requirements.txt
     tests:
         name: Run Tests
         runs-on: ubuntu-latest
@@ -110,16 +110,18 @@ jobs:
               with:
                   python-version: ${{ matrix.python }}
             - name: Install dependencies
-              run: pip install -r requirements-dev.txt
+              run: |
+                  pip install -r requirements.txt
+                  pip install pytest-cov pre-commit
             - name: Run linting
               run: pre-commit run -a
             - name: Run tests
               uses: nick-fields/retry@v2
               with:
-                timeout_minutes: 10
-                max_attempts: 10
-                retry_wait_seconds: 1800
-                command: python -m pytest --cov src/ --cov-report=xml
+                  timeout_minutes: 10
+                  max_attempts: 10
+                  retry_wait_seconds: 1800
+                  command: python -m pytest --cov src/ --cov-report=xml
               env:
                   TGTG_USERNAME: ${{ secrets.TGTG_USERNAME }}
                   TGTG_ACCESS_TOKEN: ${{ secrets.TGTG_ACCESS_TOKEN }}
