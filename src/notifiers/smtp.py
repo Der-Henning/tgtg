@@ -31,7 +31,9 @@ class SMTP(Notifier):
         self.subject = config.smtp.get("subject")
         self.body = config.smtp.get("body")
         self.cron = config.smtp.get("cron")
-        if self.enabled and (not self.host or not self.port):
+        if self.enabled and (not self.host or
+                             not self.port or
+                             not self.recipient):
             raise SMTPConfigurationError()
         if self.enabled:
             try:
@@ -78,7 +80,7 @@ class SMTP(Notifier):
         """Sends mail with html body"""
         message = MIMEMultipart('alternative')
         message['From'] = self.sender
-        message['To'] = self.recipient
+        message['To'] = ", ".join(self.recipient)
         message['Subject'] = subject
         message.attach(MIMEText(html, 'html'))
         body = message.as_string()

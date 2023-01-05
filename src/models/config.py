@@ -44,7 +44,7 @@ DEFAULT_CONFIG = {
         'username': '',
         'password': '',
         'sender': '',
-        'recipient': '',
+        'recipient': [],
         'cron': Cron('* * * * *'),
         'subject': 'New Magic Bags',
         'body': '<b>${{display_name}}</b> </br>'
@@ -184,7 +184,7 @@ class Config():
         if section in config:
             value = config[section].get(key, None)
             if value:
-                arr = value.split(',')
+                arr = [val.strip() for val in value.split(',')]
                 self._setattr(attr, arr)
 
     def _ini_get_cron(self, config: configparser.ConfigParser,
@@ -236,7 +236,7 @@ class Config():
             self._ini_get(config, "SMTP", "Password", "smtp.password")
             self._ini_get_cron(config, "SMTP", "cron", "smtp.cron")
             self._ini_get(config, "SMTP", "Sender", "smtp.sender")
-            self._ini_get(config, "SMTP", "Recipient", "smtp.recipient")
+            self._ini_get_array(config, "SMTP", "Recipient", "smtp.recipient")
             self._ini_get(config, "SMTP", "Subject", "smtp.subject")
             self._ini_get(config, "SMTP", "Body", "smtp.body")
 
@@ -285,7 +285,7 @@ class Config():
     def _env_get_array(self, key: str, attr: str) -> None:
         value = environ.get(key, None)
         if value:
-            arr = value.split(',')
+            arr = [val.strip() for val in value.split(',')]
             self._setattr(attr, arr)
 
     def _env_get_cron(self, key: str, attr: str) -> None:
@@ -328,7 +328,7 @@ class Config():
             self._env_get("SMTP_USERNAME", "smtp.username")
             self._env_get("SMTP_PASSWORD", "smtp.password")
             self._env_get("SMTP_SENDER", "smtp.sender")
-            self._env_get("SMTP_RECIPIENT", "smtp.recipient")
+            self._env_get_array("SMTP_RECIPIENT", "smtp.recipient")
             self._env_get_cron("SMTP_CRON", "smtp.cron")
             self._env_get("SMTP_SUBJECT", "smtp.subject")
             self._env_get("SMTP_BODY", "smtp.body")
