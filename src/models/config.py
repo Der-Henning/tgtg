@@ -269,7 +269,8 @@ class Config():
             raise ConfigurationError(err) from err
 
     def _env_get(self, key: str, attr: str) -> None:
-        self._setattr(attr, environ.get(key, self._getattr(attr)))
+        self._setattr(attr, environ.get(
+            key, self._getattr(attr)).replace('\\n', '\n'))
 
     def _env_get_boolean(self, key: str, attr: str) -> None:
         value = environ.get(key, None)
@@ -307,7 +308,7 @@ class Config():
             self._env_get("TGTG_ACCESS_TOKEN", "tgtg.access_token")
             self._env_get("TGTG_REFRESH_TOKEN", "tgtg.refresh_token")
             self._env_get("TGTG_USER_ID", "tgtg.user_id")
-            self._env_get("TGTG_TIMEOUT", "tgtg.timeout")
+            self._env_get_int("TGTG_TIMEOUT", "tgtg.timeout")
             self._env_get_int("TGTG_ACCESS_TOKEN_LIFETIME",
                               "tgtg.access_token_lifetime")
             self._env_get_int("TGTG_MAX_POLLING_TRIES",

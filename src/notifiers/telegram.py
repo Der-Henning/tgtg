@@ -32,8 +32,8 @@ class Telegram(Notifier):
         self.cron = config.telegram.get("cron")
         self.mute = None
         self.retries = 0
-        if self.enabled and not self.token:
-            raise TelegramConfigurationError("Missing Telegram token")
+        if self.enabled and (not self.token or not self.body):
+            raise TelegramConfigurationError()
         if self.enabled:
             try:
                 Item.check_mask(self.body)
