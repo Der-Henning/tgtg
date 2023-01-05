@@ -1,14 +1,13 @@
-import sys
 import logging
-from time import sleep
+import sys
 from random import random
+from time import sleep
 from typing import NoReturn
 
-from models import Item, Config, Metrics, Cron
-from models.errors import TgtgAPIError, Error, TGTGConfigurationError
+from models import Config, Item, Metrics
+from models.errors import Error, TgtgAPIError, TGTGConfigurationError
 from notifiers import Notifiers
 from tgtg import TgtgClient
-
 
 log = logging.getLogger("tgtg")
 
@@ -18,18 +17,19 @@ class Scanner:
         self.config = config
         self.metrics = Metrics(self.config.metrics_port)
         self.item_ids = self.config.item_ids
-        self.cron = Cron(self.config.schedule_cron)
+        self.cron = self.config.schedule_cron
         self.amounts = {}
         try:
             self.tgtg_client = TgtgClient(
-                email=self.config.tgtg["username"],
-                timeout=self.config.tgtg["timeout"],
-                access_token_lifetime=self.config.tgtg["access_token_lifetime"],
-                max_polling_tries=self.config.tgtg["max_polling_tries"],
-                polling_wait_time=self.config.tgtg["polling_wait_time"],
-                access_token=self.config.tgtg["access_token"],
-                refresh_token=self.config.tgtg["refresh_token"],
-                user_id=self.config.tgtg["user_id"],
+                email=self.config.tgtg.get("username"),
+                timeout=self.config.tgtg.get("timeout"),
+                access_token_lifetime=self.config.tgtg.get(
+                    "access_token_lifetime"),
+                max_polling_tries=self.config.tgtg.get("max_polling_tries"),
+                polling_wait_time=self.config.tgtg.get("polling_wait_time"),
+                access_token=self.config.tgtg.get("access_token"),
+                refresh_token=self.config.tgtg.get("refresh_token"),
+                user_id=self.config.tgtg.get("user_id"),
             )
             self.tgtg_client.login()
             self.config.save_tokens(
@@ -46,7 +46,8 @@ class Scanner:
             if self.config.metrics:
                 self.metrics.enable_metrics()
             self.notifiers = Notifiers(self.config)
-            if not self.config.disable_tests and self.notifiers.notifier_count > 0:
+            if not self.config.disable_tests and \
+                    self.notifiers.notifier_count > 0:
                 log.info("Sending test Notifications ...")
                 self.notifiers.send(self._get_test_item())
 
@@ -54,17 +55,19 @@ class Scanner:
         """
         Returns an item for test notifications
         """
-        items = sorted(
-            self._get_favorites(), key=lambda x: x.items_available, reverse=True
-        )
+        items = sorted(self._get_favorites(),
+                       key=lambda x: x.items_available,
+                       reverse=True)
         if items:
             return items[0]
         items = sorted(
             [
                 Item(item)
                 for item in self.tgtg_client.get_items(
-                    favorites_only=False, latitude=53.5511, longitude=9.9937, radius=50
-                )
+                    favorites_only=False,
+                    latitude=53.5511,
+                    longitude=9.9937,
+                    radius=50)
             ],
             key=lambda x: x.items_available,
             reverse=True,
@@ -133,9 +136,9 @@ class Scanner:
                 self.metrics.send_notifications.labels(
                     item.item_id, item.display_name
                 ).inc()
-            self.metrics.item_count.labels(item.item_id, item.display_name).set(
-                item.items_available
-            )
+            self.metrics.item_count.labels(item.item_id,
+                                           item.display_name
+                                           ).set(item.items_available)
         except Exception:
             self.amounts[item.item_id] = item.items_available
         finally:

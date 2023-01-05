@@ -1,12 +1,13 @@
 import logging
 from typing import List
+
+from models import Config, Item
 from notifiers.base import Notifier
+from notifiers.ifttt import IFTTT
 from notifiers.push_safer import PushSafer
 from notifiers.smtp import SMTP
-from notifiers.ifttt import IFTTT
-from notifiers.webhook import WebHook
 from notifiers.telegram import Telegram
-from models import Config, Item
+from notifiers.webhook import WebHook
 
 log = logging.getLogger("tgtg")
 

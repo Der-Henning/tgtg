@@ -2,3 +2,11 @@
 altgraph==0.17.3
 pyinstaller==5.7.0
 pyinstaller-hooks-contrib==2022.14
+
+pytest
+pytest-cov
+responses
+autopep8
+ipykernel
+flake8
+pre-commit

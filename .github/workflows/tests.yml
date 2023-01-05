@@ -1,0 +1,28 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  tests:
+    name: Run Tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: ["ubuntu-latest", "windows-latest", "macos-latest"]
+        python: ["3.8", "3.9", "3.10", "3.11"]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest-cov responses pre-commit
+      - name: Run linting
+        run: pre-commit run -a
+      - name: Run tests
+        run: python -m pytest -m "not tgtg_api" --cov src/ --cov-report=xml
+      - uses: codecov/codecov-action@v3

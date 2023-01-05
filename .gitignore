@@ -5,7 +5,12 @@ dist
 .DS_Store
 .venv
 .ipynb_checkpoints
+.coverage
+coverage.xml
+.pytest_cache
 
 .env
 config.ini
 scanner.log
+pytest_tmp
+out.toml

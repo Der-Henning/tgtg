@@ -1,0 +1,68 @@
+name: TGTG API Test
+
+on:
+  schedule:
+    - cron: "0 1 * * *"
+
+jobs:
+  prep-tests:
+    name: Prepare Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest-cov responses
+      - name: Login
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 10
+          max_attempts: 10
+          retry_wait_seconds: 1800
+          command: |
+            python ./src/login.py
+            echo "::add-mask::${{ env.TGTG_ACCESS_TOKEN }}"
+            echo "::add-mask::${{ env.TGTG_REFRESH_TOKEN }}"
+            echo "::add-mask::${{ env.TGTG_USER_ID }}"
+            echo "TGTG_ACCESS_TOKEN=${{ env.TGTG_ACCESS_TOKEN }}" >> $GITHUB_ENV
+            echo "TGTG_REFRESH_TOKEN=${{ env.TGTG_REFRESH_TOKEN }}" >> $GITHUB_ENV
+            echo "TGTG_USER_ID=${{ env.TGTG_USER_ID }}" >> $GITHUB_ENV
+        env:
+          TGTG_USERNAME: ${{ secrets.TGTG_USERNAME }}
+          TGTG_ACCESS_TOKEN: ${{ secrets.TGTG_ACCESS_TOKEN }}
+          TGTG_REFRESH_TOKEN: ${{ secrets.TGTG_REFRESH_TOKEN }}
+          TGTG_USER_ID: ${{ secrets.TGTG_USER_ID }}
+      - name: Run tests
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 10
+          max_attempts: 10
+          retry_wait_seconds: 1800
+          command: python -m pytest -m tgtg_api
+        env:
+          TGTG_USERNAME: ${{ secrets.TGTG_USERNAME }}
+          TGTG_ACCESS_TOKEN: ${{ secrets.TGTG_ACCESS_TOKEN }}
+          TGTG_REFRESH_TOKEN: ${{ secrets.TGTG_REFRESH_TOKEN }}
+          TGTG_USER_ID: ${{ secrets.TGTG_USER_ID }}
+      - uses: Der-Henning/actions-set-secret@v2.1.0
+        with:
+          name: "TGTG_ACCESS_TOKEN"
+          value: ${{ env.TGTG_ACCESS_TOKEN }}
+          repository: ${{ github.repository }}
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+      - uses: Der-Henning/actions-set-secret@v2.1.0
+        with:
+          name: "TGTG_REFRESH_TOKEN"
+          value: ${{ env.TGTG_REFRESH_TOKEN }}
+          repository: ${{ github.repository }}
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+      - uses: Der-Henning/actions-set-secret@v2.1.0
+        with:
+          name: "TGTG_USER_ID"
+          value: ${{ env.TGTG_USER_ID }}
+          repository: ${{ github.repository }}
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
