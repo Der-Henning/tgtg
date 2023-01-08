@@ -346,6 +346,7 @@ class Config():
             self._env_get_boolean("WEBHOOK", "webhook.enabled")
             self._env_get("WEBHOOK_URL", "webhook.url")
             self._env_get("WEBHOOK_METHOD", "webhook.method")
+            self._env_get("WEBHOOK_BODY", "webhook.body")
             self._env_get("WEBHOOK_TYPE", "webhook.type")
             self._env_get_int("WEBHOOK_TIMEOUT", "webhook.timeout")
             self._env_get_cron("WEBHOOK_CRON", "webhook.cron")
