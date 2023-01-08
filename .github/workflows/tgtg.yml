@@ -6,7 +6,7 @@ on:
 
 jobs:
   prep-tests:
-    name: Prepare Tests
+    name: Run Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
