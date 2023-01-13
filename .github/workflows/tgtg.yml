@@ -5,7 +5,7 @@ on:
     - cron: "0 1 * * *"
 
 jobs:
-  prep-tests:
+  test:
     name: Run Test
     runs-on: ubuntu-latest
     steps:
