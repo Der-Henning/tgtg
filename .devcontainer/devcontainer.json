@@ -14,10 +14,10 @@
 			// "NODE_VERSION": "lts/*"
 		}
 	},
-	"runArgs": [
-		"--env-file",
-		".env"
-	],
+	// "runArgs": [
+	// 	"--env-file",
+	// 	".env"
+	// ],
 	// Set *default* container specific settings.json values on container create.
 	"settings": {
 		"python.defaultInterpreterPath": "/usr/local/bin/python",

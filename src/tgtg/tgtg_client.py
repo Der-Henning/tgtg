@@ -1,11 +1,11 @@
 # copied and modified from https://github.com/ahivert/tgtg-python
 
-import datetime
 import json
 import logging
 import random
 import re
 import time
+from datetime import datetime, timedelta
 from http import HTTPStatus
 from typing import List
 from urllib.parse import urljoin
@@ -112,8 +112,11 @@ class TgtgClient:
             "user_id": self.user_id,
         }
 
-    def _post(self, path, retry: int = 0, **kwargs) -> requests.Response:
+    def _post(self, path, login: bool = True, retry: int = 0, **kwargs
+              ) -> requests.Response:
         max_retries = 1
+        if login:
+            self.login()
         response = self.session.post(
             self._get_url(path),
             headers=self._headers,
@@ -129,9 +132,12 @@ class TgtgClient:
         except ValueError as err:
             # Status Code == 403 and no json contend
             # --> Blocked due to rate limit / wrong user_agent.
-            # Get latest APK Version from google and retry
+            # 1. Get latest APK Version from google
+            # 2. Give the current token a 1 hour penalty (faster refresh)
+            # 3. Rety request
             if response.status_code == 403 and retry < max_retries:
                 self.user_agent = self._get_user_agent()
+                self.last_time_token_refreshed -= timedelta(hours=1)
                 return self._post(path, retry=retry + 1, **kwargs)
             self.captcha_error_count += 1
             raise TgtgCaptchaError(response.status_code,
@@ -183,17 +189,18 @@ class TgtgClient:
     def _refresh_token(self) -> None:
         if (
             self.last_time_token_refreshed
-            and (datetime.datetime.now() -
-                 self.last_time_token_refreshed).seconds
+            and (datetime.now() - self.last_time_token_refreshed).seconds
             <= self.access_token_lifetime
         ):
             return
         response = self._post(
-            REFRESH_ENDPOINT, json={"refresh_token": self.refresh_token}
+            REFRESH_ENDPOINT,
+            json={"refresh_token": self.refresh_token},
+            login=False
         )
         self.access_token = response.json()["access_token"]
         self.refresh_token = response.json()["refresh_token"]
-        self.last_time_token_refreshed = datetime.datetime.now()
+        self.last_time_token_refreshed = datetime.now()
 
     def login(self) -> None:
         if not (self.email or
@@ -212,6 +219,7 @@ class TgtgClient:
                     "device_type": self.device_type,
                     "email": self.email,
                 },
+                login=False
             )
             first_login_response = response.json()
             if first_login_response["state"] == "TERMS":
@@ -233,6 +241,7 @@ class TgtgClient:
                     "email": self.email,
                     "request_polling_id": polling_id,
                 },
+                login=False
             )
             if response.status_code == HTTPStatus.ACCEPTED:
                 log.warning(
@@ -247,7 +256,7 @@ class TgtgClient:
                 login_response = response.json()
                 self.access_token = login_response["access_token"]
                 self.refresh_token = login_response["refresh_token"]
-                self.last_time_token_refreshed = datetime.datetime.now()
+                self.last_time_token_refreshed = datetime.now()
                 self.user_id = login_response["startup_data"]["user"][
                     "user_id"]
                 return
@@ -272,8 +281,6 @@ class TgtgClient:
         hidden_only=False,
         we_care_only=False,
     ) -> List[dict]:
-        self.login()
-
         # fields are sorted like in the app
         data = {
             "user_id": self.user_id,
@@ -296,7 +303,6 @@ class TgtgClient:
         return response.json()["items"]
 
     def get_item(self, item_id: str) -> dict:
-        self.login()
         response = self._post(
             f"{API_ITEM_ENDPOINT}/{item_id}",
             json={"user_id": self.user_id, "origin": None},
@@ -304,7 +310,6 @@ class TgtgClient:
         return response.json()
 
     def set_favorite(self, item_id: str, is_favorite: bool) -> None:
-        self.login()
         self._post(
             f"{API_ITEM_ENDPOINT}/{item_id}/setFavorite",
             json={"is_favorite": is_favorite},
@@ -329,10 +334,11 @@ class TgtgClient:
                 "newsletter_opt_in": newsletter_opt_in,
                 "push_notification_opt_in": push_notification_opt_in,
             },
+            login=False
         )
         login_response = response.json()["login_response"]
         self.access_token = login_response["access_token"]
         self.refresh_token = login_response["refresh_token"]
-        self.last_time_token_refreshed = datetime.datetime.now()
+        self.last_time_token_refreshed = datetime.now()
         self.user_id = login_response["startup_data"]["user"]["user_id"]
         return self

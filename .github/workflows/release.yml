@@ -79,30 +79,23 @@ jobs:
         run: |
           pyinstaller scanner.spec
           cp ./src/config.sample.ini ./dist/config.ini
-      - name: Make filename
+      - name: Make filename for archive
         id: filename
-        run: echo "::set-output name=filename::scanner-${{ github.ref_name }}-${{ matrix.tag }}.zip"
-      - name: Zip files
+        shell: bash
+        run: echo "FILENAME=scanner-${{ github.ref_name }}-${{ matrix.tag }}.zip" >> $GITHUB_OUTPUT
+      - name: Zip files (linux/macos)
         if: matrix.tag == 'linux' || matrix.tag == 'macos'
-        run: zip -j ./${{ steps.filename.outputs.filename }} ./dist/*
-      - name: Zip files
+        run: zip -j ./${{ steps.filename.outputs.FILENAME }} ./dist/*
+      - name: Zip files (win)
         if: matrix.tag == 'win'
-        run: Compress-Archive ./dist/* ./${{ steps.filename.outputs.filename }}
-      - uses: actions/upload-artifact@v3
+        run: Compress-Archive ./dist/* ./${{ steps.filename.outputs.FILENAME }}
+      - name: Upload archive
+        uses: actions/upload-artifact@v3
         with:
           name: releases
-          path: ./${{ steps.filename.outputs.filename }}
-      - uses: bruceadams/get-release@v1.2.3
+          path: ./${{ steps.filename.outputs.FILENAME }}
+      - name: Add archive to release
+        uses: softprops/action-gh-release@v1
         if: github.ref_type == 'tag'
-        id: get_release
-        env:
-          GITHUB_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }}
-      - uses: actions/upload-release-asset@v1
-        if: github.ref_type == 'tag'
-        env:
-          GITHUB_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }}
         with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./${{ steps.filename.outputs.filename }}
-          asset_name: ${{ steps.filename.outputs.filename }}
-          asset_content_type: application/zip
+          files: ./${{ steps.filename.outputs.FILENAME }}
