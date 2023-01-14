@@ -5,7 +5,7 @@ import logging
 import random
 import re
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from http import HTTPStatus
 from typing import List
 from urllib.parse import urljoin
@@ -43,6 +43,23 @@ APK_RE_SCRIPT = re.compile(
 )
 
 
+class TgtgSession(requests.Session):
+    http_adapter = HTTPAdapter(
+        max_retries=Retry(
+            total=5,
+            status_forcelist=[429, 500, 502, 503, 504],
+            allowed_methods=["GET", "POST"],
+            backoff_factor=1,
+        )
+    )
+
+    def __init__(self, headers: dict = {}) -> None:
+        super().__init__()
+        self.mount("https://", self.http_adapter)
+        self.mount("http://", self.http_adapter)
+        self.headers = headers
+
+
 class TgtgClient:
     def __init__(
         self,
@@ -78,18 +95,7 @@ class TgtgClient:
         self.language = language
         self.proxies = proxies
         self.timeout = timeout
-        self.http_adapter = HTTPAdapter(
-            max_retries=Retry(
-                total=5,
-                status_forcelist=[429, 500, 502, 503, 504],
-                allowed_methods=["GET", "POST"],
-                backoff_factor=1,
-            )
-        )
-        self.session = requests.Session()
-        self.session.mount("https://", self.http_adapter)
-        self.session.mount("http://", self.http_adapter)
-        self.session.headers = self._headers
+        self.session = TgtgSession(self._headers)
 
         self.captcha_error_count = 0
 
@@ -133,11 +139,11 @@ class TgtgClient:
             # Status Code == 403 and no json contend
             # --> Blocked due to rate limit / wrong user_agent.
             # 1. Get latest APK Version from google
-            # 2. Give the current token a 1 hour penalty (faster refresh)
+            # 2. Reset current session
             # 3. Rety request
             if response.status_code == 403 and retry < max_retries:
                 self.user_agent = self._get_user_agent()
-                self.last_time_token_refreshed -= timedelta(hours=1)
+                self.session = TgtgSession(self._headers)
                 return self._post(path, retry=retry + 1, **kwargs)
             self.captcha_error_count += 1
             raise TgtgCaptchaError(response.status_code,
