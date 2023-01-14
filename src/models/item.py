@@ -6,7 +6,7 @@ from models.errors import MaskConfigurationError
 ATTRS = ["item_id", "items_available", "display_name", "description",
          "price", "currency", "pickupdate", "favorite", "rating",
          "buffet", "item_category", "item_name", "packaging_option",
-         "pickup_location", "store_name"]
+         "pickup_location", "store_name", "store_picture"]
 
 
 class Item():
@@ -44,6 +44,7 @@ class Item():
 
         store = data.get("store", {})
         self.store_name = store.get("name", "-")
+        self.store_picture = store.get("logo_picture", {}).get("current_url", "-")
 
     @staticmethod
     def _datetimeparse(datestr: str) -> datetime.datetime:
