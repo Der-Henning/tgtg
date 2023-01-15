@@ -53,11 +53,21 @@ class TgtgSession(requests.Session):
         )
     )
 
-    def __init__(self, headers: dict = {}) -> None:
-        super().__init__()
+    def __init__(self, headers: dict = {}, timeout: int = None,
+                 proxies: dict = None, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         self.mount("https://", self.http_adapter)
         self.mount("http://", self.http_adapter)
         self.headers = headers
+        self.timeout = timeout
+        self.proxies = proxies
+
+    def send(self, request, **kwargs):
+        for key in ["timeout", "proxies"]:
+            val = kwargs.get(key)
+            if val is None and hasattr(self, key):
+                kwargs[key] = getattr(self, key)
+        return super().send(request, **kwargs)
 
 
 class TgtgClient:
@@ -95,7 +105,7 @@ class TgtgClient:
         self.language = language
         self.proxies = proxies
         self.timeout = timeout
-        self.session = TgtgSession(self._headers)
+        self.session = self._create_session()
 
         self.captcha_error_count = 0
 
@@ -104,6 +114,11 @@ class TgtgClient:
 
     def _get_url(self, path) -> str:
         return urljoin(self.base_url, path)
+
+    def _create_session(self) -> TgtgSession:
+        return TgtgSession(self._headers,
+                           self.timeout,
+                           self.proxies)
 
     def get_credentials(self) -> dict:
         """Returns current tgtg api credentials.
@@ -118,16 +133,12 @@ class TgtgClient:
             "user_id": self.user_id,
         }
 
-    def _post(self, path, login: bool = True, retry: int = 0, **kwargs
+    def _post(self, path, retry: int = 0, **kwargs
               ) -> requests.Response:
         max_retries = 1
-        if login:
-            self.login()
         response = self.session.post(
             self._get_url(path),
             headers=self._headers,
-            proxies=self.proxies,
-            timeout=self.timeout,
             **kwargs,
         )
         if response.status_code in (HTTPStatus.OK, HTTPStatus.ACCEPTED):
@@ -143,7 +154,7 @@ class TgtgClient:
             # 3. Rety request
             if response.status_code == 403 and retry < max_retries:
                 self.user_agent = self._get_user_agent()
-                self.session = TgtgSession(self._headers)
+                self.session = self._create_session()
                 return self._post(path, retry=retry + 1, **kwargs)
             self.captcha_error_count += 1
             raise TgtgCaptchaError(response.status_code,
@@ -201,8 +212,7 @@ class TgtgClient:
             return
         response = self._post(
             REFRESH_ENDPOINT,
-            json={"refresh_token": self.refresh_token},
-            login=False
+            json={"refresh_token": self.refresh_token}
         )
         self.access_token = response.json()["access_token"]
         self.refresh_token = response.json()["refresh_token"]
@@ -224,8 +234,7 @@ class TgtgClient:
                 json={
                     "device_type": self.device_type,
                     "email": self.email,
-                },
-                login=False
+                }
             )
             first_login_response = response.json()
             if first_login_response["state"] == "TERMS":
@@ -246,8 +255,7 @@ class TgtgClient:
                     "device_type": self.device_type,
                     "email": self.email,
                     "request_polling_id": polling_id,
-                },
-                login=False
+                }
             )
             if response.status_code == HTTPStatus.ACCEPTED:
                 log.warning(
@@ -287,6 +295,7 @@ class TgtgClient:
         hidden_only=False,
         we_care_only=False,
     ) -> List[dict]:
+        self.login()
         # fields are sorted like in the app
         data = {
             "user_id": self.user_id,
@@ -309,6 +318,7 @@ class TgtgClient:
         return response.json()["items"]
 
     def get_item(self, item_id: str) -> dict:
+        self.login()
         response = self._post(
             f"{API_ITEM_ENDPOINT}/{item_id}",
             json={"user_id": self.user_id, "origin": None},
@@ -316,6 +326,7 @@ class TgtgClient:
         return response.json()
 
     def set_favorite(self, item_id: str, is_favorite: bool) -> None:
+        self.login()
         self._post(
             f"{API_ITEM_ENDPOINT}/{item_id}/setFavorite",
             json={"is_favorite": is_favorite},
@@ -339,8 +350,7 @@ class TgtgClient:
                 "name": name,
                 "newsletter_opt_in": newsletter_opt_in,
                 "push_notification_opt_in": push_notification_opt_in,
-            },
-            login=False
+            }
         )
         login_response = response.json()["login_response"]
         self.access_token = login_response["access_token"]
