@@ -14,9 +14,8 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
-from models.errors import (TgtgAPIError, TgtgCaptchaError,
-                           TGTGConfigurationError, TgtgLoginError,
-                           TgtgPollingError)
+from models.errors import (TgtgAPIError, TGTGConfigurationError,
+                           TgtgLoginError, TgtgPollingError)
 
 log = logging.getLogger("tgtg")
 BASE_URL = "https://apptoogoodtogo.com/api/"
@@ -133,9 +132,7 @@ class TgtgClient:
             "user_id": self.user_id,
         }
 
-    def _post(self, path, retry: int = 0, **kwargs
-              ) -> requests.Response:
-        max_retries = 1
+    def _post(self, path, **kwargs) -> requests.Response:
         response = self.session.post(
             self._get_url(path),
             headers=self._headers,
@@ -146,19 +143,26 @@ class TgtgClient:
             return response
         try:
             response.json()
-        except ValueError as err:
+        except ValueError:
             # Status Code == 403 and no json contend
             # --> Blocked due to rate limit / wrong user_agent.
             # 1. Get latest APK Version from google
             # 2. Reset current session
-            # 3. Rety request
-            if response.status_code == 403 and retry < max_retries:
+            # 3. Sleep 10 seconds, after 10 errors sleep 1 hour
+            # 4. Rety request
+            if response.status_code == 403:
+                log.warning("Captcha Error 403!")
+                self.captcha_error_count += 1
+                if self.captcha_error_count > 10:
+                    log.warning(
+                        "Too many captcha Errors! Sleeping for 1 hour...")
+                    time.sleep(60 * 60)
+                    log.info("Retrying ...")
+                    self.captcha_error_count = 0
                 self.user_agent = self._get_user_agent()
                 self.session = self._create_session()
-                return self._post(path, retry=retry + 1, **kwargs)
-            self.captcha_error_count += 1
-            raise TgtgCaptchaError(response.status_code,
-                                   response.content) from err
+                time.sleep(10)
+                return self._post(path, **kwargs)
         raise TgtgAPIError(response.status_code, response.content)
 
     def _get_user_agent(self) -> str:
