@@ -172,13 +172,13 @@ class TgtgClient:
                 self.captcha_error_count += 1
                 if self.captcha_error_count > 10:
                     log.warning(
-                        "Too many captcha Errors! Sleeping for 1 hour...")
-                    time.sleep(60 * 60)
+                        "Too many captcha Errors! Sleeping for 10 minutes...")
+                    time.sleep(10 * 60)
                     log.info("Retrying ...")
                     self.captcha_error_count = 0
-                self.user_agent = self._get_user_agent()
-                self.session = self._create_session()
-                time.sleep(10)
+                    self.user_agent = self._get_user_agent()
+                    self.session = self._create_session()
+                time.sleep(1)
                 return self._post(path, **kwargs)
         raise TgtgAPIError(response.status_code, response.content)
 
