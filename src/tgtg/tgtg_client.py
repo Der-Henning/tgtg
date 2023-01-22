@@ -1,5 +1,6 @@
 # copied and modified from https://github.com/ahivert/tgtg-python
 
+import http.client as http_client
 import json
 import logging
 import random
@@ -17,6 +18,7 @@ from urllib3.util import Retry
 from models.errors import (TgtgAPIError, TGTGConfigurationError,
                            TgtgLoginError, TgtgPollingError)
 
+http_client.HTTPConnection.debuglevel = 1
 log = logging.getLogger("tgtg")
 BASE_URL = "https://apptoogoodtogo.com/api/"
 API_ITEM_ENDPOINT = "item/v7/"
@@ -52,14 +54,28 @@ class TgtgSession(requests.Session):
         )
     )
 
-    def __init__(self, headers: dict = {}, timeout: int = None,
-                 proxies: dict = None, *args, **kwargs) -> None:
+    def __init__(self, user_agent: str = None, language: str = "en-UK",
+                 timeout: int = None, proxies: dict = None,
+                 *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.mount("https://", self.http_adapter)
         self.mount("http://", self.http_adapter)
-        self.headers = headers
+        self.headers = {
+            "user-agent": user_agent,
+            "accept-language": language,
+            "Accept-Encoding": "gzip",
+        }
         self.timeout = timeout
         self.proxies = proxies
+
+    def post(self, url: str, access_token: str = None, **kwargs
+             ) -> requests.Response:
+        headers = kwargs.get("headers")
+        if headers is None and getattr(self, "headers"):
+            kwargs["headers"] = getattr(self, "headers")
+            if access_token:
+                kwargs["headers"]["authorization"] = f"Bearer {access_token}"
+        return super().post(url, **kwargs)
 
     def send(self, request, **kwargs):
         for key in ["timeout", "proxies"]:
@@ -115,7 +131,8 @@ class TgtgClient:
         return urljoin(self.base_url, path)
 
     def _create_session(self) -> TgtgSession:
-        return TgtgSession(self._headers,
+        return TgtgSession(self.user_agent,
+                           self.language,
                            self.timeout,
                            self.proxies)
 
@@ -135,7 +152,7 @@ class TgtgClient:
     def _post(self, path, **kwargs) -> requests.Response:
         response = self.session.post(
             self._get_url(path),
-            headers=self._headers,
+            access_token=self.access_token,
             **kwargs,
         )
         if response.status_code in (HTTPStatus.OK, HTTPStatus.ACCEPTED):
@@ -191,17 +208,6 @@ class TgtgClient:
         match = APK_RE_SCRIPT.search(response.text)
         data = json.loads(match.group(1))
         return data[1][2][140][0][0][0]
-
-    @property
-    def _headers(self) -> dict:
-        headers = {
-            "user-agent": self.user_agent,
-            "accept-language": self.language,
-            "Accept-Encoding": "gzip",
-        }
-        if self.access_token:
-            headers["authorization"] = f"Bearer {self.access_token}"
-        return headers
 
     @property
     def _already_logged(self) -> bool:
