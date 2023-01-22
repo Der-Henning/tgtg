@@ -1,5 +1,6 @@
 # copied and modified from https://github.com/ahivert/tgtg-python
 
+import http.client as http_client
 import json
 import logging
 import random
@@ -14,10 +15,10 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
-from models.errors import (TgtgAPIError, TgtgCaptchaError,
-                           TGTGConfigurationError, TgtgLoginError,
-                           TgtgPollingError)
+from models.errors import (TgtgAPIError, TGTGConfigurationError,
+                           TgtgLoginError, TgtgPollingError)
 
+http_client.HTTPConnection.debuglevel = 0
 log = logging.getLogger("tgtg")
 BASE_URL = "https://apptoogoodtogo.com/api/"
 API_ITEM_ENDPOINT = "item/v7/"
@@ -53,14 +54,28 @@ class TgtgSession(requests.Session):
         )
     )
 
-    def __init__(self, headers: dict = {}, timeout: int = None,
-                 proxies: dict = None, *args, **kwargs) -> None:
+    def __init__(self, user_agent: str = None, language: str = "en-UK",
+                 timeout: int = None, proxies: dict = None,
+                 *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.mount("https://", self.http_adapter)
         self.mount("http://", self.http_adapter)
-        self.headers = headers
+        self.headers = {
+            "user-agent": user_agent,
+            "accept-language": language,
+            "Accept-Encoding": "gzip",
+        }
         self.timeout = timeout
         self.proxies = proxies
+
+    def post(self, url: str, access_token: str = None, **kwargs
+             ) -> requests.Response:
+        headers = kwargs.get("headers")
+        if headers is None and getattr(self, "headers"):
+            kwargs["headers"] = getattr(self, "headers")
+            if access_token:
+                kwargs["headers"]["authorization"] = f"Bearer {access_token}"
+        return super().post(url, **kwargs)
 
     def send(self, request, **kwargs):
         for key in ["timeout", "proxies"]:
@@ -116,7 +131,8 @@ class TgtgClient:
         return urljoin(self.base_url, path)
 
     def _create_session(self) -> TgtgSession:
-        return TgtgSession(self._headers,
+        return TgtgSession(self.user_agent,
+                           self.language,
                            self.timeout,
                            self.proxies)
 
@@ -133,12 +149,10 @@ class TgtgClient:
             "user_id": self.user_id,
         }
 
-    def _post(self, path, retry: int = 0, **kwargs
-              ) -> requests.Response:
-        max_retries = 1
+    def _post(self, path, **kwargs) -> requests.Response:
         response = self.session.post(
             self._get_url(path),
-            headers=self._headers,
+            access_token=self.access_token,
             **kwargs,
         )
         if response.status_code in (HTTPStatus.OK, HTTPStatus.ACCEPTED):
@@ -146,19 +160,26 @@ class TgtgClient:
             return response
         try:
             response.json()
-        except ValueError as err:
+        except ValueError:
             # Status Code == 403 and no json contend
             # --> Blocked due to rate limit / wrong user_agent.
             # 1. Get latest APK Version from google
             # 2. Reset current session
-            # 3. Rety request
-            if response.status_code == 403 and retry < max_retries:
-                self.user_agent = self._get_user_agent()
-                self.session = self._create_session()
-                return self._post(path, retry=retry + 1, **kwargs)
-            self.captcha_error_count += 1
-            raise TgtgCaptchaError(response.status_code,
-                                   response.content) from err
+            # 3. Sleep 10 seconds, after 10 errors sleep 1 hour
+            # 4. Rety request
+            if response.status_code == 403:
+                log.warning("Captcha Error 403!")
+                self.captcha_error_count += 1
+                if self.captcha_error_count > 10:
+                    log.warning(
+                        "Too many captcha Errors! Sleeping for 10 minutes...")
+                    time.sleep(10 * 60)
+                    log.info("Retrying ...")
+                    self.captcha_error_count = 0
+                    self.user_agent = self._get_user_agent()
+                    self.session = self._create_session()
+                time.sleep(1)
+                return self._post(path, **kwargs)
         raise TgtgAPIError(response.status_code, response.content)
 
     def _get_user_agent(self) -> str:
@@ -187,17 +208,6 @@ class TgtgClient:
         match = APK_RE_SCRIPT.search(response.text)
         data = json.loads(match.group(1))
         return data[1][2][140][0][0][0]
-
-    @property
-    def _headers(self) -> dict:
-        headers = {
-            "user-agent": self.user_agent,
-            "accept-language": self.language,
-            "Accept-Encoding": "gzip",
-        }
-        if self.access_token:
-            headers["authorization"] = f"Bearer {self.access_token}"
-        return headers
 
     @property
     def _already_logged(self) -> bool:

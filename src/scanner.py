@@ -173,12 +173,6 @@ class Scanner:
                     running = True
                 try:
                     self._job()
-                    if self.tgtg_client.captcha_error_count > 10:
-                        log.warning(
-                            "Too many 403 Errors. Sleeping for 1 hour.")
-                        sleep(60 * 60)
-                        log.info("Continuing scanning.")
-                        self.tgtg_client.captcha_error_count = 0
                 except Exception:
                     log.error("Job Error! - %s", sys.exc_info())
             elif running:
