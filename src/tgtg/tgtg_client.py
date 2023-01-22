@@ -18,7 +18,7 @@ from urllib3.util import Retry
 from models.errors import (TgtgAPIError, TGTGConfigurationError,
                            TgtgLoginError, TgtgPollingError)
 
-http_client.HTTPConnection.debuglevel = 1
+http_client.HTTPConnection.debuglevel = 0
 log = logging.getLogger("tgtg")
 BASE_URL = "https://apptoogoodtogo.com/api/"
 API_ITEM_ENDPOINT = "item/v7/"
