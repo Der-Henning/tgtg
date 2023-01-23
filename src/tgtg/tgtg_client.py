@@ -18,6 +18,7 @@ from urllib3.util import Retry
 from models.errors import (TgtgAPIError, TGTGConfigurationError,
                            TgtgLoginError, TgtgPollingError)
 
+# set to 1 to debug http headers
 http_client.HTTPConnection.debuglevel = 0
 log = logging.getLogger("tgtg")
 BASE_URL = "https://apptoogoodtogo.com/api/"
@@ -73,8 +74,8 @@ class TgtgSession(requests.Session):
         headers = kwargs.get("headers")
         if headers is None and getattr(self, "headers"):
             kwargs["headers"] = getattr(self, "headers")
-            if access_token:
-                kwargs["headers"]["authorization"] = f"Bearer {access_token}"
+        if "headers" in kwargs and access_token:
+            kwargs["headers"]["authorization"] = f"Bearer {access_token}"
         return super().post(url, **kwargs)
 
     def send(self, request, **kwargs):
@@ -116,21 +117,24 @@ class TgtgClient:
 
         self.device_type = device_type
         self.fixed_user_agent = user_agent
-        self.user_agent = self._get_user_agent()
+        self.user_agent = user_agent
         self.language = language
         self.proxies = proxies
         self.timeout = timeout
-        self.session = self._create_session()
+        self.session = None
 
         self.captcha_error_count = 0
 
     def __del__(self) -> None:
-        self.session.close()
+        if self.session:
+            self.session.close()
 
     def _get_url(self, path) -> str:
         return urljoin(self.base_url, path)
 
     def _create_session(self) -> TgtgSession:
+        if not self.user_agent:
+            self.user_agent = self._get_user_agent()
         return TgtgSession(self.user_agent,
                            self.language,
                            self.timeout,
@@ -144,12 +148,15 @@ class TgtgClient:
         """
         self.login()
         return {
+            "email": self.email,
             "access_token": self.access_token,
             "refresh_token": self.refresh_token,
             "user_id": self.user_id,
         }
 
     def _post(self, path, **kwargs) -> requests.Response:
+        if not self.session:
+            self.session = self._create_session()
         response = self.session.post(
             self._get_url(path),
             access_token=self.access_token,
@@ -227,8 +234,8 @@ class TgtgClient:
             REFRESH_ENDPOINT,
             json={"refresh_token": self.refresh_token}
         )
-        self.access_token = response.json()["access_token"]
-        self.refresh_token = response.json()["refresh_token"]
+        self.access_token = response.json().get("access_token")
+        self.refresh_token = response.json().get("refresh_token")
         self.last_time_token_refreshed = datetime.now()
 
     def login(self) -> None:
@@ -242,6 +249,7 @@ class TgtgClient:
         if self._already_logged:
             self._refresh_token()
         else:
+            log.info("Starting login process ...")
             response = self._post(
                 AUTH_BY_EMAIL_ENDPOINT,
                 json={
@@ -255,8 +263,8 @@ class TgtgClient:
                     f"This email {self.email} is not linked to a tgtg "
                     "account. Please signup with this email first."
                 )
-            if first_login_response["state"] == "WAIT":
-                self.start_polling(first_login_response["polling_id"])
+            if first_login_response.get("state") == "WAIT":
+                self.start_polling(first_login_response.get("polling_id"))
             else:
                 raise TgtgLoginError(response.status_code, response.content)
 
@@ -281,11 +289,11 @@ class TgtgClient:
             if response.status_code == HTTPStatus.OK:
                 log.info("Logged in!")
                 login_response = response.json()
-                self.access_token = login_response["access_token"]
-                self.refresh_token = login_response["refresh_token"]
+                self.access_token = login_response.get("access_token")
+                self.refresh_token = login_response.get("refresh_token")
                 self.last_time_token_refreshed = datetime.now()
-                self.user_id = login_response["startup_data"]["user"][
-                    "user_id"]
+                self.user_id = login_response.get(
+                    "startup_data", {}).get("user", {}).get("user_id")
                 return
         raise TgtgPollingError("Max polling retries reached. Try again.")
 
@@ -328,7 +336,7 @@ class TgtgClient:
             "we_care_only": we_care_only,
         }
         response = self._post(API_ITEM_ENDPOINT, json=data)
-        return response.json()["items"]
+        return response.json().get("items", [])
 
     def get_item(self, item_id: str) -> dict:
         self.login()
@@ -365,9 +373,10 @@ class TgtgClient:
                 "push_notification_opt_in": push_notification_opt_in,
             }
         )
-        login_response = response.json()["login_response"]
-        self.access_token = login_response["access_token"]
-        self.refresh_token = login_response["refresh_token"]
+        login_response = response.json().get("login_response", {})
+        self.access_token = login_response.get("access_token")
+        self.refresh_token = login_response.get("refresh_token")
         self.last_time_token_refreshed = datetime.now()
-        self.user_id = login_response["startup_data"]["user"]["user_id"]
+        self.user_id = login_response.get(
+            "startup_data", {}).get("user", {}).get("user_id")
         return self
