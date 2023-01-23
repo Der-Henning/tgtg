@@ -52,7 +52,7 @@ services:
       - IFTTT_BODY=                                   ## IFTTT json data body
                                                       ## Default: {"value1": "$${{display_name}}", "value2": $${{items_available}}, "value3": "https://share.toogoodtogo.com/item/$${{item_id}}"}
 
-      ## Possible $${{variable}} variables: item_id, items_available, display_name, price, currency, pickupdate, store_picture
+      ## Possible $${{variable}} variables: item_id, items_available, display_name, price, currency, pickupdate, item_logo, item_cover
       ## Link to item in App: https://share.toogoodtogo.com/item/${{item_id}}
       ## Example:
    ## - 'WEBHOOK_BODY={"message": "$${{display_name}} - New Amount: $${{items_available}}", "priority": 2, "title": "New TGTG Items"}'
