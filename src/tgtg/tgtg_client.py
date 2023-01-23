@@ -169,7 +169,7 @@ class TgtgClient:
             # 4. Rety request
             if response.status_code == 403:
                 log.debug("Captcha Error 403!")
-                if self.captcha_error_count == 0:
+                if self.captcha_error_count == 1:
                     self.user_agent = self._get_user_agent()
                     self.session = self._create_session()
                 self.captcha_error_count += 1
