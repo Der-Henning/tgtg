@@ -10,7 +10,6 @@ import requests
 from packaging import version
 
 from _version import __author__, __url__, __version__
-from helper import Helper
 from models import Config
 from models.errors import ConfigurationError, TgtgAPIError
 from scanner import Scanner
@@ -126,44 +125,44 @@ def main() -> NoReturn:
             logger.setLevel(logging.DEBUG)
         log.info("Debugging mode enabled")
 
+    scanner = Scanner(config)
     if args.tokens:
-        credentials = Helper(config).get_credentials()
+        credentials = scanner.get_credentials()
         print("")
         print("Your TGTG credentials:")
-        print("Access Token: ", credentials["access_token"])
-        print("Refresh Token:", credentials["refresh_token"])
-        print("User ID:      ", credentials["user_id"])
+        print("Email:        ", credentials.get("email"))
+        print("Access Token: ", credentials.get("access_token"))
+        print("Refresh Token:", credentials.get("refresh_token"))
+        print("User ID:      ", credentials.get("user_id"))
         print("")
     elif args.favorites:
-        favorites = Helper(config).get_favorites()
+        favorites = scanner.get_favorites()
         print("")
         print("Your favorites:")
         print(json.dumps(favorites, sort_keys=True, indent=4))
         print("")
     elif args.favorite_ids:
-        favorites = Helper(config).get_favorites()
-        item_ids = [fav["item"]["item_id"] for fav in favorites]
+        favorites = scanner.get_favorites()
+        item_ids = [fav.get("item", {}).get("item_id") for fav in favorites]
         print("")
         print("Item IDs:")
         print(" ".join(item_ids))
         print("")
     elif args.add is not None:
-        helper = Helper(config)
         for item_id in args.add:
-            helper.set_favorite(item_id)
+            scanner.set_favorite(item_id)
         print("done.")
     elif args.remove is not None:
-        helper = Helper(config)
         for item_id in args.remove:
-            helper.unset_favorite(item_id)
+            scanner.unset_favorite(item_id)
         print("done.")
     elif args.remove_all:
         if query_yes_no("Remove all favorites from your account?",
                         default='no'):
-            Helper(config).unset_all_favorites()
+            scanner.unset_all_favorites()
             print("done.")
     else:
-        _start_scanner(config)
+        _run_scanner(scanner)
 
 
 def _get_version_info() -> str:
@@ -171,15 +170,14 @@ def _get_version_info() -> str:
     if lastest_release is None:
         return __version__
     return (f"{__version__} - Update available! "
-            f"See {lastest_release['html_url']}")
+            f"See {lastest_release.get('html_url')}")
 
 
-def _start_scanner(config: Config) -> NoReturn:
+def _run_scanner(scanner: Scanner) -> NoReturn:
     log = logging.getLogger("tgtg")
     try:
         _print_welcome_message()
         _print_version_check()
-        scanner = Scanner(config)
         scanner.run()
     except ConfigurationError as err:
         log.error("Configuration Error: %s", err)
@@ -198,7 +196,8 @@ def _get_new_version() -> str:
     res = requests.get(VERSION_URL, timeout=60)
     res.raise_for_status()
     lastest_release = res.json()
-    if version.parse(__version__) < version.parse(lastest_release["tag_name"]):
+    if version.parse(__version__) < version.parse(
+            lastest_release.get("tag_name")):
         return lastest_release
     return None
 
@@ -210,9 +209,9 @@ def _print_version_check() -> None:
         if lastest_release is not None:
             log.info(
                 "New Version %s available!", version.parse(
-                    lastest_release["tag_name"])
+                    lastest_release.get("tag_name"))
             )
-            log.info("Please visit %s", lastest_release["html_url"])
+            log.info("Please visit %s", lastest_release.get("html_url"))
             log.info("")
     except (
         requests.exceptions.RequestException,

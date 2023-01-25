@@ -2,10 +2,9 @@ import logging
 import sys
 from random import random
 from time import sleep
-from typing import NoReturn
+from typing import List, NoReturn
 
 from models import Config, Item, Metrics
-from models.errors import Error, TgtgAPIError, TGTGConfigurationError
 from notifiers import Notifiers
 from tgtg import TgtgClient
 
@@ -13,43 +12,24 @@ log = logging.getLogger("tgtg")
 
 
 class Scanner:
-    def __init__(self, config: Config, disable_notifiers: bool = False):
+    def __init__(self, config: Config):
         self.config = config
         self.metrics = Metrics(self.config.metrics_port)
         self.item_ids = self.config.item_ids
         self.cron = self.config.schedule_cron
         self.amounts = {}
-        try:
-            self.tgtg_client = TgtgClient(
-                email=self.config.tgtg.get("username"),
-                timeout=self.config.tgtg.get("timeout"),
-                access_token_lifetime=self.config.tgtg.get(
-                    "access_token_lifetime"),
-                max_polling_tries=self.config.tgtg.get("max_polling_tries"),
-                polling_wait_time=self.config.tgtg.get("polling_wait_time"),
-                access_token=self.config.tgtg.get("access_token"),
-                refresh_token=self.config.tgtg.get("refresh_token"),
-                user_id=self.config.tgtg.get("user_id"),
-            )
-            self.tgtg_client.login()
-            self.config.save_tokens(
-                self.tgtg_client.access_token,
-                self.tgtg_client.refresh_token,
-                self.tgtg_client.user_id,
-            )
-        except TgtgAPIError as err:
-            raise err
-        except Error as err:
-            log.error(err)
-            raise TGTGConfigurationError() from err
-        if not disable_notifiers:
-            if self.config.metrics:
-                self.metrics.enable_metrics()
-            self.notifiers = Notifiers(self.config)
-            if not self.config.disable_tests and \
-                    self.notifiers.notifier_count > 0:
-                log.info("Sending test Notifications ...")
-                self.notifiers.send(self._get_test_item())
+        self.notifiers = None
+        self.tgtg_client = TgtgClient(
+            email=self.config.tgtg.get("username"),
+            timeout=self.config.tgtg.get("timeout"),
+            access_token_lifetime=self.config.tgtg.get(
+                "access_token_lifetime"),
+            max_polling_tries=self.config.tgtg.get("max_polling_tries"),
+            polling_wait_time=self.config.tgtg.get("polling_wait_time"),
+            access_token=self.config.tgtg.get("access_token"),
+            refresh_token=self.config.tgtg.get("refresh_token"),
+            user_id=self.config.tgtg.get("user_id"),
+        )
 
     def _get_test_item(self) -> Item:
         """
@@ -162,6 +142,22 @@ class Scanner:
         """
         Main Loop of the Scanner
         """
+        # activate and test notifiers
+        if self.config.metrics:
+            self.metrics.enable_metrics()
+        self.notifiers = Notifiers(self.config)
+        if not self.config.disable_tests and \
+                self.notifiers.notifier_count > 0:
+            log.info("Sending test Notifications ...")
+            self.notifiers.send(self._get_test_item())
+        # test tgtg API
+        self.tgtg_client.login()
+        self.config.save_tokens(
+            self.tgtg_client.access_token,
+            self.tgtg_client.refresh_token,
+            self.tgtg_client.user_id,
+        )
+        # start scanner
         log.info("Scanner started ...")
         running = True
         if self.cron.cron != "* * * * *":
@@ -184,8 +180,78 @@ class Scanner:
         """
         Cleanup on shutdown
         """
-        if hasattr(self, "notifiers"):
+        if self.notifiers:
             self.notifiers.stop()
+
+    def get_credentials(self) -> dict:
+        """Returns current tgtg credentials.
+
+        Returns:
+            dict: dictionary containing access token, refresh token and user id
+        """
+        return self.tgtg_client.get_credentials()
+
+    def get_items(self, lat, lng, radius) -> List[dict]:
+        """Get items by geographic position.
+
+        Args:
+            lat (float): latitude
+            lng (float): longitude
+            radius (int): radius in meter
+
+        Returns:
+            List: List of found items
+        """
+        return self.tgtg_client.get_items(
+            favorites_only=False,
+            latitude=lat,
+            longitude=lng,
+            radius=radius,
+        )
+
+    def get_favorites(self) -> List[dict]:
+        """Returns favorites of the current tgtg account
+
+        Returns:
+            List: List of items
+        """
+        items = []
+        page = 1
+        page_size = 100
+        while True:
+            new_items = self.tgtg_client.get_items(
+                favorites_only=True,
+                page_size=page_size,
+                page=page
+            )
+            items += new_items
+            if len(new_items) < page_size:
+                break
+            page += 1
+        return items
+
+    def set_favorite(self, item_id: str) -> None:
+        """Add item to favorites.
+
+        Args:
+            item_id (str): Item ID
+        """
+        self.tgtg_client.set_favorite(item_id=item_id, is_favorite=True)
+
+    def unset_favorite(self, item_id: str) -> None:
+        """Remove item from favorites.
+
+        Args:
+            item_id (str): Item ID
+        """
+        self.tgtg_client.set_favorite(item_id=item_id, is_favorite=False)
+
+    def unset_all_favorites(self) -> None:
+        """Remove all items from favorites."""
+        item_ids = [item.get("item", {}).get("item_id")
+                    for item in self.get_favorites()]
+        for item_id in item_ids:
+            self.unset_favorite(item_id)
 
 
 if __name__ == "__main__":
