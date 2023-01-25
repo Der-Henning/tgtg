@@ -29,6 +29,7 @@ class Scanner:
             access_token=self.config.tgtg.get("access_token"),
             refresh_token=self.config.tgtg.get("refresh_token"),
             user_id=self.config.tgtg.get("user_id"),
+            datadome_cookie=self.config.tgtg.get("datadome")
         )
 
     def _get_test_item(self) -> Item:
@@ -77,6 +78,7 @@ class Scanner:
             self.tgtg_client.access_token,
             self.tgtg_client.refresh_token,
             self.tgtg_client.user_id,
+            self.tgtg_client.datadome_cookie
         )
 
     def _get_favorites(self) -> list[Item]:
@@ -156,6 +158,7 @@ class Scanner:
             self.tgtg_client.access_token,
             self.tgtg_client.refresh_token,
             self.tgtg_client.user_id,
+            self.tgtg_client.datadome_cookie
         )
         # start scanner
         log.info("Scanner started ...")
