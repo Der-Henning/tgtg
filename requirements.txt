@@ -6,7 +6,7 @@ colorlog==6.7.0
 cron-descriptor==1.2.32
 idna==3.4
 packaging==23.0
-prometheus-client==0.15.0
+prometheus-client==0.16.0
 pycron==3.0.0
 python-pushsafer==1.0
 python-telegram-bot==13.15
