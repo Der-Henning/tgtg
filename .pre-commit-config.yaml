@@ -1,0 +1,29 @@
+exclude: (build|dist)
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+    - id: trailing-whitespace
+    - id: end-of-file-fixer
+    - id: check-yaml
+    - id: check-added-large-files
+  - repo: https://github.com/pre-commit/mirrors-autopep8
+    rev: v2.0.1
+    hooks:
+      - id: autopep8
+        files: ^(src|tests)/
+        args:
+          - --in-place
+          - --max-line-length=79
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.11.4
+    hooks:
+      - id: isort
+        files: ^(src|tests)/
+  - repo: https://github.com/PyCQA/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8
+        files: ^(src|tests)/
+        args:
+          - --max-line-length=79

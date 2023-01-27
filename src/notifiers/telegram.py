@@ -1,13 +1,15 @@
-import logging
-from time import sleep
-import random
 import datetime
-from telegram import Update, ParseMode
-from telegram.error import TelegramError, NetworkError, TimedOut, BadRequest
-from telegram.ext import Updater, CommandHandler, CallbackContext
+import logging
+import random
+from time import sleep
+
+from telegram import ParseMode, Update
 from telegram.bot import BotCommand
-from models import Item, Config, Cron
-from models.errors import TelegramConfigurationError, MaskConfigurationError
+from telegram.error import BadRequest, NetworkError, TelegramError, TimedOut
+from telegram.ext import CallbackContext, CommandHandler, Updater
+
+from models import Config, Item
+from models.errors import MaskConfigurationError, TelegramConfigurationError
 from notifiers import Notifier
 
 log = logging.getLogger('tgtg')
@@ -22,16 +24,16 @@ class Telegram(Notifier):
     def __init__(self, config: Config):
         self.updater = None
         self.config = config
-        self.enabled = config.telegram["enabled"]
-        self.token = config.telegram["token"]
-        self.body = config.telegram["body"]
-        self.chat_ids = config.telegram["chat_ids"]
-        self.timeout = config.telegram["timeout"]
-        self.cron = Cron(config.telegram["cron"])
+        self.enabled = config.telegram.get("enabled", False)
+        self.token = config.telegram.get("token")
+        self.body = config.telegram.get("body")
+        self.chat_ids = config.telegram.get("chat_ids")
+        self.timeout = config.telegram.get("timeout", 60)
+        self.cron = config.telegram.get("cron")
         self.mute = None
         self.retries = 0
-        if self.enabled and not self.token:
-            raise TelegramConfigurationError("Missing Telegram token")
+        if self.enabled and (not self.token or not self.body):
+            raise TelegramConfigurationError()
         if self.enabled:
             try:
                 Item.check_mask(self.body)
@@ -43,13 +45,18 @@ class Telegram(Notifier):
                 raise TelegramConfigurationError() from err
             if not self.chat_ids:
                 self._get_chat_id()
-            self.updater.dispatcher.add_handler(CommandHandler("help", self._help))
-            self.updater.dispatcher.add_handler(CommandHandler("mute", self._mute))
-            self.updater.dispatcher.add_handler(CommandHandler("unmute", self._unmute))
+            self.updater.dispatcher.add_handler(
+                CommandHandler("help", self._help))
+            self.updater.dispatcher.add_handler(
+                CommandHandler("mute", self._mute))
+            self.updater.dispatcher.add_handler(
+                CommandHandler("unmute", self._unmute))
             self.updater.dispatcher.add_error_handler(self._error)
             self.updater.bot.set_my_commands([
                 BotCommand('help', 'Display available Commands'),
-                BotCommand('mute', 'Deactivate Telegram Notifications for 1 or x days'),
+                BotCommand(
+                    'mute',
+                    'Deactivate Telegram Notifications for 1 or x days'),
                 BotCommand('unmute', 'Reactivate Telegram Notifications')
             ])
             self.updater.start_polling()
@@ -91,15 +98,20 @@ class Telegram(Notifier):
     def _help(self, update: Update, context: CallbackContext) -> None:
         """Send message containing available bot commands"""
         del context
-        update.message.reply_text('Deactivate Telegram Notifications for x days using\n/mute x\nReactivate with /unmute')
+        update.message.reply_text('Deactivate Telegram Notifications for '
+                                  'x days using\n/mute x\nReactivate with '
+                                  '/unmute')
 
     def _mute(self, update: Update, context: CallbackContext) -> None:
         """Deactivates Telegram Notifications for x days"""
-        days = int(context.args[0]) if context.args and context.args[0].isnumeric() else 1
+        days = int(context.args[0]) if context.args and \
+            context.args[0].isnumeric() else 1
         self.mute = datetime.datetime.now() + datetime.timedelta(days=days)
         log.info('Deactivated Telegram Notifications for %s days', days)
         log.info('Reactivation at %s', self.mute)
-        update.message.reply_text(f"Deactivated Telegram Notifications for {days} days.\nReactivating at {self.mute} or use /unmute.")
+        update.message.reply_text(f"Deactivated Telegram Notifications "
+                                  f"for {days} days.\nReactivating at "
+                                  f"{self.mute} or use /unmute.")
 
     def _unmute(self, update: Update, context: CallbackContext) -> None:
         """Reactivate Telegram Notifications"""
@@ -107,17 +119,19 @@ class Telegram(Notifier):
         self.mute = None
         log.info("Reactivated Telegram Notifications")
         update.message.reply_text("Reactivated Telegram Notifications")
-    
+
     def _error(self, update: Update, context: CallbackContext) -> None:
         """Log Errors caused by Updates."""
         log.warning('Update "%s" caused error "%s"', update, context.error)
 
     def _get_chat_id(self) -> None:
-        """Initializes an interaction with the user to obtain the telegram chat id. \n
-        On using the config.ini configuration the chat id will be stored in the config.ini.
+        """Initializes an interaction with the user
+        to obtain the telegram chat id. \n
+        On using the config.ini configuration the
+        chat id will be stored in the config.ini.
         """
-        log.warning(
-            "You enabled the Telegram notifications without providing a chat id!")
+        log.warning("You enabled the Telegram notifications "
+                    "without providing a chat id!")
         code = random.randint(1111, 9999)
         log.warning("Send %s to the bot in your desired chat.", code)
         log.warning("Waiting for code ...")
@@ -125,12 +139,13 @@ class Telegram(Notifier):
             updates = self.updater.bot.get_updates(timeout=self.timeout)
             for update in reversed(updates):
                 if update.message and update.message.text:
-                    if update.message.text.isdecimal() and int(update.message.text) == code:
+                    if update.message.text.isdecimal() and \
+                            int(update.message.text) == code:
                         log.warning(
-                        "Received code from %s %s on chat id %s",
-                        update.message.from_user.first_name,
-                        update.message.from_user.last_name,
-                        update.message.chat_id
+                            "Received code from %s %s on chat id %s",
+                            update.message.from_user.first_name,
+                            update.message.from_user.last_name,
+                            update.message.chat_id
                         )
                         self.chat_ids = [str(update.message.chat_id)]
             sleep(1)
@@ -138,7 +153,8 @@ class Telegram(Notifier):
             log.warning("Saved chat id in your config file")
         else:
             log.warning(
-                "For persistence please set TELEGRAM_CHAT_IDS=%s", ','.join(self.chat_ids)
+                "For persistence please set TELEGRAM_CHAT_IDS=%s", ','.join(
+                    self.chat_ids)
             )
 
     def stop(self):

@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
-from models import Config, Item, Cron
+
+from models import Config, Cron, Item
+
 
 class Notifier(ABC):
     @abstractmethod

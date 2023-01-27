@@ -3,14 +3,14 @@ services:
   app:
     image: derhenning/tgtg:latest         ## pre build image from docker hub
     #image: tgtg-scanner:latest           ## locally build image
-    environment: 
+    environment:
       - TZ=Europe/Berlin                              ## Set timezone for pickupdate, otherwise will be utc
       - DEBUG=false                                   ## true for debug log messages
       - TGTG_USERNAME=                                ## TGTG Username / Login EMail
       - SLEEP_TIME=60                                 ## Time to wait till next scan in seconds - default 60 seconds
-      #- SCHEDULE_CRON=                               ## (optional) Scheduler in cron schedule expression 
+      #- SCHEDULE_CRON=                               ## (optional) Scheduler in cron schedule expression
                                                       ## Example of cron schedule expression:
-                                                      ## - SCHEDULE_CRON=* 12-14 * * 1-5     
+                                                      ## - SCHEDULE_CRON=* 12-14 * * 1-5
                                                       ## => allowed to run at hours between 12:00 and 14:59 on monday to friday
                                                       ## more help with formatting at https://crontab.guru/#*_12-14_*_*_1-5
                                                       ## The Scanner will not make any requests to the TGTG API in the excluded periods
@@ -41,7 +41,7 @@ services:
       - TELEGRAM_CHAT_IDS=                            ## Telegram Chat id, multiple ids separated by comma
       - TELEGRAM_TIMEOUT=60                           ## Timeout for Telegram API requests
       #- TELEGRAM_BODY=                               ## Optional message body as markdown, variables as described below
-                                                      ## Example: 
+                                                      ## Example:
                                                       ## 'TELEGRAM_BODY=*$${{display_name}}*\n*Available*: $${{items_available}}\n*Rating*: $${{rating}}\n*Price*: $${{price}} $${{currency}}\n*Pickup*: $${{pickupdate}}'
                                                       ## In some cases you may have to add
                                                       ## 'TELEGRAM_BODY={{` ... `}}'
@@ -52,7 +52,7 @@ services:
       - IFTTT_BODY=                                   ## IFTTT json data body
                                                       ## Default: {"value1": "$${{display_name}}", "value2": $${{items_available}}, "value3": "https://share.toogoodtogo.com/item/$${{item_id}}"}
 
-      ## Possible $${{variable}} variables: item_id, items_available, display_name, price, currency, pickupdate
+      ## Possible $${{variable}} variables: item_id, items_available, display_name, price, currency, pickupdate, item_logo, item_cover
       ## Link to item in App: https://share.toogoodtogo.com/item/${{item_id}}
       ## Example:
    ## - 'WEBHOOK_BODY={"message": "$${{display_name}} - New Amount: $${{items_available}}", "priority": 2, "title": "New TGTG Items"}'

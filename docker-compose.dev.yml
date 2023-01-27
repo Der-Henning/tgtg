@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     working_dir: /home/app
-    env_file: 
+    env_file:
       - .env
     volumes:
       - .:/home/app

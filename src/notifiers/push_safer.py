@@ -1,6 +1,8 @@
 import logging
+
 from pushsafer import Client
-from models import Item, Config, Cron
+
+from models import Config, Item
 from models.errors import PushSaferConfigurationError
 from notifiers import Notifier
 
@@ -13,11 +15,12 @@ class PushSafer(Notifier):
     For more information visit:\n
     https://www.pushsafer.com/
     """
+
     def __init__(self, config: Config):
-        self.key = config.push_safer["key"]
-        self.device_id = config.push_safer["deviceId"]
-        self.enabled = config.push_safer["enabled"]
-        self.cron = Cron(config.push_safer["cron"])
+        self.enabled = config.push_safer.get("enabled", False)
+        self.key = config.push_safer.get("key")
+        self.device_id = config.push_safer.get("deviceId")
+        self.cron = config.push_safer.get("cron")
         if self.enabled and (not self.key or not self.device_id):
             raise PushSaferConfigurationError()
         if self.enabled:
@@ -30,8 +33,8 @@ class PushSafer(Notifier):
         if self.enabled and self.cron.is_now:
             log.debug("Sending PushSafer Notification")
             message = f"New Amount: {item.items_available}"
-            self.client.send_message(message, item.display_name, self.device_id,
-                                     "", "", "", "", "", "", "", "", "", "", "", "", "")
+            self.client.send_message(message, item.display_name,
+                                     self.device_id)
 
     def __repr__(self) -> str:
         return f"PushSafer: {self.key}"
