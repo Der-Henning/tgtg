@@ -57,7 +57,7 @@ class TgtgSession(requests.Session):
 
     def __init__(self, user_agent: str = None, language: str = "en-UK",
                  timeout: int = None, proxies: dict = None,
-                 *args, **kwargs) -> None:
+                 datadome_cookie: str = None, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.mount("https://", self.http_adapter)
         self.mount("http://", self.http_adapter)
@@ -68,6 +68,10 @@ class TgtgSession(requests.Session):
         }
         self.timeout = timeout
         self.proxies = proxies
+        if datadome_cookie:
+            self.cookies.set("datadome", datadome_cookie,
+                             domain=".apptoogoodtogo.com",
+                             path="/", secure=True)
 
     def post(self, url: str, access_token: str = None, **kwargs
              ) -> requests.Response:
@@ -94,6 +98,7 @@ class TgtgClient:
         access_token=None,
         refresh_token=None,
         user_id=None,
+        datadome_cookie=None,
         user_agent=None,
         language="en-UK",
         proxies=None,
@@ -109,6 +114,7 @@ class TgtgClient:
         self.access_token = access_token
         self.refresh_token = refresh_token
         self.user_id = user_id
+        self.datadome_cookie = datadome_cookie
 
         self.last_time_token_refreshed = None
         self.access_token_lifetime = access_token_lifetime
@@ -138,7 +144,8 @@ class TgtgClient:
         return TgtgSession(self.user_agent,
                            self.language,
                            self.timeout,
-                           self.proxies)
+                           self.proxies,
+                           self.datadome_cookie)
 
     def get_credentials(self) -> dict:
         """Returns current tgtg api credentials.
@@ -162,6 +169,7 @@ class TgtgClient:
             access_token=self.access_token,
             **kwargs,
         )
+        self.datadome_cookie = self.session.cookies.get("datadome")
         if response.status_code in (HTTPStatus.OK, HTTPStatus.ACCEPTED):
             self.captcha_error_count = 0
             return response
@@ -170,23 +178,26 @@ class TgtgClient:
         except ValueError:
             # Status Code == 403 and no json contend
             # --> Blocked due to rate limit / wrong user_agent.
-            # 1. Get latest APK Version from google
-            # 2. Reset current session
-            # 3. Sleep 10 seconds, after 10 errors sleep 1 hour
-            # 4. Rety request
+            # 1. Try: Get latest APK Version from google
+            # 2. Try: Reset session
+            # 3. Try: Delete datadome cookie and reset session
+            # 10.Try: Sleep 10 minutes, and reset session
             if response.status_code == 403:
                 log.debug("Captcha Error 403!")
+                self.captcha_error_count += 1
                 if self.captcha_error_count == 1:
                     self.user_agent = self._get_user_agent()
+                elif self.captcha_error_count == 2:
                     self.session = self._create_session()
-                self.captcha_error_count += 1
-                if self.captcha_error_count > 10:
+                elif self.captcha_error_count == 4:
+                    self.datadome_cookie = None
+                    self.session = self._create_session()
+                elif self.captcha_error_count >= 10:
                     log.warning(
                         "Too many captcha Errors! Sleeping for 10 minutes...")
                     time.sleep(10 * 60)
                     log.info("Retrying ...")
                     self.captcha_error_count = 0
-                    self.user_agent = self._get_user_agent()
                     self.session = self._create_session()
                 time.sleep(1)
                 return self._post(path, **kwargs)

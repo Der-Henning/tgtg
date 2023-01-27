@@ -24,6 +24,7 @@ DEFAULT_CONFIG = {
         'access_token': None,
         'refresh_token': None,
         'user_id': None,
+        'datadome': None,
         'timeout': 60,
         'access_token_lifetime': 14400,
         'max_polling_tries': 24,
@@ -138,6 +139,8 @@ class Config():
                     self.tgtg["refresh_token"] = file.read()
                 with self._open('userID', 'r') as file:
                     self.tgtg["user_id"] = file.read()
+                with self._open('datadome', 'r') as file:
+                    self.tgtg["datadome"] = file.read()
             except FileNotFoundError:
                 log.warning("No token files in token path.")
             except EnvironmentError as err:
@@ -212,6 +215,7 @@ class Config():
             self._ini_get(config, "TGTG", "AccessToken", "tgtg.access_token")
             self._ini_get(config, "TGTG", "RefreshToken", "tgtg.refresh_token")
             self._ini_get(config, "TGTG", "UserId", "tgtg.user_id")
+            self._ini_get(config, "TGTG", "Datadome", "tgtg.datadome")
             self._ini_get_int(config, "TGTG", "Timeout", "tgtg.timeout")
             self._ini_get_int(config, "TGTG", "AccessTokenLifetime",
                               "tgtg.access_token_lifetime")
@@ -310,6 +314,7 @@ class Config():
             self._env_get("TGTG_ACCESS_TOKEN", "tgtg.access_token")
             self._env_get("TGTG_REFRESH_TOKEN", "tgtg.refresh_token")
             self._env_get("TGTG_USER_ID", "tgtg.user_id")
+            self._env_get("TGTG_DATADOME", "tgtg.datadome")
             self._env_get_int("TGTG_TIMEOUT", "tgtg.timeout")
             self._env_get_int("TGTG_ACCESS_TOKEN_LIFETIME",
                               "tgtg.access_token_lifetime")
@@ -380,7 +385,7 @@ class Config():
         return False
 
     def save_tokens(self, access_token: str, refresh_token: str,
-                    user_id: str) -> None:
+                    user_id: str, datadome: str) -> None:
         """
         Saves TGTG Access Tokens to config.ini
         if provided or as files to token_path.
@@ -395,6 +400,7 @@ class Config():
                 config.set("TGTG", "AccessToken", access_token)
                 config.set("TGTG", "RefreshToken", refresh_token)
                 config.set("TGTG", "UserId", user_id)
+                config.set("TGTG", "Datadome", datadome)
                 with open(self.file, 'w', encoding='utf-8') as configfile:
                     config.write(configfile)
             except EnvironmentError as err:
@@ -407,5 +413,7 @@ class Config():
                     file.write(refresh_token)
                 with self._open('userID', 'w') as file:
                     file.write(user_id)
+                with self._open('datadome', 'w') as file:
+                    file.write(datadome)
             except EnvironmentError as err:
                 log.error("error saving credentials! - %s", err)
