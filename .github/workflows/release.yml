@@ -79,6 +79,8 @@ jobs:
         run: |
           pyinstaller scanner.spec
           cp ./src/config.sample.ini ./dist/config.ini
+          cp ./README.md ./dist/README.md
+          cp ./LICENSE ./dist/LICENSE
       - name: Make filename for archive
         id: filename
         shell: bash
