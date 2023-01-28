@@ -108,7 +108,7 @@ Developing with VSCode you can open the project in the configured development co
 
 ```make executable``` creates bundled executable in ```/dist```
 
-```make test``` runs unittests
+```make test``` runs unit tests
 
 ```make clean``` cleans up docker compose
 
