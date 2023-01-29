@@ -1,7 +1,7 @@
 exclude: (build|dist)
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.2.0
+    rev: v4.4.0
     hooks:
     - id: trailing-whitespace
     - id: check-added-large-files
@@ -22,7 +22,7 @@ repos:
           - --max-line-length=79
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.11.4
+    rev: 5.12.0
     hooks:
       - id: isort
         files: ^(src|tests)/
