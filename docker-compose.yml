@@ -18,6 +18,11 @@ services:
       - METRICS=false                                 ## Enable to export metrics for Prometheus
       - METRICS_PORT=8000                             ## Port for metrics http server
       - DISABLE_TESTS=false                           ## true to disable test notifications on startup
+      - quiet=false                                   ## true to disable all console messages. Only errors and console notifier messages
+
+      - CONSOLE=false                                 ## true = enable simple console notifications
+      #- CONSOLE_BODY=                                ## console message with variables as described below
+      #- CONSOLE_CRON=                                ## Disable notifications based on cron
 
       - SMTP=false                                    ## true = enable mail notifications via smtp
       - SMTP_HOST=smtp.gmail.com                      ## smtp Server - smtp.gmail.com for google

@@ -19,6 +19,7 @@ DEFAULT_CONFIG = {
     'metrics': False,
     'metrics_port': 8000,
     'disable_tests': False,
+    'quiet': False,
     'tgtg': {
         'username': None,
         'access_token': None,
@@ -29,6 +30,11 @@ DEFAULT_CONFIG = {
         'access_token_lifetime': 14400,
         'max_polling_tries': 24,
         'polling_wait_time': 5
+    },
+    'console': {
+        'enabled': False,
+        'body': '${{display_name}} - new amount: ${{items_available}}',
+        'cron': Cron('* * * * *')
     },
     'push_safer': {
         'enabled': False,
@@ -98,7 +104,9 @@ class Config():
     metrics: bool
     metrics_port: int
     disable_tests: bool
+    quiet: bool
     tgtg: dict
+    console: dict
     push_safer: dict
     smtp: dict
     ifttt: dict
@@ -210,6 +218,7 @@ class Config():
             self._ini_get_int(config, "MAIN", "MetricsPort", "metrics_port")
             self._ini_get_boolean(config, "MAIN", "DisableTests",
                                   "disable_tests")
+            self._ini_get_boolean(config, "MAIN", "quiet", "quiet")
 
             self._ini_get(config, "TGTG", "Username", "tgtg.username")
             self._ini_get(config, "TGTG", "AccessToken", "tgtg.access_token")
@@ -223,6 +232,11 @@ class Config():
                               "tgtg.max_polling_tries")
             self._ini_get_int(config, "TGTG", "PollingWaitTime",
                               "tgtg.polling_wait_time")
+
+            self._ini_get_boolean(config, "CONSOLE",
+                                  "enabled", "console.enabled")
+            self._ini_get(config, "CONSOLE", "Body", "console.body")
+            self._ini_get_cron(config, "CONSOLE", "cron", "console.cron")
 
             self._ini_get_boolean(config, "PUSHSAFER",
                                   "enabled", "push_safer.enabled")
@@ -309,6 +323,7 @@ class Config():
             self._env_get_boolean("METRICS", "metrics")
             self._env_get_int("METRICS_PORT", "metrics_port")
             self._env_get_boolean("DISABLE_TESTS", "disable_tests")
+            self._env_get_boolean("QUIET", "quiet")
 
             self._env_get("TGTG_USERNAME", "tgtg.username")
             self._env_get("TGTG_ACCESS_TOKEN", "tgtg.access_token")
@@ -322,6 +337,10 @@ class Config():
                               "tgtg.max_polling_tries")
             self._env_get_int("TGTG_POLLING_WAIT_TIME",
                               "tgtg.polling_wait_time")
+
+            self._env_get_boolean("CONSOLE", "console.enabled")
+            self._env_get("CONSOLE_BODY", "console.body")
+            self._env_get_cron("CONSOLE_CRON", "console.cron")
 
             self._env_get_boolean("PUSH_SAFER", "push_safer.enabled")
             self._env_get("PUSH_SAFER_KEY", "push_safer.key")
