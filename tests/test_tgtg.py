@@ -24,7 +24,8 @@ def test_get_items(item_properties: dict):
         polling_wait_time=config.tgtg.get("polling_wait_time"),
         access_token=config.tgtg.get("access_token"),
         refresh_token=config.tgtg.get("refresh_token"),
-        user_id=config.tgtg.get("user_id")
+        user_id=config.tgtg.get("user_id"),
+        datadome_cookie=config.tgtg.get("datadome")
     )
 
     # get credentials and safe tokens to GITHUB_ENV file
@@ -35,6 +36,7 @@ def test_get_items(item_properties: dict):
             file.write(f"TGTG_ACCESS_TOKEN={credentials['access_token']}\n")
             file.write(f"TGTG_REFRESH_TOKEN={credentials['refresh_token']}\n")
             file.write(f"TGTG_USER_ID={credentials['user_id']}\n")
+            file.write(f"TGTG_COOKIE={credentials['datadome_cookie']}\n")
 
     # Tests
     items = client.get_items(favorites_only=True)

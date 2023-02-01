@@ -64,6 +64,8 @@ class TgtgSession(requests.Session):
         self.headers = {
             "user-agent": user_agent,
             "accept-language": language,
+            "accept": "application/json",
+            "content-type": "application/json; charset=utf-8",
             "Accept-Encoding": "gzip",
         }
         self.timeout = timeout
@@ -159,6 +161,7 @@ class TgtgClient:
             "access_token": self.access_token,
             "refresh_token": self.refresh_token,
             "user_id": self.user_id,
+            "datadome_cookie": self.datadome_cookie
         }
 
     def _post(self, path, **kwargs) -> requests.Response:
