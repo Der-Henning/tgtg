@@ -1,6 +1,5 @@
 # copied and modified from https://github.com/ahivert/tgtg-python
 
-import http.client as http_client
 import json
 import logging
 import random
@@ -18,8 +17,6 @@ from urllib3.util import Retry
 from models.errors import (TgtgAPIError, TGTGConfigurationError,
                            TgtgLoginError, TgtgPollingError)
 
-# set to 1 to debug http headers
-http_client.HTTPConnection.debuglevel = 0
 log = logging.getLogger("tgtg")
 BASE_URL = "https://apptoogoodtogo.com/api/"
 API_ITEM_ENDPOINT = "item/v7/"

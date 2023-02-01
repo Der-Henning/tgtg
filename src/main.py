@@ -1,4 +1,5 @@
 import argparse
+import http.client as http_client
 import json
 import logging
 import sys
@@ -21,6 +22,10 @@ HEADER = (
     " (_  _)/ __)(_  _)/ __)  / ___) / __) / _\ (  ( \(  ( \(  __)(  _ \ ",  # noqa: W605,E501
     "   )( ( (_ \  )( ( (_ \  \___ \( (__ /    \/    //    / ) _)  )   / ",  # noqa: W605,E501
     "  (__) \___/ (__) \___/  (____/ \___)\_/\_/\_)__)\_)__)(____)(__\_) ")  # noqa: W605,E501
+
+
+# set to 1 to debug http headers
+http_client.HTTPConnection.debuglevel = 0
 
 
 def main() -> NoReturn:
@@ -119,10 +124,8 @@ def main() -> NoReturn:
     if args.debug:
         config.debug = True
     if config.debug:
-        loggers = [logging.getLogger(name)
-                   for name in logging.root.manager.loggerDict]
-        for logger in loggers:
-            logger.setLevel(logging.DEBUG)
+        for logger_name in logging.root.manager.loggerDict:
+            logging.getLogger(logger_name).setLevel(logging.DEBUG)
         log.info("Debugging mode enabled")
 
     scanner = Scanner(config)
@@ -179,6 +182,9 @@ def _run_scanner(scanner: Scanner) -> NoReturn:
     try:
         _print_welcome_message()
         _print_version_check()
+        if scanner.config.quiet and not scanner.config.debug:
+            for logger_name in logging.root.manager.loggerDict:
+                logging.getLogger(logger_name).setLevel(logging.ERROR)
         scanner.run()
     except ConfigurationError as err:
         log.error("Configuration Error: %s", err)
