@@ -1,12 +1,8 @@
--r requirements.txt
-altgraph==0.17.3
+-r requirements-build.txt
 autopep8
 flake8
 ipykernel
 pre-commit
-pyinstaller==5.7.0
-pyinstaller-hooks-contrib==2022.15
-
 pytest
 pytest-cov
 responses
