@@ -51,6 +51,7 @@ class WebHook(Notifier):
             if not res.ok:
                 log.error("WebHook Request failed with status code %s",
                           res.status_code)
+                log.debug("Response content: %s", res.text)
 
     def __repr__(self) -> str:
         return f"WebHook: {self.url}"
