@@ -33,7 +33,8 @@ DEFAULT_CONFIG = {
     },
     'console': {
         'enabled': False,
-        'body': '${{display_name}} - new amount: ${{items_available}}',
+        'body': '${{scanned_on}} ${{display_name}} - '
+                'new amount: ${{items_available}}',
         'cron': Cron('* * * * *')
     },
     'push_safer': {
