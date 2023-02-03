@@ -40,8 +40,9 @@ class WebHook(Notifier):
                 "Content-Type": self.type
             }
             if self.body:
-                body = item.unmask(self.body).encode(
-                    encoding='UTF-8', errors='replace')
+                body = item.unmask(self.body).replace(
+                    '\n', '\\n').encode(encoding='UTF-8',
+                                        errors='replace')
                 headers["Content-Length"] = str(len(body))
                 log.debug("Webhook body: %s", body)
             log.debug("Webhook headers: %s", headers)
