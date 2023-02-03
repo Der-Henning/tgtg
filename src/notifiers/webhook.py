@@ -40,8 +40,9 @@ class WebHook(Notifier):
                 "Content-Type": self.type
             }
             if self.body:
-                body = item.unmask(self.body).encode(
-                    encoding='UTF-8', errors='replace')
+                body = item.unmask(self.body).replace(
+                    '\n', '\\n').encode(encoding='UTF-8',
+                                        errors='replace')
                 headers["Content-Length"] = str(len(body))
                 log.debug("Webhook body: %s", body)
             log.debug("Webhook headers: %s", headers)
@@ -51,6 +52,7 @@ class WebHook(Notifier):
             if not res.ok:
                 log.error("WebHook Request failed with status code %s",
                           res.status_code)
+                log.debug("Response content: %s", res.text)
 
     def __repr__(self) -> str:
         return f"WebHook: {self.url}"

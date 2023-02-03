@@ -1,3 +1,4 @@
+import codecs
 import configparser
 import logging
 from io import TextIOWrapper
@@ -33,7 +34,8 @@ DEFAULT_CONFIG = {
     },
     'console': {
         'enabled': False,
-        'body': '${{display_name}} - new amount: ${{items_available}}',
+        'body': '${{scanned_on}} ${{display_name}} - '
+                'new amount: ${{items_available}}',
         'cron': Cron('* * * * *')
     },
     'push_safer': {
@@ -167,10 +169,17 @@ class Config():
         else:
             setattr(self, attr, value)
 
+    @staticmethod
+    def _decode(value: str) -> str:
+        return codecs.escape_decode(bytes(value, "utf-8"))[0].decode("utf-8")
+
     def _ini_get(self, config: configparser.ConfigParser,
                  section: str, key: str, attr: str) -> None:
         if section in config:
-            self._setattr(attr, config[section].get(key, self._getattr(attr)))
+            value = config[section].get(key, None)
+            if value is not None:
+                value = self._decode(value)
+                self._setattr(attr, value)
 
     def _ini_get_boolean(self, config: configparser.ConfigParser,
                          section: str, key: str, attr: str) -> None:
@@ -195,7 +204,7 @@ class Config():
         if section in config:
             value = config[section].get(key, None)
             if value:
-                arr = [val.strip() for val in value.split(',')]
+                arr = [self._decode(val.strip()) for val in value.split(',')]
                 self._setattr(attr, arr)
 
     def _ini_get_cron(self, config: configparser.ConfigParser,
@@ -289,7 +298,7 @@ class Config():
     def _env_get(self, key: str, attr: str) -> None:
         value = environ.get(key, None)
         if value is not None:
-            value = value.replace('\\n', '\n')
+            value = self._decode(value)
             self._setattr(attr, value)
 
     def _env_get_boolean(self, key: str, attr: str) -> None:
@@ -306,7 +315,7 @@ class Config():
     def _env_get_array(self, key: str, attr: str) -> None:
         value = environ.get(key, None)
         if value:
-            arr = [val.strip() for val in value.split(',')]
+            arr = [self._decode(val.strip()) for val in value.split(',')]
             self._setattr(attr, arr)
 
     def _env_get_cron(self, key: str, attr: str) -> None:
