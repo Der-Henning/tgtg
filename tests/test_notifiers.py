@@ -5,6 +5,41 @@ import responses
 from models.config import Config
 from models.item import Item
 from notifiers.ifttt import IFTTT
+from notifiers.webhook import WebHook
+
+
+@responses.activate
+def test_webhook(test_item: Item, default_config: Config):
+    default_config._setattr("webhook.enabled", True)
+    default_config._setattr("webhook.method", "POST")
+    default_config._setattr("webhook.url", "https://api.example.com")
+    default_config._setattr("webhook.type", "application/json")
+    default_config._setattr("webhook.headers", {"Accept": "json"})
+    default_config._setattr("webhook.body",
+                            '{"content": "${{items_available}} panier(s) '
+                            'disponible(s) à ${{price}} € \nÀ récupérer '
+                            '${{pickupdate}}\n'
+                            'https://toogoodtogo.com/item/${{item_id}}"'
+                            ', "username": "${{display_name}}"}')
+
+    responses.add(
+        responses.POST,
+        "https://api.example.com",
+        status=200
+    )
+
+    webhook = WebHook(default_config)
+
+    webhook.send(test_item)
+
+    assert responses.calls[0].request.headers["Accept"] == "json"
+
+    assert responses.calls[0].request.body == json.dumps(
+        {"content": f"{test_item.items_available} panier(s) disponible(s) à "
+                    f"{test_item.price} € \nÀ récupérer {test_item.pickupdate}"
+                    f"\nhttps://toogoodtogo.com/item/{test_item.item_id}",
+         "username": f"{test_item.display_name}"}
+    )
 
 
 @responses.activate
