@@ -1,3 +1,5 @@
+import json
+
 import responses
 
 from models.config import Config
@@ -31,8 +33,7 @@ def test_ifttt(test_item: Item, default_config: Config):
 
     assert responses.calls[0].request.headers.get(
         "Content-Type") == "application/json"
-    assert responses.calls[0].request.body.decode(
-        "utf-8") == (f'{{"value1": "{test_item.display_name}", '
-                     f'"value2": {test_item.items_available}, '
-                     f'"value3": "https://share.toogoodtogo.com/item/'
-                     f'{test_item.item_id}"}}')
+    assert responses.calls[0].request.body == json.dumps(
+        {"value1": test_item.display_name,
+         "value2": test_item.items_available,
+         "value3": f"https://share.toogoodtogo.com/item/{test_item.item_id}"})
