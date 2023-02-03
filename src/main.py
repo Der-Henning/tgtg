@@ -9,6 +9,7 @@ from typing import NoReturn
 import colorlog
 import requests
 from packaging import version
+from requests.exceptions import HTTPError
 
 from _version import __author__, __url__, __version__
 from models import Config
@@ -200,12 +201,17 @@ def _run_scanner(scanner: Scanner) -> NoReturn:
 
 
 def _get_new_version() -> str:
-    res = requests.get(VERSION_URL, timeout=60)
-    res.raise_for_status()
-    lastest_release = res.json()
-    if version.parse(__version__) < version.parse(
-            lastest_release.get("tag_name")):
-        return lastest_release
+    log = logging.getLogger("tgtg")
+    try:
+        res = requests.get(VERSION_URL, timeout=60)
+        res.raise_for_status()
+        lastest_release = res.json()
+        if version.parse(__version__) < version.parse(
+                lastest_release.get("tag_name")):
+            return lastest_release
+    except HTTPError as err:
+        log.warning("Failed getting latest version!")
+        log.debug(err)
     return None
 
 
