@@ -1,5 +1,6 @@
 import json
 
+import pytest
 import responses
 
 from models.config import Config
@@ -70,7 +71,8 @@ def test_ifttt(test_item: Item, default_config: Config):
         "value3": f"https://share.toogoodtogo.com/item/{test_item.item_id}"}
 
 
-def test_console(test_item: Item, default_config: Config, capsys):
+def test_console(test_item: Item, default_config: Config,
+                 capsys: pytest.CaptureFixture):
     default_config._setattr("console.enabled", True)
     default_config._setattr("console.body", "${{display_name}} - "
                             "new amount: ${{items_available}}")
