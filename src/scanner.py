@@ -101,9 +101,9 @@ class Scanner:
         """
         if self.amounts.get(item.item_id) == item.items_available:
             return
-
-        log.info("%s - new amount: %s",
-                 item.display_name, item.items_available)
+        if item.item_id in self.amounts:
+            log.info("%s - new amount: %s",
+                     item.display_name, item.items_available)
         self.metrics.item_count.labels(item.item_id,
                                        item.display_name
                                        ).set(item.items_available)
