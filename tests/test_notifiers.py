@@ -4,6 +4,7 @@ import responses
 
 from models.config import Config
 from models.item import Item
+from notifiers.console import Console
 from notifiers.ifttt import IFTTT
 from notifiers.webhook import WebHook
 
@@ -21,7 +22,6 @@ def test_webhook(test_item: Item, default_config: Config):
                             '${{pickupdate}}\n'
                             'https://toogoodtogo.com/item/${{item_id}}"'
                             ', "username": "${{display_name}}"}')
-
     responses.add(
         responses.POST,
         "https://api.example.com",
@@ -29,17 +29,14 @@ def test_webhook(test_item: Item, default_config: Config):
     )
 
     webhook = WebHook(default_config)
-
     webhook.send(test_item)
 
-    assert responses.calls[0].request.headers["Accept"] == "json"
-
-    assert responses.calls[0].request.body == json.dumps(
-        {"content": f"{test_item.items_available} panier(s) disponible(s) à "
+    assert responses.calls[0].request.headers.get("Accept") == "json"
+    assert json.loads(responses.calls[0].request.body) == {
+        "content": (f"{test_item.items_available} panier(s) disponible(s) à "
                     f"{test_item.price} € \nÀ récupérer {test_item.pickupdate}"
-                    f"\nhttps://toogoodtogo.com/item/{test_item.item_id}",
-         "username": f"{test_item.display_name}"}
-    )
+                    f"\nhttps://toogoodtogo.com/item/{test_item.item_id}"),
+        "username": f"{test_item.display_name}"}
 
 
 @responses.activate
@@ -63,12 +60,24 @@ def test_ifttt(test_item: Item, default_config: Config):
     )
 
     ifttt = IFTTT(default_config)
-
     ifttt.send(test_item)
 
     assert responses.calls[0].request.headers.get(
         "Content-Type") == "application/json"
-    assert responses.calls[0].request.body == json.dumps(
-        {"value1": test_item.display_name,
-         "value2": test_item.items_available,
-         "value3": f"https://share.toogoodtogo.com/item/{test_item.item_id}"})
+    assert json.loads(responses.calls[0].request.body) == {
+        "value1": test_item.display_name,
+        "value2": test_item.items_available,
+        "value3": f"https://share.toogoodtogo.com/item/{test_item.item_id}"}
+
+
+def test_console(test_item: Item, default_config: Config, capsys):
+    default_config._setattr("console.enabled", True)
+    default_config._setattr("console.body", "${{display_name}} - "
+                            "new amount: ${{items_available}}")
+
+    console = Console(default_config)
+    console.send(test_item)
+    captured = capsys.readouterr()
+
+    assert captured.out == (f"{test_item.display_name} - "
+                            f"new amount: {test_item.items_available}\n")
