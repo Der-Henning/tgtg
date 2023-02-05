@@ -1,5 +1,6 @@
 import codecs
 import configparser
+import json
 import logging
 from io import TextIOWrapper
 from os import environ
@@ -75,6 +76,7 @@ DEFAULT_CONFIG = {
         'method': 'POST',
         'body': '',
         'type': '',
+        'headers': {},
         'timeout': 60,
         'cron': Cron('* * * * *')
     },
@@ -207,6 +209,14 @@ class Config():
                 arr = [self._decode(val.strip()) for val in value.split(',')]
                 self._setattr(attr, arr)
 
+    def _ini_get_dict(self, config: configparser.ConfigParser,
+                      section: str, key: str, attr: str) -> None:
+        if section in config:
+            value = config[section].get(key, None)
+            if value:
+                dic = json.loads(value)
+                self._setattr(attr, dic)
+
     def _ini_get_cron(self, config: configparser.ConfigParser,
                       section: str, key: str, attr: str) -> None:
         if section in config:
@@ -280,6 +290,7 @@ class Config():
             self._ini_get(config, "WEBHOOK", "Method", "webhook.method")
             self._ini_get(config, "WEBHOOK", "body", "webhook.body")
             self._ini_get(config, "WEBHOOK", "type", "webhook.type")
+            self._ini_get_dict(config, "WEBHOOK", "headers", "webhook.headers")
             self._ini_get_int(config, "WEBHOOK", "timeout", "webhook.timeout")
             self._ini_get_cron(config, "WEBHOOK", "cron", "webhook.cron")
 
@@ -317,6 +328,12 @@ class Config():
         if value:
             arr = [self._decode(val.strip()) for val in value.split(',')]
             self._setattr(attr, arr)
+
+    def _env_get_dict(self, key: str, attr: str) -> None:
+        value = environ.get(key, None)
+        if value:
+            dic = json.loads(value)
+            self._setattr(attr, dic)
 
     def _env_get_cron(self, key: str, attr: str) -> None:
         value = environ.get(key, None)
@@ -381,6 +398,7 @@ class Config():
             self._env_get("WEBHOOK_METHOD", "webhook.method")
             self._env_get("WEBHOOK_BODY", "webhook.body")
             self._env_get("WEBHOOK_TYPE", "webhook.type")
+            self._env_get_dict("WEBHOOK_HEADERS", "webhook.headers")
             self._env_get_int("WEBHOOK_TIMEOUT", "webhook.timeout")
             self._env_get_cron("WEBHOOK_CRON", "webhook.cron")
 

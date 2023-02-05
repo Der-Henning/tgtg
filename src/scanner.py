@@ -5,6 +5,7 @@ from time import sleep
 from typing import List, NoReturn
 
 from models import Config, Item, Metrics
+from models.errors import TgtgAPIError
 from notifiers import Notifiers
 from tgtg import TgtgClient
 
@@ -59,21 +60,22 @@ class Scanner:
         """
         Job iterates over all monitored items
         """
+        items = []
         for item_id in self.item_ids:
             try:
                 if item_id != "":
-                    item = Item(self.tgtg_client.get_item(item_id))
-                    self._check_item(item)
-            except Exception:
-                log.error("itemID %s Error! - %s", item_id, sys.exc_info())
-        for item in self._get_favorites():
-            try:
-                self._check_item(item)
-            except Exception:
-                log.error("check item error! - %s", sys.exc_info())
+                    items.append(Item(self.tgtg_client.get_item(item_id)))
+            except TgtgAPIError as err:
+                log.error(err)
+        items += self._get_favorites()
+        for item in items:
+            self._check_item(item)
+
         log.debug("new State: %s", self.amounts)
+
         if len(self.amounts) == 0:
             log.warning("No items in observation! Did you add any favorites?")
+
         self.config.save_tokens(
             self.tgtg_client.access_token,
             self.tgtg_client.refresh_token,
@@ -85,23 +87,11 @@ class Scanner:
         """
         Get favorites as list of Items
         """
-        items = []
-        page = 1
-        page_size = 100
-        error_count = 0
-        while error_count < 5:
-            try:
-                new_items = self.tgtg_client.get_items(
-                    favorites_only=True, page_size=page_size, page=page
-                )
-                items += new_items
-                if len(new_items) < page_size:
-                    break
-                page += 1
-            except Exception:
-                log.error("get item error! - %s", sys.exc_info())
-                error_count += 1
-                self.metrics.get_favorites_errors.inc()
+        try:
+            items = self.get_favorites()
+        except TgtgAPIError as err:
+            log.error(err)
+            return []
         return [Item(item) for item in items]
 
     def _check_item(self, item: Item) -> None:
@@ -109,25 +99,21 @@ class Scanner:
         Checks if the available item amount raised from zero to something
         and triggers notifications.
         """
-        try:
-            if (
-                self.amounts[item.item_id] == 0
-                and item.items_available > self.amounts[item.item_id]
-            ):
-                self._send_messages(item)
-                self.metrics.send_notifications.labels(
-                    item.item_id, item.display_name
-                ).inc()
-            self.metrics.item_count.labels(item.item_id,
-                                           item.display_name
-                                           ).set(item.items_available)
-        except Exception:
-            self.amounts[item.item_id] = item.items_available
-        finally:
-            if self.amounts[item.item_id] != item.items_available:
-                log.info("%s - new amount: %s",
-                         item.display_name, item.items_available)
-                self.amounts[item.item_id] = item.items_available
+        if self.amounts.get(item.item_id) == item.items_available:
+            return
+        if item.item_id in self.amounts:
+            log.info("%s - new amount: %s",
+                     item.display_name, item.items_available)
+        self.metrics.item_count.labels(item.item_id,
+                                       item.display_name
+                                       ).set(item.items_available)
+        if (self.amounts.get(item.item_id) == 0 and
+                item.items_available > self.amounts.get(item.item_id)):
+            self._send_messages(item)
+            self.metrics.send_notifications.labels(
+                item.item_id, item.display_name
+            ).inc()
+        self.amounts[item.item_id] = item.items_available
 
     def _send_messages(self, item: Item) -> None:
         """

@@ -67,6 +67,7 @@ services:
       - WEBHOOK_METHOD=POST                           ## Request Method
       - WEBHOOK_BODY={}                               ## Data to send, can contain $${{variable}}
       - WEBHOOK_TYPE=application/json                 ## Content-Type for header, default: text/plain
+      - WEBHOOK_HEADERS={}                            ## Additional headers
       - WEBHOOK_TIMEOUT=60                            ## Request Timeout
     volumes:
       - tokens:/tokens           ## volume to save TGTG credentials to reuse on next start up and avoid login mail
