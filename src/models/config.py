@@ -75,7 +75,7 @@ DEFAULT_CONFIG = {
         'url': '',
         'method': 'POST',
         'body': '',
-        'type': '',
+        'type': 'text/plain',
         'headers': {},
         'timeout': 60,
         'cron': Cron('* * * * *')
