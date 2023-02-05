@@ -10,8 +10,8 @@ Readme, source and documentation on [https://github.com/Der-Henning/tgtg](https:
 
 - [`edge`](https://github.com/Der-Henning/tgtg/blob/main/Dockerfile)
 - [`edge-alpine`](https://github.com/Der-Henning/tgtg/blob/main/Dockerfile.alpine)
-- [`v1`, `v1.14`, `v1.14.9`, `latest`](https://github.com/Der-Henning/tgtg/blob/v1.14.9/Dockerfile)
-- [`v1-alpine`, `v1.14-alpine`, `v1.14.9-alpine`, `latest-alpine`](https://github.com/Der-Henning/tgtg/blob/v1.14.9/Dockerfile.alpine)
+- [`v1`, `v1.14`, `v1.14.10`, `latest`](https://github.com/Der-Henning/tgtg/blob/v1.14.10/Dockerfile)
+- [`v1-alpine`, `v1.14-alpine`, `v1.14.10-alpine`, `latest-alpine`](https://github.com/Der-Henning/tgtg/blob/v1.14.10/Dockerfile.alpine)
 
 # Quick Start
 
