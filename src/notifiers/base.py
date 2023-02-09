@@ -13,5 +13,5 @@ class Notifier(ABC):
     def send(self, item: Item) -> None:
         """Send Item information"""
 
-    def stop(self):
+    def stop(self) -> None:
         """Stop notifier"""

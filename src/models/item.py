@@ -6,7 +6,8 @@ from models.errors import MaskConfigurationError
 ATTRS = ["item_id", "items_available", "display_name", "description",
          "price", "currency", "pickupdate", "favorite", "rating",
          "buffet", "item_category", "item_name", "packaging_option",
-         "pickup_location", "store_name"]
+         "pickup_location", "store_name", "item_logo", "item_cover",
+         "scanned_on"]
 
 
 class Item():
@@ -41,9 +42,18 @@ class Item():
                       10**price_including_taxes.get("decimals", 0))
         self.price = f"{self.price:.2f}"
         self.currency = item.get("price_including_taxes", {}).get("code", "-")
+        self.item_logo = item.get("logo_picture", {}).get(
+            "current_url",
+            "https://tgtg-mkt-cms-prod.s3.eu-west-1.amazonaws.com/"
+            "13512/TGTG_Icon_White_Cirle_1988x1988px_RGB.png")
+        self.item_cover = item.get("cover_picture", {}).get(
+            "current_url",
+            "https://images.tgtg.ninja/standard_images/GENERAL/other1.jpg")
 
         store = data.get("store", {})
         self.store_name = store.get("name", "-")
+
+        self.scanned_on = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     @staticmethod
     def _datetimeparse(datestr: str) -> datetime.datetime:

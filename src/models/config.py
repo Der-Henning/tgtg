@@ -1,4 +1,6 @@
+import codecs
 import configparser
+import json
 import logging
 from io import TextIOWrapper
 from os import environ
@@ -19,15 +21,23 @@ DEFAULT_CONFIG = {
     'metrics': False,
     'metrics_port': 8000,
     'disable_tests': False,
+    'quiet': False,
     'tgtg': {
         'username': None,
         'access_token': None,
         'refresh_token': None,
         'user_id': None,
+        'datadome': None,
         'timeout': 60,
         'access_token_lifetime': 14400,
         'max_polling_tries': 24,
         'polling_wait_time': 5
+    },
+    'console': {
+        'enabled': False,
+        'body': '${{scanned_on}} ${{display_name}} - '
+                'new amount: ${{items_available}}',
+        'cron': Cron('* * * * *')
     },
     'push_safer': {
         'enabled': False,
@@ -65,7 +75,8 @@ DEFAULT_CONFIG = {
         'url': '',
         'method': 'POST',
         'body': '',
-        'type': '',
+        'type': 'text/plain',
+        'headers': {},
         'timeout': 60,
         'cron': Cron('* * * * *')
     },
@@ -97,7 +108,9 @@ class Config():
     metrics: bool
     metrics_port: int
     disable_tests: bool
+    quiet: bool
     tgtg: dict
+    console: dict
     push_safer: dict
     smtp: dict
     ifttt: dict
@@ -138,6 +151,8 @@ class Config():
                     self.tgtg["refresh_token"] = file.read()
                 with self._open('userID', 'r') as file:
                     self.tgtg["user_id"] = file.read()
+                with self._open('datadome', 'r') as file:
+                    self.tgtg["datadome"] = file.read()
             except FileNotFoundError:
                 log.warning("No token files in token path.")
             except EnvironmentError as err:
@@ -156,10 +171,17 @@ class Config():
         else:
             setattr(self, attr, value)
 
+    @staticmethod
+    def _decode(value: str) -> str:
+        return codecs.escape_decode(bytes(value, "utf-8"))[0].decode("utf-8")
+
     def _ini_get(self, config: configparser.ConfigParser,
                  section: str, key: str, attr: str) -> None:
         if section in config:
-            self._setattr(attr, config[section].get(key, self._getattr(attr)))
+            value = config[section].get(key, None)
+            if value is not None:
+                value = self._decode(value)
+                self._setattr(attr, value)
 
     def _ini_get_boolean(self, config: configparser.ConfigParser,
                          section: str, key: str, attr: str) -> None:
@@ -184,8 +206,16 @@ class Config():
         if section in config:
             value = config[section].get(key, None)
             if value:
-                arr = [val.strip() for val in value.split(',')]
+                arr = [self._decode(val.strip()) for val in value.split(',')]
                 self._setattr(attr, arr)
+
+    def _ini_get_dict(self, config: configparser.ConfigParser,
+                      section: str, key: str, attr: str) -> None:
+        if section in config:
+            value = config[section].get(key, None)
+            if value:
+                dic = json.loads(value)
+                self._setattr(attr, dic)
 
     def _ini_get_cron(self, config: configparser.ConfigParser,
                       section: str, key: str, attr: str) -> None:
@@ -207,11 +237,13 @@ class Config():
             self._ini_get_int(config, "MAIN", "MetricsPort", "metrics_port")
             self._ini_get_boolean(config, "MAIN", "DisableTests",
                                   "disable_tests")
+            self._ini_get_boolean(config, "MAIN", "quiet", "quiet")
 
             self._ini_get(config, "TGTG", "Username", "tgtg.username")
             self._ini_get(config, "TGTG", "AccessToken", "tgtg.access_token")
             self._ini_get(config, "TGTG", "RefreshToken", "tgtg.refresh_token")
             self._ini_get(config, "TGTG", "UserId", "tgtg.user_id")
+            self._ini_get(config, "TGTG", "Datadome", "tgtg.datadome")
             self._ini_get_int(config, "TGTG", "Timeout", "tgtg.timeout")
             self._ini_get_int(config, "TGTG", "AccessTokenLifetime",
                               "tgtg.access_token_lifetime")
@@ -219,6 +251,11 @@ class Config():
                               "tgtg.max_polling_tries")
             self._ini_get_int(config, "TGTG", "PollingWaitTime",
                               "tgtg.polling_wait_time")
+
+            self._ini_get_boolean(config, "CONSOLE",
+                                  "enabled", "console.enabled")
+            self._ini_get(config, "CONSOLE", "Body", "console.body")
+            self._ini_get_cron(config, "CONSOLE", "cron", "console.cron")
 
             self._ini_get_boolean(config, "PUSHSAFER",
                                   "enabled", "push_safer.enabled")
@@ -253,6 +290,7 @@ class Config():
             self._ini_get(config, "WEBHOOK", "Method", "webhook.method")
             self._ini_get(config, "WEBHOOK", "body", "webhook.body")
             self._ini_get(config, "WEBHOOK", "type", "webhook.type")
+            self._ini_get_dict(config, "WEBHOOK", "headers", "webhook.headers")
             self._ini_get_int(config, "WEBHOOK", "timeout", "webhook.timeout")
             self._ini_get_cron(config, "WEBHOOK", "cron", "webhook.cron")
 
@@ -271,7 +309,7 @@ class Config():
     def _env_get(self, key: str, attr: str) -> None:
         value = environ.get(key, None)
         if value is not None:
-            value = value.replace('\\n', '\n')
+            value = self._decode(value)
             self._setattr(attr, value)
 
     def _env_get_boolean(self, key: str, attr: str) -> None:
@@ -288,8 +326,14 @@ class Config():
     def _env_get_array(self, key: str, attr: str) -> None:
         value = environ.get(key, None)
         if value:
-            arr = [val.strip() for val in value.split(',')]
+            arr = [self._decode(val.strip()) for val in value.split(',')]
             self._setattr(attr, arr)
+
+    def _env_get_dict(self, key: str, attr: str) -> None:
+        value = environ.get(key, None)
+        if value:
+            dic = json.loads(value)
+            self._setattr(attr, dic)
 
     def _env_get_cron(self, key: str, attr: str) -> None:
         value = environ.get(key, None)
@@ -305,11 +349,13 @@ class Config():
             self._env_get_boolean("METRICS", "metrics")
             self._env_get_int("METRICS_PORT", "metrics_port")
             self._env_get_boolean("DISABLE_TESTS", "disable_tests")
+            self._env_get_boolean("QUIET", "quiet")
 
             self._env_get("TGTG_USERNAME", "tgtg.username")
             self._env_get("TGTG_ACCESS_TOKEN", "tgtg.access_token")
             self._env_get("TGTG_REFRESH_TOKEN", "tgtg.refresh_token")
             self._env_get("TGTG_USER_ID", "tgtg.user_id")
+            self._env_get("TGTG_DATADOME", "tgtg.datadome")
             self._env_get_int("TGTG_TIMEOUT", "tgtg.timeout")
             self._env_get_int("TGTG_ACCESS_TOKEN_LIFETIME",
                               "tgtg.access_token_lifetime")
@@ -317,6 +363,10 @@ class Config():
                               "tgtg.max_polling_tries")
             self._env_get_int("TGTG_POLLING_WAIT_TIME",
                               "tgtg.polling_wait_time")
+
+            self._env_get_boolean("CONSOLE", "console.enabled")
+            self._env_get("CONSOLE_BODY", "console.body")
+            self._env_get_cron("CONSOLE_CRON", "console.cron")
 
             self._env_get_boolean("PUSH_SAFER", "push_safer.enabled")
             self._env_get("PUSH_SAFER_KEY", "push_safer.key")
@@ -348,6 +398,7 @@ class Config():
             self._env_get("WEBHOOK_METHOD", "webhook.method")
             self._env_get("WEBHOOK_BODY", "webhook.body")
             self._env_get("WEBHOOK_TYPE", "webhook.type")
+            self._env_get_dict("WEBHOOK_HEADERS", "webhook.headers")
             self._env_get_int("WEBHOOK_TIMEOUT", "webhook.timeout")
             self._env_get_cron("WEBHOOK_CRON", "webhook.cron")
 
@@ -380,7 +431,7 @@ class Config():
         return False
 
     def save_tokens(self, access_token: str, refresh_token: str,
-                    user_id: str) -> None:
+                    user_id: str, datadome: str) -> None:
         """
         Saves TGTG Access Tokens to config.ini
         if provided or as files to token_path.
@@ -395,6 +446,7 @@ class Config():
                 config.set("TGTG", "AccessToken", access_token)
                 config.set("TGTG", "RefreshToken", refresh_token)
                 config.set("TGTG", "UserId", user_id)
+                config.set("TGTG", "Datadome", datadome)
                 with open(self.file, 'w', encoding='utf-8') as configfile:
                     config.write(configfile)
             except EnvironmentError as err:
@@ -407,5 +459,7 @@ class Config():
                     file.write(refresh_token)
                 with self._open('userID', 'w') as file:
                     file.write(user_id)
+                with self._open('datadome', 'w') as file:
+                    file.write(datadome)
             except EnvironmentError as err:
                 log.error("error saving credentials! - %s", err)

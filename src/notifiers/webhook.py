@@ -1,3 +1,4 @@
+import json
 import logging
 
 import requests
@@ -18,6 +19,7 @@ class WebHook(Notifier):
         self.url = config.webhook.get("url")
         self.body = config.webhook.get("body")
         self.type = config.webhook.get("type")
+        self.headers = config.webhook.get("headers", {})
         self.timeout = config.webhook.get("timeout", 60)
         self.cron = config.webhook.get("cron")
         if self.enabled and (not self.method or not self.url):
@@ -36,14 +38,14 @@ class WebHook(Notifier):
             url = item.unmask(self.url)
             log.debug("Webhook url: %s", url)
             body = None
-            headers = {
-                "Content-Type": self.type
-            }
+            headers = self.headers
+            if self.type:
+                headers["Content-Type"] = self.type
             if self.body:
-                body = item.unmask(self.body).encode(
-                    encoding='UTF-8', errors='replace')
-                headers["Content-Length"] = str(len(body))
-                log.debug("Webhook body: %s", body)
+                body = item.unmask(self.body)
+                if self.type and 'json' in self.type:
+                    body = json.dumps(json.loads(body.replace('\n', '\\n')))
+                log.debug("Webhook body: '%s'", body)
             log.debug("Webhook headers: %s", headers)
             res = requests.request(method=self.method, url=url,
                                    timeout=self.timeout, data=body,
@@ -51,6 +53,7 @@ class WebHook(Notifier):
             if not res.ok:
                 log.error("WebHook Request failed with status code %s",
                           res.status_code)
+                log.debug("Response content: %s", res.text)
 
     def __repr__(self) -> str:
         return f"WebHook: {self.url}"

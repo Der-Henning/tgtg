@@ -21,6 +21,7 @@ class IFTTT(WebHook):
         self.body = config.ifttt.get("body")
         self.cron = config.ifttt.get("cron")
         self.timeout = config.ifttt.get("timeout")
+        self.headers = {}
         self.method = "POST"
         self.url = (f"https://maker.ifttt.com/trigger/"
                     f"{self.event}/with/key/{self.key}")
