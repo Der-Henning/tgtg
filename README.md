@@ -59,7 +59,7 @@ The container creates a volume mounting ```\tokens``` where the app saves the TG
 
 Method for developers.
 
-1. Install Python>=3.9 and pip
+1. Install Python>=3.11 and pip
 2. Run ```pip install -r requirements.txt```
 3. Create ```src/config.ini``` as described in the file ```config.template.ini```
 4. Run ```python src/main.py```

@@ -1,4 +1,5 @@
 import argparse
+import asyncio
 import http.client as http_client
 import json
 import logging
@@ -127,6 +128,7 @@ def main() -> NoReturn:
     if config.debug:
         for logger_name in logging.root.manager.loggerDict:
             logging.getLogger(logger_name).setLevel(logging.DEBUG)
+            logging.getLogger('hpack.hpack').setLevel(logging.INFO)
         log.info("Debugging mode enabled")
 
     scanner = Scanner(config)
@@ -186,7 +188,7 @@ def _run_scanner(scanner: Scanner) -> NoReturn:
         if scanner.config.quiet and not scanner.config.debug:
             for logger_name in logging.root.manager.loggerDict:
                 logging.getLogger(logger_name).setLevel(logging.ERROR)
-        scanner.run()
+        asyncio.run(scanner.run())
     except ConfigurationError as err:
         log.error("Configuration Error: %s", err)
         sys.exit(1)
@@ -194,10 +196,11 @@ def _run_scanner(scanner: Scanner) -> NoReturn:
         log.error("TGTG API Error: %s", err)
         sys.exit(1)
     except KeyboardInterrupt:
-        log.info("Shutting down scanner ...")
         sys.exit(0)
     except SystemExit:
         sys.exit(1)
+    except asyncio.CancelledError:
+        sys.exit(0)
 
 
 def _get_new_version() -> str:

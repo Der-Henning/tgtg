@@ -26,7 +26,7 @@ class PushSafer(Notifier):
         if self.enabled:
             self.client = Client(self.key)
 
-    def send(self, item: Item) -> None:
+    async def send(self, item: Item) -> None:
         """
         Sends item information to the Pushsafer endpoint.
         """

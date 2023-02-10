@@ -13,15 +13,20 @@ from notifiers.webhook import WebHook
 log = logging.getLogger("tgtg")
 
 
-class Notifiers:
-    def __init__(self, config: Config):
+class Notifiers():
+    async def __new__(cls, *args, **kwargs):
+        instance = super().__new__(cls)
+        await instance.__init__(*args, **kwargs)
+        return instance
+
+    async def __init__(self, config: Config):
         self._notifiers: List[Notifier] = [
             Console(config),
             PushSafer(config),
             SMTP(config),
             IFTTT(config),
             WebHook(config),
-            Telegram(config),
+            await Telegram(config),
         ]
         log.info("Activated notifiers:")
         if self.notifier_count == 0:
@@ -44,7 +49,7 @@ class Notifiers:
         """
         return len(self._enabled_notifiers)
 
-    def send(self, item: Item) -> None:
+    async def send(self, item: Item) -> None:
         """Send notifications on all enabled notifiers.
 
         Args:
@@ -52,14 +57,14 @@ class Notifiers:
         """
         for notifier in self._enabled_notifiers:
             try:
-                notifier.send(item)
+                await notifier.send(item)
             except Exception as exc:
                 log.error("Failed sending %s: %s", notifier, exc)
 
-    def stop(self):
+    async def stop(self):
         """Stop all notifiers"""
         for notifier in self._notifiers:
             try:
-                notifier.stop()
+                await notifier.stop()
             except Exception as exc:
                 log.warning("Error stopping %s - %s", notifier, exc)

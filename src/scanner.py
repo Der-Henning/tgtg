@@ -1,7 +1,7 @@
+import asyncio
 import logging
 import sys
 from random import random
-from time import sleep
 from typing import List, NoReturn
 
 from models import Config, Item, Metrics
@@ -19,7 +19,7 @@ class Scanner:
         self.item_ids = self.config.item_ids
         self.cron = self.config.schedule_cron
         self.amounts = {}
-        self.notifiers = None
+        self.notifiers: Notifiers = None
         self.tgtg_client = TgtgClient(
             email=self.config.tgtg.get("username"),
             timeout=self.config.tgtg.get("timeout"),
@@ -56,7 +56,7 @@ class Scanner:
         )
         return items[0]
 
-    def _job(self) -> None:
+    async def _job(self) -> None:
         """
         Job iterates over all monitored items
         """
@@ -69,7 +69,7 @@ class Scanner:
                 log.error(err)
         items += self._get_favorites()
         for item in items:
-            self._check_item(item)
+            await self._check_item(item)
 
         log.debug("new State: %s", self.amounts)
 
@@ -94,7 +94,7 @@ class Scanner:
             return []
         return [Item(item) for item in items]
 
-    def _check_item(self, item: Item) -> None:
+    async def _check_item(self, item: Item) -> None:
         """
         Checks if the available item amount raised from zero to something
         and triggers notifications.
@@ -109,13 +109,13 @@ class Scanner:
                                        ).set(item.items_available)
         if (self.amounts.get(item.item_id) == 0 and
                 item.items_available > self.amounts.get(item.item_id)):
-            self._send_messages(item)
+            await self._send_messages(item)
             self.metrics.send_notifications.labels(
                 item.item_id, item.display_name
             ).inc()
         self.amounts[item.item_id] = item.items_available
 
-    def _send_messages(self, item: Item) -> None:
+    async def _send_messages(self, item: Item) -> None:
         """
         Send notifications for Item
         """
@@ -124,20 +124,20 @@ class Scanner:
             item.display_name,
             item.items_available,
         )
-        self.notifiers.send(item)
+        await self.notifiers.send(item)
 
-    def run(self) -> NoReturn:
+    async def run(self) -> NoReturn:
         """
         Main Loop of the Scanner
         """
         # activate and test notifiers
         if self.config.metrics:
             self.metrics.enable_metrics()
-        self.notifiers = Notifiers(self.config)
+        self.notifiers = await Notifiers(self.config)
         if not self.config.disable_tests and \
                 self.notifiers.notifier_count > 0:
             log.info("Sending test Notifications ...")
-            self.notifiers.send(self._get_test_item())
+            await self.notifiers.send(self._get_test_item())
         # test tgtg API
         self.tgtg_client.login()
         self.config.save_tokens(
@@ -146,31 +146,36 @@ class Scanner:
             self.tgtg_client.user_id,
             self.tgtg_client.datadome_cookie
         )
-        # start scanner
+        # start scanner loop
         log.info("Scanner started ...")
-        running = True
         if self.cron.cron != "* * * * *":
             log.info("Active on schedule: %s", self.cron.description)
-        while True:
-            if self.cron.is_now:
-                if not running:
-                    log.info("Scanner reenabled by cron schedule.")
-                    running = True
-                try:
-                    self._job()
-                except Exception:
-                    log.error("Job Error! - %s", sys.exc_info())
-            elif running:
-                log.info("Scanner disabled by cron schedule.")
-                running = False
-            sleep(self.config.sleep_time * (0.9 + 0.2 * random()))
+        running = True
+        try:
+            while True:
+                if self.cron.is_now:
+                    if not running:
+                        log.info("Scanner reenabled by cron schedule.")
+                        running = True
+                    try:
+                        await self._job()
+                    except Exception:
+                        log.error("Job Error! - %s", sys.exc_info())
+                elif running:
+                    log.info("Scanner disabled by cron schedule.")
+                    running = False
+                await asyncio.sleep(
+                    self.config.sleep_time * (0.9 + 0.2 * random()))
+        finally:
+            log.info("Shutting down scanner ...")
+            await self.stop()
 
-    def __del__(self) -> None:
+    async def stop(self) -> None:
         """
         Cleanup on shutdown
         """
         if self.notifiers:
-            self.notifiers.stop()
+            await self.notifiers.stop()
 
     def get_credentials(self) -> dict:
         """Returns current tgtg credentials.

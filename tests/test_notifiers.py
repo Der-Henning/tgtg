@@ -4,19 +4,22 @@ import pytest
 import responses
 
 from models.config import Config
+from models.cron import Cron
 from models.item import Item
 from notifiers.console import Console
 from notifiers.ifttt import IFTTT
 from notifiers.webhook import WebHook
 
 
+@pytest.mark.asyncio
 @responses.activate
-def test_webhook(test_item: Item, default_config: Config):
+async def test_webhook(test_item: Item, default_config: Config):
     default_config._setattr("webhook.enabled", True)
     default_config._setattr("webhook.method", "POST")
     default_config._setattr("webhook.url", "https://api.example.com")
     default_config._setattr("webhook.type", "application/json")
     default_config._setattr("webhook.headers", {"Accept": "json"})
+    default_config._setattr("webhook.cron", Cron())
     default_config._setattr("webhook.body",
                             '{"content": "${{items_available}} panier(s) '
                             'disponible(s) à ${{price}} € \nÀ récupérer '
@@ -30,7 +33,7 @@ def test_webhook(test_item: Item, default_config: Config):
     )
 
     webhook = WebHook(default_config)
-    webhook.send(test_item)
+    await webhook.send(test_item)
 
     assert responses.calls[0].request.headers.get("Accept") == "json"
     assert json.loads(responses.calls[0].request.body) == {
@@ -40,8 +43,9 @@ def test_webhook(test_item: Item, default_config: Config):
         "username": f"{test_item.display_name}"}
 
 
+@pytest.mark.asyncio
 @responses.activate
-def test_ifttt(test_item: Item, default_config: Config):
+async def test_ifttt(test_item: Item, default_config: Config):
     default_config._setattr("ifttt.enabled", True)
     default_config._setattr("ifttt.event", "tgtg_notification")
     default_config._setattr("ifttt.key", "secret_key")
@@ -61,7 +65,7 @@ def test_ifttt(test_item: Item, default_config: Config):
     )
 
     ifttt = IFTTT(default_config)
-    ifttt.send(test_item)
+    await ifttt.send(test_item)
 
     assert responses.calls[0].request.headers.get(
         "Content-Type") == "application/json"
@@ -71,14 +75,15 @@ def test_ifttt(test_item: Item, default_config: Config):
         "value3": f"https://share.toogoodtogo.com/item/{test_item.item_id}"}
 
 
-def test_console(test_item: Item, default_config: Config,
-                 capsys: pytest.CaptureFixture):
+@pytest.mark.asyncio
+async def test_console(test_item: Item, default_config: Config,
+                       capsys: pytest.CaptureFixture):
     default_config._setattr("console.enabled", True)
     default_config._setattr("console.body", "${{display_name}} - "
                             "new amount: ${{items_available}}")
 
     console = Console(default_config)
-    console.send(test_item)
+    await console.send(test_item)
     captured = capsys.readouterr()
 
     assert captured.out == (f"{test_item.display_name} - "

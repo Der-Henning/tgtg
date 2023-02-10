@@ -31,7 +31,7 @@ class WebHook(Notifier):
             except MaskConfigurationError as exc:
                 raise WebHookConfigurationError(exc.message) from exc
 
-    def send(self, item: Item) -> None:
+    async def send(self, item: Item) -> None:
         """Sends item information via configured Webhook endpoint"""
         if self.enabled and self.cron.is_now:
             log.debug("Sending WebHook Notification")

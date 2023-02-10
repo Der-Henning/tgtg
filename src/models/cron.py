@@ -10,6 +10,8 @@ log = logging.getLogger('tgtg')
 
 class Cron():
     def __init__(self, cron_str: str = None) -> None:
+        if not cron_str:
+            cron_str = '* * * * *'
         _cron_str = cron_str.strip()
         self.cron = _cron_str if _cron_str else '* * * * *'
         try:

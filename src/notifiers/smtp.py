@@ -51,8 +51,8 @@ class SMTP(Notifier):
         if self.server:
             try:
                 self.server.quit()
-            except Exception as exc:
-                log.warning(exc)
+            except SMTPException:
+                pass
 
     def _connect(self) -> None:
         """Connect to SMTP Server"""
@@ -91,7 +91,7 @@ class SMTP(Notifier):
             self._connect()
             self.server.sendmail(self.sender, self.recipient, body)
 
-    def send(self, item: Item) -> None:
+    async def send(self, item: Item) -> None:
         """Sends item information via Mail."""
         if self.enabled and self.cron.is_now:
             log.debug("Sending Mail Notification")

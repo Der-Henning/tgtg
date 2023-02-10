@@ -10,8 +10,8 @@ class Notifier(ABC):
         self.cron = Cron()
 
     @abstractmethod
-    def send(self, item: Item) -> None:
+    async def send(self, item: Item) -> None:
         """Send Item information"""
 
-    def stop(self) -> None:
+    async def stop(self) -> None:
         """Stop notifier"""

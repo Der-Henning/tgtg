@@ -1,12 +1,13 @@
+import asyncio
 import datetime
 import logging
 import random
-from time import sleep
 
-from telegram import ParseMode, Update
-from telegram.bot import BotCommand
+from telegram import BotCommand, Update
+from telegram.constants import ParseMode
 from telegram.error import BadRequest, NetworkError, TelegramError, TimedOut
-from telegram.ext import CallbackContext, CommandHandler, Updater
+from telegram.ext import (Application, CommandHandler, ContextTypes,
+                          MessageHandler, filters)
 
 from models import Config, Item
 from models.errors import MaskConfigurationError, TelegramConfigurationError
@@ -21,8 +22,13 @@ class Telegram(Notifier):
     """
     MAX_RETRIES = 10
 
-    def __init__(self, config: Config):
-        self.updater = None
+    async def __new__(cls, *args, **kwargs):
+        instance = super().__new__(cls)
+        await instance.__init__(*args, **kwargs)
+        return instance
+
+    async def __init__(self, config: Config):
+        self.application: Application = None
         self.config = config
         self.enabled = config.telegram.get("enabled", False)
         self.token = config.telegram.get("token")
@@ -32,36 +38,40 @@ class Telegram(Notifier):
         self.cron = config.telegram.get("cron")
         self.mute = None
         self.retries = 0
+        self.code = 0
         if self.enabled and (not self.token or not self.body):
             raise TelegramConfigurationError()
         if self.enabled:
             try:
                 Item.check_mask(self.body)
-                self.updater = Updater(token=self.token)
-                self.updater.bot.get_me(timeout=self.timeout)
+                self.application = Application.builder() \
+                    .token(self.token).build()
+                await self.application.bot.get_me()
             except MaskConfigurationError as err:
                 raise TelegramConfigurationError(err.message) from err
             except TelegramError as err:
                 raise TelegramConfigurationError() from err
-            if not self.chat_ids:
-                self._get_chat_id()
-            self.updater.dispatcher.add_handler(
+            self.application.add_handler(
                 CommandHandler("help", self._help))
-            self.updater.dispatcher.add_handler(
+            self.application.add_handler(
                 CommandHandler("mute", self._mute))
-            self.updater.dispatcher.add_handler(
+            self.application.add_handler(
                 CommandHandler("unmute", self._unmute))
-            self.updater.dispatcher.add_error_handler(self._error)
-            self.updater.bot.set_my_commands([
+            self.application.add_error_handler(self._error)
+            await self.application.initialize()
+            await self.application.start()
+            await self.application.updater.start_polling()
+            await self.application.updater.bot.set_my_commands([
                 BotCommand('help', 'Display available Commands'),
                 BotCommand(
                     'mute',
                     'Deactivate Telegram Notifications for 1 or x days'),
                 BotCommand('unmute', 'Reactivate Telegram Notifications')
             ])
-            self.updater.start_polling()
+            if not self.chat_ids:
+                await self._get_chat_id()
 
-    def send(self, item: Item) -> None:
+    async def send(self, item: Item) -> None:
         """Send item information as Telegram message"""
         if self.enabled and self.cron.is_now:
             if self.mute and self.mute > datetime.datetime.now():
@@ -70,16 +80,14 @@ class Telegram(Notifier):
                 log.info("Reactivated Telegram Notifications")
                 self.mute = None
             log.debug("Sending Telegram Notification")
-            fmt = ParseMode.MARKDOWN
             message = item.unmask(self.body)
             log.debug(message)
             for chat_id in self.chat_ids:
                 try:
-                    self.updater.bot.send_message(
+                    await self.application.updater.bot.send_message(
                         chat_id=chat_id,
                         text=message,
-                        parse_mode=fmt,
-                        timeout=self.timeout,
+                        parse_mode=ParseMode.MARKDOWN,
                         disable_web_page_preview=True)
                     self.retries = 0
                 except BadRequest as err:
@@ -89,42 +97,63 @@ class Telegram(Notifier):
                     self.retries += 1
                     if self.retries > Telegram.MAX_RETRIES:
                         raise err
-                    self.updater.stop()
-                    self.updater.start_polling()
-                    self.send(item)
+                    await self.application.updater.stop()
+                    await self.application.stop()
+                    await self.application.updater.start_polling()
+                    await self.application.start()
+                    await self.send(item)
                 except TelegramError as err:
                     log.error('Telegram Error: %s', err)
 
-    def _help(self, update: Update, context: CallbackContext) -> None:
+    async def _help(self, update: Update,
+                    context: ContextTypes.DEFAULT_TYPE) -> None:
         """Send message containing available bot commands"""
         del context
-        update.message.reply_text('Deactivate Telegram Notifications for '
-                                  'x days using\n/mute x\nReactivate with '
-                                  '/unmute')
+        await update.effective_message.reply_text(
+            'Deactivate Telegram Notifications for x days '
+            'using\n/mute x\nReactivate with /unmute')
 
-    def _mute(self, update: Update, context: CallbackContext) -> None:
+    async def _mute(self, update: Update,
+                    context: ContextTypes.DEFAULT_TYPE) -> None:
         """Deactivates Telegram Notifications for x days"""
         days = int(context.args[0]) if context.args and \
             context.args[0].isnumeric() else 1
         self.mute = datetime.datetime.now() + datetime.timedelta(days=days)
         log.info('Deactivated Telegram Notifications for %s days', days)
         log.info('Reactivation at %s', self.mute)
-        update.message.reply_text(f"Deactivated Telegram Notifications "
-                                  f"for {days} days.\nReactivating at "
-                                  f"{self.mute} or use /unmute.")
+        await update.effective_message.reply_text(
+            f"Deactivated Telegram Notifications for {days} days."
+            f"\nReactivating at {self.mute} or use /unmute.")
 
-    def _unmute(self, update: Update, context: CallbackContext) -> None:
+    async def _unmute(self, update: Update,
+                      context: ContextTypes.DEFAULT_TYPE) -> None:
         """Reactivate Telegram Notifications"""
         del context
         self.mute = None
         log.info("Reactivated Telegram Notifications")
-        update.message.reply_text("Reactivated Telegram Notifications")
+        await update.effective_message.reply_text(
+            "Reactivated Telegram Notifications")
 
-    def _error(self, update: Update, context: CallbackContext) -> None:
+    async def _error(self, update: Update,
+                     context: ContextTypes.DEFAULT_TYPE) -> None:
         """Log Errors caused by Updates."""
         log.warning('Update "%s" caused error "%s"', update, context.error)
 
-    def _get_chat_id(self) -> None:
+    async def _set_chat_id(self, update: Update,
+                           context: ContextTypes.DEFAULT_TYPE) -> None:
+        del context
+        log.debug("Received: %s", update.message.text)
+        if update.message.text.isdecimal() and \
+                int(update.message.text) == self.code:
+            log.warning(
+                "Received code from %s %s on chat id %s",
+                update.message.from_user.first_name,
+                update.message.from_user.last_name,
+                update.message.chat_id
+            )
+            self.chat_ids = [str(update.message.chat_id)]
+
+    async def _get_chat_id(self) -> None:
         """Initializes an interaction with the user
         to obtain the telegram chat id. \n
         On using the config.ini configuration the
@@ -132,23 +161,15 @@ class Telegram(Notifier):
         """
         log.warning("You enabled the Telegram notifications "
                     "without providing a chat id!")
-        code = random.randint(1111, 9999)
-        log.warning("Send %s to the bot in your desired chat.", code)
+        self.code = random.randint(1111, 9999)
+        log.warning("Send %s to the bot in your desired chat.", self.code)
         log.warning("Waiting for code ...")
+        code_handler = MessageHandler(filters.TEXT & ~filters.COMMAND,
+                                      self._set_chat_id)
+        self.application.add_handler(code_handler)
         while not self.chat_ids:
-            updates = self.updater.bot.get_updates(timeout=self.timeout)
-            for update in reversed(updates):
-                if update.message and update.message.text:
-                    if update.message.text.isdecimal() and \
-                            int(update.message.text) == code:
-                        log.warning(
-                            "Received code from %s %s on chat id %s",
-                            update.message.from_user.first_name,
-                            update.message.from_user.last_name,
-                            update.message.chat_id
-                        )
-                        self.chat_ids = [str(update.message.chat_id)]
-            sleep(1)
+            await asyncio.sleep(1)
+        self.application.remove_handler(code_handler)
         if self.config.set("TELEGRAM", "chat_ids", ','.join(self.chat_ids)):
             log.warning("Saved chat id in your config file")
         else:
@@ -157,9 +178,11 @@ class Telegram(Notifier):
                     self.chat_ids)
             )
 
-    def stop(self):
-        if self.updater is not None:
-            self.updater.stop()
+    async def stop(self):
+        if self.application is not None:
+            await self.application.updater.stop()
+            await self.application.stop()
+            await self.application.shutdown()
 
     def __repr__(self) -> str:
         return f"Telegram: {self.chat_ids}"
