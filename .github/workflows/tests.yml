@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install pytest-cov responses pre-commit
+          pip install pytest-asyncio pytest-cov responses pre-commit
       - name: Run linting
         run: pre-commit run -a
       - name: Run tests
