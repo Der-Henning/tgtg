@@ -1,6 +1,8 @@
 import datetime
 import re
+import humanize
 
+from models import Config
 from models.errors import MaskConfigurationError
 
 ATTRS = ["item_id", "items_available", "display_name", "description",
@@ -16,7 +18,8 @@ class Item():
     returns well formated data for notifications.
     """
 
-    def __init__(self, data: dict):
+    def __init__(self, data: dict, config: Config):
+
         self.items_available = data.get("items_available", 0)
         self.display_name = data.get("display_name", "-")
         self.favorite = "Yes" if data.get("favorite", False) else "No"
@@ -54,6 +57,9 @@ class Item():
         self.store_name = store.get("name", "-")
 
         self.scanned_on = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        if (config.locale and not config.locale.startswith('en')):
+            humanize.i18n.activate(config.locale)
 
     @staticmethod
     def _datetimeparse(datestr: str) -> datetime.datetime:
@@ -96,9 +102,10 @@ class Item():
             pto = self._datetimeparse(self.pickup_interval_end)
             prange = (f"{pfr.hour:02d}:{pfr.minute:02d} - "
                       f"{pto.hour:02d}:{pto.minute:02d}")
+            tommorow = now + datetime.timedelta(days=1)
             if now.date() == pfr.date():
-                return f"Today, {prange}"
+                return f"{humanize.naturalday(now)}, {prange}"
             if (pfr.date() - now.date()).days == 1:
-                return f"Tomorrow, {prange}"
+                return f"{humanize.naturalday(tommorow)}, {prange}"
             return f"{pfr.day}/{pfr.month}, {prange}"
         return "-"

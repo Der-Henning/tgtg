@@ -44,7 +44,7 @@ class Scanner:
             return items[0]
         items = sorted(
             [
-                Item(item)
+                Item(item, Config())
                 for item in self.tgtg_client.get_items(
                     favorites_only=False,
                     latitude=53.5511,
@@ -64,7 +64,8 @@ class Scanner:
         for item_id in self.item_ids:
             try:
                 if item_id != "":
-                    items.append(Item(self.tgtg_client.get_item(item_id)))
+                    items.append(
+                        Item(self.tgtg_client.get_item(item_id), Config()))
             except TgtgAPIError as err:
                 log.error(err)
         items += self._get_favorites()
@@ -92,7 +93,7 @@ class Scanner:
         except TgtgAPIError as err:
             log.error(err)
             return []
-        return [Item(item) for item in items]
+        return [Item(item, Config()) for item in items]
 
     def _check_item(self, item: Item) -> None:
         """
