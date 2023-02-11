@@ -1,30 +1,34 @@
 import configparser
+from importlib import reload
 from pathlib import Path
 
 import pytest
 
-from models import Config, Cron
-from models.config import DEFAULT_CONFIG
+import models.config
+from models.cron import Cron
 
 
 def test_default_ini_config():
-    config = Config("")
-    for key in DEFAULT_CONFIG:
+    reload(models.config)
+    config = models.config.Config("")
+    for key in models.config.DEFAULT_CONFIG:
         assert hasattr(config, key)
-        assert getattr(config, key) == DEFAULT_CONFIG.get(key)
+        assert getattr(config, key) == models.config.DEFAULT_CONFIG.get(key)
 
 
 def test_default_env_config():
-    config = Config()
-    for key in DEFAULT_CONFIG:
+    reload(models.config)
+    config = models.config.Config()
+    for key in models.config.DEFAULT_CONFIG:
         assert hasattr(config, key)
-        assert getattr(config, key) == DEFAULT_CONFIG.get(key)
+        assert getattr(config, key) == models.config.DEFAULT_CONFIG.get(key)
 
 
 def test_config_set(temp_path: Path):
+    reload(models.config)
     config_path = Path(temp_path, "config.ini")
     config_path.touch(exist_ok=True)
-    config = Config(config_path.absolute())
+    config = models.config.Config(config_path.absolute())
 
     assert config.set("MAIN", "debug", True)
 
@@ -35,9 +39,10 @@ def test_config_set(temp_path: Path):
 
 
 def test_save_tokens_to_ini(temp_path: Path):
+    reload(models.config)
     config_path = Path(temp_path, "config.ini")
     config_path.touch(exist_ok=True)
-    config = Config(config_path.absolute())
+    config = models.config.Config(config_path.absolute())
     config.save_tokens("test_access_token", "test_refresh_token",
                        "test_user_id", "test_cookie")
 
@@ -51,9 +56,10 @@ def test_save_tokens_to_ini(temp_path: Path):
 
 
 def test_token_path(temp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    reload(models.config)
     monkeypatch.setenv("TGTG_TOKEN_PATH", str(temp_path.absolute()))
 
-    config = Config()
+    config = models.config.Config()
     config.save_tokens("test_access_token", "test_refresh_token",
                        "test_user_id", "test_cookie")
     config._load_tokens()
@@ -65,6 +71,7 @@ def test_token_path(temp_path: Path, monkeypatch: pytest.MonkeyPatch):
 
 
 def test_ini_get(temp_path: Path):
+    reload(models.config)
     config_path = Path(temp_path, "config.ini")
 
     with open(config_path, 'w', encoding='utf-8') as file:
@@ -80,7 +87,7 @@ def test_ini_get(temp_path: Path):
             '${{price}} € \\nÀ récupérer"}'
         ])
 
-    config = Config(config_path.absolute())
+    config = models.config.Config(config_path.absolute())
 
     assert config.debug is True
     assert config.item_ids == ["23423", "32432", "234532"]
@@ -93,6 +100,7 @@ def test_ini_get(temp_path: Path):
 
 
 def test_env_get(monkeypatch: pytest.MonkeyPatch):
+    reload(models.config)
     monkeypatch.setenv("DEBUG", "true")
     monkeypatch.setenv("ITEM_IDS", "23423, 32432, 234532")
     monkeypatch.setenv("WEBHOOK_TIMEOUT", "42")
@@ -101,7 +109,7 @@ def test_env_get(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("WEBHOOK_BODY", '{"content": "${{items_available}} '
                        'panier(s) à ${{price}} € \\nÀ récupérer"}')
 
-    config = Config()
+    config = models.config.Config()
 
     assert config.debug is True
     assert config.item_ids == ["23423", "32432", "234532"]

@@ -3,7 +3,6 @@ from pathlib import Path
 
 import pytest
 
-from models.config import Config
 from models.item import Item
 
 
@@ -40,11 +39,6 @@ def temp_path():
     temp_path.mkdir(exist_ok=True)
     yield temp_path
     shutil.rmtree(temp_path)
-
-
-@pytest.fixture
-def default_config():
-    return Config("")
 
 
 @pytest.fixture

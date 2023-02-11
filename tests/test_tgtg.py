@@ -1,18 +1,20 @@
 import pathlib
+from importlib import reload
 from os import environ
 
 import pytest
 
-from models import Config
+import models.config
 from tgtg import TgtgClient
 
 
 @pytest.mark.tgtg_api
 def test_get_items(item_properties: dict):
+    reload(models.config)
     if pathlib.Path('src/config.ini').exists():
-        config = Config('src/config.ini')
+        config = models.config.Config('src/config.ini')
     else:
-        config = Config()
+        config = models.config.Config()
 
     env_file = environ.get("GITHUB_ENV", None)
 
