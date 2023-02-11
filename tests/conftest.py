@@ -49,7 +49,7 @@ def default_config():
 
 @pytest.fixture
 def test_item(tgtg_item: dict):
-    return Item(tgtg_item)
+    return Item(tgtg_item, Config())
 
 
 @pytest.fixture

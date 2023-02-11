@@ -18,6 +18,7 @@ DEFAULT_CONFIG = {
     'sleep_time': 60,
     'schedule_cron': Cron('* * * * *'),
     'debug': False,
+    'locale': "en_US",
     'metrics': False,
     'metrics_port': 8000,
     'disable_tests': False,
@@ -105,6 +106,7 @@ class Config():
     sleep_time: int
     schedule_cron: str
     debug: bool
+    locale: str
     metrics: bool
     metrics_port: int
     disable_tests: bool
@@ -238,6 +240,7 @@ class Config():
             self._ini_get_boolean(config, "MAIN", "DisableTests",
                                   "disable_tests")
             self._ini_get_boolean(config, "MAIN", "quiet", "quiet")
+            self._ini_get(config, "MAIN", "locale", "locale")
 
             self._ini_get(config, "TGTG", "Username", "tgtg.username")
             self._ini_get(config, "TGTG", "AccessToken", "tgtg.access_token")
@@ -350,6 +353,7 @@ class Config():
             self._env_get_int("METRICS_PORT", "metrics_port")
             self._env_get_boolean("DISABLE_TESTS", "disable_tests")
             self._env_get_boolean("QUIET", "quiet")
+            self._env_get("LOCALE", "locale")
 
             self._env_get("TGTG_USERNAME", "tgtg.username")
             self._env_get("TGTG_ACCESS_TOKEN", "tgtg.access_token")
