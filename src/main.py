@@ -255,6 +255,8 @@ def _register_signals() -> None:
     # TODO: Define SIGUSR1, SIGUSR2
     signal.signal(signal.SIGINT, _handle_exit_signal)
     signal.signal(signal.SIGTERM, _handle_exit_signal)
+    if hasattr(signal, "SIGBREAK"):
+        signal.signal(getattr(signal, "SIGBREAK"), _handle_exit_signal)
     if not IS_WINDOWS:
         signal.signal(signal.SIGHUP, _handle_exit_signal)
         # TODO: SIGQUIT is ideally meant to terminate with core dumps
