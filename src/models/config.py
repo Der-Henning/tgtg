@@ -7,6 +7,8 @@ from os import environ
 from pathlib import Path
 from typing import Any
 
+import humanize
+
 from models.cron import Cron
 from models.errors import ConfigurationError
 
@@ -137,6 +139,8 @@ class Config():
 
         self.token_path = environ.get("TGTG_TOKEN_PATH", None)
         self._load_tokens()
+        if (self.locale and not self.locale.startswith('en')):
+            humanize.i18n.activate(self.locale)
 
     def _open(self, file: str, mode: str) -> TextIOWrapper:
         return open(Path(self.token_path, file), mode, encoding='utf-8')

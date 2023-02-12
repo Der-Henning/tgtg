@@ -43,7 +43,7 @@ def temp_path():
 
 @pytest.fixture
 def test_item(tgtg_item: dict):
-    return Item(tgtg_item, Config())
+    return Item(tgtg_item)
 
 
 @pytest.fixture

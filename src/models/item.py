@@ -3,7 +3,6 @@ import re
 
 import humanize
 
-from models import Config
 from models.errors import MaskConfigurationError
 
 ATTRS = ["item_id", "items_available", "display_name", "description",
@@ -19,7 +18,7 @@ class Item():
     returns well formated data for notifications.
     """
 
-    def __init__(self, data: dict, config: Config):
+    def __init__(self, data: dict):
 
         self.items_available = data.get("items_available", 0)
         self.display_name = data.get("display_name", "-")
@@ -58,9 +57,6 @@ class Item():
         self.store_name = store.get("name", "-")
 
         self.scanned_on = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        if (config.locale and not config.locale.startswith('en')):
-            humanize.i18n.activate(config.locale)
 
     @staticmethod
     def _datetimeparse(datestr: str) -> datetime.datetime:
