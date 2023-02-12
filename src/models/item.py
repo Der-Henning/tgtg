@@ -1,6 +1,8 @@
 import datetime
 import re
 
+import humanize
+
 from models.errors import MaskConfigurationError
 
 ATTRS = ["item_id", "items_available", "display_name", "description",
@@ -17,6 +19,7 @@ class Item():
     """
 
     def __init__(self, data: dict):
+
         self.items_available = data.get("items_available", 0)
         self.display_name = data.get("display_name", "-")
         self.favorite = "Yes" if data.get("favorite", False) else "No"
@@ -96,9 +99,10 @@ class Item():
             pto = self._datetimeparse(self.pickup_interval_end)
             prange = (f"{pfr.hour:02d}:{pfr.minute:02d} - "
                       f"{pto.hour:02d}:{pto.minute:02d}")
+            tommorow = now + datetime.timedelta(days=1)
             if now.date() == pfr.date():
-                return f"Today, {prange}"
+                return f"{humanize.naturalday(now)}, {prange}"
             if (pfr.date() - now.date()).days == 1:
-                return f"Tomorrow, {prange}"
+                return f"{humanize.naturalday(tommorow)}, {prange}"
             return f"{pfr.day}/{pfr.month}, {prange}"
         return "-"

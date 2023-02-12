@@ -64,7 +64,8 @@ class Scanner:
         for item_id in self.item_ids:
             try:
                 if item_id != "":
-                    items.append(Item(self.tgtg_client.get_item(item_id)))
+                    items.append(
+                        Item(self.tgtg_client.get_item(item_id)))
             except TgtgAPIError as err:
                 log.error(err)
         items += self._get_favorites()
