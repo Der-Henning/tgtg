@@ -5,8 +5,8 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     working_dir: /home/app
-    env_file:
-      - .env
+    # env_file:
+    #   - .env
     volumes:
       - .:/home/app
     stdin_open: true

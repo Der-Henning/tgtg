@@ -19,7 +19,6 @@ class Item():
     """
 
     def __init__(self, data: dict):
-
         self.items_available = data.get("items_available", 0)
         self.display_name = data.get("display_name", "-")
         self.favorite = "Yes" if data.get("favorite", False) else "No"

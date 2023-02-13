@@ -18,7 +18,8 @@ services:
       - METRICS=false                                 ## Enable to export metrics for Prometheus
       - METRICS_PORT=8000                             ## Port for metrics http server
       - DISABLE_TESTS=false                           ## true to disable test notifications on startup
-      - quiet=false                                   ## true to disable all console messages. Only errors and console notifier messages
+      - QUIET=false                                   ## true to disable all console messages. Only errors and console notifier messages
+      - LOCALE=en_US                                  ## set locale to localize ${{pickupdate}}
 
       - CONSOLE=false                                 ## true = enable simple console notifications
       #- CONSOLE_BODY=                                ## console message with variables as described below
@@ -33,18 +34,21 @@ services:
       - SMTP_SSL=false                                ## enable SSL
       - SMTP_SENDER=max.mustermann@gmail.com          ## sender adress - same as Login for google and most smtp servers
       - SMTP_RECIPIENT=max.mustermann@gmail.com       ## recipient for notifications - can be the same as sender
-      #-SMTP_SUBJECT=                                 ## Subject and Body options are optional.
-      #-SMTP_BODY=                                    ## Subject and Body options can use variables as described below
+      #- SMTP_CRON=
+      #- SMTP_SUBJECT=                                 ## Subject and Body options are optional.
+      #- SMTP_BODY=                                    ## Subject and Body options can use variables as described below
                                                       ## The Body option is interpreted as HTML
 
       - PUSH_SAFER=false                              ## true = enable notifications via pushsafer.com
       - PUSH_SAFER_KEY=
       - PUSH_SAFER_DEVICE_ID=
+      #- PUSH_SAFER_CRON=
 
       - TELEGRAM=false                                ## true = enable notifications via Telegram
       - TELEGRAM_TOKEN=                               ## Telegram Bot token - see @botfather
       - TELEGRAM_CHAT_IDS=                            ## Telegram Chat id, multiple ids separated by comma
       - TELEGRAM_TIMEOUT=60                           ## Timeout for Telegram API requests
+      #- TELEGRAM_CRON=
       #- TELEGRAM_BODY=                               ## Optional message body as markdown, variables as described below
                                                       ## Example:
                                                       ## 'TELEGRAM_BODY=*$${{display_name}}*\n*Available*: $${{items_available}}\n*Rating*: $${{rating}}\n*Price*: $${{price}} $${{currency}}\n*Pickup*: $${{pickupdate}}'
@@ -54,6 +58,7 @@ services:
       - IFTTT=false                                   ## true = enable notifications via IFTTT Webhooks
       - IFTTT_EVENT=tgtg_notification                 ## IFTTT Webhooks Event
       - IFTTT_KEY=                                    ## IFTTT Webhooks Key
+      #- IFTTT_CRON=
       - IFTTT_BODY=                                   ## IFTTT json data body
                                                       ## Default: {"value1": "$${{display_name}}", "value2": $${{items_available}}, "value3": "https://share.toogoodtogo.com/item/$${{item_id}}"}
 
@@ -69,6 +74,7 @@ services:
       - WEBHOOK_TYPE=application/json                 ## Content-Type for header, default: text/plain
       - WEBHOOK_HEADERS={}                            ## Additional headers
       - WEBHOOK_TIMEOUT=60                            ## Request Timeout
+      #- WEBHOOK_CRON=
     volumes:
       - tokens:/tokens           ## volume to save TGTG credentials to reuse on next start up and avoid login mail
 volumes:
