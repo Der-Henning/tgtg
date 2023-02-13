@@ -7,6 +7,8 @@ from os import environ
 from pathlib import Path
 from typing import Any
 
+import humanize
+
 from models.cron import Cron
 from models.errors import ConfigurationError
 
@@ -18,6 +20,7 @@ DEFAULT_CONFIG = {
     'sleep_time': 60,
     'schedule_cron': Cron('* * * * *'),
     'debug': False,
+    'locale': "en_US",
     'metrics': False,
     'metrics_port': 8000,
     'disable_tests': False,
@@ -75,7 +78,7 @@ DEFAULT_CONFIG = {
         'url': '',
         'method': 'POST',
         'body': '',
-        'type': '',
+        'type': 'text/plain',
         'headers': {},
         'timeout': 60,
         'cron': Cron('* * * * *')
@@ -105,6 +108,7 @@ class Config():
     sleep_time: int
     schedule_cron: str
     debug: bool
+    locale: str
     metrics: bool
     metrics_port: int
     disable_tests: bool
@@ -135,6 +139,8 @@ class Config():
 
         self.token_path = environ.get("TGTG_TOKEN_PATH", None)
         self._load_tokens()
+        if (self.locale and not self.locale.startswith('en')):
+            humanize.i18n.activate(self.locale)
 
     def _open(self, file: str, mode: str) -> TextIOWrapper:
         return open(Path(self.token_path, file), mode, encoding='utf-8')
@@ -238,6 +244,7 @@ class Config():
             self._ini_get_boolean(config, "MAIN", "DisableTests",
                                   "disable_tests")
             self._ini_get_boolean(config, "MAIN", "quiet", "quiet")
+            self._ini_get(config, "MAIN", "locale", "locale")
 
             self._ini_get(config, "TGTG", "Username", "tgtg.username")
             self._ini_get(config, "TGTG", "AccessToken", "tgtg.access_token")
@@ -350,6 +357,7 @@ class Config():
             self._env_get_int("METRICS_PORT", "metrics_port")
             self._env_get_boolean("DISABLE_TESTS", "disable_tests")
             self._env_get_boolean("QUIET", "quiet")
+            self._env_get("LOCALE", "locale")
 
             self._env_get("TGTG_USERNAME", "tgtg.username")
             self._env_get("TGTG_ACCESS_TOKEN", "tgtg.access_token")
@@ -419,7 +427,7 @@ class Config():
             try:
                 config = configparser.ConfigParser()
                 config.optionxform = str
-                config.read(self.file)
+                config.read(self.file, encoding='utf-8')
                 if section not in config.sections():
                     config.add_section(section)
                 config.set(section, option, str(value))
@@ -440,7 +448,7 @@ class Config():
             try:
                 config = configparser.ConfigParser()
                 config.optionxform = str
-                config.read(self.file)
+                config.read(self.file, encoding='utf-8')
                 if "TGTG" not in config.sections():
                     config.add_section("TGTG")
                 config.set("TGTG", "AccessToken", access_token)

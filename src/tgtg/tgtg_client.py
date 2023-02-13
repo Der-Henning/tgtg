@@ -173,34 +173,31 @@ class TgtgClient:
         if response.status_code in (HTTPStatus.OK, HTTPStatus.ACCEPTED):
             self.captcha_error_count = 0
             return response
-        try:
-            response.json()
-        except ValueError:
-            # Status Code == 403 and no json contend
-            # --> Blocked due to rate limit / wrong user_agent.
-            # 1. Try: Get latest APK Version from google
-            # 2. Try: Reset session
-            # 3. Try: Delete datadome cookie and reset session
-            # 10.Try: Sleep 10 minutes, and reset session
-            if response.status_code == 403:
-                log.debug("Captcha Error 403!")
-                self.captcha_error_count += 1
-                if self.captcha_error_count == 1:
-                    self.user_agent = self._get_user_agent()
-                elif self.captcha_error_count == 2:
-                    self.session = self._create_session()
-                elif self.captcha_error_count == 4:
-                    self.datadome_cookie = None
-                    self.session = self._create_session()
-                elif self.captcha_error_count >= 10:
-                    log.warning(
-                        "Too many captcha Errors! Sleeping for 10 minutes...")
-                    time.sleep(10 * 60)
-                    log.info("Retrying ...")
-                    self.captcha_error_count = 0
-                    self.session = self._create_session()
-                time.sleep(1)
-                return self._post(path, **kwargs)
+        # Status Code == 403
+        # --> Blocked due to rate limit / wrong user_agent.
+        # 1. Try: Get latest APK Version from google
+        # 2. Try: Reset session
+        # 3. Try: Delete datadome cookie and reset session
+        # 10.Try: Sleep 10 minutes, and reset session
+        if response.status_code == 403:
+            log.debug("Captcha Error 403!")
+            self.captcha_error_count += 1
+            if self.captcha_error_count == 1:
+                self.user_agent = self._get_user_agent()
+            elif self.captcha_error_count == 2:
+                self.session = self._create_session()
+            elif self.captcha_error_count == 4:
+                self.datadome_cookie = None
+                self.session = self._create_session()
+            elif self.captcha_error_count >= 10:
+                log.warning(
+                    "Too many captcha Errors! Sleeping for 10 minutes...")
+                time.sleep(10 * 60)
+                log.info("Retrying ...")
+                self.captcha_error_count = 0
+                self.session = self._create_session()
+            time.sleep(1)
+            return self._post(path, **kwargs)
         raise TgtgAPIError(response.status_code, response.content)
 
     def _get_user_agent(self) -> str:
