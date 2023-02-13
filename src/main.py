@@ -2,9 +2,11 @@ import argparse
 import http.client as http_client
 import json
 import logging
+import platform
+import signal
 import sys
 from os import path
-from typing import NoReturn
+from typing import Any, NoReturn
 
 import colorlog
 import requests
@@ -28,9 +30,13 @@ HEADER = (
 # set to 1 to debug http headers
 http_client.HTTPConnection.debuglevel = 0
 
+SYS_PLATFORM = platform.system()
+IS_WINDOWS = SYS_PLATFORM.lower() in ('windows', 'cygwin')
+
 
 def main() -> NoReturn:
     """Wrapper for Scanner and Helper functions."""
+    _register_signals()
     parser = argparse.ArgumentParser(
         description="TooGoodToGo scanner and notifier.",
         prog="scanner"
@@ -243,6 +249,24 @@ def _print_welcome_message() -> None:
     log.info("©2022, %s", __author__)
     log.info("For documentation and support please visit %s", __url__)
     log.info("")
+
+
+def _register_signals() -> None:
+    # TODO: Define SIGUSR1, SIGUSR2
+    signal.signal(signal.SIGINT, _handle_exit_signal)
+    signal.signal(signal.SIGTERM, _handle_exit_signal)
+    if hasattr(signal, "SIGBREAK"):
+        signal.signal(getattr(signal, "SIGBREAK"), _handle_exit_signal)
+    if not IS_WINDOWS:
+        signal.signal(signal.SIGHUP, _handle_exit_signal)
+        # TODO: SIGQUIT is ideally meant to terminate with core dumps
+        signal.signal(signal.SIGQUIT, _handle_exit_signal)
+
+
+def _handle_exit_signal(signum: int, _frame: Any) -> None:
+    log = logging.getLogger("tgtg")
+    log.debug('Received signal %d' % signum)
+    raise KeyboardInterrupt
 
 
 def query_yes_no(question, default="yes") -> bool:
