@@ -427,7 +427,7 @@ class Config():
             try:
                 config = configparser.ConfigParser()
                 config.optionxform = str
-                config.read(self.file)
+                config.read(self.file, encoding='utf-8')
                 if section not in config.sections():
                     config.add_section(section)
                 config.set(section, option, str(value))
@@ -448,7 +448,7 @@ class Config():
             try:
                 config = configparser.ConfigParser()
                 config.optionxform = str
-                config.read(self.file)
+                config.read(self.file, encoding='utf-8')
                 if "TGTG" not in config.sections():
                     config.add_section("TGTG")
                 config.set("TGTG", "AccessToken", access_token)
