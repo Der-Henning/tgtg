@@ -25,9 +25,11 @@ If you see the Error 403 in your logs please refer to the [FAQ](https://github.c
 
 ## Installation
 
-You can install this tool on any computer. For 24/7 notifications I recommended to install the tool on a NAS like Synology or a Raspberry Pi. You can also use a virtual cloud server. Starting at 1,00 €/Month at Strato.de or try AWS free tier.
+You can install this tool on any computer. For 24/7 notifications I recommended to install the tool on a NAS like Synology or a Raspberry Pi. You can also try to use a virtual cloud server. Starting at 1,00 €/Month at Strato.de or try AWS free tier.
 
 If you have any problems or questions feel free to create an issue.
+
+For configuration options see [config.sample.ini](https://github.com/Der-Henning/tgtg/blob/main/src/config.sample.ini) or [docker-compose.yml](https://github.com/Der-Henning/tgtg/blob/main/docker-compose.yml).
 
 You have the following three options to install the scanner, ascending in complexity:
 
@@ -37,7 +39,7 @@ This is the simplest but least flexible solution suitable for most operating sys
 
 1. Download latest [Releases](https://github.com/Der-Henning/tgtg/releases) for your OS
 2. Unzip the archive
-3. Edit ```config.ini``` as described in the file
+3. Edit `config.ini` as described in the file
 4. Run scanner
 
 You can run the scanner manually if you need it, add it to your system startup or create a service.
@@ -47,24 +49,24 @@ On Mac you need to hold the control key while opening the file and on Windows yo
 
 ### Run with Docker
 
-My preferred method for servers using the pre build multi-arch linux images available on [Docker Hub](https://hub.docker.com/r/derhenning/tgtg).
+My preferred method for servers is using the pre build multi-arch linux images available on [Docker Hub](https://hub.docker.com/r/derhenning/tgtg).
 
 1. Install Docker and docker-compose
-2. Copy and edit ```docker-compose.yml``` as described in the file
-3. Run ```docker-compose up -d```
+2. Copy and edit `docker-compose.yml` as described in the file
+3. Run `docker-compose up -d`
 
-The container creates a volume mounting ```\tokens``` where the app saves the TGTG credentials after login. These credentials will be reused on every start of the container to avoid the mail login process. To login with a different account you have to delete the created volume.
+The container creates a volume mounting `\tokens` where the app saves the TGTG credentials after login. These credentials will be reused on every start of the container to avoid the mail login process. To login with a different account you have to delete the created volume.
 
 ### Run from source
 
 Method for developers.
 
 1. Install Python>=3.9 and pip
-2. Run ```pip install -r requirements.txt```
-3. Create ```src/config.ini``` as described in the file ```config.template.ini```
-4. Run ```python src/main.py```
+2. Run `pip install -r requirements.txt`
+3. Create `src/config.ini` as described in the file `config.template.ini`
+4. Run `python src/main.py`
 
-Alternatively you can use environment variables as described in the ```sample.env``` file. The scanner will look for environment variables if no ```config.ini``` is present.
+Alternatively you can use environment variables as described in the `sample.env` file. The scanner will look for environment variables if no `config.ini` is present.
 
 ### Running
 
@@ -92,29 +94,21 @@ Scrape config:
 
 For development I recommend using docker. The Makefile depends on docker and docker-compose.
 
-Create ```.env``` based on ```sample.env``` for configuration.
-
 Developing with VSCode you can open the project in the configured development container.
 
 ### Makefile commands
 
-```make image``` builds docker image with tag ```tgtg-scanner:latest```
-
-```make install``` installs dependencies
-
-```make start``` short for ```python src/main.py```
-
-```make bash``` starts dev python docker image with installed dependencies and mounted project in bash
-
-```make executable``` creates bundled executable in ```/dist```
-
-```make test``` runs unit tests
-
-```make clean``` cleans up docker compose
+- `make image` builds docker image with tag `tgtg-scanner:latest`
+- `make install` installs dependencies
+- `make start` short for `python src/main.py`
+- `make bash` starts dev python docker image with installed dependencies and mounted project in bash
+- `make executable` creates bundled executable in `/dist`
+- `make test` runs unit tests
+- `make clean` cleans up docker compose
 
 ### Helper functions
 
-```src/main.py``` contains some useful helper functions that can be accessed via optional command line arguments. Running ```python src/main.py --help``` displays the available commands.
+The executable or the `src/main.py` contains some useful helper functions that can be accessed via optional command line arguments. Running `scanner(.exe) --help` or `python src/main.py --help` displays the available commands.
 
 ````
 usage: main.py [-h] [-v] [-d] [-t] [-f] [-F] [-a item_id [item_id ...]] [-r item_id [item_id ...]] [-R]
