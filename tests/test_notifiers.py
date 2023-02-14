@@ -12,7 +12,7 @@ from notifiers.webhook import WebHook
 
 
 @responses.activate
-def test_webhook(test_item: Item):
+def test_webhook_json(test_item: Item):
     reload(models.config)
     config = models.config.Config("")
     config._setattr("webhook.enabled", True)
@@ -36,11 +36,45 @@ def test_webhook(test_item: Item):
     webhook.send(test_item)
 
     assert responses.calls[0].request.headers.get("Accept") == "json"
+    assert responses.calls[0].request.headers.get(
+        "Content-Type") == "application/json"
     assert json.loads(responses.calls[0].request.body) == {
         "content": (f"{test_item.items_available} panier(s) disponible(s) à "
                     f"{test_item.price} € \nÀ récupérer {test_item.pickupdate}"
                     f"\nhttps://toogoodtogo.com/item/{test_item.item_id}"),
         "username": f"{test_item.display_name}"}
+
+
+@responses.activate
+def test_webhook_text(test_item: Item):
+    reload(models.config)
+    config = models.config.Config("")
+    config._setattr("webhook.enabled", True)
+    config._setattr("webhook.method", "POST")
+    config._setattr("webhook.url", "https://api.example.com")
+    config._setattr("webhook.type", "text/plain")
+    config._setattr("webhook.headers", {"Accept": "json"})
+    config._setattr("webhook.body",
+                    '${{items_available}} panier(s) '
+                    'disponible(s) à ${{price}} € \nÀ récupérer '
+                    '${{pickupdate}}\n'
+                    'https://toogoodtogo.com/item/${{item_id}}')
+    responses.add(
+        responses.POST,
+        "https://api.example.com",
+        status=200
+    )
+
+    webhook = WebHook(config)
+    webhook.send(test_item)
+
+    assert responses.calls[0].request.headers.get("Accept") == "json"
+    assert responses.calls[0].request.headers.get(
+        "Content-Type") == "text/plain"
+    assert responses.calls[0].request.body.decode('utf-8') == (
+        f"{test_item.items_available} panier(s) disponible(s) à "
+        f"{test_item.price} € \nÀ récupérer {test_item.pickupdate}"
+        f"\nhttps://toogoodtogo.com/item/{test_item.item_id}")
 
 
 @responses.activate
