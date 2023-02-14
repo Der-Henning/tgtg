@@ -27,19 +27,19 @@ If you see the Error 403 in your logs please refer to the [FAQ](https://github.c
 
 ## Installation
 
-You can install this tool on any computer. For 24/7 notifications I recommended to an installation on a NAS like Synology or a Raspberry Pi. You can also try to use a virtual cloud server.
+You can install this tool on any computer. For 24/7 notifications I recommended an installation on a NAS like Synology or a Raspberry Pi. You can also try to use a virtual cloud server.
 
 If you have any problems or questions feel free to create an issue.
 
-For configuration options see [`config.sample.ini`](https://github.com/Der-Henning/tgtg/blob/main/src/config.sample.ini) or [`docker-compose.yml`](https://github.com/Der-Henning/tgtg/blob/main/docker-compose.yml).
+For configuration options please refer to the projects wiki: [Configuration](https://github.com/Der-Henning/tgtg/wiki/Configuration)
 
 You have the following three options to install the scanner, ascending in complexity:
 
-### Use prebuild Release
+### Use a prebuild binary
 
 This is the simplest but least flexible solution suitable for most operating systems.
 
-The binaries are build for Linux, MacOS and Windows running on a `x64` architecture. If you are using an other architecture like `arm` (e.g. Raspberry Pi) you have to run from source, compile the binary yourself or use the docker images.
+The binaries are build for Linux, MacOS and Windows running on a `x64` architecture. If you are using an other architecture like `arm` (e.g. RaspberryPi) you have to run from source, compile the binary yourself or use the docker images.
 
 1. Download latest [Releases](https://github.com/Der-Henning/tgtg/releases) for your OS
 2. Unzip the archive
@@ -49,7 +49,7 @@ The binaries are build for Linux, MacOS and Windows running on a `x64` architect
 You can run the scanner manually if you need it, add it to your startup or create a system service.
 
 The executables for Windows and MacOS are not signed by Microsoft and Apple, which would be very expensive.
-On Mac you need to hold the control key while opening the file and on Windows you need to confirm the displayed dialog.
+On Mac you have to hold the control key while opening the file and on Windows you have to confirm the displayed dialog.
 
 ### Run with Docker
 
