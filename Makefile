@@ -19,7 +19,7 @@ executable:
 	zip -j dist/scanner.zip dist/*
 
 test:
-	python -m pytest -m "not tgtg_api" --cov src/
+	python -m pytest -v -m "not tgtg_api" --cov src/
 
 lint:
 	pre-commit run -a
