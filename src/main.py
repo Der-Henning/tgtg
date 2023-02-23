@@ -103,7 +103,7 @@ def main() -> NoReturn:
     )
     args = parser.parse_args()
 
-    if args.json:
+    if args.json or args.json_pretty:
         logging.disable(logging.CRITICAL)
 
     # Remove all handlers
