@@ -148,6 +148,12 @@ def main() -> NoReturn:
         print("")
     elif args.favorites:
         favorites = scanner.get_favorites()
+        if args.json:
+            print(json.dumps(favorites, sort_keys=True))
+        else:
+            print("")
+            ....
+        favorites = scanner.get_favorites()
         print(json.dumps(favorites, sort_keys=True, indent=4))
         print("")
     elif args.favorite_ids:
