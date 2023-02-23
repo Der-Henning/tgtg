@@ -5,8 +5,8 @@ import logging
 import platform
 import signal
 import sys
-from os import path
-from typing import Any, NoReturn
+from pathlib import Path
+from typing import Any, NoReturn, Union
 
 import colorlog
 import requests
@@ -32,14 +32,20 @@ http_client.HTTPConnection.debuglevel = 0
 
 SYS_PLATFORM = platform.system()
 IS_WINDOWS = SYS_PLATFORM.lower() in ('windows', 'cygwin')
+IS_EXECUTABLE = getattr(sys, "_MEIPASS", False)
+PROG_PATH = Path(sys.executable) if IS_EXECUTABLE else Path(__file__)
 
 
 def main() -> NoReturn:
     """Wrapper for Scanner and Helper functions."""
     _register_signals()
+
+    config_file = Path(PROG_PATH.parent, "config.ini")
+    log_file = Path(PROG_PATH.parent, "scanner.log")
+
     parser = argparse.ArgumentParser(
         description="TooGoodToGo scanner and notifier.",
-        prog="scanner"
+        prog=PROG_PATH.name
     )
     parser.add_argument(
         "-v", "--version",
@@ -51,53 +57,60 @@ def main() -> NoReturn:
         action="store_true",
         help="activate debugging mode"
     )
-    parser.add_argument(
+    helper_group = parser.add_mutually_exclusive_group(required=False)
+    helper_group.add_argument(
         "-t", "--tokens",
         action="store_true",
         help="display your current access tokens and exit",
     )
-    parser.add_argument(
+    helper_group.add_argument(
         "-f", "--favorites",
         action="store_true",
         help="display your favorites and exit"
     )
-    parser.add_argument(
+    helper_group.add_argument(
         "-F", "--favorite_ids",
         action="store_true",
         help="display the item ids of your favorites and exit",
     )
-    parser.add_argument(
+    helper_group.add_argument(
         "-a", "--add",
         nargs="+",
         metavar="item_id",
         help="add item ids to favorites and exit",
     )
-    parser.add_argument(
+    helper_group.add_argument(
         "-r", "--remove",
         nargs="+",
         metavar="item_id",
         help="remove item ids from favorites and exit",
     )
-    parser.add_argument(
+    helper_group.add_argument(
         "-R", "--remove_all",
         action="store_true",
         help="remove all favorites and exit"
     )
+    json_group = parser.add_mutually_exclusive_group(required=False)
+    json_group.add_argument(
+        "-j", "--json",
+        action="store_true",
+        help="output as plain json"
+    )
+    json_group.add_argument(
+        "-J", "--json_pretty",
+        action="store_true",
+        help="output as pretty json"
+    )
     args = parser.parse_args()
 
-    prog_folder = (
-        path.dirname(sys.executable)
-        if getattr(sys, "_MEIPASS", False)
-        else path.dirname(path.abspath(__file__))
-    )
-    config_file = path.join(prog_folder, "config.ini")
-    log_file = path.join(prog_folder, "scanner.log")
+    if args.json or args.json_pretty:
+        logging.disable(logging.CRITICAL)
 
     # Remove all handlers
     for handler in logging.root.handlers:
         logging.root.removeHandler(handler)
 
-    logging.root.setLevel(logging.INFO)
+    logging.root.setLevel(logging.ERROR)
     # Define stream formatter and handler
     stream_formatter = colorlog.ColoredFormatter(
         fmt=("%(cyan)s%(asctime)s%(reset)s "
@@ -126,8 +139,9 @@ def main() -> NoReturn:
     logging.root.addHandler(stream_handler)
 
     log = logging.getLogger("tgtg")
+    log.setLevel(logging.INFO)
 
-    config = Config(config_file) if path.isfile(config_file) else Config()
+    config = Config(config_file) if Path(config_file).is_file() else Config()
     if args.debug:
         config.debug = True
     if config.debug:
@@ -135,64 +149,62 @@ def main() -> NoReturn:
             logging.getLogger(logger_name).setLevel(logging.DEBUG)
         log.info("Debugging mode enabled")
 
-    scanner = Scanner(config)
-    if args.tokens:
-        credentials = scanner.get_credentials()
-        print("")
-        print("Your TGTG credentials:")
-        print("Email:          ", credentials.get("email"))
-        print("Access Token:   ", credentials.get("access_token"))
-        print("Refresh Token:  ", credentials.get("refresh_token"))
-        print("User ID:        ", credentials.get("user_id"))
-        print("Datadome Cookie:", credentials.get("datadome_cookie"))
-        print("")
-    elif args.favorites:
-        favorites = scanner.get_favorites()
-        print("")
-        print("Your favorites:")
-        print(json.dumps(favorites, sort_keys=True, indent=4))
-        print("")
-    elif args.favorite_ids:
-        favorites = scanner.get_favorites()
-        item_ids = [fav.get("item", {}).get("item_id") for fav in favorites]
-        print("")
-        print("Item IDs:")
-        print(" ".join(item_ids))
-        print("")
-    elif args.add is not None:
-        for item_id in args.add:
-            scanner.set_favorite(item_id)
-        print("done.")
-    elif args.remove is not None:
-        for item_id in args.remove:
-            scanner.unset_favorite(item_id)
-        print("done.")
-    elif args.remove_all:
-        if query_yes_no("Remove all favorites from your account?",
-                        default='no'):
-            scanner.unset_all_favorites()
-            print("done.")
-    else:
-        _run_scanner(scanner)
-
-
-def _get_version_info() -> str:
-    lastest_release = _get_new_version()
-    if lastest_release is None:
-        return __version__
-    return (f"{__version__} - Update available! "
-            f"See {lastest_release.get('html_url')}")
-
-
-def _run_scanner(scanner: Scanner) -> NoReturn:
-    log = logging.getLogger("tgtg")
     try:
-        _print_welcome_message()
-        _print_version_check()
-        if scanner.config.quiet and not scanner.config.debug:
-            for logger_name in logging.root.manager.loggerDict:
-                logging.getLogger(logger_name).setLevel(logging.ERROR)
-        scanner.run()
+        scanner = Scanner(config)
+        if args.tokens:
+            credentials = scanner.get_credentials()
+            if args.json:
+                print(json.dumps(credentials, sort_keys=True))
+            elif args.json_pretty:
+                print(json.dumps(credentials, sort_keys=True, indent=4))
+            else:
+                print("")
+                print("Your TGTG credentials:")
+                print("Email:          ", credentials.get("email"))
+                print("Access Token:   ", credentials.get("access_token"))
+                print("Refresh Token:  ", credentials.get("refresh_token"))
+                print("User ID:        ", credentials.get("user_id"))
+                print("Datadome Cookie:", credentials.get("datadome_cookie"))
+                print("")
+        elif args.favorites:
+            favorites = scanner.get_favorites()
+            if args.json:
+                print(json.dumps(favorites, sort_keys=True))
+            elif args.json_pretty:
+                print(json.dumps(favorites, sort_keys=True, indent=4))
+            else:
+                print("")
+                print("Your favorites:")
+                print(json.dumps(favorites, sort_keys=True, indent=4))
+                print("")
+        elif args.favorite_ids:
+            favorites = scanner.get_favorites()
+            item_ids = [fav.get("item", {}).get("item_id")
+                        for fav in favorites]
+            if args.json:
+                print(json.dumps(item_ids, sort_keys=True))
+            elif args.json_pretty:
+                print(json.dumps(item_ids, sort_keys=True, indent=4))
+            else:
+                print("")
+                print("Item IDs:")
+                print(" ".join(item_ids))
+                print("")
+        elif args.add is not None:
+            for item_id in args.add:
+                scanner.set_favorite(item_id)
+            print("done.")
+        elif args.remove is not None:
+            for item_id in args.remove:
+                scanner.unset_favorite(item_id)
+            print("done.")
+        elif args.remove_all:
+            if query_yes_no("Remove all favorites from your account?",
+                            default='no'):
+                scanner.unset_all_favorites()
+                print("done.")
+        else:
+            _run_scanner(scanner)
     except ConfigurationError as err:
         log.error("Configuration Error: %s", err)
         sys.exit(1)
@@ -206,7 +218,24 @@ def _run_scanner(scanner: Scanner) -> NoReturn:
         sys.exit(1)
 
 
-def _get_new_version() -> str:
+def _get_version_info() -> str:
+    lastest_release = _get_new_version()
+    if lastest_release is None:
+        return __version__
+    return (f"{__version__} - Update available! "
+            f"See {lastest_release.get('html_url')}")
+
+
+def _run_scanner(scanner: Scanner) -> NoReturn:
+    _print_welcome_message()
+    _print_version_check()
+    if scanner.config.quiet and not scanner.config.debug:
+        for logger_name in logging.root.manager.loggerDict:
+            logging.getLogger(logger_name).setLevel(logging.ERROR)
+    scanner.run()
+
+
+def _get_new_version() -> Union[dict, None]:
     log = logging.getLogger("tgtg")
     try:
         res = requests.get(VERSION_URL, timeout=60)
