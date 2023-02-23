@@ -16,7 +16,7 @@ class Scanner:
     def __init__(self, config: Config):
         self.config = config
         self.metrics = Metrics(self.config.metrics_port)
-        self.item_ids = self.config.item_ids
+        self.item_ids = set(self.config.item_ids)
         self.cron = self.config.schedule_cron
         self.amounts = {}
         self.notifiers = None
