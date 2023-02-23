@@ -13,6 +13,8 @@ log = logging.getLogger("tgtg")
 
 
 class Scanner:
+    """Main Scanner class"""
+
     def __init__(self, config: Config):
         self.config = config
         self.metrics = Metrics(self.config.metrics_port)
@@ -86,6 +88,9 @@ class Scanner:
     def _get_favorites(self) -> list[Item]:
         """
         Get favorites as list of Items
+
+        Returns:
+            List: List of items
         """
         try:
             items = self.get_favorites()
@@ -176,7 +181,8 @@ class Scanner:
         """Returns current tgtg credentials.
 
         Returns:
-            dict: dictionary containing access token, refresh token and user id
+            dict: dictionary containing access token, refresh token,
+                  user id and datadome cookie
         """
         return self.tgtg_client.get_credentials()
 
