@@ -103,6 +103,7 @@ def main() -> NoReturn:
     )
     args = parser.parse_args()
 
+    # Disable logging for json output
     if args.json or args.json_pretty:
         logging.disable(logging.CRITICAL)
 
@@ -110,7 +111,10 @@ def main() -> NoReturn:
     for handler in logging.root.handlers:
         logging.root.removeHandler(handler)
 
-    logging.root.setLevel(logging.ERROR)
+    # Set all loggers to level Error
+    for logger_name in logging.root.manager.loggerDict:
+        logging.getLogger(logger_name).setLevel(logging.ERROR)
+
     # Define stream formatter and handler
     stream_formatter = colorlog.ColoredFormatter(
         fmt=("%(cyan)s%(asctime)s%(reset)s "
@@ -127,6 +131,8 @@ def main() -> NoReturn:
     )
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(stream_formatter)
+    logging.root.addHandler(stream_handler)
+
     # Define file formatter and handler
     file_handler = logging.FileHandler(log_file, mode="w", encoding='utf-8')
     file_formatter = logging.Formatter(
@@ -136,12 +142,15 @@ def main() -> NoReturn:
         datefmt="%Y-%m-%d %H:%M:%S")
     file_handler.setFormatter(file_formatter)
     logging.root.addHandler(file_handler)
-    logging.root.addHandler(stream_handler)
 
+    # Create tgtg logger
     log = logging.getLogger("tgtg")
     log.setLevel(logging.INFO)
 
+    # Load config
     config = Config(config_file) if Path(config_file).is_file() else Config()
+
+    # Activate debugging mode
     if args.debug:
         config.debug = True
     if config.debug:
