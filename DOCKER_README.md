@@ -1,17 +1,17 @@
 # Quick reference
 
-Readme, source and documentation on [https://github.com/Der-Henning/tgtg](https://github.com/Der-Henning/tgtg).
+Readme, source, and documentation on [https://github.com/Der-Henning/tgtg](https://github.com/Der-Henning/tgtg).
 
 # Supported Tags and respective `Dockerfile` links
 
  The `latest` images represent the latest stable release.
  The `edge` images contain the latest commits to the main branch.
- The `alpine` images are based on the alpine linux distribution and are significantly smaller.
+ The `alpine` images are based on the alpine Linux distribution and are significantly smaller.
 
 - [`edge`](https://github.com/Der-Henning/tgtg/blob/main/Dockerfile)
 - [`edge-alpine`](https://github.com/Der-Henning/tgtg/blob/main/Dockerfile.alpine)
-- [`v1`, `v1.15`, `v1.15.1`, `latest`](https://github.com/Der-Henning/tgtg/blob/v1.15.1/Dockerfile)
-- [`v1-alpine`, `v1.15-alpine`, `v1.15.1-alpine`, `latest-alpine`](https://github.com/Der-Henning/tgtg/blob/v1.15.1/Dockerfile.alpine)
+- [`v1`, `v1.15`, `v1.15.2`, `latest`](https://github.com/Der-Henning/tgtg/blob/v1.15.2/Dockerfile)
+- [`v1-alpine`, `v1.15-alpine`, `v1.15.2-alpine`, `latest-alpine`](https://github.com/Der-Henning/tgtg/blob/v1.15.2/Dockerfile.alpine)
 
 # Quick Start
 
