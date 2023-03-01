@@ -73,6 +73,19 @@ DEFAULT_CONFIG = {
         'timeout': 60,
         'cron': Cron('* * * * *')
     },
+    'ntfy': {
+        'enabled': False,
+        'server': 'https://ntfy.sh',
+        'topic': None,
+        'title': 'New TGTG items',
+        'body': '${{display_name}} - New Amount: ${{items_available}} - https://share.toogoodtogo.com/item/${{item_id}}',
+        'priority': 'default',
+        'tags': 'shopping,tgtg',
+        'username': None,
+        'password': None,
+        'timeout': 60,
+        'cron': Cron('* * * * *'),
+    },
     'webhook': {
         'enabled': False,
         'url': '',
@@ -118,6 +131,7 @@ class Config():
     push_safer: dict
     smtp: dict
     ifttt: dict
+    ntfy: dict
     webhook: dict
     telegram: dict
 
@@ -290,6 +304,18 @@ class Config():
             self._ini_get(config, "IFTTT", "Body", "ifttt.body")
             self._ini_get_int(config, "IFTTT", "Timeout", "ifttt.timeout")
             self._ini_get_cron(config, "IFTTT", "cron", "ifttt.cron")
+
+            self._ini_get_boolean(config, "NTFY", "enabled", "ntfy.enabled")
+            self._ini_get(config, "NTFY", "Server", "ntfy.server")
+            self._ini_get(config, "NTFY", "Topic", "ntfy.topic")
+            self._ini_get(config, "NTFY", "Title", "ntfy.title")
+            self._ini_get(config, "NTFY", "Body", "ntfy.body")
+            self._ini_get(config, "NTFY", "Priority", "ntfy.priority")
+            self._ini_get(config, "NTFY", "Tags", "ntfy.tags")
+            self._ini_get(config, "NTFY", "Username", "ntfy.username")
+            self._ini_get(config, "NTFY", "Password", "ntfy.Password")
+            self._ini_get_int(config, "NTFY", "Timeout", "ntfy.timeout")
+            self._ini_get_cron(config, "NTFY", "cron", "ntfy.cron")
 
             self._ini_get_boolean(config, "WEBHOOK", "enabled",
                                   "webhook.enabled")
