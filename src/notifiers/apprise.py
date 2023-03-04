@@ -17,6 +17,7 @@ class Apprise(Notifier):
     """
 
     def __init__(self, config: Config):
+        self.instance = None
         self.enabled = config.apprise.get("enabled", False)
         self.body = config.apprise.get("body")
         self.url = config.apprise.get("url")
@@ -25,6 +26,8 @@ class Apprise(Notifier):
         if self.enabled and not self.url:
             raise AppriseConfigurationError()
         if self.enabled:
+            self.instance = apprise.Apprise()
+            self.instance.add(self.url)
             try:
                 Item.check_mask(self.body)
                 Item.check_mask(self.url)
@@ -39,12 +42,13 @@ class Apprise(Notifier):
             log.debug("Apprise url: %s", url)
             if self.body:
                 body = item.unmask(self.body)
-                apobj = apprise.Apprise()
-                apobj.add(self.url)
-                apobj.notify(
+                self.instance.notify(
                     body=body
                 )
-                apobj.clear()
+
+    def stop(self):
+        if self.instance is not None:
+            self.instance.clear()
 
     def __repr__(self) -> str:
         return f"Apprise {self.url}"
