@@ -21,6 +21,14 @@ services:
       - QUIET=false                                   ## true to disable all console messages. Only errors and console notifier messages
       - LOCALE=en_US                                  ## set locale to localize ${{pickupdate}}
 
+      - APPRISE=false                                 ## true = enable notifications via Apprise
+      - APPRISE_URL=                                  ## Apprise URL
+                                                      ## See the list of supported services: https://github.com/caronc/apprise/wiki
+      #- APPRISE_CRON=
+      #- APPRISE_BODY=                                ## Optional message body, variables as described below
+                                                      ## The supported message format depends on the chosen service
+                                                      ## Default: '${{display_name}} - new amount: ${{items_available}} - https://share.toogoodtogo.com/item/${{item_id}}'
+
       - CONSOLE=false                                 ## true = enable simple console notifications
       #- CONSOLE_BODY=                                ## console message with variables as described below
       #- CONSOLE_CRON=                                ## Disable notifications based on cron

@@ -36,6 +36,12 @@ DEFAULT_CONFIG = {
         'max_polling_tries': 24,
         'polling_wait_time': 5
     },
+    'apprise': {
+        'enabled': False,
+        'url': '',
+        'cron': Cron('* * * * *'),
+        'body': '${{display_name}} - new amount: ${{items_available}} - https://share.toogoodtogo.com/item/${{item_id}}'
+    },
     'console': {
         'enabled': False,
         'body': '${{scanned_on}} ${{display_name}} - '
@@ -114,6 +120,7 @@ class Config():
     disable_tests: bool
     quiet: bool
     tgtg: dict
+    apprise: dict
     console: dict
     push_safer: dict
     smtp: dict
@@ -259,6 +266,12 @@ class Config():
             self._ini_get_int(config, "TGTG", "PollingWaitTime",
                               "tgtg.polling_wait_time")
 
+            self._ini_get_boolean(config, "APPRISE",
+                                  "enabled", "apprise.enabled")
+            self._ini_get(config, "APPRISE", "URL", "apprise.url")
+            self._ini_get_cron(config, "APPRISE", "cron", "apprise.cron")
+            self._ini_get(config, "APPRISE", "body", "apprise.body")
+
             self._ini_get_boolean(config, "CONSOLE",
                                   "enabled", "console.enabled")
             self._ini_get(config, "CONSOLE", "Body", "console.body")
@@ -371,6 +384,11 @@ class Config():
                               "tgtg.max_polling_tries")
             self._env_get_int("TGTG_POLLING_WAIT_TIME",
                               "tgtg.polling_wait_time")
+
+            self._env_get_boolean("APPRISE", "apprise.enabled")
+            self._env_get("APPRISE_URL", "apprise.url")
+            self._env_get_cron("APPRISE_CRON", "apprise.cron")
+            self._env_get("APPRISE_BODY", "apprise.body")
 
             self._env_get_boolean("CONSOLE", "console.enabled")
             self._env_get("CONSOLE_BODY", "console.body")
