@@ -21,7 +21,6 @@ class Apprise(Notifier):
         self.enabled = config.apprise.get("enabled", False)
         self.body = config.apprise.get("body")
         self.url = config.apprise.get("url")
-        self.timeout = config.apprise.get("timeout", 60)
         self.cron = config.apprise.get("cron")
         if self.enabled and (not self.url or not self.body):
             raise AppriseConfigurationError()
