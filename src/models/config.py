@@ -313,7 +313,7 @@ class Config():
             self._ini_get(config, "NTFY", "Priority", "ntfy.priority")
             self._ini_get(config, "NTFY", "Tags", "ntfy.tags")
             self._ini_get(config, "NTFY", "Username", "ntfy.username")
-            self._ini_get(config, "NTFY", "Password", "ntfy.Password")
+            self._ini_get(config, "NTFY", "Password", "ntfy.password")
             self._ini_get_int(config, "NTFY", "Timeout", "ntfy.timeout")
             self._ini_get_cron(config, "NTFY", "cron", "ntfy.cron")
 
@@ -435,7 +435,7 @@ class Config():
             self._env_get("NTFY_PRIORITY", "ntfy.priority")
             self._env_get("NTFY_TAGS", "ntfy.tags")
             self._env_get("NTFY_USERNAME", "ntfy.username")
-            self._env_get("NTFY_PASSWORD", "ntfy.Password")
+            self._env_get("NTFY_PASSWORD", "ntfy.password")
             self._env_get_int("NTFY_TIMEOUT", "ntfy.timeout")
             self._env_get_cron("NTFY_CRON", "ntfy.cron")
 
