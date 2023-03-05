@@ -40,10 +40,8 @@ class Ntfy(Notifier):
             if (self.username and self.password) is not None:
                 auth = requests.auth.HTTPBasicAuth(self.username, self.password)
                 log.info("Using basic auth with user '%s' for ntfy", self.username)
-            elif self.username is not None:
-                log.warning("Password missing for ntfy authentication, defaulting to no auth")
-            elif self.password is not None:
-                log.warning("Username missing for ntfy authentication, defaulting to no auth")
+            else:
+                log.warning("Username or Password missing for ntfy authentication, defaulting to no auth")
 
             log.debug("Sending ntfy Notification")
 
