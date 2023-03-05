@@ -39,6 +39,7 @@ services:
       - APPRISE=false
       - APPRISE_URL=
       - APPRISE_BODY=
+      #- APPRISE_TITLE=
       #- APPRISE_CRON=
 
       - SMTP=false

@@ -19,6 +19,7 @@ class Apprise(Notifier):
     def __init__(self, config: Config):
         self.instance = None
         self.enabled = config.apprise.get("enabled", False)
+        self.title = config.apprise.get("title")
         self.body = config.apprise.get("body")
         self.url = config.apprise.get("url")
         self.cron = config.apprise.get("cron")
@@ -28,6 +29,7 @@ class Apprise(Notifier):
             self.instance = apprise.Apprise()
             self.instance.add(self.url)
             try:
+                Item.check_mask(self.title)
                 Item.check_mask(self.body)
                 Item.check_mask(self.url)
             except MaskConfigurationError as exc:
@@ -40,9 +42,9 @@ class Apprise(Notifier):
             url = item.unmask(self.url)
             log.debug("Apprise url: %s", url)
             if self.body:
-                body = item.unmask(self.body)
                 self.instance.notify(
-                    body=body
+                    title=item.unmask(self.title),
+                    body=item.unmask(self.body)
                 )
 
     def stop(self):

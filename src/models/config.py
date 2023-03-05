@@ -40,6 +40,7 @@ DEFAULT_CONFIG = {
         'enabled': False,
         'url': '',
         'cron': Cron('* * * * *'),
+        'title': 'New Magic Bags',
         'body': '${{display_name}} - new amount: ${{items_available}} - https://share.toogoodtogo.com/item/${{item_id}}'
     },
     'console': {
@@ -270,6 +271,7 @@ class Config():
                                   "enabled", "apprise.enabled")
             self._ini_get(config, "APPRISE", "URL", "apprise.url")
             self._ini_get_cron(config, "APPRISE", "cron", "apprise.cron")
+            self._ini_get(config, "APPRISE", "title", "apprise.title")
             self._ini_get(config, "APPRISE", "body", "apprise.body")
 
             self._ini_get_boolean(config, "CONSOLE",
@@ -388,6 +390,7 @@ class Config():
             self._env_get_boolean("APPRISE", "apprise.enabled")
             self._env_get("APPRISE_URL", "apprise.url")
             self._env_get_cron("APPRISE_CRON", "apprise.cron")
+            self._env_get("APPRISE_TITLE", "apprise.title")
             self._env_get("APPRISE_BODY", "apprise.body")
 
             self._env_get_boolean("CONSOLE", "console.enabled")

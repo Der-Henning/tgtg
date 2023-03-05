@@ -25,6 +25,7 @@ services:
       - APPRISE_URL=                                  ## Apprise URL
                                                       ## See the list of supported services: https://github.com/caronc/apprise/wiki
       #- APPRISE_CRON=
+      #- APPRISE_TITLE=                               ## 
       #- APPRISE_BODY=                                ## Message body, variables as described below
                                                       ## The supported message format depends on the chosen service
                                                       ## Default: '${{display_name}} - new amount: ${{items_available}} - https://share.toogoodtogo.com/item/${{item_id}}'
