@@ -26,6 +26,7 @@ class IFTTT(WebHook):
         self.url = (f"https://maker.ifttt.com/trigger/"
                     f"{self.event}/with/key/{self.key}")
         self.type = "application/json"
+        self.auth = None
 
         if self.enabled and (not self.event or not self.key):
             raise IFTTTConfigurationError()

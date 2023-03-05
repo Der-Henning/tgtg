@@ -79,6 +79,8 @@ services:
       - WEBHOOK_BODY=
       - WEBHOOK_TYPE=plain/text
       #- WEBHOOK_HEADERS=
+      #- WEBHOOK_USERNAME=
+      #- WEBHOOK_PASSWORD=
       #- WEBHOOK_TIMEOUT=60
       #- WEBHOOK_CRON=
     volumes:
