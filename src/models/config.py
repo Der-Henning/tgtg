@@ -427,6 +427,18 @@ class Config():
             self._env_get_int("IFTTT_TIMEOUT", "ifttt.timeout")
             self._env_get_cron("IFTTT_CRON", "ifttt.cron")
 
+            self._env_get_boolean("NTFY_ENABLED", "ntfy.enabled")
+            self._env_get("NTFY_SERVER", "ntfy.server")
+            self._env_get("NTFY_TOPIC", "ntfy.topic")
+            self._env_get("NTFY_TITLE", "ntfy.title")
+            self._env_get("NTFY_BODY", "ntfy.body")
+            self._env_get("NTFY_PRIORITY", "ntfy.priority")
+            self._env_get("NTFY_TAGS", "ntfy.tags")
+            self._env_get("NTFY_USERNAME", "ntfy.username")
+            self._env_get("NTFY_PASSWORD", "ntfy.Password")
+            self._env_get_int("NTFY_TIMEOUT", "ntfy.timeout")
+            self._env_get_cron("NTFY_CRON", "ntfy.cron")
+
             self._env_get_boolean("WEBHOOK", "webhook.enabled")
             self._env_get("WEBHOOK_URL", "webhook.url")
             self._env_get("WEBHOOK_METHOD", "webhook.method")

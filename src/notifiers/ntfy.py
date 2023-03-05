@@ -25,40 +25,51 @@ class Ntfy(Notifier):
         self.password = config.ntfy.get("password")
         self.timeout = config.ntfy.get("timeout", 60)
         self.cron = config.ntfy.get("cron")
-        if self.enabled and (not self.server or not self.topic):
-            raise NtfyConfigurationError()
         if self.enabled:
+            if not self.server or not self.topic:
+                raise NtfyConfigurationError()
+
+            self.url = f"{self.server}/{self.topic}"
+            log.debug("ntfy url: %s", self.url)
+
+            self.auth = None
+            if (self.username and self.password) is not None:
+                self.auth = requests.auth.HTTPBasicAuth(self.username, self.password)
+                log.debug("Using basic auth with user '%s' for ntfy", self.username)
+            else:
+                log.warning("Username or Password missing for ntfy authentication, defaulting to no auth")
+
             try:
+                Item.check_mask(self.title)
                 Item.check_mask(self.body)
+                Item.check_mask(self.tags)
             except MaskConfigurationError as exc:
                 raise NtfyConfigurationError(exc.message) from exc
 
     def send(self, item: Item) -> None:
         """Sends item information via configured ntfy endpoint"""
         if self.enabled and self.cron.is_now:
-            auth = None
-            if (self.username and self.password) is not None:
-                auth = requests.auth.HTTPBasicAuth(self.username, self.password)
-                log.info("Using basic auth with user '%s' for ntfy", self.username)
-            else:
-                log.warning("Username or Password missing for ntfy authentication, defaulting to no auth")
 
             log.debug("Sending ntfy Notification")
 
-            url = f"{self.server}/{self.topic}"
-            log.debug("ntfy url: %s", url)
+            title = item.unmask(self.title)
+            title = title.encode("utf-8")
 
             body = item.unmask(self.body)
             body = body.encode("utf-8")
 
+            tags = item.unmask(self.tags)
+            tags = tags.encode("utf-8")
+
+            log.debug("ntfy body: %s", body)
             headers = {
-                "X-Title": self.title,
+                "X-Title": title,
                 "X-Message": body,
                 "X-Priority": self.priority,
-                "X-Tags": self.tags,
+                "X-Tags": tags,
             }
             log.debug("ntfy headers: %s", headers)
-            res = requests.post(url, headers=headers, timeout=self.timeout, auth=auth)
+            res = requests.post(self.url, headers=headers, timeout=self.timeout, auth=self.auth)
             if not res.ok:
                 log.error("ntfy Request failed with status code %s",
                           res.status_code)
