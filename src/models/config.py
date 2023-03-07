@@ -41,7 +41,8 @@ DEFAULT_CONFIG = {
         'url': '',
         'cron': Cron('* * * * *'),
         'title': 'New Magic Bags',
-        'body': '${{display_name}} - new amount: ${{items_available}} - https://share.toogoodtogo.com/item/${{item_id}}'
+        'body': '${{display_name}} - new amount: ${{items_available}} '
+                '- https://share.toogoodtogo.com/item/${{item_id}}'
     },
     'console': {
         'enabled': False,
@@ -85,9 +86,11 @@ DEFAULT_CONFIG = {
         'server': 'https://ntfy.sh',
         'topic': None,
         'title': 'New TGTG items',
-        'message': '${{display_name}} - New Amount: ${{items_available}} - https://share.toogoodtogo.com/item/${{item_id}}',
+        'message': '${{display_name}} - New Amount: ${{items_available}} - '
+                   'https://share.toogoodtogo.com/item/${{item_id}}',
         'priority': 'default',
         'tags': 'shopping,tgtg',
+        'click': 'https://share.toogoodtogo.com/item/${{item_id}}',
         'username': None,
         'password': None,
         'timeout': 60,
@@ -329,6 +332,7 @@ class Config():
             self._ini_get(config, "NTFY", "Message", "ntfy.message")
             self._ini_get(config, "NTFY", "Priority", "ntfy.priority")
             self._ini_get(config, "NTFY", "Tags", "ntfy.tags")
+            self._ini_get(config, "NTFY", "Click", "ntfy.click")
             self._ini_get(config, "NTFY", "Username", "ntfy.username")
             self._ini_get(config, "NTFY", "Password", "ntfy.password")
             self._ini_get_int(config, "NTFY", "Timeout", "ntfy.timeout")
@@ -459,6 +463,7 @@ class Config():
             self._env_get("NTFY_MESSAGE", "ntfy.message")
             self._env_get("NTFY_PRIORITY", "ntfy.priority")
             self._env_get("NTFY_TAGS", "ntfy.tags")
+            self._env_get("NTFY_CLICK", "ntfy.click")
             self._env_get("NTFY_USERNAME", "ntfy.username")
             self._env_get("NTFY_PASSWORD", "ntfy.password")
             self._env_get_int("NTFY_TIMEOUT", "ntfy.timeout")

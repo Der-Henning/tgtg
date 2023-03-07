@@ -17,7 +17,6 @@ class Apprise(Notifier):
     """
 
     def __init__(self, config: Config):
-        self.instance = None
         self.enabled = config.apprise.get("enabled", False)
         self.title = config.apprise.get("title")
         self.body = config.apprise.get("body")
@@ -26,8 +25,6 @@ class Apprise(Notifier):
         if self.enabled and (not self.url or not self.body):
             raise AppriseConfigurationError()
         if self.enabled:
-            self.instance = apprise.Apprise()
-            self.instance.add(self.url)
             try:
                 Item.check_mask(self.title)
                 Item.check_mask(self.body)
@@ -35,21 +32,19 @@ class Apprise(Notifier):
             except MaskConfigurationError as exc:
                 raise AppriseConfigurationError(exc.message) from exc
 
-    def send(self, item: Item) -> None:
+    def _send(self, item: Item) -> None:
         """Sends item information via configured Apprise URL"""
-        if self.enabled and self.cron.is_now:
-            log.debug("Sending Apprise Notification")
-            url = item.unmask(self.url)
-            log.debug("Apprise url: %s", url)
-            if self.body:
-                self.instance.notify(
-                    title=item.unmask(self.title),
-                    body=item.unmask(self.body)
-                )
+        url = item.unmask(self.url)
+        title = item.unmask(self.title)
+        body = item.unmask(self.body)
 
-    def stop(self):
-        if self.instance is not None:
-            self.instance.clear()
+        log.debug("Apprise url: %s", url)
+        log.debug("Apprise Title: %s", title)
+        log.debug("Apprise Body: %s", body)
+
+        apobj = apprise.Apprise()
+        apobj.add(self.url)
+        apobj.notify(title=title, body=body)
 
     def __repr__(self) -> str:
         return f"Apprise {self.url}"

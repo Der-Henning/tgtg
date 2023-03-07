@@ -21,11 +21,9 @@ class Console(Notifier):
             except MaskConfigurationError as exc:
                 raise ConsoleConfigurationError(exc.message) from exc
 
-    def send(self, item: Item) -> None:
-        if self.enabled and self.cron.is_now:
-            log.debug("Sending Console Notification")
-            message = item.unmask(self.body)
-            print(message)
+    def _send(self, item: Item) -> None:
+        message = item.unmask(self.body)
+        print(message)
 
     def __repr__(self) -> str:
         return "Console stdout"

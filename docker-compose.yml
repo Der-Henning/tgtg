@@ -25,7 +25,7 @@ services:
       - APPRISE_URL=                                  ## Apprise URL
                                                       ## See the list of supported services: https://github.com/caronc/apprise/wiki
       #- APPRISE_CRON=
-      #- APPRISE_TITLE=                               ## 
+      #- APPRISE_TITLE=                               ##
       #- APPRISE_BODY=                                ## Message body, variables as described below
                                                       ## The supported message format depends on the chosen service
                                                       ## Default: '${{display_name}} - new amount: ${{items_available}} - https://share.toogoodtogo.com/item/${{item_id}}'
@@ -80,6 +80,7 @@ services:
                                                       ## Default: ${{display_name}} - New Amount: ${{items_available}} - https://share.toogoodtogo.com/item/${{item_id}}
       #- NTFY_PRIORITY=default                        ## Priority of the notification
       #- NTFY_TAGS=tgtg                               ## Tags of the notification
+      #- NTFY_CLICK=                                  ## URL to open on click - Default: https://share.toogoodtogo.com/item/${{item_id}}
       #- NTFY_USERNAME=                               ## Username for the ntfy server/topic
       #- NTFY_PASSWORD=                               ## Password for the ntfy server/topic
       #- NTFY_TIMEOUT=60                              ## Request Timeout

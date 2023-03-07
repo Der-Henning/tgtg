@@ -61,39 +61,37 @@ class Telegram(Notifier):
             ])
             self.updater.start_polling()
 
-    def send(self, item: Item) -> None:
+    def _send(self, item: Item) -> None:
         """Send item information as Telegram message"""
-        if self.enabled and self.cron.is_now:
-            if self.mute and self.mute > datetime.datetime.now():
-                return
-            if self.mute:
-                log.info("Reactivated Telegram Notifications")
-                self.mute = None
-            log.debug("Sending Telegram Notification")
-            fmt = ParseMode.MARKDOWN
-            message = item.unmask(self.body)
-            log.debug(message)
-            for chat_id in self.chat_ids:
-                try:
-                    self.updater.bot.send_message(
-                        chat_id=chat_id,
-                        text=message,
-                        parse_mode=fmt,
-                        timeout=self.timeout,
-                        disable_web_page_preview=True)
-                    self.retries = 0
-                except BadRequest as err:
-                    log.error('Telegram Error: %s', err)
-                except (NetworkError, TimedOut) as err:
-                    log.warning('Telegram Error: %s', err)
-                    self.retries += 1
-                    if self.retries > Telegram.MAX_RETRIES:
-                        raise err
-                    self.updater.stop()
-                    self.updater.start_polling()
-                    self.send(item)
-                except TelegramError as err:
-                    log.error('Telegram Error: %s', err)
+        if self.mute and self.mute > datetime.datetime.now():
+            return
+        if self.mute:
+            log.info("Reactivated Telegram Notifications")
+            self.mute = None
+        fmt = ParseMode.MARKDOWN
+        message = item.unmask(self.body)
+        log.debug(message)
+        for chat_id in self.chat_ids:
+            try:
+                self.updater.bot.send_message(
+                    chat_id=chat_id,
+                    text=message,
+                    parse_mode=fmt,
+                    timeout=self.timeout,
+                    disable_web_page_preview=True)
+                self.retries = 0
+            except BadRequest as err:
+                log.error('Telegram Error: %s', err)
+            except (NetworkError, TimedOut) as err:
+                log.warning('Telegram Error: %s', err)
+                self.retries += 1
+                if self.retries > Telegram.MAX_RETRIES:
+                    raise err
+                self.updater.stop()
+                self.updater.start_polling()
+                self.send(item)
+            except TelegramError as err:
+                log.error('Telegram Error: %s', err)
 
     def _help(self, update: Update, context: CallbackContext) -> None:
         """Send message containing available bot commands"""
@@ -157,7 +155,7 @@ class Telegram(Notifier):
                     self.chat_ids)
             )
 
-    def stop(self):
+    def stop(self) -> None:
         if self.updater is not None:
             self.updater.stop()
 

@@ -91,14 +91,12 @@ class SMTP(Notifier):
             self._connect()
             self.server.sendmail(self.sender, self.recipient, body)
 
-    def send(self, item: Item) -> None:
+    def _send(self, item: Item) -> None:
         """Sends item information via Mail."""
-        if self.enabled and self.cron.is_now:
-            log.debug("Sending Mail Notification")
-            self._send_mail(
-                item.unmask(self.subject),
-                item.unmask(self.body)
-            )
+        self._send_mail(
+            item.unmask(self.subject),
+            item.unmask(self.body)
+        )
 
     def __repr__(self) -> str:
         return f"SMTP: {self.recipient}"

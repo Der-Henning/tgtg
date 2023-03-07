@@ -60,7 +60,7 @@ class Notifiers:
             except Exception as exc:
                 log.error("Failed sending %s: %s", notifier, exc)
 
-    def stop(self):
+    def stop(self) -> None:
         """Stop all notifiers"""
         for notifier in self._notifiers:
             try:
