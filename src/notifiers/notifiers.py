@@ -2,6 +2,7 @@ import logging
 from typing import List
 
 from models import Config, Item
+from notifiers.apprise import Apprise
 from notifiers.base import Notifier
 from notifiers.console import Console
 from notifiers.ifttt import IFTTT
@@ -17,6 +18,7 @@ log = logging.getLogger("tgtg")
 class Notifiers:
     def __init__(self, config: Config):
         self._notifiers: List[Notifier] = [
+            Apprise(config),
             Console(config),
             PushSafer(config),
             SMTP(config),

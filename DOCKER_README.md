@@ -36,6 +36,12 @@ services:
       - QUIET=false
       - LOCALE=en_US
 
+      - APPRISE=false
+      - APPRISE_URL=
+      - APPRISE_BODY=
+      #- APPRISE_TITLE=
+      #- APPRISE_CRON=
+
       - SMTP=false
       - SMTP_HOST=smtp.gmail.com
       - SMTP_PORT=465
