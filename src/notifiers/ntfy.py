@@ -1,7 +1,7 @@
-import json
 import logging
 
 import requests
+from requests.auth import HTTPBasicAuth
 
 from models import Config, Item
 from models.errors import MaskConfigurationError, NtfyConfigurationError
@@ -25,6 +25,7 @@ class Ntfy(Notifier):
         self.password = config.ntfy.get("password")
         self.timeout = config.ntfy.get("timeout", 60)
         self.cron = config.ntfy.get("cron")
+        self.auth: HTTPBasicAuth = None
         if self.enabled:
             if not self.server or not self.topic:
                 raise NtfyConfigurationError()
@@ -32,13 +33,13 @@ class Ntfy(Notifier):
             self.url = f"{self.server}/{self.topic}"
             log.debug("ntfy url: %s", self.url)
 
-            self.auth = None
             if (self.username and self.password) is not None:
-                self.auth = requests.auth.HTTPBasicAuth(self.username, self.password)
-                log.debug("Using basic auth with user '%s' for ntfy", self.username)
-            elif (self.username or self.password) is not None:
-                log.warning("Username or Password missing for ntfy authentication, defaulting to no auth")
-
+                self.auth = HTTPBasicAuth(self.username, self.password)
+                log.debug("Using basic auth with user '%s' for ntfy",
+                          self.username)
+            else:
+                log.debug("Username or Password missing for ntfy "
+                          "authentication, defaulting to no auth")
             try:
                 Item.check_mask(self.title)
                 Item.check_mask(self.body)
@@ -69,7 +70,8 @@ class Ntfy(Notifier):
                 "X-Tags": tags,
             }
             log.debug("ntfy headers: %s", headers)
-            res = requests.post(self.url, headers=headers, timeout=self.timeout, auth=self.auth)
+            res = requests.post(self.url, headers=headers,
+                                timeout=self.timeout, auth=self.auth)
             if not res.ok:
                 log.error("ntfy Request failed with status code %s",
                           res.status_code)

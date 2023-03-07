@@ -85,7 +85,8 @@ DEFAULT_CONFIG = {
         'server': 'https://ntfy.sh',
         'topic': None,
         'title': 'New TGTG items',
-        'body': '${{display_name}} - New Amount: ${{items_available}} - https://share.toogoodtogo.com/item/${{item_id}}',
+        'body': '${{display_name}} - New Amount: ${{items_available}} '
+                '- https://share.toogoodtogo.com/item/${{item_id}}',
         'priority': 'default',
         'tags': 'shopping,tgtg',
         'username': None,

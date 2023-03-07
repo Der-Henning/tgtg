@@ -51,10 +51,12 @@ class IFTTTConfigurationError(ConfigurationError):
         self.message = message
         super().__init__(self.message)
 
+
 class NtfyConfigurationError(ConfigurationError):
     def __init__(self, message="Invalid NTFY configuration"):
         self.message = message
         super().__init__(self.message)
+
 
 class SMTPConfigurationError(ConfigurationError):
     def __init__(self, message="Invalid SMTP configuration"):
