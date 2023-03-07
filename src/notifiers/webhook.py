@@ -20,11 +20,21 @@ class WebHook(Notifier):
         self.body = config.webhook.get("body")
         self.type = config.webhook.get("type")
         self.headers = config.webhook.get("headers", {})
+        self.auth = None
+        self.username = config.webhook.get("username")
+        self.password = config.webhook.get("password")
         self.timeout = config.webhook.get("timeout", 60)
         self.cron = config.webhook.get("cron")
-        if self.enabled and (not self.method or not self.url):
-            raise WebHookConfigurationError()
         if self.enabled:
+            if not self.method or not self.url:
+                raise WebHookConfigurationError()
+
+            if (self.username and self.password) is not None:
+                self.auth = requests.auth.HTTPBasicAuth(self.username, self.password)
+                log.debug("Using basic auth with user '%s' for webhook", self.username)
+            elif (self.username or self.password) is not None:
+                log.warning("Username or Password missing for webhook authentication, defaulting to no auth")
+
             try:
                 Item.check_mask(self.body)
                 Item.check_mask(self.url)
@@ -34,9 +44,9 @@ class WebHook(Notifier):
     def send(self, item: Item) -> None:
         """Sends item information via configured Webhook endpoint"""
         if self.enabled and self.cron.is_now:
-            log.debug("Sending WebHook Notification")
+            log.debug("Sending %s Notification", self.__class__.__name__)
             url = item.unmask(self.url)
-            log.debug("Webhook url: %s", url)
+            log.debug("%s url: %s", self.__class__.__name__, url)
             body = None
             headers = self.headers
             if self.type:
@@ -47,14 +57,14 @@ class WebHook(Notifier):
                     body = json.dumps(json.loads(body.replace('\n', '\\n')))
                 else:
                     body = body.encode('utf-8')
-                log.debug("Webhook body: '%s'", body)
-            log.debug("Webhook headers: %s", headers)
+                log.debug("%s body: '%s'", self.__class__.__name__, body)
+            log.debug("%s headers: %s", self.__class__.__name__, headers)
             res = requests.request(method=self.method, url=url,
                                    timeout=self.timeout, data=body,
-                                   headers=headers)
+                                   headers=headers, auth=self.auth)
             if not res.ok:
-                log.error("WebHook Request failed with status code %s",
-                          res.status_code)
+                log.error("%s Request failed with status code %s",
+                          self.__class__.__name__, res.status_code)
                 log.debug("Response content: %s", res.text)
 
     def __repr__(self) -> str:

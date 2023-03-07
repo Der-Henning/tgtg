@@ -85,8 +85,7 @@ DEFAULT_CONFIG = {
         'server': 'https://ntfy.sh',
         'topic': None,
         'title': 'New TGTG items',
-        'body': '${{display_name}} - New Amount: ${{items_available}} '
-                '- https://share.toogoodtogo.com/item/${{item_id}}',
+        'message': '${{display_name}} - New Amount: ${{items_available}} - https://share.toogoodtogo.com/item/${{item_id}}',
         'priority': 'default',
         'tags': 'shopping,tgtg',
         'username': None,
@@ -101,6 +100,8 @@ DEFAULT_CONFIG = {
         'body': '',
         'type': 'text/plain',
         'headers': {},
+        'username': None,
+        'password': None,
         'timeout': 60,
         'cron': Cron('* * * * *')
     },
@@ -325,7 +326,7 @@ class Config():
             self._ini_get(config, "NTFY", "Server", "ntfy.server")
             self._ini_get(config, "NTFY", "Topic", "ntfy.topic")
             self._ini_get(config, "NTFY", "Title", "ntfy.title")
-            self._ini_get(config, "NTFY", "Body", "ntfy.body")
+            self._ini_get(config, "NTFY", "Message", "ntfy.message")
             self._ini_get(config, "NTFY", "Priority", "ntfy.priority")
             self._ini_get(config, "NTFY", "Tags", "ntfy.tags")
             self._ini_get(config, "NTFY", "Username", "ntfy.username")
@@ -340,6 +341,8 @@ class Config():
             self._ini_get(config, "WEBHOOK", "body", "webhook.body")
             self._ini_get(config, "WEBHOOK", "type", "webhook.type")
             self._ini_get_dict(config, "WEBHOOK", "headers", "webhook.headers")
+            self._ini_get(config, "WEBHOOK", "Username", "webhook.username")
+            self._ini_get(config, "WEBHOOK", "Password", "webhook.password")
             self._ini_get_int(config, "WEBHOOK", "timeout", "webhook.timeout")
             self._ini_get_cron(config, "WEBHOOK", "cron", "webhook.cron")
 
@@ -453,7 +456,7 @@ class Config():
             self._env_get("NTFY_SERVER", "ntfy.server")
             self._env_get("NTFY_TOPIC", "ntfy.topic")
             self._env_get("NTFY_TITLE", "ntfy.title")
-            self._env_get("NTFY_BODY", "ntfy.body")
+            self._env_get("NTFY_MESSAGE", "ntfy.message")
             self._env_get("NTFY_PRIORITY", "ntfy.priority")
             self._env_get("NTFY_TAGS", "ntfy.tags")
             self._env_get("NTFY_USERNAME", "ntfy.username")
@@ -467,6 +470,8 @@ class Config():
             self._env_get("WEBHOOK_BODY", "webhook.body")
             self._env_get("WEBHOOK_TYPE", "webhook.type")
             self._env_get_dict("WEBHOOK_HEADERS", "webhook.headers")
+            self._env_get("NTFY_USERNAME", "webhook.username")
+            self._env_get("NTFY_PASSWORD", "webhook.password")
             self._env_get_int("WEBHOOK_TIMEOUT", "webhook.timeout")
             self._env_get_cron("WEBHOOK_CRON", "webhook.cron")
 
