@@ -67,6 +67,18 @@ services:
       - IFTTT_EVENT=tgtg_notification
       - IFTTT_KEY=
 
+      - NTFY=false
+      - NTFY_SERVER=https://ntfy.sh
+      - NTFY_TOPIC=
+      #- NTFY_TITLE
+      #- NTFY_BODY=
+      #- NTFY_PRIORITY=
+      #- NTFY_TAGS=
+      #- NTFY_USERNAME=
+      #- NTFY_PASSWORD=
+      #- NTFY_TIMEOUT=60
+      #- NTFY_CRON=
+
       - WEBHOOK=false
       - WEBHOOK_URL=
       - WEBHOOK_METHOD=POST

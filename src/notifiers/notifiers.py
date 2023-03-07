@@ -6,6 +6,7 @@ from notifiers.apprise import Apprise
 from notifiers.base import Notifier
 from notifiers.console import Console
 from notifiers.ifttt import IFTTT
+from notifiers.ntfy import Ntfy
 from notifiers.push_safer import PushSafer
 from notifiers.smtp import SMTP
 from notifiers.telegram import Telegram
@@ -22,6 +23,7 @@ class Notifiers:
             PushSafer(config),
             SMTP(config),
             IFTTT(config),
+            Ntfy(config),
             WebHook(config),
             Telegram(config),
         ]
