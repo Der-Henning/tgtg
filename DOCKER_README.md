@@ -36,6 +36,12 @@ services:
       - QUIET=false
       - LOCALE=en_US
 
+      - APPRISE=false
+      - APPRISE_URL=
+      - APPRISE_BODY=
+      #- APPRISE_TITLE=
+      #- APPRISE_CRON=
+
       - SMTP=false
       - SMTP_HOST=smtp.gmail.com
       - SMTP_PORT=465
@@ -61,12 +67,26 @@ services:
       - IFTTT_EVENT=tgtg_notification
       - IFTTT_KEY=
 
+      - NTFY=false
+      - NTFY_SERVER=https://ntfy.sh
+      - NTFY_TOPIC=
+      #- NTFY_TITLE
+      #- NTFY_BODY=
+      #- NTFY_PRIORITY=
+      #- NTFY_TAGS=
+      #- NTFY_USERNAME=
+      #- NTFY_PASSWORD=
+      #- NTFY_TIMEOUT=60
+      #- NTFY_CRON=
+
       - WEBHOOK=false
       - WEBHOOK_URL=
       - WEBHOOK_METHOD=POST
       - WEBHOOK_BODY=
       - WEBHOOK_TYPE=plain/text
       #- WEBHOOK_HEADERS=
+      #- WEBHOOK_USERNAME=
+      #- WEBHOOK_PASSWORD=
       #- WEBHOOK_TIMEOUT=60
       #- WEBHOOK_CRON=
     volumes:

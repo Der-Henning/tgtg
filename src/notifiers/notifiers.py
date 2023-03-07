@@ -2,9 +2,11 @@ import logging
 from typing import List
 
 from models import Config, Item
+from notifiers.apprise import Apprise
 from notifiers.base import Notifier
 from notifiers.console import Console
 from notifiers.ifttt import IFTTT
+from notifiers.ntfy import Ntfy
 from notifiers.push_safer import PushSafer
 from notifiers.smtp import SMTP
 from notifiers.telegram import Telegram
@@ -16,10 +18,12 @@ log = logging.getLogger("tgtg")
 class Notifiers:
     def __init__(self, config: Config):
         self._notifiers: List[Notifier] = [
+            Apprise(config),
             Console(config),
             PushSafer(config),
             SMTP(config),
             IFTTT(config),
+            Ntfy(config),
             WebHook(config),
             Telegram(config),
         ]
@@ -56,7 +60,7 @@ class Notifiers:
             except Exception as exc:
                 log.error("Failed sending %s: %s", notifier, exc)
 
-    def stop(self):
+    def stop(self) -> None:
         """Stop all notifiers"""
         for notifier in self._notifiers:
             try:

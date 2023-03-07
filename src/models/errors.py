@@ -34,6 +34,12 @@ class TGTGConfigurationError(ConfigurationError):
         super().__init__(self.message)
 
 
+class AppriseConfigurationError(ConfigurationError):
+    def __init__(self, message="Invalid Apprise configuration"):
+        self.message = message
+        super().__init__(self.message)
+
+
 class ConsoleConfigurationError(ConfigurationError):
     def __init__(self, message="Invalid Console configuration"):
         self.message = message
@@ -42,6 +48,12 @@ class ConsoleConfigurationError(ConfigurationError):
 
 class IFTTTConfigurationError(ConfigurationError):
     def __init__(self, message="Invalid IFTTT configuration"):
+        self.message = message
+        super().__init__(self.message)
+
+
+class NtfyConfigurationError(ConfigurationError):
+    def __init__(self, message="Invalid NTFY configuration"):
         self.message = message
         super().__init__(self.message)
 

@@ -36,6 +36,14 @@ DEFAULT_CONFIG = {
         'max_polling_tries': 24,
         'polling_wait_time': 5
     },
+    'apprise': {
+        'enabled': False,
+        'url': '',
+        'cron': Cron('* * * * *'),
+        'title': 'New Magic Bags',
+        'body': '${{display_name}} - new amount: ${{items_available}} '
+                '- https://share.toogoodtogo.com/item/${{item_id}}'
+    },
     'console': {
         'enabled': False,
         'body': '${{scanned_on}} ${{display_name}} - '
@@ -73,6 +81,21 @@ DEFAULT_CONFIG = {
         'timeout': 60,
         'cron': Cron('* * * * *')
     },
+    'ntfy': {
+        'enabled': False,
+        'server': 'https://ntfy.sh',
+        'topic': None,
+        'title': 'New TGTG items',
+        'message': '${{display_name}} - New Amount: ${{items_available}} - '
+                   'https://share.toogoodtogo.com/item/${{item_id}}',
+        'priority': 'default',
+        'tags': 'shopping,tgtg',
+        'click': 'https://share.toogoodtogo.com/item/${{item_id}}',
+        'username': None,
+        'password': None,
+        'timeout': 60,
+        'cron': Cron('* * * * *'),
+    },
     'webhook': {
         'enabled': False,
         'url': '',
@@ -80,6 +103,8 @@ DEFAULT_CONFIG = {
         'body': '',
         'type': 'text/plain',
         'headers': {},
+        'username': None,
+        'password': None,
         'timeout': 60,
         'cron': Cron('* * * * *')
     },
@@ -114,10 +139,12 @@ class Config():
     disable_tests: bool
     quiet: bool
     tgtg: dict
+    apprise: dict
     console: dict
     push_safer: dict
     smtp: dict
     ifttt: dict
+    ntfy: dict
     webhook: dict
     telegram: dict
 
@@ -259,6 +286,13 @@ class Config():
             self._ini_get_int(config, "TGTG", "PollingWaitTime",
                               "tgtg.polling_wait_time")
 
+            self._ini_get_boolean(config, "APPRISE",
+                                  "enabled", "apprise.enabled")
+            self._ini_get(config, "APPRISE", "URL", "apprise.url")
+            self._ini_get_cron(config, "APPRISE", "cron", "apprise.cron")
+            self._ini_get(config, "APPRISE", "title", "apprise.title")
+            self._ini_get(config, "APPRISE", "body", "apprise.body")
+
             self._ini_get_boolean(config, "CONSOLE",
                                   "enabled", "console.enabled")
             self._ini_get(config, "CONSOLE", "Body", "console.body")
@@ -291,6 +325,19 @@ class Config():
             self._ini_get_int(config, "IFTTT", "Timeout", "ifttt.timeout")
             self._ini_get_cron(config, "IFTTT", "cron", "ifttt.cron")
 
+            self._ini_get_boolean(config, "NTFY", "enabled", "ntfy.enabled")
+            self._ini_get(config, "NTFY", "Server", "ntfy.server")
+            self._ini_get(config, "NTFY", "Topic", "ntfy.topic")
+            self._ini_get(config, "NTFY", "Title", "ntfy.title")
+            self._ini_get(config, "NTFY", "Message", "ntfy.message")
+            self._ini_get(config, "NTFY", "Priority", "ntfy.priority")
+            self._ini_get(config, "NTFY", "Tags", "ntfy.tags")
+            self._ini_get(config, "NTFY", "Click", "ntfy.click")
+            self._ini_get(config, "NTFY", "Username", "ntfy.username")
+            self._ini_get(config, "NTFY", "Password", "ntfy.password")
+            self._ini_get_int(config, "NTFY", "Timeout", "ntfy.timeout")
+            self._ini_get_cron(config, "NTFY", "cron", "ntfy.cron")
+
             self._ini_get_boolean(config, "WEBHOOK", "enabled",
                                   "webhook.enabled")
             self._ini_get(config, "WEBHOOK", "URL", "webhook.url")
@@ -298,6 +345,8 @@ class Config():
             self._ini_get(config, "WEBHOOK", "body", "webhook.body")
             self._ini_get(config, "WEBHOOK", "type", "webhook.type")
             self._ini_get_dict(config, "WEBHOOK", "headers", "webhook.headers")
+            self._ini_get(config, "WEBHOOK", "Username", "webhook.username")
+            self._ini_get(config, "WEBHOOK", "Password", "webhook.password")
             self._ini_get_int(config, "WEBHOOK", "timeout", "webhook.timeout")
             self._ini_get_cron(config, "WEBHOOK", "cron", "webhook.cron")
 
@@ -372,6 +421,12 @@ class Config():
             self._env_get_int("TGTG_POLLING_WAIT_TIME",
                               "tgtg.polling_wait_time")
 
+            self._env_get_boolean("APPRISE", "apprise.enabled")
+            self._env_get("APPRISE_URL", "apprise.url")
+            self._env_get_cron("APPRISE_CRON", "apprise.cron")
+            self._env_get("APPRISE_TITLE", "apprise.title")
+            self._env_get("APPRISE_BODY", "apprise.body")
+
             self._env_get_boolean("CONSOLE", "console.enabled")
             self._env_get("CONSOLE_BODY", "console.body")
             self._env_get_cron("CONSOLE_CRON", "console.cron")
@@ -401,12 +456,27 @@ class Config():
             self._env_get_int("IFTTT_TIMEOUT", "ifttt.timeout")
             self._env_get_cron("IFTTT_CRON", "ifttt.cron")
 
+            self._env_get_boolean("NTFY_ENABLED", "ntfy.enabled")
+            self._env_get("NTFY_SERVER", "ntfy.server")
+            self._env_get("NTFY_TOPIC", "ntfy.topic")
+            self._env_get("NTFY_TITLE", "ntfy.title")
+            self._env_get("NTFY_MESSAGE", "ntfy.message")
+            self._env_get("NTFY_PRIORITY", "ntfy.priority")
+            self._env_get("NTFY_TAGS", "ntfy.tags")
+            self._env_get("NTFY_CLICK", "ntfy.click")
+            self._env_get("NTFY_USERNAME", "ntfy.username")
+            self._env_get("NTFY_PASSWORD", "ntfy.password")
+            self._env_get_int("NTFY_TIMEOUT", "ntfy.timeout")
+            self._env_get_cron("NTFY_CRON", "ntfy.cron")
+
             self._env_get_boolean("WEBHOOK", "webhook.enabled")
             self._env_get("WEBHOOK_URL", "webhook.url")
             self._env_get("WEBHOOK_METHOD", "webhook.method")
             self._env_get("WEBHOOK_BODY", "webhook.body")
             self._env_get("WEBHOOK_TYPE", "webhook.type")
             self._env_get_dict("WEBHOOK_HEADERS", "webhook.headers")
+            self._env_get("NTFY_USERNAME", "webhook.username")
+            self._env_get("NTFY_PASSWORD", "webhook.password")
             self._env_get_int("WEBHOOK_TIMEOUT", "webhook.timeout")
             self._env_get_cron("WEBHOOK_CRON", "webhook.cron")
 

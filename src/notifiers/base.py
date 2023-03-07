@@ -1,6 +1,9 @@
+import logging
 from abc import ABC, abstractmethod
 
 from models import Config, Cron, Item
+
+log = logging.getLogger('tgtg')
 
 
 class Notifier(ABC):
@@ -9,8 +12,13 @@ class Notifier(ABC):
         self.enabled = False
         self.cron = Cron()
 
-    @abstractmethod
     def send(self, item: Item) -> None:
+        if self.enabled and self.cron.is_now:
+            log.debug("Sending %s Notification", self.__class__.__name__)
+            self._send(item)
+
+    @abstractmethod
+    def _send(self, item: Item) -> None:
         """Send Item information"""
 
     def stop(self) -> None:
