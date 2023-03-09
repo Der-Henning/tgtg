@@ -42,8 +42,6 @@ class Scanner:
         items = sorted(self._get_favorites(),
                        key=lambda x: x.items_available,
                        reverse=True)
-        if items:
-            return items[0]
         items = sorted(
             [
                 Item(item)
