@@ -120,7 +120,7 @@ class Telegram(Notifier):
 
     def _error(self, update: Update, context: CallbackContext) -> None:
         """Log Errors caused by Updates."""
-        log.warning('Update "%s" caused error "%s"', update, context.error)
+        log.debug('Update "%s" caused error "%s"', update, context.error)
 
     def _get_chat_id(self) -> None:
         """Initializes an interaction with the user

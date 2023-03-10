@@ -39,12 +39,13 @@ class Apprise(Notifier):
         body = item.unmask(self.body)
 
         log.debug("Apprise url: %s", url)
-        log.debug("Apprise Title: %s", title)
-        log.debug("Apprise Body: %s", body)
+        log.debug("Apprise title: %s", title)
+        log.debug("Apprise body: %s", body)
 
         apobj = apprise.Apprise()
         apobj.add(self.url)
         apobj.notify(title=title, body=body)
+        apobj.clear()
 
     def __repr__(self) -> str:
-        return f"Apprise {self.url}"
+        return f"Apprise: {self.url}"

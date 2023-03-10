@@ -169,6 +169,7 @@ pip install -r requirements-dev.txt
 - `make bash` starts dev python docker image with installed dependencies and mounted project in bash
 - `make executable` creates a bundled executable in `/dist`
 - `make test` runs unit tests
+- `make lint` run pre-commit hooks
 - `make clean` cleans up docker-compose
 
 ### Creating new notifiers
