@@ -10,7 +10,7 @@ log = logging.getLogger('tgtg')
 
 
 class Ntfy(WebHook):
-    """Notifier for ntfy"""
+    """Notifier for Ntfy"""
 
     def __init__(self, config: Config):
         self.enabled = config.ntfy.get("enabled", False)
@@ -36,13 +36,13 @@ class Ntfy(WebHook):
             if not self.server or not self.topic:
                 raise NtfyConfigurationError()
             self.url = f"{self.server}/{self.topic}"
-            log.debug("ntfy url: %s", self.url)
+            log.debug("Ntfy url: %s", self.url)
             if (self.username and self.password) is not None:
                 self.auth = HTTPBasicAuth(self.username, self.password)
-                log.debug("Using basic auth with user '%s' for ntfy",
+                log.debug("Using basic auth with user '%s' for Ntfy",
                           self.username)
-            else:
-                log.warning("Username or Password missing for ntfy "
+            elif (self.username or self.password) is not None:
+                log.warning("Username or Password missing for Ntfy "
                             "authentication, defaulting to no auth")
             try:
                 Item.check_mask(self.title)
@@ -53,7 +53,7 @@ class Ntfy(WebHook):
                 raise NtfyConfigurationError(exc.message) from exc
 
     def _send(self, item: Item) -> None:
-        """Sends item information via configured ntfy endpoint"""
+        """Sends item information via configured Ntfy endpoint"""
         title = item.unmask(self.title).encode("utf-8")
         message = item.unmask(self.message).encode("utf-8")
         tags = item.unmask(self.tags).encode("utf-8")
@@ -68,4 +68,4 @@ class Ntfy(WebHook):
         super()._send(item)
 
     def __repr__(self) -> str:
-        return f"ntfy: {self.server}/{self.topic}"
+        return f"Ntfy: {self.server}/{self.topic}"

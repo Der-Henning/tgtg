@@ -12,9 +12,13 @@ class Notifier(ABC):
         self.enabled = False
         self.cron = Cron()
 
+    @property
+    def name(self):
+        return self.__class__.__name__
+
     def send(self, item: Item) -> None:
         if self.enabled and self.cron.is_now:
-            log.debug("Sending %s Notification", self.__class__.__name__)
+            log.debug("Sending %s Notification", self.name)
             self._send(item)
 
     @abstractmethod

@@ -42,7 +42,7 @@ class WebHook(Notifier):
     def _send(self, item: Item) -> None:
         """Sends item information via configured Webhook endpoint"""
         url = item.unmask(self.url)
-        log.debug("%s url: %s", self.__class__.__name__, url)
+        log.debug("%s url: %s", self.name, url)
         body = None
         headers = self.headers
         if self.type:
@@ -53,15 +53,15 @@ class WebHook(Notifier):
                 body = json.dumps(json.loads(body.replace('\n', '\\n')))
             else:
                 body = body.encode('utf-8')
-            log.debug("%s body: '%s'", self.__class__.__name__, body)
-        log.debug("%s headers: %s", self.__class__.__name__, headers)
+            log.debug("%s body: %s", self.name, body)
+        log.debug("%s headers: %s", self.name, headers)
         res = requests.request(method=self.method, url=url,
                                timeout=self.timeout, data=body,
                                headers=headers, auth=self.auth)
         if not res.ok:
             log.error("%s Request failed with status code %s",
-                      self.__class__.__name__, res.status_code)
-            log.debug("Response content: %s", res.text)
+                      self.name, res.status_code)
+            log.debug("%s Response content: %s", self.name, res.text)
 
     def __repr__(self) -> str:
         return f"WebHook: {self.url}"
