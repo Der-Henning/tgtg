@@ -456,7 +456,7 @@ class Config():
             self._env_get_int("IFTTT_TIMEOUT", "ifttt.timeout")
             self._env_get_cron("IFTTT_CRON", "ifttt.cron")
 
-            self._env_get_boolean("NTFY_ENABLED", "ntfy.enabled")
+            self._env_get_boolean("NTFY", "ntfy.enabled")
             self._env_get("NTFY_SERVER", "ntfy.server")
             self._env_get("NTFY_TOPIC", "ntfy.topic")
             self._env_get("NTFY_TITLE", "ntfy.title")
