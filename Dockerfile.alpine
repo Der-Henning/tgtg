@@ -12,7 +12,8 @@ WORKDIR /app
 USER tgtg
 
 COPY --chown=tgtg:tgtg requirements.txt /tmp/pip-tmp/
-RUN pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements.txt \
+RUN pip3 install --disable-pip-version-check --no-cache-dir \
+    --no-warn-script-location -r /tmp/pip-tmp/requirements.txt \
     && rm -rf /tmp/pip-tmp
 
 COPY --chown=tgtg:tgtg ./src .

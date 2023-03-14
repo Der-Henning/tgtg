@@ -6,8 +6,10 @@ import responses
 
 import models.config
 from models.item import Item
+from notifiers.apprise import Apprise
 from notifiers.console import Console
 from notifiers.ifttt import IFTTT
+from notifiers.ntfy import Ntfy
 from notifiers.webhook import WebHook
 
 
@@ -35,10 +37,13 @@ def test_webhook_json(test_item: Item):
     webhook = WebHook(config)
     webhook.send(test_item)
 
-    assert responses.calls[0].request.headers.get("Accept") == "json"
-    assert responses.calls[0].request.headers.get(
+    request = responses.calls[0].request
+    body = json.loads(request.body)
+
+    assert request.headers.get("Accept") == "json"
+    assert request.headers.get(
         "Content-Type") == "application/json"
-    assert json.loads(responses.calls[0].request.body) == {
+    assert body == {
         "content": (f"{test_item.items_available} panier(s) disponible(s) à "
                     f"{test_item.price} € \nÀ récupérer {test_item.pickupdate}"
                     f"\nhttps://toogoodtogo.com/item/{test_item.item_id}"),
@@ -68,10 +73,11 @@ def test_webhook_text(test_item: Item):
     webhook = WebHook(config)
     webhook.send(test_item)
 
-    assert responses.calls[0].request.headers.get("Accept") == "json"
-    assert responses.calls[0].request.headers.get(
-        "Content-Type") == "text/plain"
-    assert responses.calls[0].request.body.decode('utf-8') == (
+    request = responses.calls[0].request
+
+    assert request.headers.get("Accept") == "json"
+    assert request.headers.get("Content-Type") == "text/plain"
+    assert request.body.decode('utf-8') == (
         f"{test_item.items_available} panier(s) disponible(s) à "
         f"{test_item.price} € \nÀ récupérer {test_item.pickupdate}"
         f"\nhttps://toogoodtogo.com/item/{test_item.item_id}")
@@ -102,12 +108,75 @@ def test_ifttt(test_item: Item):
     ifttt = IFTTT(config)
     ifttt.send(test_item)
 
-    assert responses.calls[0].request.headers.get(
-        "Content-Type") == "application/json"
-    assert json.loads(responses.calls[0].request.body) == {
+    request = responses.calls[0].request
+    body = json.loads(request.body)
+
+    assert request.headers.get("Content-Type") == "application/json"
+    assert body == {
         "value1": test_item.display_name,
         "value2": test_item.items_available,
         "value3": f"https://share.toogoodtogo.com/item/{test_item.item_id}"}
+
+
+@responses.activate
+def test_ntfy(test_item: Item):
+    reload(models.config)
+    config = models.config.Config("")
+    config._setattr("ntfy.enabled", True)
+    config._setattr("ntfy.server", "https://ntfy.sh")
+    config._setattr("ntfy.topic", "tgtg_test")
+    config._setattr("ntfy.title", "New Items - ${{display_name}}")
+    config._setattr("ntfy.body",
+                    '${{display_name}} - New Amount: ${{items_available}} - '
+                    'https://share.toogoodtogo.com/item/${{item_id}}')
+    responses.add(
+        responses.POST,
+        f"{config.ntfy.get('server')}/{config.ntfy.get('topic')}",
+        status=200
+    )
+
+    ntfy = Ntfy(config)
+    ntfy.send(test_item)
+
+    request = responses.calls[0].request
+
+    assert request.url == (
+        f"{config.ntfy.get('server')}/"
+        f"{config.ntfy.get('topic')}")
+    assert request.headers.get('X-Message').decode('utf-8') == (
+        f'{test_item.display_name} - New Amount: {test_item.items_available} '
+        f'- https://share.toogoodtogo.com/item/{test_item.item_id}')
+    assert request.headers.get('X-Title').decode('utf-8') == (
+        f'New Items - {test_item.display_name}')
+
+
+@responses.activate
+def test_apprise(test_item: Item):
+    reload(models.config)
+    config = models.config.Config("")
+    config._setattr("apprise.enabled", True)
+    config._setattr("apprise.url", "ntfy://tgtg_test")
+    config._setattr("apprise.title", "New Items - ${{display_name}}")
+    config._setattr("apprise.body",
+                    '${{display_name}} - New Amount: ${{items_available}} - '
+                    'https://share.toogoodtogo.com/item/${{item_id}}')
+    responses.add(
+        responses.POST,
+        "https://ntfy.sh/",
+        status=200
+    )
+
+    apprise = Apprise(config)
+    apprise.send(test_item)
+
+    request = responses.calls[0].request
+    body = json.loads(request.body)
+
+    assert request.url == "https://ntfy.sh/"
+    assert body.get('topic') == "tgtg_test"
+    assert body.get('message') == (
+        f'{test_item.display_name} - New Amount: {test_item.items_available} '
+        f'- https://share.toogoodtogo.com/item/{test_item.item_id}')
 
 
 def test_console(test_item: Item, capsys: pytest.CaptureFixture):
@@ -121,5 +190,6 @@ def test_console(test_item: Item, capsys: pytest.CaptureFixture):
     console.send(test_item)
     captured = capsys.readouterr()
 
-    assert captured.out == (f"{test_item.display_name} - "
-                            f"new amount: {test_item.items_available}\n")
+    assert captured.out == (
+        f"{test_item.display_name} - "
+        f"new amount: {test_item.items_available}\n")
