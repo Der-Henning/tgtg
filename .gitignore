@@ -14,3 +14,4 @@ config.ini
 scanner.log
 pytest_tmp
 out.toml
+out.yaml

@@ -5,4 +5,5 @@ ipykernel
 pre-commit
 pytest
 pytest-cov
+pytest-mock
 responses

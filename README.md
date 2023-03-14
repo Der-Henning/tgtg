@@ -5,7 +5,7 @@
 
 # TGTG Scanner
 
-TGTG Scanner observes your favorite TGTG Magic Bags for newly available items and notifies you via mail, IFTTT, ntfy, Telegram, pushSafer, or any other WebHook. Notifications will be sent when the available amount of Magic Bags rises from zero to something.
+TGTG Scanner observes your favorite TGTG Magic Bags for newly available items and notifies you via mail, IFTTT, Ntfy, Telegram, PushSafer, Apprise or any other WebHook. Notifications will be sent when the available amount of Magic Bags rises from zero to something.
 
 Additionally, the currently available amounts can be provided via an HTTP server.
 

@@ -360,31 +360,3 @@ class TgtgClient:
             f"{API_ITEM_ENDPOINT}/{item_id}/setFavorite",
             json={"is_favorite": is_favorite},
         )
-
-    def signup_by_email(
-        self,
-        *,
-        email,
-        name="",
-        country_id="GB",
-        newsletter_opt_in=False,
-        push_notification_opt_in=True,
-    ):
-        response = self._post(
-            SIGNUP_BY_EMAIL_ENDPOINT,
-            json={
-                "country_id": country_id,
-                "device_type": self.device_type,
-                "email": email,
-                "name": name,
-                "newsletter_opt_in": newsletter_opt_in,
-                "push_notification_opt_in": push_notification_opt_in,
-            }
-        )
-        login_response = response.json().get("login_response", {})
-        self.access_token = login_response.get("access_token")
-        self.refresh_token = login_response.get("refresh_token")
-        self.last_time_token_refreshed = datetime.now()
-        self.user_id = login_response.get(
-            "startup_data", {}).get("user", {}).get("user_id")
-        return self

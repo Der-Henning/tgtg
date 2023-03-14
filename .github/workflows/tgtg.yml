@@ -24,7 +24,7 @@ jobs:
           max_attempts: 10
           retry_wait_seconds: 1800
           command: |
-            python -m pytest -m tgtg_api
+            python -m pytest -v -m tgtg_api
             echo "::add-mask::${{ env.TGTG_ACCESS_TOKEN }}"
             echo "::add-mask::${{ env.TGTG_REFRESH_TOKEN }}"
             echo "::add-mask::${{ env.TGTG_USER_ID }}"
