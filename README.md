@@ -76,7 +76,7 @@ Method for advanced usage.
 2. Clone the repository `git clone https://github.com/Der-Henning/tgtg`
 3. Enter repository folder `cd tgtg`
 4. Run `pip install -r requirements.txt`
-5. Create config file `cp src/config.template.ini src/config.ini`
+5. Create config file `cp src/config.sample.ini src/config.ini`
 6. Modify `src/config.ini` as described in the file
 7. Run `python src/main.py`
 
