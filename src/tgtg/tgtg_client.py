@@ -26,6 +26,9 @@ SIGNUP_BY_EMAIL_ENDPOINT = "auth/v3/signUpByEmail"
 REFRESH_ENDPOINT = "auth/v3/token/refresh"
 ACTIVE_ORDER_ENDPOINT = "order/v6/active"
 INACTIVE_ORDER_ENDPOINT = "order/v6/inactive"
+CREATE_ORDER_ENDPOINT = "order/v7/create/"
+ABORT_ORDER_ENDPOINT = "order/v7/{}/abort"
+ORDER_STATUS_ENDPOINT = "order/v7/{}/status"
 USER_AGENTS = [
     "TGTG/{} Dalvik/2.1.0 (Linux; U; Android 9; Nexus 5 Build/M4B30Z)",
     "TGTG/{} Dalvik/2.1.0 (Linux; U; Android 10; SM-G935F Build/NRD90M)",
@@ -350,13 +353,34 @@ class TgtgClient:
         self.login()
         response = self._post(
             f"{API_ITEM_ENDPOINT}/{item_id}",
-            json={"user_id": self.user_id, "origin": None},
-        )
+            json={"user_id": self.user_id, "origin": None})
         return response.json()
 
     def set_favorite(self, item_id: str, is_favorite: bool) -> None:
         self.login()
         self._post(
             f"{API_ITEM_ENDPOINT}/{item_id}/setFavorite",
-            json={"is_favorite": is_favorite},
-        )
+            json={"is_favorite": is_favorite})
+
+    def create_order(self, item_id: str, item_count: int) -> dict:
+        self.login()
+        response = self._post(
+            f"{CREATE_ORDER_ENDPOINT}/{item_id}",
+            json={"item_count": item_count})
+        if response.json().get("state") != "SUCCESS":
+            raise TgtgAPIError(response.status_code, response.content)
+        return response.json().get("order")
+
+    def get_order_status(self, order_id: str) -> dict:
+        self.login()
+        response = self._post(ORDER_STATUS_ENDPOINT.format(order_id))
+        return response.json()
+
+    def abort_order(self, order_id: str) -> None:
+        """Use this when your order is not yet paid"""
+        self.login()
+        response = self._post(
+            ABORT_ORDER_ENDPOINT.format(order_id),
+            json={"cancel_reason_id": 1})
+        if response.json().get("state") != "SUCCESS":
+            raise TgtgAPIError(response.status_code, response.content)
