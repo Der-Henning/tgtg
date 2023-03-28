@@ -18,6 +18,7 @@ class Ntfy(WebHook):
         self.topic = config.ntfy.get("topic")
         self.title = config.ntfy.get("title", "tgtg")
         self.message = config.ntfy.get("message")
+        self.body = config.ntfy.get("body")
         self.priority = config.ntfy.get("priority", "default")
         self.tags = config.ntfy.get("tags", "tgtg")
         self.click = config.ntfy.get("click")
@@ -25,10 +26,8 @@ class Ntfy(WebHook):
         self.password = config.ntfy.get("password")
         self.timeout = config.ntfy.get("timeout", 60)
         self.cron = config.ntfy.get("cron")
-
         self.headers = None
         self.auth = None
-        self.body = None
         self.method = "POST"
         self.type = None
 

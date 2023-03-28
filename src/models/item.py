@@ -1,7 +1,10 @@
 import datetime
+import logging
 import re
+from http import HTTPStatus
 
 import humanize
+import requests
 
 from models.errors import MaskConfigurationError
 
@@ -9,7 +12,9 @@ ATTRS = ["item_id", "items_available", "display_name", "description",
          "price", "currency", "pickupdate", "favorite", "rating",
          "buffet", "item_category", "item_name", "packaging_option",
          "pickup_location", "store_name", "item_logo", "item_cover",
-         "scanned_on"]
+         "scanned_on", "item_logo_bytes", "item_cover_bytes", "link"]
+
+log = logging.getLogger('tgtg')
 
 
 class Item():
@@ -77,14 +82,39 @@ class Item():
             if not match.group(1) in ATTRS:
                 raise MaskConfigurationError(match.group(0))
 
+    @staticmethod
+    def get_image(url: str) -> bytes:
+        response = requests.get(url)
+        if not response.status_code == HTTPStatus.OK:
+            log.warning("Get Image Error: %s - %s",
+                        response.status_code,
+                        response.content)
+            return None
+        return response.content
+
+    @property
+    def item_logo_bytes(self) -> bytes:
+        return self.get_image(self.item_logo)
+
+    @property
+    def item_cover_bytes(self) -> bytes:
+        return self.get_image(self.item_cover)
+
+    @property
+    def link(self) -> str:
+        return f"https://share.toogoodtogo.com/item/{self.item_id}"
+
     def unmask(self, text: str) -> str:
         """
         Replaces variables with the current values.
         """
+        if text in ["${{item_logo_bytes}}", "${{item_cover_bytes}}"]:
+            matches = re.findall(r"\${{([a-zA-Z0-9_]+)}}", text)
+            return getattr(self, matches[0])
         for match in re.finditer(r"\${{([a-zA-Z0-9_]+)}}", text):
             if hasattr(self, match.group(1)):
-                text = text.replace(match.group(0), str(
-                    getattr(self, match.group(1))))
+                val = getattr(self, match.group(1))
+                text = text.replace(match.group(0), str(val))
         return text
 
     @property
