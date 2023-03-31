@@ -2,9 +2,9 @@ import logging
 import sys
 from random import random
 from time import sleep
-from typing import List, NoReturn
+from typing import Dict, List, NoReturn
 
-from models import Config, Item, Metrics
+from models import Config, Item, Metrics, Reservations
 from models.errors import TgtgAPIError
 from notifiers import Notifiers
 from tgtg import TgtgClient
@@ -20,7 +20,7 @@ class Scanner:
         self.metrics = Metrics(self.config.metrics_port)
         self.item_ids = set(self.config.item_ids)
         self.cron = self.config.schedule_cron
-        self.amounts = {}
+        self.state: Dict[str, Item] = {}
         self.notifiers = None
         self.tgtg_client = TgtgClient(
             email=self.config.tgtg.get("username"),
@@ -34,6 +34,7 @@ class Scanner:
             user_id=self.config.tgtg.get("user_id"),
             datadome_cookie=self.config.tgtg.get("datadome")
         )
+        self.reservations = Reservations(self.tgtg_client)
 
     def _get_test_item(self) -> Item:
         """
@@ -73,9 +74,15 @@ class Scanner:
         for item in items:
             self._check_item(item)
 
-        log.debug("new State: %s", self.amounts)
+        amounts = {item_id: self.state.get(item_id).items_available
+                   for item_id in self.state.keys()
+                   if self.state.get(item_id) is not None}
+        log.debug("new State: %s", amounts)
+        self.reservations.make_orders(
+            self.state,
+            self.notifiers.send_order_notification)
 
-        if len(self.amounts) == 0:
+        if len(self.state) == 0:
             log.warning("No items in observation! Did you add any favorites?")
 
         self.config.save_tokens(
@@ -104,21 +111,21 @@ class Scanner:
         Checks if the available item amount raised from zero to something
         and triggers notifications.
         """
-        if self.amounts.get(item.item_id) == item.items_available:
-            return
-        if item.item_id in self.amounts:
+        state_item = self.state.get(item.item_id)
+        if state_item is not None:
+            if state_item.items_available == item.items_available:
+                return
             log.info("%s - new amount: %s",
                      item.display_name, item.items_available)
+            if (state_item.items_available == 0 and item.items_available > 0):
+                self._send_messages(item)
+                self.metrics.send_notifications.labels(
+                    item.item_id, item.display_name
+                ).inc()
         self.metrics.item_count.labels(item.item_id,
                                        item.display_name
                                        ).set(item.items_available)
-        if (self.amounts.get(item.item_id) == 0 and
-                item.items_available > self.amounts.get(item.item_id)):
-            self._send_messages(item)
-            self.metrics.send_notifications.labels(
-                item.item_id, item.display_name
-            ).inc()
-        self.amounts[item.item_id] = item.items_available
+        self.state[item.item_id] = item
 
     def _send_messages(self, item: Item) -> None:
         """
@@ -138,7 +145,7 @@ class Scanner:
         # activate and test notifiers
         if self.config.metrics:
             self.metrics.enable_metrics()
-        self.notifiers = Notifiers(self.config)
+        self.notifiers = Notifiers(self.config, self.reservations)
         if not self.config.disable_tests and \
                 self.notifiers.notifier_count > 0:
             log.info("Sending test Notifications ...")
@@ -210,20 +217,7 @@ class Scanner:
         Returns:
             List: List of items
         """
-        items = []
-        page = 1
-        page_size = 100
-        while True:
-            new_items = self.tgtg_client.get_items(
-                favorites_only=True,
-                page_size=page_size,
-                page=page
-            )
-            items += new_items
-            if len(new_items) < page_size:
-                break
-            page += 1
-        return items
+        return self.tgtg_client.get_favorites()
 
     def set_favorite(self, item_id: str) -> None:
         """Add item to favorites.

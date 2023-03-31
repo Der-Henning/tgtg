@@ -2,6 +2,7 @@ import logging
 from abc import ABC, abstractmethod
 
 from models import Config, Cron, Item
+from models.reservations import Reservation
 
 log = logging.getLogger('tgtg')
 
@@ -24,6 +25,9 @@ class Notifier(ABC):
     @abstractmethod
     def _send(self, item: Item) -> None:
         """Send Item information"""
+
+    def send_order_notification(self, reservation: Reservation) -> None:
+        pass
 
     def stop(self) -> None:
         """Stop notifier"""
