@@ -61,10 +61,10 @@ class Notifiers:
             except Exception as exc:
                 log.error("Failed sending %s: %s", notifier, exc)
 
-    def send_order_notification(self, reservation: Reservation) -> None:
+    def send_reservation(self, reservation: Reservation) -> None:
         for notifier in self._enabled_notifiers:
             try:
-                notifier.send_order_notification(reservation)
+                notifier.send_reservation(reservation)
             except Exception as exc:
                 log.error("Failed sending %s: %s", notifier, exc)
 

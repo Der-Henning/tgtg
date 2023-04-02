@@ -41,8 +41,8 @@ class Telegram(Notifier):
         if self.enabled:
             try:
                 Item.check_mask(self.body)
-                self.updater = Updater(
-                    token=self.token, arbitrary_callback_data=True)
+                self.updater = Updater(token=self.token,
+                                       arbitrary_callback_data=True)
                 self.updater.bot.get_me(timeout=self.timeout)
             except MaskConfigurationError as err:
                 raise TelegramConfigurationError(err.message) from err
@@ -55,7 +55,7 @@ class Telegram(Notifier):
                 CommandHandler("mute", self._mute),
                 CommandHandler("unmute", self._unmute),
                 CommandHandler("reserve", self._reserve_item_menu),
-                CommandHandler("reservations", self._cancel_reservation_menu),
+                CommandHandler("reservations", self._cancel_reservations_menu),
                 CommandHandler("orders", self._cancel_orders_menu),
                 CommandHandler("cancelall", self._cancel_all_orders),
                 CallbackQueryHandler(self._callback_query_handler)]
@@ -82,9 +82,16 @@ class Telegram(Notifier):
         if self.mute:
             log.info("Reactivated Telegram Notifications")
             self.mute = None
-        fmt = ParseMode.MARKDOWN
         message = item.unmask(self.body)
-        log.debug(message)
+        self._send_message(message)
+
+    def _send_reservation(self, reservation: Reservation) -> None:
+        message = f"{reservation.display_name} is reserved for 5 minutes!"
+        self._send_message(message)
+
+    def _send_message(self, message: str) -> None:
+        log.debug("%s message: %s", self.name, message)
+        fmt = ParseMode.MARKDOWN
         for chat_id in self.chat_ids:
             try:
                 self.updater.bot.send_message(
@@ -103,16 +110,16 @@ class Telegram(Notifier):
                     raise err
                 self.updater.stop()
                 self.updater.start_polling()
-                self.send(item)
+                self._send_message(message)
             except TelegramError as err:
                 log.error('Telegram Error: %s', err)
 
     def _help(self, update: Update, context: CallbackContext) -> None:
         """Send message containing available bot commands"""
         del context
-        update.message.reply_text('Deactivate Telegram Notifications for '
-                                  'x days using\n/mute x\nReactivate with '
-                                  '/unmute')
+        update.message.reply_text(
+            'Deactivate Telegram Notifications for x days using\n'
+            '/mute x\nReactivate with /unmute')
 
     def _mute(self, update: Update, context: CallbackContext) -> None:
         """Deactivates Telegram Notifications for x days"""
@@ -121,9 +128,9 @@ class Telegram(Notifier):
         self.mute = datetime.datetime.now() + datetime.timedelta(days=days)
         log.info('Deactivated Telegram Notifications for %s days', days)
         log.info('Reactivation at %s', self.mute)
-        update.message.reply_text(f"Deactivated Telegram Notifications "
-                                  f"for {days} days.\nReactivating at "
-                                  f"{self.mute} or use /unmute.")
+        update.message.reply_text(
+            f"Deactivated Telegram Notifications for {days} days.\n"
+            f"Reactivating at {self.mute} or use /unmute.")
 
     def _unmute(self, update: Update, context: CallbackContext) -> None:
         """Reactivate Telegram Notifications"""
@@ -147,9 +154,9 @@ class Telegram(Notifier):
             "Select a Bag to reserve",
             reply_markup=reply_markup)
 
-    def _cancel_reservation_menu(self,
-                                 update: Update,
-                                 context: CallbackContext) -> None:
+    def _cancel_reservations_menu(self,
+                                  update: Update,
+                                  context: CallbackContext) -> None:
         del context
         buttons = [[
             InlineKeyboardButton(
@@ -157,12 +164,11 @@ class Telegram(Notifier):
                 callback_data=reservation)
         ] for reservation in self.reservations.reservation_query]
         if len(buttons) == 0:
-            update.message.reply_text(
-                "No active Reservations")
+            update.message.reply_text("No active Reservations")
             return
         reply_markup = InlineKeyboardMarkup(buttons)
         update.message.reply_text(
-            "Click to cancel reservation",
+            "Active Reservations. Select to cancel.",
             reply_markup=reply_markup)
 
     def _cancel_orders_menu(self,
@@ -176,12 +182,11 @@ class Telegram(Notifier):
                 callback_data=order)
         ] for order in self.reservations.active_orders]
         if len(buttons) == 0:
-            update.message.reply_text(
-                "No active Orders")
+            update.message.reply_text("No active Orders")
             return
         reply_markup = InlineKeyboardMarkup(buttons)
         update.message.reply_text(
-            "Click to cancel order",
+            "Active Orders. Select to cancel.",
             reply_markup=reply_markup)
 
     def _cancel_all_orders(self,
@@ -189,8 +194,8 @@ class Telegram(Notifier):
                            context: CallbackContext) -> None:
         del context
         self.reservations.cancel_all_orders()
-        update.message.reply_text("Cancelled all orders")
-        log.debug("Cancelled all orders")
+        update.message.reply_text("Cancelled all active Orders")
+        log.debug("Cancelled all active Orders")
 
     def _callback_query_handler(self,
                                 update: Update,
@@ -214,14 +219,6 @@ class Telegram(Notifier):
             update.callback_query.answer(
                 f"Canceled Order for {data.display_name}")
             log.debug('Canceled order for "%s"', data.display_name)
-
-    def send_order_notification(self, reservation: Reservation) -> None:
-        for chat_id in self.chat_ids:
-            self.updater.bot.send_message(
-                chat_id=chat_id,
-                text=f"Reserved {reservation.display_name} for you!",
-                timeout=self.timeout,
-                disable_web_page_preview=True)
 
     def _error(self, update: Update, context: CallbackContext) -> None:
         """Log Errors caused by Updates."""
@@ -248,17 +245,15 @@ class Telegram(Notifier):
                             "Received code from %s %s on chat id %s",
                             update.message.from_user.first_name,
                             update.message.from_user.last_name,
-                            update.message.chat_id
-                        )
+                            update.message.chat_id)
                         self.chat_ids = [str(update.message.chat_id)]
             sleep(1)
         if self.config.set("TELEGRAM", "chat_ids", ','.join(self.chat_ids)):
             log.warning("Saved chat id in your config file")
         else:
             log.warning(
-                "For persistence please set TELEGRAM_CHAT_IDS=%s", ','.join(
-                    self.chat_ids)
-            )
+                "For persistence please set TELEGRAM_CHAT_IDS=%s",
+                ','.join(self.chat_ids))
 
     def stop(self) -> None:
         if self.updater is not None:

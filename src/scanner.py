@@ -80,7 +80,7 @@ class Scanner:
         log.debug("new State: %s", amounts)
         self.reservations.make_orders(
             self.state,
-            self.notifiers.send_order_notification)
+            self.notifiers.send_reservation)
 
         if len(self.state) == 0:
             log.warning("No items in observation! Did you add any favorites?")

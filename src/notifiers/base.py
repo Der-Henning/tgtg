@@ -22,11 +22,16 @@ class Notifier(ABC):
             log.debug("Sending %s Notification", self.name)
             self._send(item)
 
+    def send_reservation(self, reservation: Reservation) -> None:
+        if self.enabled:
+            log.debug("Sending %s new Reservation", self.name)
+            self._send_reservation(reservation)
+
     @abstractmethod
     def _send(self, item: Item) -> None:
         """Send Item information"""
 
-    def send_order_notification(self, reservation: Reservation) -> None:
+    def _send_reservation(self, reservation: Reservation) -> None:
         pass
 
     def stop(self) -> None:
