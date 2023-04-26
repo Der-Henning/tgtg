@@ -113,7 +113,7 @@ def main() -> NoReturn:
 
     # Set all loggers to level Error
     for logger_name in logging.root.manager.loggerDict:
-        logging.getLogger(logger_name).setLevel(logging.ERROR)
+        logging.getLogger(logger_name).setLevel(logging.CRITICAL)
 
     # Define stream formatter and handler
     stream_formatter = colorlog.ColoredFormatter(
