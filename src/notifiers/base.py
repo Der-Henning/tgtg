@@ -15,14 +15,21 @@ class Notifier(ABC):
 
     @property
     def name(self):
+        """Get notifier name"""
         return self.__class__.__name__
 
     def send(self, item: Item) -> None:
+        """Send notification for new item"""
         if self.enabled and self.cron.is_now:
             log.debug("Sending %s Notification", self.name)
             self._send(item)
 
     def send_reservation(self, reservation: Reservation) -> None:
+        """Send notification for new reservation
+
+        Args:
+            reservation (Reservation): Reservation to send
+        """
         if self.enabled:
             log.debug("Sending %s new Reservation", self.name)
             self._send_reservation(reservation)

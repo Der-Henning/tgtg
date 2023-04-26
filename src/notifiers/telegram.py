@@ -51,7 +51,6 @@ class Telegram(Notifier):
             if not self.chat_ids:
                 self._get_chat_id()
             handlers = [
-                CommandHandler("help", self._help),
                 CommandHandler("mute", self._mute),
                 CommandHandler("unmute", self._unmute),
                 CommandHandler("reserve", self._reserve_item_menu),
@@ -63,7 +62,6 @@ class Telegram(Notifier):
                 self.updater.dispatcher.add_handler(handler)
             self.updater.dispatcher.add_error_handler(self._error)
             self.updater.bot.set_my_commands([
-                BotCommand('help', 'Display available Commands'),
                 BotCommand('mute',
                            'Deactivate Telegram Notifications for '
                            '1 or x days'),
@@ -113,13 +111,6 @@ class Telegram(Notifier):
                 self._send_message(message)
             except TelegramError as err:
                 log.error('Telegram Error: %s', err)
-
-    def _help(self, update: Update, context: CallbackContext) -> None:
-        """Send message containing available bot commands"""
-        del context
-        update.message.reply_text(
-            'Deactivate Telegram Notifications for x days using\n'
-            '/mute x\nReactivate with /unmute')
 
     def _mute(self, update: Update, context: CallbackContext) -> None:
         """Deactivates Telegram Notifications for x days"""

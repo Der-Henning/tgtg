@@ -62,6 +62,11 @@ class Notifiers:
                 log.error("Failed sending %s: %s", notifier, exc)
 
     def send_reservation(self, reservation: Reservation) -> None:
+        """Send notification for new reservation
+
+        Args:
+            reservation (Reservation): New reservation
+        """
         for notifier in self._enabled_notifiers:
             try:
                 notifier.send_reservation(reservation)
