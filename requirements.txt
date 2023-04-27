@@ -7,7 +7,7 @@ colorlog==6.7.0
 cron-descriptor==1.2.35
 humanize==4.6.0
 idna==3.4
-packaging==23.0
+packaging==23.1
 prometheus-client==0.16.0
 pycron==3.0.0
 python-pushsafer==1.1
