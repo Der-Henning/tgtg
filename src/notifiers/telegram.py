@@ -32,8 +32,8 @@ class Telegram(Notifier):
         self.body = config.telegram.get("body")
         self.chat_ids = config.telegram.get("chat_ids")
         self.timeout = config.telegram.get("timeout", 60)
-        self.disable_commans = config.telegram.get("disable_commands",
-                                                   False)
+        self.disable_commands = config.telegram.get(
+            "disable_commands", False)
         self.cron = config.telegram.get("cron")
         self.mute = None
         self.retries = 0
@@ -73,7 +73,7 @@ class Telegram(Notifier):
                 BotCommand('orders', 'List and cancel active Orders'),
                 BotCommand('cancelall', 'Cancels all active orders')
             ])
-            if not self.disable_commans:
+            if not self.disable_commands:
                 self.updater.start_polling()
 
     def _send(self, item: Item) -> None:
