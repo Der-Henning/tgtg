@@ -113,6 +113,7 @@ DEFAULT_CONFIG = {
         'enabled': False,
         'token': '',
         'chat_ids': [],
+        'disable_commands': False,
         'timeout': 60,
         'cron': Cron('* * * * *'),
         'body': '*${{display_name}}*\n'
@@ -359,6 +360,8 @@ class Config():
                                 "chat_ids", "telegram.chat_ids")
             self._ini_get_int(config, "TELEGRAM",
                               "timeout", "telegram.timeout")
+            self._ini_get_boolean(config, "TELEGRAM", "disableCommands",
+                                  "telegram.disable_commands")
             self._ini_get_cron(config, "TELEGRAM", "cron", "telegram.cron")
             self._ini_get(config, "TELEGRAM", "body", "telegram.body")
         except ValueError as err:
@@ -487,6 +490,8 @@ class Config():
             self._env_get("TELEGRAM_TOKEN", "telegram.token")
             self._env_get_array("TELEGRAM_CHAT_IDS", "telegram.chat_ids")
             self._env_get_int("TELEGRAM_TIMEOUT", "telegram.timeout")
+            self._env_get_boolean("TELEGRAM_DISABLE_COMMANDS",
+                                  "telegram.disable_commands")
             self._env_get_cron("TELEGRAM_CRON", "telegram.cron")
             self._env_get("TELEGRAM_BODY", "telegram.body")
         except ValueError as err:
