@@ -80,3 +80,9 @@ class TelegramConfigurationError(ConfigurationError):
     def __init__(self, message="Invalid Telegram configuration"):
         self.message = message
         super().__init__(self.message)
+
+
+class ScriptConfigurationError(ConfigurationError):
+    def __init__(self, message="Invalid Script configuration"):
+        self.message = message
+        super().__init__(self.message)
