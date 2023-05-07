@@ -119,6 +119,12 @@ DEFAULT_CONFIG = {
                 '*Available*: ${{items_available}}\n'
                 '*Price*: ${{price}} ${{currency}}\n'
                 '*Pickup*: ${{pickupdate}}'
+    },
+     'script': {
+        'enabled': False,
+        'command': '',
+        'timeout': 60,
+        'cron': Cron('* * * * *')   
     }
 }
 
@@ -148,6 +154,7 @@ class Config():
     ntfy: dict
     webhook: dict
     telegram: dict
+    script: dict
 
     def __init__(self, file: str = None):
         self.file = Path(file) if file is not None else None
@@ -269,8 +276,7 @@ class Config():
             self._ini_get_cron(config, "MAIN", "ScheduleCron", "schedule_cron")
             self._ini_get_boolean(config, "MAIN", "Metrics", "metrics")
             self._ini_get_int(config, "MAIN", "MetricsPort", "metrics_port")
-            self._ini_get_boolean(config, "MAIN", "DisableTests",
-                                  "disable_tests")
+            self._ini_get_boolean(config, "MAIN", "DisableTests", "disable_tests")
             self._ini_get_boolean(config, "MAIN", "quiet", "quiet")
             self._ini_get(config, "MAIN", "locale", "locale")
 
@@ -280,30 +286,23 @@ class Config():
             self._ini_get(config, "TGTG", "UserId", "tgtg.user_id")
             self._ini_get(config, "TGTG", "Datadome", "tgtg.datadome")
             self._ini_get_int(config, "TGTG", "Timeout", "tgtg.timeout")
-            self._ini_get_int(config, "TGTG", "AccessTokenLifetime",
-                              "tgtg.access_token_lifetime")
-            self._ini_get_int(config, "TGTG", "MaxPollingTries",
-                              "tgtg.max_polling_tries")
-            self._ini_get_int(config, "TGTG", "PollingWaitTime",
-                              "tgtg.polling_wait_time")
+            self._ini_get_int(config, "TGTG", "AccessTokenLifetime", "tgtg.access_token_lifetime")
+            self._ini_get_int(config, "TGTG", "MaxPollingTries", "tgtg.max_polling_tries")
+            self._ini_get_int(config, "TGTG", "PollingWaitTime", "tgtg.polling_wait_time")
 
-            self._ini_get_boolean(config, "APPRISE",
-                                  "enabled", "apprise.enabled")
+            self._ini_get_boolean(config, "APPRISE", "enabled", "apprise.enabled")
             self._ini_get(config, "APPRISE", "URL", "apprise.url")
             self._ini_get_cron(config, "APPRISE", "cron", "apprise.cron")
             self._ini_get(config, "APPRISE", "title", "apprise.title")
             self._ini_get(config, "APPRISE", "body", "apprise.body")
 
-            self._ini_get_boolean(config, "CONSOLE",
-                                  "enabled", "console.enabled")
+            self._ini_get_boolean(config, "CONSOLE", "enabled", "console.enabled")
             self._ini_get(config, "CONSOLE", "Body", "console.body")
             self._ini_get_cron(config, "CONSOLE", "cron", "console.cron")
 
-            self._ini_get_boolean(config, "PUSHSAFER",
-                                  "enabled", "push_safer.enabled")
+            self._ini_get_boolean(config, "PUSHSAFER", "enabled", "push_safer.enabled")
             self._ini_get(config, "PUSHSAFER", "Key", "push_safer.key")
-            self._ini_get(config, "PUSHSAFER", "DeviceID",
-                          "push_safer.deviceId")
+            self._ini_get(config, "PUSHSAFER", "DeviceID", "push_safer.deviceId")
             self._ini_get_cron(config, "PUSHSAFER", "cron", "push_safer.cron")
 
             self._ini_get_boolean(config, "SMTP", "enabled", "smtp.enabled")
@@ -340,8 +339,7 @@ class Config():
             self._ini_get_int(config, "NTFY", "Timeout", "ntfy.timeout")
             self._ini_get_cron(config, "NTFY", "cron", "ntfy.cron")
 
-            self._ini_get_boolean(config, "WEBHOOK", "enabled",
-                                  "webhook.enabled")
+            self._ini_get_boolean(config, "WEBHOOK", "enabled", "webhook.enabled")
             self._ini_get(config, "WEBHOOK", "URL", "webhook.url")
             self._ini_get(config, "WEBHOOK", "Method", "webhook.method")
             self._ini_get(config, "WEBHOOK", "body", "webhook.body")
@@ -352,15 +350,18 @@ class Config():
             self._ini_get_int(config, "WEBHOOK", "timeout", "webhook.timeout")
             self._ini_get_cron(config, "WEBHOOK", "cron", "webhook.cron")
 
-            self._ini_get_boolean(config, "TELEGRAM",
-                                  "enabled", "telegram.enabled")
+            self._ini_get_boolean(config, "TELEGRAM", "enabled", "telegram.enabled")
             self._ini_get(config, "TELEGRAM", "token", "telegram.token")
-            self._ini_get_array(config, "TELEGRAM",
-                                "chat_ids", "telegram.chat_ids")
-            self._ini_get_int(config, "TELEGRAM",
-                              "timeout", "telegram.timeout")
+            self._ini_get_array(config, "TELEGRAM", "chat_ids", "telegram.chat_ids")
+            self._ini_get_int(config, "TELEGRAM", "timeout", "telegram.timeout")
             self._ini_get_cron(config, "TELEGRAM", "cron", "telegram.cron")
             self._ini_get(config, "TELEGRAM", "body", "telegram.body")
+
+            self._ini_get_boolean(config, "SCRIPT", "enabled", "script.enabled")
+            self._ini_get(config, "SCRIPT", "Command", "script.command")
+            self._ini_get_int(config, "SCRIPT", "timeout", "script.timeout")
+            self._ini_get_cron(config, "SCRIPT", "cron", "script.cron")            
+            
         except ValueError as err:
             raise ConfigurationError(err) from err
 
@@ -416,12 +417,9 @@ class Config():
             self._env_get("TGTG_USER_ID", "tgtg.user_id")
             self._env_get("TGTG_DATADOME", "tgtg.datadome")
             self._env_get_int("TGTG_TIMEOUT", "tgtg.timeout")
-            self._env_get_int("TGTG_ACCESS_TOKEN_LIFETIME",
-                              "tgtg.access_token_lifetime")
-            self._env_get_int("TGTG_MAX_POLLING_TRIES",
-                              "tgtg.max_polling_tries")
-            self._env_get_int("TGTG_POLLING_WAIT_TIME",
-                              "tgtg.polling_wait_time")
+            self._env_get_int("TGTG_ACCESS_TOKEN_LIFETIME", "tgtg.access_token_lifetime")
+            self._env_get_int("TGTG_MAX_POLLING_TRIES", "tgtg.max_polling_tries")
+            self._env_get_int("TGTG_POLLING_WAIT_TIME", "tgtg.polling_wait_time")
 
             self._env_get_boolean("APPRISE", "apprise.enabled")
             self._env_get("APPRISE_URL", "apprise.url")
@@ -489,6 +487,12 @@ class Config():
             self._env_get_int("TELEGRAM_TIMEOUT", "telegram.timeout")
             self._env_get_cron("TELEGRAM_CRON", "telegram.cron")
             self._env_get("TELEGRAM_BODY", "telegram.body")
+
+            self._env_get_boolean("SCRIPT", "enabled", "script.enabled")
+            self._env_get("SCRIPT", "Command", "script.command")
+            self._env_get_int("SCRIPT", "timeout", "script.timeout")
+            self._env_get_cron("SCRIPT", "cron", "script.cron")
+            
         except ValueError as err:
             raise ConfigurationError(err) from err
 
