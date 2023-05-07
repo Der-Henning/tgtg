@@ -488,10 +488,10 @@ class Config():
             self._env_get_cron("TELEGRAM_CRON", "telegram.cron")
             self._env_get("TELEGRAM_BODY", "telegram.body")
 
-            self._env_get_boolean("SCRIPT", "enabled", "script.enabled")
-            self._env_get("SCRIPT", "Command", "script.command")
-            self._env_get_int("SCRIPT", "timeout", "script.timeout")
-            self._env_get_cron("SCRIPT", "cron", "script.cron")
+            self._env_get_boolean("SCRIPT", "script.enabled")
+            self._env_get("SCRIPT_COMMAND", "script.command")
+            self._env_get_int("SCRIPT_TIMEOUT", "script.timeout")
+            self._env_get_cron("SCRIPT_CRON", "script.cron")
             
         except ValueError as err:
             raise ConfigurationError(err) from err
