@@ -16,7 +16,15 @@ class Script(Notifier):
 
         if self.enabled:
             try:
-                import subprocess
-                subprocess.call([self.command])
+                Item.check_mask(self.command)
             except MaskConfigurationError as exc:
                 raise ScriptConfigurationError(exc.message) from exc
+
+
+    def _send(self, item: Item) -> None:
+        import subprocess
+        subprocess.call([self.command])
+
+
+    def __repr__(self) -> str:
+        return " "
