@@ -11,8 +11,8 @@ class Script(Notifier):
     """Notifier for the script output"""
 
     def __init__(self, config: Config):
-        self.enabled = config.console.get("enabled", False)
-        self.command = config.console.get("command")
+        self.enabled = config.script.get("enabled", False)
+        self.command = config.script.get("command")
 
         if self.enabled:
             try:
