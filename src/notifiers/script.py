@@ -13,6 +13,7 @@ class Script(Notifier):
     def __init__(self, config: Config):
         self.enabled = config.script.get("enabled", False)
         self.command = config.script.get("command")
+        self.command = config.script.get("cron")
 
         if self.enabled:
             try:
