@@ -13,6 +13,7 @@ class Script(Notifier):
     def __init__(self, config: Config):
         self.enabled = config.script.get("enabled", False)
         self.command = config.script.get("command")
+        self.timeout = config.script.get("timeout", 60)
         self.command = config.script.get("cron")
 
         if self.enabled:
