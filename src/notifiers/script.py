@@ -25,7 +25,7 @@ class Script(Notifier):
 
     def _send(self, item: Item) -> None:
         import subprocess
-        subprocess.call([self.command])
+        subprocess.call([self.command],shell=True)
 
 
     def __repr__(self) -> str:
