@@ -8,6 +8,7 @@ from models import Config, Item, Metrics
 from models.errors import TgtgAPIError
 from notifiers import Notifiers
 from tgtg import TgtgClient
+from helpers.distance_time_calculator import DistanceTimeCalculator
 
 log = logging.getLogger("tgtg")
 
@@ -25,33 +26,34 @@ class Scanner:
         self.tgtg_client = TgtgClient(
             email=self.config.tgtg.get("username"),
             timeout=self.config.tgtg.get("timeout"),
-            access_token_lifetime=self.config.tgtg.get(
-                "access_token_lifetime"),
+            access_token_lifetime=self.config.tgtg.get("access_token_lifetime"),
             max_polling_tries=self.config.tgtg.get("max_polling_tries"),
             polling_wait_time=self.config.tgtg.get("polling_wait_time"),
             access_token=self.config.tgtg.get("access_token"),
             refresh_token=self.config.tgtg.get("refresh_token"),
             user_id=self.config.tgtg.get("user_id"),
-            datadome_cookie=self.config.tgtg.get("datadome")
+            datadome_cookie=self.config.tgtg.get("datadome"),
+        )
+        self.distance_time_calculator = DistanceTimeCalculator(
+            self.config.location.get("gmaps_api_key"),
+            self.config.location.get("origin_address"),
         )
 
     def _get_test_item(self) -> Item:
         """
         Returns an item for test notifications
         """
-        items = sorted(self._get_favorites(),
-                       key=lambda x: x.items_available,
-                       reverse=True)
+        items = sorted(
+            self._get_favorites(), key=lambda x: x.items_available, reverse=True
+        )
         if items:
             return items[0]
         items = sorted(
             [
-                Item(item)
+                Item(item, self.distance_time_calculator)
                 for item in self.tgtg_client.get_items(
-                    favorites_only=False,
-                    latitude=53.5511,
-                    longitude=9.9937,
-                    radius=50)
+                    favorites_only=False, latitude=53.5511, longitude=9.9937, radius=50
+                )
             ],
             key=lambda x: x.items_available,
             reverse=True,
@@ -66,7 +68,12 @@ class Scanner:
         for item_id in self.item_ids:
             try:
                 if item_id != "":
-                    items.append(Item(self.tgtg_client.get_item(item_id)))
+                    items.append(
+                        Item(
+                            self.tgtg_client.get_item(item_id),
+                            self.distance_time_calculator,
+                        )
+                    )
             except TgtgAPIError as err:
                 log.error(err)
         items += self._get_favorites()
@@ -82,7 +89,7 @@ class Scanner:
             self.tgtg_client.access_token,
             self.tgtg_client.refresh_token,
             self.tgtg_client.user_id,
-            self.tgtg_client.datadome_cookie
+            self.tgtg_client.datadome_cookie,
         )
 
     def _get_favorites(self) -> list[Item]:
@@ -97,7 +104,7 @@ class Scanner:
         except TgtgAPIError as err:
             log.error(err)
             return []
-        return [Item(item) for item in items]
+        return [Item(item, self.distance_time_calculator) for item in items]
 
     def _check_item(self, item: Item) -> None:
         """
@@ -107,13 +114,13 @@ class Scanner:
         if self.amounts.get(item.item_id) == item.items_available:
             return
         if item.item_id in self.amounts:
-            log.info("%s - new amount: %s",
-                     item.display_name, item.items_available)
-        self.metrics.item_count.labels(item.item_id,
-                                       item.display_name
-                                       ).set(item.items_available)
-        if (self.amounts.get(item.item_id) == 0 and
-                item.items_available > self.amounts.get(item.item_id)):
+            log.info("%s - new amount: %s", item.display_name, item.items_available)
+        self.metrics.item_count.labels(item.item_id, item.display_name).set(
+            item.items_available
+        )
+        if self.amounts.get(
+            item.item_id
+        ) == 0 and item.items_available > self.amounts.get(item.item_id):
             self._send_messages(item)
             self.metrics.send_notifications.labels(
                 item.item_id, item.display_name
@@ -139,8 +146,7 @@ class Scanner:
         if self.config.metrics:
             self.metrics.enable_metrics()
         self.notifiers = Notifiers(self.config)
-        if not self.config.disable_tests and \
-                self.notifiers.notifier_count > 0:
+        if not self.config.disable_tests and self.notifiers.notifier_count > 0:
             log.info("Sending test Notifications ...")
             self.notifiers.send(self._get_test_item())
         # test tgtg API
@@ -149,7 +155,7 @@ class Scanner:
             self.tgtg_client.access_token,
             self.tgtg_client.refresh_token,
             self.tgtg_client.user_id,
-            self.tgtg_client.datadome_cookie
+            self.tgtg_client.datadome_cookie,
         )
         # start scanner
         log.info("Scanner started ...")
@@ -215,9 +221,7 @@ class Scanner:
         page_size = 100
         while True:
             new_items = self.tgtg_client.get_items(
-                favorites_only=True,
-                page_size=page_size,
-                page=page
+                favorites_only=True, page_size=page_size, page=page
             )
             items += new_items
             if len(new_items) < page_size:
@@ -243,8 +247,9 @@ class Scanner:
 
     def unset_all_favorites(self) -> None:
         """Remove all items from favorites."""
-        item_ids = [item.get("item", {}).get("item_id")
-                    for item in self.get_favorites()]
+        item_ids = [
+            item.get("item", {}).get("item_id") for item in self.get_favorites()
+        ]
         for item_id in item_ids:
             self.unset_favorite(item_id)
 
