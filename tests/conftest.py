@@ -43,7 +43,7 @@ def temp_path():
 
 @pytest.fixture
 def test_item(tgtg_item: dict):
-    return Item(tgtg_item, DistanceTime(0, 0, 0, 0, 0, 0))
+    return Item(tgtg_item, DistanceTime.with_zero_values())
 
 
 @pytest.fixture

@@ -10,6 +10,7 @@ class DistanceTimeCalculator:
     WALKING_MODE = "walking"
     DRIVING_MODE = "driving"
     PUBLIC_TRANSPORT_MODE = "transit"
+    BIKING_MODE = "bicycling"
 
     def __init__(self, enabled, api_key, origin):
         """
@@ -25,7 +26,7 @@ class DistanceTimeCalculator:
     def _calculate_distance_time(self, destination, mode):
         """
         Calculates the distance and time taken to travel from origin to destination using the given mode of transportation.
-                Returns distance and time in km and minutes respectively.
+        Returns distance and time in km and minutes respectively.
         """
         directions = self.gmaps.directions(self.origin, destination, mode=mode)
         distance_in_km = round(directions[0]["legs"][0]["distance"]["value"] / 1000, 2)
@@ -69,7 +70,7 @@ class DistanceTimeCalculator:
         Calculates the distance and time taken to travel to the given destination for each mode of transportation.
         """
         if not self._is_valid_run(destination):
-            return DistanceTime(0, 0, 0, 0, 0, 0)
+            return DistanceTime.with_zero_values()
 
         walking_distance, walking_time = self._calculate_distance_time(
             destination, self.WALKING_MODE
@@ -80,6 +81,9 @@ class DistanceTimeCalculator:
         transit_distance, transit_time = self._calculate_distance_time(
             destination, self.PUBLIC_TRANSPORT_MODE
         )
+        biking_distance, biking_time = self._calculate_distance_time(
+            destination, self.BIKING_MODE
+        )
         return DistanceTime(
             walking_distance,
             walking_time,
@@ -87,4 +91,6 @@ class DistanceTimeCalculator:
             driving_time,
             transit_distance,
             transit_time,
+            biking_distance,
+            biking_time,
         )

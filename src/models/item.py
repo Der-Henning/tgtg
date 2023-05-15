@@ -34,6 +34,7 @@ ATTRS = [
     "walking_dt",
     "driving_dt",
     "transit_dt",
+    "biking_dt"
 ]
 
 log = logging.getLogger("tgtg")
@@ -90,6 +91,7 @@ class Item:
         self.walking_dt = f'{distance_time.walking_time} - {distance_time.walking_distance}'
         self.driving_dt = f'{distance_time.driving_time} - {distance_time.driving_distance}'
         self.transit_dt = f'{distance_time.transit_time} - {distance_time.transit_distance}'
+        self.biking_dt = f'{distance_time.biking_time} - {distance_time.biking_distance}'
 
     @staticmethod
     def _datetimeparse(datestr: str) -> datetime.datetime:
