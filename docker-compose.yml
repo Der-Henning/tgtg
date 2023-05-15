@@ -14,6 +14,10 @@ services:
                                                       ## => allowed to run at hours between 12:00 and 14:59 on monday to friday
                                                       ## more help with formatting at https://crontab.guru/#*_12-14_*_*_1-5
                                                       ## The Scanner will not make any requests to the TGTG API in the excluded periods
+      - LOCATION=false                                ## true = calculate travel time and distance to the item location
+      - LOCATION_GOOGLE_MAPS_API_KEY=                 ## Google Maps API Key to get the location of the items
+      - LOCATION_ADDRESS=                             ## Address to get the location of the items
+
       - ITEM_IDS=                                     ## (optional) Comma seperated list of Item Ids to scan
       - METRICS=false                                 ## Enable to export metrics for Prometheus
       - METRICS_PORT=8000                             ## Port for metrics http server
