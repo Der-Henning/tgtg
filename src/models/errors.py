@@ -80,3 +80,9 @@ class TelegramConfigurationError(ConfigurationError):
     def __init__(self, message="Invalid Telegram configuration"):
         self.message = message
         super().__init__(self.message)
+
+
+class LocationConfigurationError(ConfigurationError):
+    def __init__(self, message="Invalid Location configuration"):
+        self.message = message
+        super().__init__(self.message)

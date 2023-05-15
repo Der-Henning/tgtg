@@ -1,48 +1,64 @@
+import googlemaps
 import requests
 import json
 import datetime
 import logging
+from models import DistanceTime
+from models.errors import LocationConfigurationError
 
 log = logging.getLogger("tgtg")
 
 
 class DistanceTimeCalculator:
-    def __init__(self, api_key, origin):
-        self.api_key = api_key
+    WALKING_MODE = "walking"
+    DRIVING_MODE = "driving"
+    PUBLIC_TRANSPORT_MODE = "transit"
+
+    def __init__(self, enabled, api_key, origin):
+        self.enabled = enabled
+        self.gmaps = googlemaps.Client(key=api_key)
         self.origin = origin
+        self.is_first_run = True
 
-    def calculate_walking_distance_and_time(self, destination):
-        # Send a GET request to the Directions API with mode=walking
-        url = f"https://maps.googleapis.com/maps/api/directions/json?origin={self.origin}&destination={destination}&mode=walking&key={self.api_key}"
-        response = requests.get(url)
+    def _calculate_distance_time(self, destination, mode):
+        directions = self.gmaps.directions(self.origin, destination, mode=mode)
+        distance_in_km = round(
+            directions[0]['legs'][0]['distance']['value'] / 1000, 2)
+        distance = f'{distance_in_km} km'
+        time_in_minutes = int(round(
+            directions[0]['legs'][0]['duration']['value'] / 60, 0))
+        time = f'{time_in_minutes} min'
+        return distance, time
 
-        # Parse the JSON response
-        data = json.loads(response.text)
+    def _is_valid_run(self, destination) -> bool:
+        if not self.enabled:
+            return False
 
-        # Extract the walking distance and time in seconds
-        distance = data["routes"][0]["legs"][0]["distance"]["value"]
-        time = data["routes"][0]["legs"][0]["duration"]["value"]
+        if self.is_first_run:
+            self.is_first_run = False
+            if not self._is_address_valid(self.origin):
+                raise LocationConfigurationError()
 
-        # Convert the walking time to a datetime object and return the distance and time
-        walking_time = datetime.timedelta(seconds=time)
-        log.info("Walking time: %s", walking_time)
-        log.info("Walking distance: %s", distance / 1000)
-        return distance, walking_time
+        if not self._is_address_valid(destination):
+            return False
 
-    def calculate_driving_distance_and_time(self, destination):
-        # Send a GET request to the Directions API with mode=driving
-        url = f"https://maps.googleapis.com/maps/api/directions/json?origin={self.origin}&destination={destination}&mode=driving&key={self.api_key}"
-        response = requests.get(url)
+        return True
 
-        # Parse the JSON response
-        data = json.loads(response.text)
+    def _is_address_valid(self, address) -> bool:
+        results = self.gmaps.geocode(address)
+        if not results:
+            log.error(f"Address not found: {address}")
+            return False
+        return True
 
-        # Extract the driving distance and time in seconds
-        distance = data["routes"][0]["legs"][0]["distance"]["value"]
-        time = data["routes"][0]["legs"][0]["duration"]["value"]
+    def calculate(self, destination) -> DistanceTime:
+        if not self._is_valid_run(destination):
+            return DistanceTime(0, 0, 0, 0)
 
-        # Convert the driving time to a datetime object and return the distance and time
-        driving_time = datetime.timedelta(seconds=time)
-        log.info("Driving time: %s", driving_time)
-        log.info("Driving distance: %s", distance / 1000)
-        return distance, driving_time
+        walking_distance, walking_time = self._calculate_distance_time(
+            destination, self.WALKING_MODE)
+        driving_distance, driving_time = self._calculate_distance_time(
+            destination, self.DRIVING_MODE)
+        return DistanceTime(
+            walking_distance, walking_time, driving_distance, driving_time,
+        )

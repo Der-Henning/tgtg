@@ -4,7 +4,7 @@ from random import random
 from time import sleep
 from typing import List, NoReturn
 
-from models import Config, Item, Metrics
+from models import Config, Item, Metrics, DistanceTime
 from models.errors import TgtgAPIError
 from notifiers import Notifiers
 from tgtg import TgtgClient
@@ -26,7 +26,8 @@ class Scanner:
         self.tgtg_client = TgtgClient(
             email=self.config.tgtg.get("username"),
             timeout=self.config.tgtg.get("timeout"),
-            access_token_lifetime=self.config.tgtg.get("access_token_lifetime"),
+            access_token_lifetime=self.config.tgtg.get(
+                "access_token_lifetime"),
             max_polling_tries=self.config.tgtg.get("max_polling_tries"),
             polling_wait_time=self.config.tgtg.get("polling_wait_time"),
             access_token=self.config.tgtg.get("access_token"),
@@ -35,9 +36,13 @@ class Scanner:
             datadome_cookie=self.config.tgtg.get("datadome"),
         )
         self.distance_time_calculator = DistanceTimeCalculator(
+            self.config.location.get("enabled"),
             self.config.location.get("gmaps_api_key"),
             self.config.location.get("origin_address"),
         )
+
+        # cached distance time for each item_id
+        self.distancetime_dict: dict[int, DistanceTime] = {}
 
     def _get_test_item(self) -> Item:
         """
@@ -46,11 +51,13 @@ class Scanner:
         items = sorted(
             self._get_favorites(), key=lambda x: x.items_available, reverse=True
         )
+
         if items:
             return items[0]
+        log.info("test item:")
         items = sorted(
             [
-                Item(item, self.distance_time_calculator)
+                Item(item, self.get_distance_time(item))
                 for item in self.tgtg_client.get_items(
                     favorites_only=False, latitude=53.5511, longitude=9.9937, radius=50
                 )
@@ -58,6 +65,7 @@ class Scanner:
             key=lambda x: x.items_available,
             reverse=True,
         )
+
         return items[0]
 
     def _job(self) -> None:
@@ -68,11 +76,10 @@ class Scanner:
         for item_id in self.item_ids:
             try:
                 if item_id != "":
+                    item = self.tgtg_client.get_item(item_id)
+                    log.info("_job: %s", item)
                     items.append(
-                        Item(
-                            self.tgtg_client.get_item(item_id),
-                            self.distance_time_calculator,
-                        )
+                        Item(item, self.get_distance_time(item))
                     )
             except TgtgAPIError as err:
                 log.error(err)
@@ -104,7 +111,24 @@ class Scanner:
         except TgtgAPIError as err:
             log.error(err)
             return []
-        return [Item(item, self.distance_time_calculator) for item in items]
+        return [Item(item, self.get_distance_time(item)) for item in items]
+
+    def get_distance_time(self, data) -> DistanceTime:
+        """
+        Get DistanceTime object for item. Use cached value if available.
+        """
+
+        destination = Item.get_pickup_location(data)
+        item = Item.get_item(data)
+        item_id = Item.get_item_id(item)
+
+        if item_id in self.distancetime_dict:
+            return self.distancetime_dict[item_id]
+        else:
+            distance_time = self.distance_time_calculator.calculate(
+                destination)
+            self.distancetime_dict[item_id] = distance_time
+            return distance_time
 
     def _check_item(self, item: Item) -> None:
         """
@@ -114,7 +138,8 @@ class Scanner:
         if self.amounts.get(item.item_id) == item.items_available:
             return
         if item.item_id in self.amounts:
-            log.info("%s - new amount: %s", item.display_name, item.items_available)
+            log.info("%s - new amount: %s",
+                     item.display_name, item.items_available)
         self.metrics.item_count.labels(item.item_id, item.display_name).set(
             item.items_available
         )

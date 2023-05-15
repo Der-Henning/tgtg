@@ -226,19 +226,22 @@ class Config:
         self, config: configparser.ConfigParser, section: str, key: str, attr: str
     ) -> None:
         if section in config:
-            self._setattr(attr, config[section].getboolean(key, self._getattr(attr)))
+            self._setattr(attr, config[section].getboolean(
+                key, self._getattr(attr)))
 
     def _ini_get_int(
         self, config: configparser.ConfigParser, section: str, key: str, attr: str
     ) -> None:
         if section in config:
-            self._setattr(attr, config[section].getint(key, self._getattr(attr)))
+            self._setattr(attr, config[section].getint(
+                key, self._getattr(attr)))
 
     def _ini_get_float(
         self, config: configparser.ConfigParser, section: str, key: str, attr: str
     ) -> None:
         if section in config:
-            self._setattr(attr, config[section].getfloat(key, self._getattr(attr)))
+            self._setattr(attr, config[section].getfloat(
+                key, self._getattr(attr)))
 
     def _ini_get_array(
         self, config: configparser.ConfigParser, section: str, key: str, attr: str
@@ -277,7 +280,8 @@ class Config:
             self._ini_get_cron(config, "MAIN", "ScheduleCron", "schedule_cron")
             self._ini_get_boolean(config, "MAIN", "Metrics", "metrics")
             self._ini_get_int(config, "MAIN", "MetricsPort", "metrics_port")
-            self._ini_get_boolean(config, "MAIN", "DisableTests", "disable_tests")
+            self._ini_get_boolean(
+                config, "MAIN", "DisableTests", "disable_tests")
             self._ini_get_boolean(config, "MAIN", "quiet", "quiet")
             self._ini_get(config, "MAIN", "locale", "locale")
 
@@ -297,19 +301,23 @@ class Config:
                 config, "TGTG", "PollingWaitTime", "tgtg.polling_wait_time"
             )
 
-            self._ini_get_boolean(config, "APPRISE", "enabled", "apprise.enabled")
+            self._ini_get_boolean(
+                config, "APPRISE", "enabled", "apprise.enabled")
             self._ini_get(config, "APPRISE", "URL", "apprise.url")
             self._ini_get_cron(config, "APPRISE", "cron", "apprise.cron")
             self._ini_get(config, "APPRISE", "title", "apprise.title")
             self._ini_get(config, "APPRISE", "body", "apprise.body")
 
-            self._ini_get_boolean(config, "CONSOLE", "enabled", "console.enabled")
+            self._ini_get_boolean(
+                config, "CONSOLE", "enabled", "console.enabled")
             self._ini_get(config, "CONSOLE", "Body", "console.body")
             self._ini_get_cron(config, "CONSOLE", "cron", "console.cron")
 
-            self._ini_get_boolean(config, "PUSHSAFER", "enabled", "push_safer.enabled")
+            self._ini_get_boolean(config, "PUSHSAFER",
+                                  "enabled", "push_safer.enabled")
             self._ini_get(config, "PUSHSAFER", "Key", "push_safer.key")
-            self._ini_get(config, "PUSHSAFER", "DeviceID", "push_safer.deviceId")
+            self._ini_get(config, "PUSHSAFER", "DeviceID",
+                          "push_safer.deviceId")
             self._ini_get_cron(config, "PUSHSAFER", "cron", "push_safer.cron")
 
             self._ini_get_boolean(config, "SMTP", "enabled", "smtp.enabled")
@@ -346,7 +354,8 @@ class Config:
             self._ini_get_int(config, "NTFY", "Timeout", "ntfy.timeout")
             self._ini_get_cron(config, "NTFY", "cron", "ntfy.cron")
 
-            self._ini_get_boolean(config, "WEBHOOK", "enabled", "webhook.enabled")
+            self._ini_get_boolean(
+                config, "WEBHOOK", "enabled", "webhook.enabled")
             self._ini_get(config, "WEBHOOK", "URL", "webhook.url")
             self._ini_get(config, "WEBHOOK", "Method", "webhook.method")
             self._ini_get(config, "WEBHOOK", "body", "webhook.body")
@@ -357,16 +366,20 @@ class Config:
             self._ini_get_int(config, "WEBHOOK", "timeout", "webhook.timeout")
             self._ini_get_cron(config, "WEBHOOK", "cron", "webhook.cron")
 
-            self._ini_get_boolean(config, "TELEGRAM", "enabled", "telegram.enabled")
+            self._ini_get_boolean(config, "TELEGRAM",
+                                  "enabled", "telegram.enabled")
             self._ini_get(config, "TELEGRAM", "token", "telegram.token")
-            self._ini_get_array(config, "TELEGRAM", "chat_ids", "telegram.chat_ids")
-            self._ini_get_int(config, "TELEGRAM", "timeout", "telegram.timeout")
+            self._ini_get_array(config, "TELEGRAM",
+                                "chat_ids", "telegram.chat_ids")
+            self._ini_get_int(config, "TELEGRAM",
+                              "timeout", "telegram.timeout")
             self._ini_get_cron(config, "TELEGRAM", "cron", "telegram.cron")
             self._ini_get(config, "TELEGRAM", "body", "telegram.body")
 
-            self._ini_get_boolean(config, "LOCATION", "enabled", "location.enabled")
+            self._ini_get_boolean(config, "LOCATION",
+                                  "enabled", "location.enabled")
             self._ini_get(
-                config, "LOCATION", "Origin_Address", "location.origin_address"
+                config, "LOCATION", "Address", "location.origin_address"
             )
             self._ini_get(
                 config, "LOCATION", "Google_Maps_API_Key", "location.gmaps_api_key"
@@ -430,8 +443,10 @@ class Config:
             self._env_get_int(
                 "TGTG_ACCESS_TOKEN_LIFETIME", "tgtg.access_token_lifetime"
             )
-            self._env_get_int("TGTG_MAX_POLLING_TRIES", "tgtg.max_polling_tries")
-            self._env_get_int("TGTG_POLLING_WAIT_TIME", "tgtg.polling_wait_time")
+            self._env_get_int("TGTG_MAX_POLLING_TRIES",
+                              "tgtg.max_polling_tries")
+            self._env_get_int("TGTG_POLLING_WAIT_TIME",
+                              "tgtg.polling_wait_time")
 
             self._env_get_boolean("APPRISE", "apprise.enabled")
             self._env_get("APPRISE_URL", "apprise.url")
@@ -499,6 +514,10 @@ class Config:
             self._env_get_int("TELEGRAM_TIMEOUT", "telegram.timeout")
             self._env_get_cron("TELEGRAM_CRON", "telegram.cron")
             self._env_get("TELEGRAM_BODY", "telegram.body")
+
+            self._env_get("LOCATION_GOOGLE_MAPS_API_KEY",
+                          "telegram.gmaps_api_key")
+            self._env_get("LOCATION_ADDRESS", "telegram.origin_address")
         except ValueError as err:
             raise ConfigurationError(err) from err
 
