@@ -17,7 +17,8 @@ class DistanceTimeCalculator:
         First run flag important only for validating origin address.
         """
         self.enabled = enabled
-        self.gmaps = googlemaps.Client(key=api_key)
+        if enabled:
+            self.gmaps = googlemaps.Client(key=api_key)
         self.origin = origin
         self.is_first_run = True
 
