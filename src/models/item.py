@@ -31,10 +31,9 @@ ATTRS = [
     "item_logo_bytes",
     "item_cover_bytes",
     "link",
-    "walking_time",
-    "walking_distance",
-    "driving_time",
-    "driving_distance",
+    "walking_dt",
+    "driving_dt",
+    "transit_dt",
 ]
 
 log = logging.getLogger("tgtg")
@@ -88,10 +87,9 @@ class Item:
 
         self.scanned_on = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        self.walking_distance = distance_time.walking_distance
-        self.walking_time = distance_time.walking_time
-        self.driving_distance = distance_time.driving_distance
-        self.driving_time = distance_time.driving_time
+        self.walking_dt = f'{distance_time.walking_time} - {distance_time.walking_distance}'
+        self.driving_dt = f'{distance_time.driving_time} - {distance_time.driving_distance}'
+        self.transit_dt = f'{distance_time.transit_time} - {distance_time.transit_distance}'
 
     @staticmethod
     def _datetimeparse(datestr: str) -> datetime.datetime:

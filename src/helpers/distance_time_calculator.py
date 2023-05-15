@@ -53,12 +53,14 @@ class DistanceTimeCalculator:
 
     def calculate(self, destination) -> DistanceTime:
         if not self._is_valid_run(destination):
-            return DistanceTime(0, 0, 0, 0)
+            return DistanceTime(0, 0, 0, 0, 0, 0)
 
         walking_distance, walking_time = self._calculate_distance_time(
             destination, self.WALKING_MODE)
         driving_distance, driving_time = self._calculate_distance_time(
             destination, self.DRIVING_MODE)
+        transit_distance, transit_time = self._calculate_distance_time(
+            destination, self.PUBLIC_TRANSPORT_MODE)
         return DistanceTime(
-            walking_distance, walking_time, driving_distance, driving_time,
+            walking_distance, walking_time, driving_distance, driving_time, transit_distance, transit_time
         )
