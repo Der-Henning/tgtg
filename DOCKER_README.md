@@ -4,9 +4,9 @@ Readme, source, and documentation on [https://github.com/Der-Henning/tgtg](https
 
 # Supported Tags and respective `Dockerfile` links
 
- The `latest` images represent the latest stable release.
- The `edge` images contain the latest commits to the main branch.
- The `alpine` images are based on the alpine Linux distribution and are significantly smaller.
+The `latest` images represent the latest stable release.
+The `edge` images contain the latest commits to the main branch.
+The `alpine` images are based on the alpine Linux distribution and are significantly smaller.
 
 - [`edge`](https://github.com/Der-Henning/tgtg/blob/main/Dockerfile)
 - [`edge-alpine`](https://github.com/Der-Henning/tgtg/blob/main/Dockerfile.alpine)
@@ -17,7 +17,7 @@ Readme, source, and documentation on [https://github.com/Der-Henning/tgtg](https
 
 **Docker Compose Example:**
 
-````xml
+```xml
 version: "3.3"
 
 services:
@@ -35,6 +35,10 @@ services:
       - DISABLE_TESTS=false
       - QUIET=false
       - LOCALE=en_US
+
+      - LOCATION=false
+      - LOCATION_GOOGLE_MAPS_API_KEY =
+      - LOCATION_ADDRESS =
 
       - APPRISE=false
       - APPRISE_URL=
@@ -94,4 +98,4 @@ services:
 
 volumes:
   tokens:
-````
+```
