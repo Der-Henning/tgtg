@@ -1,7 +1,4 @@
 import googlemaps
-import requests
-import json
-import datetime
 import logging
 from models import DistanceTime
 from models.errors import LocationConfigurationError
@@ -15,12 +12,20 @@ class DistanceTimeCalculator:
     PUBLIC_TRANSPORT_MODE = "transit"
 
     def __init__(self, enabled, api_key, origin):
+        """
+        Initializes DistanceTimeCalculator class.
+        First run flag important only for validating origin address.
+        """
         self.enabled = enabled
         self.gmaps = googlemaps.Client(key=api_key)
         self.origin = origin
         self.is_first_run = True
 
     def _calculate_distance_time(self, destination, mode):
+        """
+        Calculates the distance and time taken to travel from origin to destination using the given mode of transportation.
+                Returns distance and time in km and minutes respectively.
+        """
         directions = self.gmaps.directions(self.origin, destination, mode=mode)
         distance_in_km = round(
             directions[0]['legs'][0]['distance']['value'] / 1000, 2)
@@ -31,6 +36,9 @@ class DistanceTimeCalculator:
         return distance, time
 
     def _is_valid_run(self, destination) -> bool:
+        """
+        Checks if the location config and destination config of item is valid.
+        """
         if not self.enabled:
             return False
 
@@ -45,6 +53,9 @@ class DistanceTimeCalculator:
         return True
 
     def _is_address_valid(self, address) -> bool:
+        """
+        Checks if the given address is valid using the Google Maps Geocoding API.
+        """
         results = self.gmaps.geocode(address)
         if not results:
             log.error(f"Address not found: {address}")
@@ -52,6 +63,9 @@ class DistanceTimeCalculator:
         return True
 
     def calculate(self, destination) -> DistanceTime:
+        """
+        Calculates the distance and time taken to travel to the given destination for each mode of transportation.
+        """
         if not self._is_valid_run(destination):
             return DistanceTime(0, 0, 0, 0, 0, 0)
 

@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from models.item import Item
+from models import DistanceTime, Item
 
 
 @pytest.fixture
@@ -43,7 +43,7 @@ def temp_path():
 
 @pytest.fixture
 def test_item(tgtg_item: dict):
-    return Item(tgtg_item)
+    return Item(tgtg_item, DistanceTime(0, 0, 0, 0, 0, 0))
 
 
 @pytest.fixture
