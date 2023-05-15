@@ -4,11 +4,11 @@ from random import random
 from time import sleep
 from typing import List, NoReturn
 
-from models import Config, Item, Metrics, DistanceTime
+from helpers.distance_time_calculator import DistanceTimeCalculator
+from models import Config, DistanceTime, Item, Metrics
 from models.errors import TgtgAPIError
 from notifiers import Notifiers
 from tgtg import TgtgClient
-from helpers.distance_time_calculator import DistanceTimeCalculator
 
 log = logging.getLogger("tgtg")
 
@@ -41,7 +41,7 @@ class Scanner:
             self.config.location.get("origin_address"),
         )
 
-        # cached distance time for each item_id
+        # cached DistanceTime object for each item_id
         self.distancetime_dict: dict[int, DistanceTime] = {}
 
     def _get_test_item(self) -> Item:
@@ -54,7 +54,6 @@ class Scanner:
 
         if items:
             return items[0]
-        log.info("test item:")
         items = sorted(
             [
                 Item(item, self.get_distance_time(item))
@@ -77,10 +76,7 @@ class Scanner:
             try:
                 if item_id != "":
                     item = self.tgtg_client.get_item(item_id)
-                    log.info("_job: %s", item)
-                    items.append(
-                        Item(item, self.get_distance_time(item))
-                    )
+                    items.append(Item(item, self.get_distance_time(item)))
             except TgtgAPIError as err:
                 log.error(err)
         items += self._get_favorites()

@@ -5,8 +5,8 @@ from http import HTTPStatus
 
 import humanize
 import requests
-from models.distance_time import DistanceTime
 
+from models.distance_time import DistanceTime
 from models.errors import MaskConfigurationError
 
 ATTRS = [

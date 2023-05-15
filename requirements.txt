@@ -5,6 +5,7 @@ certifi==2022.12.7
 charset-normalizer==3.1.0
 colorlog==6.7.0
 cron-descriptor==1.2.35
+googlemaps==4.10.0
 humanize==4.6.0
 idna==3.4
 packaging==23.0
@@ -20,4 +21,3 @@ tornado==6.1
 tzdata==2023.3
 tzlocal==4.3
 urllib3==1.26.15
-googlemaps==4.10.0

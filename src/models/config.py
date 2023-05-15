@@ -378,9 +378,8 @@ class Config:
 
             self._ini_get_boolean(config, "LOCATION",
                                   "enabled", "location.enabled")
-            self._ini_get(
-                config, "LOCATION", "Address", "location.origin_address"
-            )
+            self._ini_get(config, "LOCATION", "Address",
+                          "location.origin_address")
             self._ini_get(
                 config, "LOCATION", "Google_Maps_API_Key", "location.gmaps_api_key"
             )
@@ -515,9 +514,10 @@ class Config:
             self._env_get_cron("TELEGRAM_CRON", "telegram.cron")
             self._env_get("TELEGRAM_BODY", "telegram.body")
 
+            self._env_get_boolean("LOCATION", "location.enabled")
             self._env_get("LOCATION_GOOGLE_MAPS_API_KEY",
-                          "telegram.gmaps_api_key")
-            self._env_get("LOCATION_ADDRESS", "telegram.origin_address")
+                          "location.gmaps_api_key")
+            self._env_get("LOCATION_ADDRESS", "location.origin_address")
         except ValueError as err:
             raise ConfigurationError(err) from err
 

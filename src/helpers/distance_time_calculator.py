@@ -27,12 +27,12 @@ class DistanceTimeCalculator:
                 Returns distance and time in km and minutes respectively.
         """
         directions = self.gmaps.directions(self.origin, destination, mode=mode)
-        distance_in_km = round(
-            directions[0]['legs'][0]['distance']['value'] / 1000, 2)
-        distance = f'{distance_in_km} km'
-        time_in_minutes = int(round(
-            directions[0]['legs'][0]['duration']['value'] / 60, 0))
-        time = f'{time_in_minutes} min'
+        distance_in_km = round(directions[0]["legs"][0]["distance"]["value"] / 1000, 2)
+        distance = f"{distance_in_km} km"
+        time_in_minutes = int(
+            round(directions[0]["legs"][0]["duration"]["value"] / 60, 0)
+        )
+        time = f"{time_in_minutes} min"
         return distance, time
 
     def _is_valid_run(self, destination) -> bool:
@@ -56,8 +56,9 @@ class DistanceTimeCalculator:
         """
         Checks if the given address is valid using the Google Maps Geocoding API.
         """
-        results = self.gmaps.geocode(address)
-        if not results:
+        try:
+            self.gmaps.geocode(address)
+        except Exception:
             log.error(f"Address not found: {address}")
             return False
         return True
@@ -70,11 +71,19 @@ class DistanceTimeCalculator:
             return DistanceTime(0, 0, 0, 0, 0, 0)
 
         walking_distance, walking_time = self._calculate_distance_time(
-            destination, self.WALKING_MODE)
+            destination, self.WALKING_MODE
+        )
         driving_distance, driving_time = self._calculate_distance_time(
-            destination, self.DRIVING_MODE)
+            destination, self.DRIVING_MODE
+        )
         transit_distance, transit_time = self._calculate_distance_time(
-            destination, self.PUBLIC_TRANSPORT_MODE)
+            destination, self.PUBLIC_TRANSPORT_MODE
+        )
         return DistanceTime(
-            walking_distance, walking_time, driving_distance, driving_time, transit_distance, transit_time
+            walking_distance,
+            walking_time,
+            driving_distance,
+            driving_time,
+            transit_distance,
+            transit_time,
         )
