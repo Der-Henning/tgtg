@@ -123,7 +123,6 @@ DEFAULT_CONFIG = {
      'script': {
         'enabled': False,
         'command': '',
-        'args': '',
         'timeout': 60,
         'cron': Cron('* * * * *')   
     }
@@ -373,7 +372,6 @@ class Config():
             self._ini_get_boolean(config, "SCRIPT",
                                   "enabled", "script.enabled")
             self._ini_get(config, "SCRIPT", "Command", "script.command")
-            self._ini_get(config, "SCRIPT", "Args", "script.args")
             self._ini_get_int(config, "SCRIPT", "timeout", "script.timeout")
             self._ini_get_cron(config, "SCRIPT", "cron", "script.cron")            
             
@@ -508,7 +506,6 @@ class Config():
 
             self._env_get_boolean("SCRIPT", "script.enabled")
             self._env_get("SCRIPT_COMMAND", "script.command")
-            self._env_get("SCRIPT_ARGS", "script.args")
             self._env_get_int("SCRIPT_TIMEOUT", "script.timeout")
             self._env_get_cron("SCRIPT_CRON", "script.cron")
             
