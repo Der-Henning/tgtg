@@ -123,6 +123,7 @@ DEFAULT_CONFIG = {
      'script': {
         'enabled': False,
         'command': '',
+        'args': '',
         'timeout': 60,
         'cron': Cron('* * * * *')   
     }
