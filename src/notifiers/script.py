@@ -13,6 +13,7 @@ class Script(Notifier):
     def __init__(self, config: Config):
         self.enabled = config.script.get("enabled", False)
         self.command = config.script.get("command")
+        self.args = config.script.get("args")
         self.timeout = config.script.get("timeout", 60)
         self.cron = config.script.get("cron")
 
@@ -29,4 +30,4 @@ class Script(Notifier):
 
 
     def __repr__(self) -> str:
-        return " "
+        return f"Shell script: {self.command}"
