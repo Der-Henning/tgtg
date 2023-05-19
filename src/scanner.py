@@ -33,7 +33,7 @@ class Scanner:
             access_token=self.config.tgtg.get("access_token"),
             refresh_token=self.config.tgtg.get("refresh_token"),
             user_id=self.config.tgtg.get("user_id"),
-            datadome_cookie=self.config.tgtg.get("datadome"),
+            datadome_cookie=self.config.tgtg.get("datadome")
         )
         self.distance_time_calculator = DistanceTimeCalculator(
             self.config.location.get("enabled"),
@@ -48,9 +48,9 @@ class Scanner:
         """
         Returns an item for test notifications
         """
-        items = sorted(
-            self._get_favorites(), key=lambda x: x.items_available, reverse=True
-        )
+        items = sorted(self._get_favorites(),
+                       key=lambda x: x.items_available,
+                       reverse=True)
 
         if items:
             return items[0]
@@ -58,8 +58,10 @@ class Scanner:
             [
                 Item(item, self.get_distance_time(item))
                 for item in self.tgtg_client.get_items(
-                    favorites_only=False, latitude=53.5511, longitude=9.9937, radius=50
-                )
+                    favorites_only=False,
+                    latitude=53.5511,
+                    longitude=9.9937,
+                    radius=50)
             ],
             key=lambda x: x.items_available,
             reverse=True,
@@ -92,7 +94,7 @@ class Scanner:
             self.tgtg_client.access_token,
             self.tgtg_client.refresh_token,
             self.tgtg_client.user_id,
-            self.tgtg_client.datadome_cookie,
+            self.tgtg_client.datadome_cookie
         )
 
     def _get_favorites(self) -> list[Item]:
@@ -136,12 +138,11 @@ class Scanner:
         if item.item_id in self.amounts:
             log.info("%s - new amount: %s",
                      item.display_name, item.items_available)
-        self.metrics.item_count.labels(item.item_id, item.display_name).set(
-            item.items_available
-        )
-        if self.amounts.get(
-            item.item_id
-        ) == 0 and item.items_available > self.amounts.get(item.item_id):
+        self.metrics.item_count.labels(item.item_id,
+                                       item.display_name
+                                       ).set(item.items_available)
+        if (self.amounts.get(item.item_id) == 0 and
+                item.items_available > self.amounts.get(item.item_id)):
             self._send_messages(item)
             self.metrics.send_notifications.labels(
                 item.item_id, item.display_name
@@ -167,7 +168,8 @@ class Scanner:
         if self.config.metrics:
             self.metrics.enable_metrics()
         self.notifiers = Notifiers(self.config)
-        if not self.config.disable_tests and self.notifiers.notifier_count > 0:
+                if not self.config.disable_tests and \
+                self.notifiers.notifier_count > 0:
             log.info("Sending test Notifications ...")
             self.notifiers.send(self._get_test_item())
         # test tgtg API
@@ -176,7 +178,7 @@ class Scanner:
             self.tgtg_client.access_token,
             self.tgtg_client.refresh_token,
             self.tgtg_client.user_id,
-            self.tgtg_client.datadome_cookie,
+            self.tgtg_client.datadome_cookie
         )
         # start scanner
         log.info("Scanner started ...")
@@ -242,7 +244,9 @@ class Scanner:
         page_size = 100
         while True:
             new_items = self.tgtg_client.get_items(
-                favorites_only=True, page_size=page_size, page=page
+                favorites_only=True,
+                page_size=page_size,
+                page=page
             )
             items += new_items
             if len(new_items) < page_size:
@@ -268,9 +272,8 @@ class Scanner:
 
     def unset_all_favorites(self) -> None:
         """Remove all items from favorites."""
-        item_ids = [
-            item.get("item", {}).get("item_id") for item in self.get_favorites()
-        ]
+        item_ids = [item.get("item", {}).get("item_id")
+                    for item in self.get_favorites()]
         for item_id in item_ids:
             self.unset_favorite(item_id)
 
