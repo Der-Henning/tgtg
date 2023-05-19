@@ -25,7 +25,21 @@ class Script(Notifier):
 
     def _send(self, item: Item) -> None:
         import subprocess
-        subprocess.Popen(self.command.split())
+        commandline = self.command
+        commandline = commandline.replace('${{','~${{')
+        commandline = commandline.replace('}}','}}~')
+        commandline = item.unmask(commandline)
+        commandlist = []
+        start, flag = 0, False
+        for pos, x in enumerate(commandline):
+            if x == '~':
+                flag= not(flag)
+            if flag == False and x == ' ':
+                commandlist.append(commandline[start:pos])
+                start = pos+1
+        commandlist.append(commandline[start:pos])
+        commandlist = [a.replace('~','') for a in commandlist]        
+        subprocess.Popen(commandlist)
 
 
     def __repr__(self) -> str:
