@@ -3,7 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from models import DistanceTime, Item
+from helpers.distance_time_calculator import DistanceTimeCalculator
+from models import Item
 
 
 @pytest.fixture
@@ -43,7 +44,7 @@ def temp_path():
 
 @pytest.fixture
 def test_item(tgtg_item: dict):
-    return Item(tgtg_item, DistanceTime.with_zero_values())
+    return Item(tgtg_item, DistanceTimeCalculator(enabled=False, api_key=None, origin=None))
 
 
 @pytest.fixture

@@ -5,7 +5,7 @@ from time import sleep
 from typing import List, NoReturn
 
 from helpers.distance_time_calculator import DistanceTimeCalculator
-from models import Config, DistanceTime, Item, Metrics
+from models import Config, Item, Metrics
 from models.errors import TgtgAPIError
 from notifiers import Notifiers
 from tgtg import TgtgClient
@@ -41,9 +41,6 @@ class Scanner:
             self.config.location.get("origin_address"),
         )
 
-        # cached DistanceTime object for each item_id
-        self.distancetime_dict: dict[int, DistanceTime] = {}
-
     def _get_test_item(self) -> Item:
         """
         Returns an item for test notifications
@@ -56,7 +53,7 @@ class Scanner:
             return items[0]
         items = sorted(
             [
-                Item(item, self.get_distance_time(item))
+                Item(item, self.distance_time_calculator)
                 for item in self.tgtg_client.get_items(
                     favorites_only=False,
                     latitude=53.5511,
@@ -78,7 +75,7 @@ class Scanner:
             try:
                 if item_id != "":
                     item = self.tgtg_client.get_item(item_id)
-                    items.append(Item(item, self.get_distance_time(item)))
+                    items.append(Item(item, self.distance_time_calculator))
             except TgtgAPIError as err:
                 log.error(err)
         items += self._get_favorites()
@@ -109,24 +106,7 @@ class Scanner:
         except TgtgAPIError as err:
             log.error(err)
             return []
-        return [Item(item, self.get_distance_time(item)) for item in items]
-
-    def get_distance_time(self, data) -> DistanceTime:
-        """
-        Get DistanceTime object for item. Use cached value if available.
-        """
-
-        destination = Item.get_pickup_location(data)
-        item = Item.get_item(data)
-        item_id = Item.get_item_id(item)
-
-        if item_id in self.distancetime_dict:
-            return self.distancetime_dict[item_id]
-        else:
-            distance_time = self.distance_time_calculator.calculate(
-                destination)
-            self.distancetime_dict[item_id] = distance_time
-            return distance_time
+        return [Item(item, self.distance_time_calculator) for item in items]
 
     def _check_item(self, item: Item) -> None:
         """
@@ -168,8 +148,7 @@ class Scanner:
         if self.config.metrics:
             self.metrics.enable_metrics()
         self.notifiers = Notifiers(self.config)
-                if not self.config.disable_tests and \
-                self.notifiers.notifier_count > 0:
+        if not self.config.disable_tests and self.notifiers.notifier_count > 0:
             log.info("Sending test Notifications ...")
             self.notifiers.send(self._get_test_item())
         # test tgtg API

@@ -6,7 +6,7 @@ from http import HTTPStatus
 import humanize
 import requests
 
-from models.distance_time import DistanceTime
+from helpers.distance_time_calculator import DistanceTimeCalculator
 from models.errors import MaskConfigurationError
 
 ATTRS = ["item_id", "items_available", "display_name", "description",
@@ -14,7 +14,7 @@ ATTRS = ["item_id", "items_available", "display_name", "description",
          "buffet", "item_category", "item_name", "packaging_option",
          "pickup_location", "store_name", "item_logo", "item_cover",
          "scanned_on", "item_logo_bytes", "item_cover_bytes", "link",
-         "walking_dt", "driving_dt", "transit_dt", "biking_dt"]
+         "walking_dt", "biking_dt", "driving_dt", "transit_dt"]
 
 log = logging.getLogger('tgtg')
 
@@ -25,7 +25,7 @@ class Item():
     returns well formated data for notifications.
     """
 
-    def __init__(self, data: dict, distance_time: DistanceTime):
+    def __init__(self, data: dict, dt_calculator: DistanceTimeCalculator):
         self.items_available = data.get("items_available", 0)
         self.display_name = data.get("display_name", "-")
         self.favorite = "Yes" if data.get("favorite", False) else "No"
@@ -33,7 +33,7 @@ class Item():
             "pickup_interval", {}).get("start", None)
         self.pickup_interval_end = data.get(
             "pickup_interval", {}).get("end", None)
-        self.pickup_location = self.get_pickup_location(data)
+        self.pickup_location = data.get("pickup_location", {}).get("address", {}).get("address_line", "-")
 
         item = data.get("item", {})
         self.item_id = item.get("item_id")
@@ -62,11 +62,8 @@ class Item():
         self.store_name = store.get("name", "-")
 
         self.scanned_on = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.dt_calculator = dt_calculator
 
-        self.walking_dt = f'{distance_time.walking_time} - {distance_time.walking_distance}'
-        self.driving_dt = f'{distance_time.driving_time} - {distance_time.driving_distance}'
-        self.transit_dt = f'{distance_time.transit_time} - {distance_time.transit_distance}'
-        self.biking_dt = f'{distance_time.biking_time} - {distance_time.biking_distance}'
 
     @staticmethod
     def _datetimeparse(datestr: str) -> datetime.datetime:
@@ -142,14 +139,18 @@ class Item():
             return f"{pfr.day}/{pfr.month}, {prange}"
         return "-"
 
-    @staticmethod
-    def get_item(data):
-        return data.get("item", {})
+    @property
+    def walking_dt(self):
+        return self.dt_calculator.calculate_distance_time(self.pickup_location, 'walking', self.item_id)
 
-    @staticmethod
-    def get_pickup_location(item):
-        return item.get("pickup_location", {}).get("address", {}).get("address_line", "-")
+    @property
+    def driving_dt(self):
+        return self.dt_calculator.calculate_distance_time(self.pickup_location, 'driving', self.item_id)
 
-    @staticmethod
-    def get_item_id(item):
-        return item.get("item_id")
+    @property
+    def transit_dt(self):
+        return self.dt_calculator.calculate_distance_time(self.pickup_location, 'transit', self.item_id)
+
+    @property
+    def biking_dt(self):
+        return self.dt_calculator.calculate_distance_time(self.pickup_location, 'bicycling', self.item_id)
