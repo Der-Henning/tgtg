@@ -64,7 +64,6 @@ class Item():
         self.scanned_on = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.dt_calculator = dt_calculator
 
-
     @staticmethod
     def _datetimeparse(datestr: str) -> datetime.datetime:
         """
@@ -139,18 +138,21 @@ class Item():
             return f"{pfr.day}/{pfr.month}, {prange}"
         return "-"
 
+    def get_distance_time(self, mode):
+        return self.dt_calculator.calculate_distance_time(self.pickup_location, mode, self.item_id)
+
     @property
     def walking_dt(self):
-        return self.dt_calculator.calculate_distance_time(self.pickup_location, 'walking', self.item_id)
+        return self.get_distance_time('walking')
 
     @property
     def driving_dt(self):
-        return self.dt_calculator.calculate_distance_time(self.pickup_location, 'driving', self.item_id)
+        return self.get_distance_time('driving')
 
     @property
     def transit_dt(self):
-        return self.dt_calculator.calculate_distance_time(self.pickup_location, 'transit', self.item_id)
+        return self.get_distance_time('transit')
 
     @property
     def biking_dt(self):
-        return self.dt_calculator.calculate_distance_time(self.pickup_location, 'bicycling', self.item_id)
+        return self.get_distance_time('bicycling')
