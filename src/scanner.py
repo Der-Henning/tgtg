@@ -148,7 +148,8 @@ class Scanner:
         if self.config.metrics:
             self.metrics.enable_metrics()
         self.notifiers = Notifiers(self.config)
-        if not self.config.disable_tests and self.notifiers.notifier_count > 0:
+        if not self.config.disable_tests and \
+                self.notifiers.notifier_count > 0:
             log.info("Sending test Notifications ...")
             self.notifiers.send(self._get_test_item())
         # test tgtg API

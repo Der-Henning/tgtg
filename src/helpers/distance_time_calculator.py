@@ -31,14 +31,15 @@ class DistanceTimeCalculator:
         Returns distance and time in km and minutes respectively.
         """
         if not self._is_valid_run(destination):
-            return 'Not enabled'
+            return 'n/a'
 
-        # use cached value if available
         key = f'{item_id}{mode}'
+        
+        # use cached value if available
         if key in self.distancetime_dict:
             return self.distancetime_dict[key]
         
-        log.info(f"Sending API requests for distance and time calculation: {destination} using {mode} mode")
+        log.info(f"Sending Google Maps API request: {destination} using {mode} mode")
 
         # calculate distance and time
         directions = self.gmaps.directions(self.origin, destination, mode=mode)
