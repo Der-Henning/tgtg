@@ -71,6 +71,8 @@ class DistanceTimeCalculator:
         """
         if not self._is_valid_run(destination):
             return DistanceTime.with_zero_values()
+        
+        log.info(f"Calculating distance and time for {destination}")
 
         walking_distance, walking_time = self._calculate_distance_time(
             destination, self.WALKING_MODE
