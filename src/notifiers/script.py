@@ -1,4 +1,5 @@
 import logging
+import subprocess
 
 from models import Config, Item
 from models.errors import ScriptConfigurationError, MaskConfigurationError
@@ -24,7 +25,6 @@ class Script(Notifier):
 
 
     def _send(self, item: Item) -> None:
-        import subprocess
         commandlist = self.command.split()
         commandlist = [item.unmask(a) for a in commandlist]
         subprocess.Popen(commandlist)
