@@ -17,6 +17,8 @@ class Script(Notifier):
         self.timeout = config.script.get("timeout", 60)
         self.cron = config.script.get("cron")
 
+        if self.enabled and (not self.command):
+            raise ScriptConfigurationError()
         if self.enabled:
             try:
                 Item.check_mask(self.command)
