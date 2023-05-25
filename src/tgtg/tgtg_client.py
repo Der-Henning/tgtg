@@ -19,7 +19,7 @@ from models.errors import (TgtgAPIError, TGTGConfigurationError,
 
 log = logging.getLogger("tgtg")
 BASE_URL = "https://apptoogoodtogo.com/api/"
-API_ITEM_ENDPOINT = "item/v7/"
+API_ITEM_ENDPOINT = "item/v8/"
 AUTH_BY_EMAIL_ENDPOINT = "auth/v3/authByEmail"
 AUTH_POLLING_ENDPOINT = "auth/v3/authByRequestPollingId"
 SIGNUP_BY_EMAIL_ENDPOINT = "auth/v3/signUpByEmail"
