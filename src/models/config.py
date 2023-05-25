@@ -41,8 +41,8 @@ DEFAULT_CONFIG = {
         'url': '',
         'cron': Cron('* * * * *'),
         'title': 'New Magic Bags',
-        'body': '${{display_name}} - new amount: ${{items_available}} '
-                '- https://share.toogoodtogo.com/item/${{item_id}}'
+        'body': '${{display_name}} - new amount: '
+                '${{items_available}} - ${{link}}'
     },
     'console': {
         'enabled': False,
@@ -77,7 +77,7 @@ DEFAULT_CONFIG = {
         'key': '',
         'body': '{"value1": "${{display_name}}", '
                 '"value2": ${{items_available}}, '
-                '"value3": "https://share.toogoodtogo.com/item/${{item_id}}"}',
+                '"value3": "${{link}}"}',
         'timeout': 60,
         'cron': Cron('* * * * *')
     },
@@ -86,11 +86,12 @@ DEFAULT_CONFIG = {
         'server': 'https://ntfy.sh',
         'topic': None,
         'title': 'New TGTG items',
-        'message': '${{display_name}} - New Amount: ${{items_available}} - '
-                   'https://share.toogoodtogo.com/item/${{item_id}}',
+        'message': '${{display_name}} - New Amount: '
+                   '${{items_available}} - ${{link}}',
+        'body': None,
         'priority': 'default',
         'tags': 'shopping,tgtg',
-        'click': 'https://share.toogoodtogo.com/item/${{item_id}}',
+        'click': '${{link}}',
         'username': None,
         'password': None,
         'timeout': 60,
@@ -330,6 +331,7 @@ class Config():
             self._ini_get(config, "NTFY", "Topic", "ntfy.topic")
             self._ini_get(config, "NTFY", "Title", "ntfy.title")
             self._ini_get(config, "NTFY", "Message", "ntfy.message")
+            self._ini_get(config, "NTFY", "Body", "ntfy.body")
             self._ini_get(config, "NTFY", "Priority", "ntfy.priority")
             self._ini_get(config, "NTFY", "Tags", "ntfy.tags")
             self._ini_get(config, "NTFY", "Click", "ntfy.click")
@@ -461,6 +463,7 @@ class Config():
             self._env_get("NTFY_TOPIC", "ntfy.topic")
             self._env_get("NTFY_TITLE", "ntfy.title")
             self._env_get("NTFY_MESSAGE", "ntfy.message")
+            self._env_get("NTFY_BODY", "ntfy.body")
             self._env_get("NTFY_PRIORITY", "ntfy.priority")
             self._env_get("NTFY_TAGS", "ntfy.tags")
             self._env_get("NTFY_CLICK", "ntfy.click")

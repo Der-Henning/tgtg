@@ -1,4 +1,5 @@
 [![Tests](https://github.com/Der-Henning/tgtg/actions/workflows/tests.yml/badge.svg)](https://github.com/Der-Henning/tgtg/actions/workflows/tests.yml)
+[![codecov](https://codecov.io/github/Der-Henning/tgtg/branch/main/graph/badge.svg?token=POHW9USW7C)](https://codecov.io/github/Der-Henning/tgtg)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/der-henning/tgtg/release.yml)](https://github.com/Der-Henning/tgtg/actions/workflows/release.yml)
 [![GitHub release](https://img.shields.io/github/release/Der-Henning/tgtg?include_prereleases=&sort=semver&color=blue)](https://github.com/Der-Henning/tgtg/releases/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/derhenning/tgtg)](https://hub.docker.com/r/derhenning/tgtg)
@@ -76,7 +77,7 @@ Method for advanced usage.
 2. Clone the repository `git clone https://github.com/Der-Henning/tgtg`
 3. Enter repository folder `cd tgtg`
 4. Run `pip install -r requirements.txt`
-5. Create config file `cp src/config.template.ini src/config.ini`
+5. Create config file `cp src/config.sample.ini src/config.ini`
 6. Modify `src/config.ini` as described in the file
 7. Run `python src/main.py`
 

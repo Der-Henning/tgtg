@@ -49,11 +49,14 @@ class WebHook(Notifier):
             headers["Content-Type"] = self.type
         if self.body:
             body = item.unmask(self.body)
-            if self.type and 'json' in self.type:
+            if isinstance(body, bytes):
+                pass
+            elif self.type and 'json' in self.type:
                 body = json.dumps(json.loads(body.replace('\n', '\\n')))
+                log.debug("%s body: %s", self.name, body)
             else:
                 body = body.encode('utf-8')
-            log.debug("%s body: %s", self.name, body)
+                log.debug("%s body: %s", self.name, body)
         log.debug("%s headers: %s", self.name, headers)
         res = requests.request(method=self.method, url=url,
                                timeout=self.timeout, data=body,
