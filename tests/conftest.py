@@ -44,7 +44,9 @@ def temp_path():
 
 @pytest.fixture
 def test_item(tgtg_item: dict):
-    return Item(tgtg_item, DistanceTimeCalculator(enabled=False, api_key=None, origin=None))
+    return Item(tgtg_item,
+                DistanceTimeCalculator(enabled=False, api_key=None,
+                                       origin=None))
 
 
 @pytest.fixture

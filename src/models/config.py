@@ -16,117 +16,119 @@ log = logging.getLogger("tgtg")
 
 
 DEFAULT_CONFIG = {
-    "item_ids": [],
-    "sleep_time": 60,
-    "schedule_cron": Cron("* * * * *"),
-    "debug": False,
-    "locale": "en_US",
-    "metrics": False,
-    "metrics_port": 8000,
-    "disable_tests": False,
-    "quiet": False,
-    "tgtg": {
-        "username": None,
-        "access_token": None,
-        "refresh_token": None,
-        "user_id": None,
-        "datadome": None,
-        "timeout": 60,
-        "access_token_lifetime": 14400,
-        "max_polling_tries": 24,
-        "polling_wait_time": 5,
+    'item_ids': [],
+    'sleep_time': 60,
+    'schedule_cron': Cron('* * * * *'),
+    'debug': False,
+    'locale': "en_US",
+    'metrics': False,
+    'metrics_port': 8000,
+    'disable_tests': False,
+    'quiet': False,
+    'tgtg': {
+        'username': None,
+        'access_token': None,
+        'refresh_token': None,
+        'user_id': None,
+        'datadome': None,
+        'timeout': 60,
+        'access_token_lifetime': 14400,
+        'max_polling_tries': 24,
+        'polling_wait_time': 5
     },
-    "apprise": {
-        "enabled": False,
-        "url": "",
-        "cron": Cron("* * * * *"),
-        "title": "New Magic Bags",
-        "body": "${{display_name}} - new amount: " "${{items_available}} - ${{link}}",
+    'apprise': {
+        'enabled': False,
+        'url': '',
+        'cron': Cron('* * * * *'),
+        'title': 'New Magic Bags',
+        'body': '${{display_name}} - new amount: '
+                '${{items_available}} - ${{link}}'
     },
-    "console": {
-        "enabled": False,
-        "body": "${{scanned_on}} ${{display_name}} - "
-        "new amount: ${{items_available}}",
-        "cron": Cron("* * * * *"),
+    'console': {
+        'enabled': False,
+        'body': '${{scanned_on}} ${{display_name}} - '
+                'new amount: ${{items_available}}',
+        'cron': Cron('* * * * *')
     },
-    "push_safer": {
-        "enabled": False,
-        "key": "",
-        "deviceId": "",
-        "cron": Cron("* * * * *"),
+    'push_safer': {
+        'enabled': False,
+        'key': '',
+        'deviceId': '',
+        'cron': Cron('* * * * *')
     },
-    "smtp": {
-        "enabled": False,
-        "host": "smtp.gmail.com",
-        "port": 587,
-        "tls": True,
-        "ssl": False,
-        "username": "",
-        "password": "",
-        "sender": "",
-        "recipient": [],
-        "cron": Cron("* * * * *"),
-        "subject": "New Magic Bags",
-        "body": "<b>${{display_name}}</b> </br>" "New Amount: ${{items_available}}",
+    'smtp': {
+        'enabled': False,
+        'host': 'smtp.gmail.com',
+        'port': 587,
+        'tls': True,
+        'ssl': False,
+        'username': '',
+        'password': '',
+        'sender': '',
+        'recipient': [],
+        'cron': Cron('* * * * *'),
+        'subject': 'New Magic Bags',
+        'body': '<b>${{display_name}}</b> </br>'
+                'New Amount: ${{items_available}}'
     },
-    "ifttt": {
-        "enabled": False,
-        "event": "tgtg_notification",
-        "key": "",
-        "body": '{"value1": "${{display_name}}", '
-        '"value2": ${{items_available}}, '
-        '"value3": "${{link}}"}',
-        "timeout": 60,
-        "cron": Cron("* * * * *"),
+    'ifttt': {
+        'enabled': False,
+        'event': 'tgtg_notification',
+        'key': '',
+        'body': '{"value1": "${{display_name}}", '
+                '"value2": ${{items_available}}, '
+                '"value3": "${{link}}"}',
+        'timeout': 60,
+        'cron': Cron('* * * * *')
     },
-    "ntfy": {
-        "enabled": False,
-        "server": "https://ntfy.sh",
-        "topic": None,
-        "title": "New TGTG items",
-        "message": "${{display_name}} - New Amount: "
-        "${{items_available}} - ${{link}}",
-        "body": None,
-        "priority": "default",
-        "tags": "shopping,tgtg",
-        "click": "${{link}}",
-        "username": None,
-        "password": None,
-        "timeout": 60,
-        "cron": Cron("* * * * *"),
+    'ntfy': {
+        'enabled': False,
+        'server': 'https://ntfy.sh',
+        'topic': None,
+        'title': 'New TGTG items',
+        'message': '${{display_name}} - New Amount: '
+                   '${{items_available}} - ${{link}}',
+        'body': None,
+        'priority': 'default',
+        'tags': 'shopping,tgtg',
+        'click': '${{link}}',
+        'username': None,
+        'password': None,
+        'timeout': 60,
+        'cron': Cron('* * * * *'),
     },
-    "webhook": {
-        "enabled": False,
-        "url": "",
-        "method": "POST",
-        "body": "",
-        "type": "text/plain",
-        "headers": {},
-        "username": None,
-        "password": None,
-        "timeout": 60,
-        "cron": Cron("* * * * *"),
+    'webhook': {
+        'enabled': False,
+        'url': '',
+        'method': 'POST',
+        'body': '',
+        'type': 'text/plain',
+        'headers': {},
+        'username': None,
+        'password': None,
+        'timeout': 60,
+        'cron': Cron('* * * * *')
     },
-    "telegram": {
-        "enabled": False,
-        "token": "",
-        "chat_ids": [],
-        "timeout": 60,
-        "cron": Cron("* * * * *"),
-        "body": "*${{display_name}}*\n"
-        "*Available*: ${{items_available}}\n"
-        "*Price*: ${{price}} ${{currency}}\n"
-        "*Pickup*: ${{pickupdate}}",
+    'telegram': {
+        'enabled': False,
+        'token': '',
+        'chat_ids': [],
+        'timeout': 60,
+        'cron': Cron('* * * * *'),
+        'body': '*${{display_name}}*\n'
+                '*Available*: ${{items_available}}\n'
+                '*Price*: ${{price}} ${{currency}}\n'
+                '*Pickup*: ${{pickupdate}}'
     },
-    "location": {
-        "enabled": False,
-        "Google_Maps_API_Key": "",
-        "Origin_Address": "",
+    'location': {
+        'enabled': False,
+        'Google_Maps_API_Key': '',
+        'Origin_Address': '',
     },
 }
 
 
-class Config:
+class Config():
     """
     Reads and provides configuration.\n
     If file is provided the config is read from the file.\n
@@ -161,8 +163,8 @@ class Config:
         if self.file is not None:
             if not self.file.exists():
                 raise ConfigurationError(
-                    f"Configuration file '{self.file.absolute()}' " "does not exist!"
-                )
+                    f"Configuration file '{self.file.absolute()}' "
+                    "does not exist!")
             self._read_ini()
             log.info("Loaded config from %s", self.file.absolute())
         else:
@@ -171,11 +173,11 @@ class Config:
 
         self.token_path = environ.get("TGTG_TOKEN_PATH", None)
         self._load_tokens()
-        if self.locale and not self.locale.startswith("en"):
+        if (self.locale and not self.locale.startswith('en')):
             humanize.i18n.activate(self.locale)
 
     def _open(self, file: str, mode: str) -> TextIOWrapper:
-        return open(Path(self.token_path, file), mode, encoding="utf-8")
+        return open(Path(self.token_path, file), mode, encoding='utf-8')
 
     def _load_tokens(self) -> None:
         """
@@ -183,13 +185,13 @@ class Config:
         """
         if self.token_path is not None:
             try:
-                with self._open("accessToken", "r") as file:
+                with self._open('accessToken', 'r') as file:
                     self.tgtg["access_token"] = file.read()
-                with self._open("refreshToken", "r") as file:
+                with self._open('refreshToken', 'r') as file:
                     self.tgtg["refresh_token"] = file.read()
-                with self._open("userID", "r") as file:
+                with self._open('userID', 'r') as file:
                     self.tgtg["user_id"] = file.read()
-                with self._open("datadome", "r") as file:
+                with self._open('datadome', 'r') as file:
                     self.tgtg["datadome"] = file.read()
             except FileNotFoundError:
                 log.warning("No token files in token path.")
@@ -197,13 +199,13 @@ class Config:
                 log.error("Error loading Tokens - %s", err)
 
     def _getattr(self, attr: str) -> None:
-        if "." in attr:
+        if '.' in attr:
             _attr, _key = attr.split(".")
             return self.__dict__[_attr][_key]
         return getattr(self, attr)
 
     def _setattr(self, attr: str, value: Any) -> None:
-        if "." in attr:
+        if '.' in attr:
             _attr, _key = attr.split(".")
             self.__dict__[_attr][_key] = value
         else:
@@ -213,57 +215,50 @@ class Config:
     def _decode(value: str) -> str:
         return codecs.escape_decode(bytes(value, "utf-8"))[0].decode("utf-8")
 
-    def _ini_get(
-        self, config: configparser.ConfigParser, section: str, key: str, attr: str
-    ) -> None:
+    def _ini_get(self, config: configparser.ConfigParser,
+                 section: str, key: str, attr: str) -> None:
         if section in config:
             value = config[section].get(key, None)
             if value is not None:
                 value = self._decode(value)
                 self._setattr(attr, value)
 
-    def _ini_get_boolean(
-        self, config: configparser.ConfigParser, section: str, key: str, attr: str
-    ) -> None:
+    def _ini_get_boolean(self, config: configparser.ConfigParser,
+                         section: str, key: str, attr: str) -> None:
         if section in config:
             self._setattr(attr, config[section].getboolean(
                 key, self._getattr(attr)))
 
-    def _ini_get_int(
-        self, config: configparser.ConfigParser, section: str, key: str, attr: str
-    ) -> None:
+    def _ini_get_int(self, config: configparser.ConfigParser,
+                     section: str, key: str, attr: str) -> None:
         if section in config:
             self._setattr(attr, config[section].getint(
                 key, self._getattr(attr)))
 
-    def _ini_get_float(
-        self, config: configparser.ConfigParser, section: str, key: str, attr: str
-    ) -> None:
+    def _ini_get_float(self, config: configparser.ConfigParser,
+                       section: str, key: str, attr: str) -> None:
         if section in config:
             self._setattr(attr, config[section].getfloat(
                 key, self._getattr(attr)))
 
-    def _ini_get_array(
-        self, config: configparser.ConfigParser, section: str, key: str, attr: str
-    ) -> None:
+    def _ini_get_array(self, config: configparser.ConfigParser,
+                       section: str, key: str, attr: str) -> None:
         if section in config:
             value = config[section].get(key, None)
             if value:
-                arr = [self._decode(val.strip()) for val in value.split(",")]
+                arr = [self._decode(val.strip()) for val in value.split(',')]
                 self._setattr(attr, arr)
 
-    def _ini_get_dict(
-        self, config: configparser.ConfigParser, section: str, key: str, attr: str
-    ) -> None:
+    def _ini_get_dict(self, config: configparser.ConfigParser,
+                      section: str, key: str, attr: str) -> None:
         if section in config:
             value = config[section].get(key, None)
             if value:
                 dic = json.loads(value)
                 self._setattr(attr, dic)
 
-    def _ini_get_cron(
-        self, config: configparser.ConfigParser, section: str, key: str, attr: str
-    ) -> None:
+    def _ini_get_cron(self, config: configparser.ConfigParser,
+                      section: str, key: str, attr: str) -> None:
         if section in config:
             value = config[section].get(key, None)
             if value is not None:
@@ -272,7 +267,7 @@ class Config:
     def _read_ini(self) -> None:
         try:
             config = configparser.ConfigParser()
-            config.read(self.file, encoding="utf-8")
+            config.read(self.file, encoding='utf-8')
 
             self._ini_get_boolean(config, "MAIN", "debug", "debug")
             self._ini_get_array(config, "MAIN", "ItemIDs", "item_ids")
@@ -280,8 +275,8 @@ class Config:
             self._ini_get_cron(config, "MAIN", "ScheduleCron", "schedule_cron")
             self._ini_get_boolean(config, "MAIN", "Metrics", "metrics")
             self._ini_get_int(config, "MAIN", "MetricsPort", "metrics_port")
-            self._ini_get_boolean(
-                config, "MAIN", "DisableTests", "disable_tests")
+            self._ini_get_boolean(config, "MAIN", "DisableTests",
+                                  "disable_tests")
             self._ini_get_boolean(config, "MAIN", "quiet", "quiet")
             self._ini_get(config, "MAIN", "locale", "locale")
 
@@ -291,25 +286,22 @@ class Config:
             self._ini_get(config, "TGTG", "UserId", "tgtg.user_id")
             self._ini_get(config, "TGTG", "Datadome", "tgtg.datadome")
             self._ini_get_int(config, "TGTG", "Timeout", "tgtg.timeout")
-            self._ini_get_int(
-                config, "TGTG", "AccessTokenLifetime", "tgtg.access_token_lifetime"
-            )
-            self._ini_get_int(
-                config, "TGTG", "MaxPollingTries", "tgtg.max_polling_tries"
-            )
-            self._ini_get_int(
-                config, "TGTG", "PollingWaitTime", "tgtg.polling_wait_time"
-            )
+            self._ini_get_int(config, "TGTG", "AccessTokenLifetime",
+                              "tgtg.access_token_lifetime")
+            self._ini_get_int(config, "TGTG", "MaxPollingTries",
+                              "tgtg.max_polling_tries")
+            self._ini_get_int(config, "TGTG", "PollingWaitTime",
+                              "tgtg.polling_wait_time")
 
-            self._ini_get_boolean(
-                config, "APPRISE", "enabled", "apprise.enabled")
+            self._ini_get_boolean(config, "APPRISE",
+                                  "enabled", "apprise.enabled")
             self._ini_get(config, "APPRISE", "URL", "apprise.url")
             self._ini_get_cron(config, "APPRISE", "cron", "apprise.cron")
             self._ini_get(config, "APPRISE", "title", "apprise.title")
             self._ini_get(config, "APPRISE", "body", "apprise.body")
 
-            self._ini_get_boolean(
-                config, "CONSOLE", "enabled", "console.enabled")
+            self._ini_get_boolean(config, "CONSOLE",
+                                  "enabled", "console.enabled")
             self._ini_get(config, "CONSOLE", "Body", "console.body")
             self._ini_get_cron(config, "CONSOLE", "cron", "console.cron")
 
@@ -354,8 +346,8 @@ class Config:
             self._ini_get_int(config, "NTFY", "Timeout", "ntfy.timeout")
             self._ini_get_cron(config, "NTFY", "cron", "ntfy.cron")
 
-            self._ini_get_boolean(
-                config, "WEBHOOK", "enabled", "webhook.enabled")
+            self._ini_get_boolean(config, "WEBHOOK", "enabled",
+                                  "webhook.enabled")
             self._ini_get(config, "WEBHOOK", "URL", "webhook.url")
             self._ini_get(config, "WEBHOOK", "Method", "webhook.method")
             self._ini_get(config, "WEBHOOK", "body", "webhook.body")
@@ -381,7 +373,8 @@ class Config:
             self._ini_get(config, "LOCATION", "Address",
                           "location.origin_address")
             self._ini_get(
-                config, "LOCATION", "Google_Maps_API_Key", "location.gmaps_api_key"
+                config, "LOCATION",
+                "Google_Maps_API_Key", "location.gmaps_api_key"
             )
 
         except ValueError as err:
@@ -396,7 +389,7 @@ class Config:
     def _env_get_boolean(self, key: str, attr: str) -> None:
         value = environ.get(key, None)
         if value is not None:
-            self._setattr(attr, value.lower() in ("true", "1", "t"))
+            self._setattr(attr, value.lower() in ('true', '1', 't'))
 
     def _env_get_int(self, key: str, attr: str) -> None:
         self._setattr(attr, int(environ.get(key, self._getattr(attr))))
@@ -407,7 +400,7 @@ class Config:
     def _env_get_array(self, key: str, attr: str) -> None:
         value = environ.get(key, None)
         if value:
-            arr = [self._decode(val.strip()) for val in value.split(",")]
+            arr = [self._decode(val.strip()) for val in value.split(',')]
             self._setattr(attr, arr)
 
     def _env_get_dict(self, key: str, attr: str) -> None:
@@ -439,9 +432,8 @@ class Config:
             self._env_get("TGTG_USER_ID", "tgtg.user_id")
             self._env_get("TGTG_DATADOME", "tgtg.datadome")
             self._env_get_int("TGTG_TIMEOUT", "tgtg.timeout")
-            self._env_get_int(
-                "TGTG_ACCESS_TOKEN_LIFETIME", "tgtg.access_token_lifetime"
-            )
+            self._env_get_int("TGTG_ACCESS_TOKEN_LIFETIME",
+                              "tgtg.access_token_lifetime")
             self._env_get_int("TGTG_MAX_POLLING_TRIES",
                               "tgtg.max_polling_tries")
             self._env_get_int("TGTG_POLLING_WAIT_TIME",
@@ -529,20 +521,19 @@ class Config:
             try:
                 config = configparser.ConfigParser()
                 config.optionxform = str
-                config.read(self.file, encoding="utf-8")
+                config.read(self.file, encoding='utf-8')
                 if section not in config.sections():
                     config.add_section(section)
                 config.set(section, option, str(value))
-                with open(self.file, "w", encoding="utf-8") as configfile:
+                with open(self.file, 'w', encoding='utf-8') as configfile:
                     config.write(configfile)
                 return True
             except EnvironmentError as err:
                 log.error("error writing config.ini! - %s", err)
         return False
 
-    def save_tokens(
-        self, access_token: str, refresh_token: str, user_id: str, datadome: str
-    ) -> None:
+    def save_tokens(self, access_token: str, refresh_token: str,
+                    user_id: str, datadome: str) -> None:
         """
         Saves TGTG Access Tokens to config.ini
         if provided or as files to token_path.
@@ -551,26 +542,26 @@ class Config:
             try:
                 config = configparser.ConfigParser()
                 config.optionxform = str
-                config.read(self.file, encoding="utf-8")
+                config.read(self.file, encoding='utf-8')
                 if "TGTG" not in config.sections():
                     config.add_section("TGTG")
                 config.set("TGTG", "AccessToken", access_token)
                 config.set("TGTG", "RefreshToken", refresh_token)
                 config.set("TGTG", "UserId", user_id)
                 config.set("TGTG", "Datadome", datadome)
-                with open(self.file, "w", encoding="utf-8") as configfile:
+                with open(self.file, 'w', encoding='utf-8') as configfile:
                     config.write(configfile)
             except EnvironmentError as err:
                 log.error("error saving credentials to config.ini! - %s", err)
         if self.token_path is not None:
             try:
-                with self._open("accessToken", "w") as file:
+                with self._open('accessToken', 'w') as file:
                     file.write(access_token)
-                with self._open("refreshToken", "w") as file:
+                with self._open('refreshToken', 'w') as file:
                     file.write(refresh_token)
-                with self._open("userID", "w") as file:
+                with self._open('userID', 'w') as file:
                     file.write(user_id)
-                with self._open("datadome", "w") as file:
+                with self._open('datadome', 'w') as file:
                     file.write(datadome)
             except EnvironmentError as err:
                 log.error("error saving credentials! - %s", err)
