@@ -2,7 +2,7 @@ import logging
 
 from pushsafer import Client
 
-from models import Config, Item
+from models import Config, Item, Order
 from models.errors import PushSaferConfigurationError
 from notifiers import Notifier
 
@@ -33,6 +33,9 @@ class PushSafer(Notifier):
         message = f"New Amount: {item.items_available}"
         self.client.send_message(message, item.display_name,
                                  self.device_id)
+        
+    def _send_order(self, order: Order) -> None:
+        """Send Order information"""
 
     def __repr__(self) -> str:
         return f"PushSafer: {self.key}"

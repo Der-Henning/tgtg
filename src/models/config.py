@@ -123,6 +123,10 @@ DEFAULT_CONFIG = {
         "Google_Maps_API_Key": "",
         "Origin_Address": "",
     },
+    "notifiers": {
+        "order_ready_notification": False,
+        "order_body": "Your order is ready for pickup at ${{store_name}}",
+    }
 }
 
 

@@ -2,7 +2,7 @@ import logging
 
 from requests.auth import HTTPBasicAuth
 
-from models import Config, Item
+from models import Config, Item, Order
 from models.errors import MaskConfigurationError, NtfyConfigurationError
 from notifiers.webhook import WebHook
 
@@ -65,6 +65,9 @@ class Ntfy(WebHook):
             "X-Click": click
         }
         super()._send(item)
+        
+    def _send_order(self, order: Order) -> None:
+        """Send Order information"""
 
     def __repr__(self) -> str:
         return f"Ntfy: {self.server}/{self.topic}"

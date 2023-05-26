@@ -4,7 +4,7 @@ import logging
 import requests
 from requests.auth import HTTPBasicAuth
 
-from models import Config, Item
+from models import Config, Item, Order
 from models.errors import MaskConfigurationError, WebHookConfigurationError
 from notifiers import Notifier
 
@@ -65,6 +65,9 @@ class WebHook(Notifier):
             log.error("%s Request failed with status code %s",
                       self.name, res.status_code)
             log.debug("%s Response content: %s", self.name, res.text)
+
+    def _send_order(self, order: Order) -> None:
+        """Send Order information"""
 
     def __repr__(self) -> str:
         return f"WebHook: {self.url}"

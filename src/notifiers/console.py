@@ -1,6 +1,6 @@
 import logging
 
-from models import Config, Item
+from models import Config, Item, Order
 from models.errors import ConsoleConfigurationError, MaskConfigurationError
 from notifiers import Notifier
 
@@ -24,6 +24,9 @@ class Console(Notifier):
     def _send(self, item: Item) -> None:
         message = item.unmask(self.body)
         print(message)
+        
+    def _send_order(self, order: Order) -> None:
+        """Send Order information"""
 
     def __repr__(self) -> str:
         return "Console stdout"

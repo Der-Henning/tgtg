@@ -8,7 +8,7 @@ from telegram.bot import BotCommand
 from telegram.error import BadRequest, NetworkError, TelegramError, TimedOut
 from telegram.ext import CallbackContext, CommandHandler, Updater
 
-from models import Config, Item
+from models import Config, Item, Order
 from models.errors import MaskConfigurationError, TelegramConfigurationError
 from notifiers import Notifier
 
@@ -60,6 +60,8 @@ class Telegram(Notifier):
                 BotCommand('unmute', 'Reactivate Telegram Notifications')
             ])
             self.updater.start_polling()
+        self.send_order_notification = config.notifiers.get("order_ready_notification", False)
+        self.order_body = config.notifiers.get("order_body")
 
     def _send(self, item: Item) -> None:
         """Send item information as Telegram message"""
@@ -92,7 +94,35 @@ class Telegram(Notifier):
                 self.send(item)
             except TelegramError as err:
                 log.error('Telegram Error: %s', err)
-
+                
+    def _send_order(self, order: Order) -> None:
+        log.info("SENDING")
+        if self.send_order_notification:
+            fmt = ParseMode.MARKDOWN
+            message = order.unmask(self.order_body)
+            log.debug(message)
+            for chat_id in self.chat_ids:
+                try:
+                    self.updater.bot.send_message(
+                        chat_id=chat_id,
+                        text=message,
+                        parse_mode=fmt,
+                        timeout=self.timeout,
+                        disable_web_page_preview=True)
+                    self.retries = 0
+                except BadRequest as err:
+                    log.error('Telegram Error: %s', err)
+                except (NetworkError, TimedOut) as err:
+                    log.warning('Telegram Error: %s', err)
+                    self.retries += 1
+                    if self.retries > Telegram.MAX_RETRIES:
+                        raise err
+                    self.updater.stop()
+                    self.updater.start_polling()
+                    self.send_order(order)
+                except TelegramError as err:
+                    log.error('Telegram Error: %s', err)
+        
     def _help(self, update: Update, context: CallbackContext) -> None:
         """Send message containing available bot commands"""
         del context

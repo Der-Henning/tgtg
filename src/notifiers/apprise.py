@@ -2,7 +2,7 @@ import logging
 
 import apprise
 
-from models import Config, Item
+from models import Config, Item, Order
 from models.errors import AppriseConfigurationError, MaskConfigurationError
 from notifiers import Notifier
 
@@ -46,6 +46,9 @@ class Apprise(Notifier):
         apobj.add(self.url)
         apobj.notify(title=title, body=body)
         apobj.clear()
+        
+    def _send_order(self, order: Order) -> None:
+        """Send Order information"""
 
     def __repr__(self) -> str:
         return f"Apprise: {self.url}"

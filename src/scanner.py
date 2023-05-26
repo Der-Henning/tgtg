@@ -5,10 +5,11 @@ from time import sleep
 from typing import List, NoReturn
 
 from helpers.distance_time_calculator import DistanceTimeCalculator
-from models import Config, Item, Metrics
+from models import Config, Item, Metrics, Order
 from models.errors import TgtgAPIError
 from notifiers import Notifiers
 from tgtg import TgtgClient
+from datetime import datetime
 
 log = logging.getLogger("tgtg")
 
@@ -71,6 +72,7 @@ class Scanner:
         Job iterates over all monitored items
         """
         items = []
+        orders = []
         for item_id in self.item_ids:
             try:
                 if item_id != "":
@@ -79,8 +81,12 @@ class Scanner:
             except TgtgAPIError as err:
                 log.error(err)
         items += self._get_favorites()
+        orders += self._get_active_orders()
         for item in items:
             self._check_item(item)
+            
+        for order in orders:
+            self._check_order(order)
 
         log.debug("new State: %s", self.amounts)
 
@@ -107,6 +113,17 @@ class Scanner:
             log.error(err)
             return []
         return [Item(item, self.distance_time_calculator) for item in items]
+    
+    def _get_active_orders(self):
+        """
+        Get active orders
+        """
+        try:
+            orders = self.get_active_orders()
+        except TgtgAPIError as err:
+            log.error(err)
+            return []
+        return [Order(order) for order in orders]
 
     def _check_item(self, item: Item) -> None:
         """
@@ -128,6 +145,27 @@ class Scanner:
                 item.item_id, item.display_name
             ).inc()
         self.amounts[item.item_id] = item.items_available
+        
+    def _check_order(self, order: Order) -> None:
+        """
+        Checks if the order is ready for pickup and triggers notifications
+        """
+        if datetime.strptime(order.pickup_interval_start, '%Y-%m-%dT%H:%M:%SZ') > datetime.now():
+            self._send_order_ready(order)
+            # self.metrics.send_notifications.labels(
+            #     order.order_id, order.display_name
+            # ).inc()
+            
+    def _send_order_ready(self, order: Order) -> None:
+        """
+        Send notifications for Order
+        """
+        log.info(
+            "Sending notifications for %s - %s is ready for pickup",
+            order.store_name,
+            order.order_id,
+        )
+        self.notifiers.send_order(order)
 
     def _send_messages(self, item: Item) -> None:
         """
@@ -152,6 +190,7 @@ class Scanner:
                 self.notifiers.notifier_count > 0:
             log.info("Sending test Notifications ...")
             self.notifiers.send(self._get_test_item())
+            
         # test tgtg API
         self.tgtg_client.login()
         self.config.save_tokens(
@@ -233,6 +272,23 @@ class Scanner:
                 break
             page += 1
         return items
+    
+    def get_active_orders(self) -> List[dict]:
+        """Returns active orders of the current tgtg account
+
+        Returns:
+            List: List of orders
+        """
+        orders = []
+        page = 1
+        page_size = 100
+        while True:
+            new_orders = self.tgtg_client.get_active_orders()
+            orders += new_orders
+            if len(new_orders) < page_size:
+                break
+            page += 1
+        return orders
 
     def set_favorite(self, item_id: str) -> None:
         """Add item to favorites.

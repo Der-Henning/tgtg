@@ -4,7 +4,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from smtplib import SMTPException, SMTPServerDisconnected
 
-from models import Config, Item
+from models import Config, Item, Order
 from models.errors import MaskConfigurationError, SMTPConfigurationError
 from notifiers import Notifier
 
@@ -97,6 +97,9 @@ class SMTP(Notifier):
             item.unmask(self.subject),
             item.unmask(self.body)
         )
+
+    def _send_order(self, order: Order) -> None:
+        """Send Order information"""
 
     def __repr__(self) -> str:
         return f"SMTP: {self.recipient}"

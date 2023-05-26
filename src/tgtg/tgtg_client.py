@@ -82,7 +82,15 @@ class TgtgSession(requests.Session):
             kwargs["headers"] = getattr(self, "headers")
         if "headers" in kwargs and access_token:
             kwargs["headers"]["authorization"] = f"Bearer {access_token}"
-        return super().post(url, **kwargs)
+        return super().post(url, **kwargs)  
+    
+    def get(self, url: str, access_token: str = None, **kwargs) -> requests.Response:
+        headers = kwargs.get("headers")
+        if headers is None and getattr(self, "headers"):
+            kwargs["headers"] = getattr(self, "headers")
+        if "headers" in kwargs and access_token:
+            kwargs["headers"]["authorization"] = f"Bearer {access_token}"
+        return super().get(url, **kwargs)
 
     def send(self, request, **kwargs):
         for key in ["timeout", "proxies"]:
@@ -202,6 +210,20 @@ class TgtgClient:
             time.sleep(1)
             return self._post(path, **kwargs)
         raise TgtgAPIError(response.status_code, response.content)
+    
+    def get_active_orders(self) -> List[dict]:
+        """Returns list of all orders.
+
+        Returns:
+            List[Order]: List of all orders
+        """
+        response = self._post(
+            f"{ACTIVE_ORDER_ENDPOINT}",
+            json={"user_id": self.user_id, "origin": None})
+        if response.status_code == HTTPStatus.OK:
+            return response.json().get("orders", [])
+        else:
+            raise TgtgAPIError(response.status_code, response.content)
 
     def _get_user_agent(self) -> str:
         if self.fixed_user_agent:

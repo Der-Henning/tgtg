@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-from models import Config, Item
+from models import Config, Item, Order
 from notifiers.apprise import Apprise
 from notifiers.base import Notifier
 from notifiers.console import Console
@@ -59,11 +59,23 @@ class Notifiers:
                 notifier.send(item)
             except Exception as exc:
                 log.error("Failed sending %s: %s", notifier, exc)
-
+                
     def stop(self) -> None:
         """Stop all notifiers"""
         for notifier in self._notifiers:
             try:
                 notifier.stop()
             except Exception as exc:
-                log.warning("Error stopping %s - %s", notifier, exc)
+                log.warning("Error stopping %s - %s", notifier, exc)            
+    
+    def send_order(self, order: Order) -> None:
+        """Send notifications on all enabled notifiers.
+
+        Args:
+            order (Order): Order information to send
+        """
+        for notifier in self._enabled_notifiers:
+            try:
+                notifier.send_order(order)
+            except Exception as exc:
+                log.error("Failed sending %s: %s", notifier, exc)        
