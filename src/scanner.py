@@ -4,8 +4,7 @@ from random import random
 from time import sleep
 from typing import List, NoReturn
 
-from helpers.distance_time_calculator import DistanceTimeCalculator
-from models import Config, Item, Metrics
+from models import Config, DistanceTimeCalculator, Item, Metrics
 from models.errors import TgtgAPIError
 from notifiers import Notifiers
 from tgtg import TgtgClient

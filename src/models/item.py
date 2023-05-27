@@ -6,7 +6,7 @@ from http import HTTPStatus
 import humanize
 import requests
 
-from helpers.distance_time_calculator import DistanceTimeCalculator
+from models import DistanceTimeCalculator
 from models.errors import MaskConfigurationError
 
 ATTRS = ["item_id", "items_available", "display_name", "description",
