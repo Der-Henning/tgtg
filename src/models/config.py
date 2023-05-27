@@ -12,7 +12,7 @@ import humanize
 from models.cron import Cron
 from models.errors import ConfigurationError
 
-log = logging.getLogger('tgtg')
+log = logging.getLogger("tgtg")
 
 
 DEFAULT_CONFIG = {
@@ -119,7 +119,12 @@ DEFAULT_CONFIG = {
                 '*Available*: ${{items_available}}\n'
                 '*Price*: ${{price}} ${{currency}}\n'
                 '*Pickup*: ${{pickupdate}}'
-    }
+    },
+    'location': {
+        'enabled': False,
+        'Google_Maps_API_Key': '',
+        'Origin_Address': '',
+    },
 }
 
 
@@ -148,6 +153,7 @@ class Config():
     ntfy: dict
     webhook: dict
     telegram: dict
+    location: dict
 
     def __init__(self, file: str = None):
         self.file = Path(file) if file is not None else None
@@ -194,13 +200,13 @@ class Config():
 
     def _getattr(self, attr: str) -> None:
         if '.' in attr:
-            _attr, _key = attr.split('.')
+            _attr, _key = attr.split(".")
             return self.__dict__[_attr][_key]
         return getattr(self, attr)
 
     def _setattr(self, attr: str, value: Any) -> None:
         if '.' in attr:
-            _attr, _key = attr.split('.')
+            _attr, _key = attr.split(".")
             self.__dict__[_attr][_key] = value
         else:
             setattr(self, attr, value)
@@ -361,6 +367,16 @@ class Config():
                               "timeout", "telegram.timeout")
             self._ini_get_cron(config, "TELEGRAM", "cron", "telegram.cron")
             self._ini_get(config, "TELEGRAM", "body", "telegram.body")
+
+            self._ini_get_boolean(config, "LOCATION",
+                                  "enabled", "location.enabled")
+            self._ini_get(config, "LOCATION", "Address",
+                          "location.origin_address")
+            self._ini_get(
+                config, "LOCATION",
+                "Google_Maps_API_Key", "location.gmaps_api_key"
+            )
+
         except ValueError as err:
             raise ConfigurationError(err) from err
 
@@ -489,6 +505,11 @@ class Config():
             self._env_get_int("TELEGRAM_TIMEOUT", "telegram.timeout")
             self._env_get_cron("TELEGRAM_CRON", "telegram.cron")
             self._env_get("TELEGRAM_BODY", "telegram.body")
+
+            self._env_get_boolean("LOCATION", "location.enabled")
+            self._env_get("LOCATION_GOOGLE_MAPS_API_KEY",
+                          "location.gmaps_api_key")
+            self._env_get("LOCATION_ADDRESS", "location.origin_address")
         except ValueError as err:
             raise ConfigurationError(err) from err
 

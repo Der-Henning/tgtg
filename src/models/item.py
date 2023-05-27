@@ -6,13 +6,15 @@ from http import HTTPStatus
 import humanize
 import requests
 
+from helpers.distance_time_calculator import DistanceTimeCalculator
 from models.errors import MaskConfigurationError
 
 ATTRS = ["item_id", "items_available", "display_name", "description",
          "price", "currency", "pickupdate", "favorite", "rating",
          "buffet", "item_category", "item_name", "packaging_option",
          "pickup_location", "store_name", "item_logo", "item_cover",
-         "scanned_on", "item_logo_bytes", "item_cover_bytes", "link"]
+         "scanned_on", "item_logo_bytes", "item_cover_bytes", "link",
+         "walking_dt", "biking_dt", "driving_dt", "transit_dt"]
 
 log = logging.getLogger('tgtg')
 
@@ -23,7 +25,7 @@ class Item():
     returns well formated data for notifications.
     """
 
-    def __init__(self, data: dict):
+    def __init__(self, data: dict, dt_calculator: DistanceTimeCalculator):
         self.items_available = data.get("items_available", 0)
         self.display_name = data.get("display_name", "-")
         self.favorite = "Yes" if data.get("favorite", False) else "No"
@@ -61,6 +63,7 @@ class Item():
         self.store_name = store.get("name", "-")
 
         self.scanned_on = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.dt_calculator = dt_calculator
 
     @staticmethod
     def _datetimeparse(datestr: str) -> datetime.datetime:
@@ -122,7 +125,7 @@ class Item():
         """
         Returns a well formated string, providing the pickup time range
         """
-        if (self.pickup_interval_start and self.pickup_interval_end):
+        if self.pickup_interval_start and self.pickup_interval_end:
             now = datetime.datetime.now()
             pfr = self._datetimeparse(self.pickup_interval_start)
             pto = self._datetimeparse(self.pickup_interval_end)
@@ -135,3 +138,23 @@ class Item():
                 return f"{humanize.naturalday(tommorow)}, {prange}"
             return f"{pfr.day}/{pfr.month}, {prange}"
         return "-"
+
+    def get_distance_time(self, mode):
+        return self.dt_calculator.calculate_distance_time(
+            self.pickup_location, mode, self.item_id)
+
+    @property
+    def walking_dt(self):
+        return self.get_distance_time('walking')
+
+    @property
+    def driving_dt(self):
+        return self.get_distance_time('driving')
+
+    @property
+    def transit_dt(self):
+        return self.get_distance_time('transit')
+
+    @property
+    def biking_dt(self):
+        return self.get_distance_time('bicycling')

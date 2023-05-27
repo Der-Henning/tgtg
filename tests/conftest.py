@@ -2,8 +2,7 @@ import shutil
 from pathlib import Path
 
 import pytest
-
-from models.item import Item
+from models import Item
 
 
 @pytest.fixture
@@ -43,7 +42,7 @@ def temp_path():
 
 @pytest.fixture
 def test_item(tgtg_item: dict):
-    return Item(tgtg_item)
+    return Item(tgtg_item, None)
 
 
 @pytest.fixture

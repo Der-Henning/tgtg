@@ -4,6 +4,7 @@ from random import random
 from time import sleep
 from typing import List, NoReturn
 
+from helpers.distance_time_calculator import DistanceTimeCalculator
 from models import Config, Item, Metrics
 from models.errors import TgtgAPIError
 from notifiers import Notifiers
@@ -34,6 +35,11 @@ class Scanner:
             user_id=self.config.tgtg.get("user_id"),
             datadome_cookie=self.config.tgtg.get("datadome")
         )
+        self.distance_time_calculator = DistanceTimeCalculator(
+            self.config.location.get("enabled"),
+            self.config.location.get("gmaps_api_key"),
+            self.config.location.get("origin_address"),
+        )
 
     def _get_test_item(self) -> Item:
         """
@@ -42,11 +48,12 @@ class Scanner:
         items = sorted(self._get_favorites(),
                        key=lambda x: x.items_available,
                        reverse=True)
+
         if items:
             return items[0]
         items = sorted(
             [
-                Item(item)
+                Item(item, self.distance_time_calculator)
                 for item in self.tgtg_client.get_items(
                     favorites_only=False,
                     latitude=53.5511,
@@ -56,6 +63,7 @@ class Scanner:
             key=lambda x: x.items_available,
             reverse=True,
         )
+
         return items[0]
 
     def _job(self) -> None:
@@ -66,7 +74,8 @@ class Scanner:
         for item_id in self.item_ids:
             try:
                 if item_id != "":
-                    items.append(Item(self.tgtg_client.get_item(item_id)))
+                    item = self.tgtg_client.get_item(item_id)
+                    items.append(Item(item, self.distance_time_calculator))
             except TgtgAPIError as err:
                 log.error(err)
         items += self._get_favorites()
@@ -97,7 +106,7 @@ class Scanner:
         except TgtgAPIError as err:
             log.error(err)
             return []
-        return [Item(item) for item in items]
+        return [Item(item, self.distance_time_calculator) for item in items]
 
     def _check_item(self, item: Item) -> None:
         """
