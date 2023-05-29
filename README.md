@@ -40,11 +40,11 @@ You have the following three options to install the scanner, ascending in comple
 
 This is the simplest but least flexible solution suitable for most operating systems.
 
-The binaries are built for Linux, MacOS, and Windows running on an `x64` architecture. If you are using another architecture like `arm` (e.g. RaspberryPi) you have to run from source, compile the binary yourself or use the docker images.
+The binaries are built for latest Ubuntu, MacOS, and Windows running on an `x64` architecture. If you are using another architecture like `arm` (e.g. RaspberryPi) you have to run from source, compile the binary yourself or use the docker images.
 
 1. Download latest [Releases](https://github.com/Der-Henning/tgtg/releases) for your OS
 2. Unzip the archive
-3. Edit `config.ini` as described in the file
+3. Edit `config.ini` as described in the [Wiki](https://github.com/Der-Henning/tgtg/wiki/Configuration)
 4. Run the scanner
 
 You can run the scanner manually if you need it, add it to your startup or create a system service.
@@ -57,7 +57,7 @@ On Mac, you have to hold the control key while opening the file and on Windows, 
 My preferred method for servers, NAS, and RapsberryPis is using the pre-build multi-arch Linux images available via [Docker Hub](https://hub.docker.com/r/derhenning/tgtg). The images are built for Linux on `amd64`, `arm64`, `armv7`, `armv6`, and `i386`.
 
 1. Install Docker and docker-compose
-2. Copy and edit `docker-compose.yml` as described in the file
+2. Copy and edit `docker-compose.yml` as described in the [Wiki](https://github.com/Der-Henning/tgtg/wiki/Configuration)
 3. Run `docker-compose up -d`
 
 The container automatically creates a volume mounting `\tokens` where the app saves the TGTG credentials after login. These credentials will be reused at every start of the container to avoid the mail login process. To log in with a different account you have to delete the created volume or the files in it.
@@ -78,7 +78,7 @@ Method for advanced usage.
 3. Enter repository folder `cd tgtg`
 4. Run `pip install -r requirements.txt`
 5. Create config file `cp src/config.sample.ini src/config.ini`
-6. Modify `src/config.ini` as described in the file
+6. Modify `src/config.ini` as described in the [Wiki](https://github.com/Der-Henning/tgtg/wiki/Configuration)
 7. Run `python src/main.py`
 
 Alternatively, you can use environment variables as described in the `sample.env` file. The scanner will look for environment variables if no `config.ini` is present.
