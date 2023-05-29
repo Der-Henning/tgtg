@@ -1,7 +1,7 @@
 from models.config import Config
 from models.cron import Cron
-from models.google import DistanceTimeCalculator
+from models.google import Location
 from models.item import Item
 from models.metrics import Metrics
 
-__all__ = ['Config', 'Cron', 'Item', 'Metrics', 'DistanceTimeCalculator']
+__all__ = ['Config', 'Cron', 'Item', 'Metrics', 'Location']
