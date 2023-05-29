@@ -7,9 +7,8 @@ from typing import Any, Union
 import humanize
 import requests
 
-from models import Location
 from models.errors import MaskConfigurationError
-from models.google import DistanceTime
+from models.location import DistanceTime, Location
 
 ATTRS = ["item_id", "items_available", "display_name", "description",
          "price", "currency", "pickupdate", "favorite", "rating",
