@@ -10,7 +10,7 @@ from telegram.ext import CallbackContext, CommandHandler, Updater
 
 from models import Config, Item
 from models.errors import MaskConfigurationError, TelegramConfigurationError
-from notifiers import Notifier
+from notifiers.base import Notifier
 
 log = logging.getLogger('tgtg')
 
