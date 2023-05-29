@@ -36,6 +36,10 @@ services:
       - QUIET=false
       - LOCALE=en_US
 
+      - LOCATION=false
+      - LOCATION_GOOGLE_MAPS_API_KEY =
+      - LOCATION_ADDRESS =
+
       - APPRISE=false
       - APPRISE_URL=
       - APPRISE_BODY=

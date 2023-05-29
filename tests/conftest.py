@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from models.item import Item
+from models import Item
 
 
 @pytest.fixture
