@@ -2,19 +2,22 @@ import datetime
 import logging
 import re
 from http import HTTPStatus
+from typing import Any, Union
 
 import humanize
 import requests
 
-from helpers.distance_time_calculator import DistanceTimeCalculator
 from models.errors import MaskConfigurationError
+from models.location import DistanceTime, Location
 
 ATTRS = ["item_id", "items_available", "display_name", "description",
          "price", "currency", "pickupdate", "favorite", "rating",
          "buffet", "item_category", "item_name", "packaging_option",
          "pickup_location", "store_name", "item_logo", "item_cover",
          "scanned_on", "item_logo_bytes", "item_cover_bytes", "link",
-         "walking_dt", "biking_dt", "driving_dt", "transit_dt"]
+         "distance_walking", "distance_driving", "distance_transit",
+         "distance_biking", "duration_walking", "duration_driving",
+         "duration_transit", "duration_biking"]
 
 log = logging.getLogger('tgtg')
 
@@ -25,7 +28,7 @@ class Item():
     returns well formated data for notifications.
     """
 
-    def __init__(self, data: dict, dt_calculator: DistanceTimeCalculator):
+    def __init__(self, data: dict, location: Location = None):
         self.items_available = data.get("items_available", 0)
         self.display_name = data.get("display_name", "-")
         self.favorite = "Yes" if data.get("favorite", False) else "No"
@@ -63,7 +66,7 @@ class Item():
         self.store_name = store.get("name", "-")
 
         self.scanned_on = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.dt_calculator = dt_calculator
+        self.location = location
 
     @staticmethod
     def _datetimeparse(datestr: str) -> datetime.datetime:
@@ -139,22 +142,35 @@ class Item():
             return f"{pfr.day}/{pfr.month}, {prange}"
         return "-"
 
-    def get_distance_time(self, mode):
-        return self.dt_calculator.calculate_distance_time(
-            self.pickup_location, mode, self.item_id)
+    def _get_distance_time(self, travel_mode: str
+                           ) -> Union[DistanceTime, None]:
+        if self.location is None:
+            return None
+        return self.location.calculate_distance_time(
+            self.pickup_location, travel_mode)
 
-    @property
-    def walking_dt(self):
-        return self.get_distance_time('walking')
+    def _get_distance(self, travel_mode: str) -> str:
+        distance_time = self._get_distance_time(travel_mode)
+        if distance_time is None:
+            return 'n/a'
+        return f"{distance_time.distance / 1000:.1f} km"
 
-    @property
-    def driving_dt(self):
-        return self.get_distance_time('driving')
+    def _get_duration(self, travel_mode: str) -> str:
+        distance_time = self._get_distance_time(travel_mode)
+        if distance_time is None:
+            return 'n/a'
+        return humanize.precisedelta(
+            datetime.timedelta(seconds=distance_time.duration),
+            minimum_unit="minutes", format="%0.0f")
 
-    @property
-    def transit_dt(self):
-        return self.get_distance_time('transit')
-
-    @property
-    def biking_dt(self):
-        return self.get_distance_time('bicycling')
+    def __getattribute__(self, __name: str) -> Any:
+        try:
+            return super().__getattribute__(__name)
+        except AttributeError:
+            if __name in ATTRS and __name.startswith(("distance", "duration")):
+                _type, _mode = __name.split("_")
+                if _type == "distance":
+                    return self._get_distance(_mode)
+                if _type == "duration":
+                    return self._get_duration(_mode)
+            raise
