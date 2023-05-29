@@ -4,7 +4,7 @@ from models import Location
 
 
 def test_calculate_distance_time(mocker: MockerFixture):
-    google_api_key = "AIzaSyCkAEfKKPTbYJh273dwnguaHrtnJjzCOkA"
+    google_api_key = "AIza123456"
     location = "Hauptstraße 1, 20099 Hamburg, Germany"
 
     mocker.patch('googlemaps.Client.geocode', return_value=[{}])
