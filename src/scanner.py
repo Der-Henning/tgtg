@@ -4,7 +4,7 @@ from random import random
 from time import sleep
 from typing import Dict, List, NoReturn
 
-from models import Config, Item, Metrics, Reservations
+from models import Config, Item, Location, Metrics, Reservations
 from models.errors import TgtgAPIError
 from notifiers import Notifiers
 from tgtg import TgtgClient
@@ -22,6 +22,7 @@ class Scanner:
         self.cron = self.config.schedule_cron
         self.state: Dict[str, Item] = {}
         self.notifiers = None
+        self.location = None
         self.tgtg_client = TgtgClient(
             email=self.config.tgtg.get("username"),
             timeout=self.config.tgtg.get("timeout"),
@@ -43,11 +44,12 @@ class Scanner:
         items = sorted(self._get_favorites(),
                        key=lambda x: x.items_available,
                        reverse=True)
+
         if items:
             return items[0]
         items = sorted(
             [
-                Item(item)
+                Item(item, self.location)
                 for item in self.tgtg_client.get_items(
                     favorites_only=False,
                     latitude=53.5511,
@@ -57,6 +59,7 @@ class Scanner:
             key=lambda x: x.items_available,
             reverse=True,
         )
+
         return items[0]
 
     def _job(self) -> None:
@@ -67,7 +70,8 @@ class Scanner:
         for item_id in self.item_ids:
             try:
                 if item_id != "":
-                    items.append(Item(self.tgtg_client.get_item(item_id)))
+                    item = self.tgtg_client.get_item(item_id)
+                    items.append(Item(item, self.location))
             except TgtgAPIError as err:
                 log.error(err)
         items += self._get_favorites()
@@ -104,7 +108,7 @@ class Scanner:
         except TgtgAPIError as err:
             log.error(err)
             return []
-        return [Item(item) for item in items]
+        return [Item(item, self.location) for item in items]
 
     def _check_item(self, item: Item) -> None:
         """
@@ -142,14 +146,6 @@ class Scanner:
         """
         Main Loop of the Scanner
         """
-        # activate and test notifiers
-        if self.config.metrics:
-            self.metrics.enable_metrics()
-        self.notifiers = Notifiers(self.config, self.reservations)
-        if not self.config.disable_tests and \
-                self.notifiers.notifier_count > 0:
-            log.info("Sending test Notifications ...")
-            self.notifiers.send(self._get_test_item())
         # test tgtg API
         self.tgtg_client.login()
         self.config.save_tokens(
@@ -158,6 +154,20 @@ class Scanner:
             self.tgtg_client.user_id,
             self.tgtg_client.datadome_cookie
         )
+        # activate location service
+        self.location = Location(
+            self.config.location.get("enabled"),
+            self.config.location.get("gmaps_api_key"),
+            self.config.location.get("origin_address"),
+        )
+        # activate and test notifiers
+        if self.config.metrics:
+            self.metrics.enable_metrics()
+        self.notifiers = Notifiers(self.config, self.reservations)
+        if not self.config.disable_tests and \
+                self.notifiers.notifier_count > 0:
+            log.info("Sending test Notifications ...")
+            self.notifiers.send(self._get_test_item())
         # start scanner
         log.info("Scanner started ...")
         running = True

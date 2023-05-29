@@ -6,7 +6,7 @@ from smtplib import SMTPException, SMTPServerDisconnected
 
 from models import Config, Item
 from models.errors import MaskConfigurationError, SMTPConfigurationError
-from notifiers import Notifier
+from notifiers.base import Notifier
 
 log = logging.getLogger('tgtg')
 

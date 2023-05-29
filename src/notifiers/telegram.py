@@ -13,7 +13,7 @@ from telegram.ext import (CallbackContext, CallbackQueryHandler,
 from models import Config, Item, Reservations
 from models.errors import MaskConfigurationError, TelegramConfigurationError
 from models.reservations import Order, Reservation
-from notifiers import Notifier
+from notifiers.base import Notifier
 
 log = logging.getLogger('tgtg')
 
