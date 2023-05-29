@@ -1,10 +1,8 @@
-import responses
 from pytest_mock.plugin import MockerFixture
 
 from models import Location
 
 
-@responses.activate
 def test_calculate_distance_time(mocker: MockerFixture):
     google_api_key = "AIzaSyCkAEfKKPTbYJh273dwnguaHrtnJjzCOkA"
     location = "Hauptstraße 1, 20099 Hamburg, Germany"
