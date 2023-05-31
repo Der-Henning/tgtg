@@ -119,7 +119,8 @@ DEFAULT_CONFIG = {
         'body': '*${{display_name}}*\n'
                 '*Available*: ${{items_available}}\n'
                 '*Price*: ${{price}} ${{currency}}\n'
-                '*Pickup*: ${{pickupdate}}'
+                '*Pickup*: ${{pickupdate}}',
+        'image': None
     },
     'location': {
         'enabled': False,
@@ -370,6 +371,7 @@ class Config():
                                   "telegram.disable_commands")
             self._ini_get_cron(config, "TELEGRAM", "cron", "telegram.cron")
             self._ini_get(config, "TELEGRAM", "body", "telegram.body")
+            self._ini_get(config, "TELEGRAM", "image", "telegram.image")
 
             self._ini_get_boolean(config, "LOCATION",
                                   "enabled", "location.enabled")
@@ -510,6 +512,7 @@ class Config():
                                   "telegram.disable_commands")
             self._env_get_cron("TELEGRAM_CRON", "telegram.cron")
             self._env_get("TELEGRAM_BODY", "telegram.body")
+            self._env_get("TELEGRAM_IMAGE", "telegram.image")
 
             self._env_get_boolean("LOCATION", "location.enabled")
             self._env_get("LOCATION_GOOGLE_MAPS_API_KEY",

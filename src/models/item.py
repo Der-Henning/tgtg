@@ -110,14 +110,20 @@ class Item():
     def link(self) -> str:
         return f"https://share.toogoodtogo.com/item/{self.item_id}"
 
+    def _get_variables(self, text: str) -> list[re.Match]:
+        """
+        Returns a list of all variables in the provided string
+        """
+        return list(re.finditer(r"\${{([a-zA-Z0-9_]+)}}", text))
+
     def unmask(self, text: str) -> str:
         """
         Replaces variables with the current values.
         """
         if text in ["${{item_logo_bytes}}", "${{item_cover_bytes}}"]:
-            matches = re.findall(r"\${{([a-zA-Z0-9_]+)}}", text)
-            return getattr(self, matches[0])
-        for match in re.finditer(r"\${{([a-zA-Z0-9_]+)}}", text):
+            matches = self._get_variables(text)
+            return getattr(self, matches[0].group(1))
+        for match in self._get_variables(text):
             if hasattr(self, match.group(1)):
                 val = getattr(self, match.group(1))
                 text = text.replace(match.group(0), str(val))
