@@ -87,10 +87,9 @@ class Telegram(Notifier):
             return getattr(item, matches[0].group(1))
         for match in item._get_variables(text):
             if hasattr(item, match.group(1)):
-                val = getattr(item, match.group(1))
-                if isinstance(val, str):
-                    val = escape_markdown(val)
-                text = text.replace(match.group(0), str(val))
+                val = str(getattr(item, match.group(1)))
+                val = escape_markdown(val, version=2)
+                text = text.replace(match.group(0), val)
         return text
 
     def _send(self, item: Item) -> None:
@@ -100,19 +99,20 @@ class Telegram(Notifier):
         if self.mute:
             log.info("Reactivated Telegram Notifications")
             self.mute = None
-        message = item.unmask(self.body)
+        message = self._unmask(self.body, item)
         image = None
         if self.image:
             image = self._unmask(self.image, item)
         self._send_message(message, image)
 
     def _send_reservation(self, reservation: Reservation) -> None:
-        message = f"{reservation.display_name} is reserved for 5 minutes!"
+        display_name = escape_markdown(reservation.display_name, version=2)
+        message = f"{display_name} is reserved for 5 minutes!"
         self._send_message(message)
 
     def _send_message(self, message: str, image: bytes = None) -> None:
         log.debug("%s message: %s", self.name, message)
-        fmt = ParseMode.MARKDOWN
+        fmt = ParseMode.MARKDOWN_V2
         for chat_id in self.chat_ids:
             try:
                 if image:
