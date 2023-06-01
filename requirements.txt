@@ -9,7 +9,7 @@ googlemaps==4.10.0
 humanize==4.6.0
 idna==3.4
 packaging==23.1
-prometheus-client==0.16.0
+prometheus-client==0.17.0
 pycron==3.0.0
 python-pushsafer==1.1
 python-telegram-bot==13.15
