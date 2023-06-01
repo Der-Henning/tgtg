@@ -136,6 +136,12 @@ python src/main.py -f -J >> items.json
 
 Creates a formatted JSON file containing all your favorite items and their available information.
 
+### Systemd unit file
+
+If you wish to use tgtg-scanner as an boot-enablable systemd-unit you can copy the unit file from ````contrib```` to the defined paths.
+````cp contrib/tgtg-scanner.service /usr/lib/systemd/system/```` or ````cp contrib/tgtg-scanner.service /etc/systemd/system/````
+
+
 ### Metrics
 
 Enabling the metrics option will expose an HTTP server on the specified port supplying the currently available items. You can scrape the data with Prometheus to create and visualize historic data or use it with your home automation.
