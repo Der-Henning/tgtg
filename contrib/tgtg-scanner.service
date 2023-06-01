@@ -1,0 +1,7 @@
+[Unit]
+Description=TGTG-Scanner
+
+[Service]
+ExecStart=/usr/local/bin/python3.9 /opt/tgtg-notifier/tgtg/src/main.py
+SyslogIdentifier=tgtg-scanner
+Restart=always
