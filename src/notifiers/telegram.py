@@ -9,6 +9,7 @@ from telegram.bot import BotCommand
 from telegram.error import BadRequest, NetworkError, TelegramError, TimedOut
 from telegram.ext import (CallbackContext, CallbackQueryHandler,
                           CommandHandler, Updater)
+from telegram.utils.helpers import escape_markdown
 
 from models import Config, Item, Reservations
 from models.errors import MaskConfigurationError, TelegramConfigurationError
@@ -30,6 +31,7 @@ class Telegram(Notifier):
         self.enabled = config.telegram.get("enabled", False)
         self.token = config.telegram.get("token")
         self.body = config.telegram.get("body")
+        self.image = config.telegram.get("image")
         self.chat_ids = config.telegram.get("chat_ids")
         self.timeout = config.telegram.get("timeout", 60)
         self.disable_commands = config.telegram.get(
@@ -41,6 +43,9 @@ class Telegram(Notifier):
         if self.enabled and (not self.token or not self.body):
             raise TelegramConfigurationError()
         if self.enabled:
+            if self.image not in [None, "", "${{item_logo_bytes}}",
+                                  "${{item_cover_bytes}}"]:
+                raise TelegramConfigurationError()
             try:
                 Item.check_mask(self.body)
                 self.updater = Updater(token=self.token,
@@ -76,6 +81,17 @@ class Telegram(Notifier):
             if not self.disable_commands:
                 self.updater.start_polling()
 
+    def _unmask(self, text: str, item: Item) -> str:
+        if text in ["${{item_logo_bytes}}", "${{item_cover_bytes}}"]:
+            matches = item._get_variables(text)
+            return getattr(item, matches[0].group(1))
+        for match in item._get_variables(text):
+            if hasattr(item, match.group(1)):
+                val = str(getattr(item, match.group(1)))
+                val = escape_markdown(val, version=2)
+                text = text.replace(match.group(0), val)
+        return text
+
     def _send(self, item: Item) -> None:
         """Send item information as Telegram message"""
         if self.mute and self.mute > datetime.datetime.now():
@@ -83,24 +99,36 @@ class Telegram(Notifier):
         if self.mute:
             log.info("Reactivated Telegram Notifications")
             self.mute = None
-        message = item.unmask(self.body)
-        self._send_message(message)
+        message = self._unmask(self.body, item)
+        image = None
+        if self.image:
+            image = self._unmask(self.image, item)
+        self._send_message(message, image)
 
     def _send_reservation(self, reservation: Reservation) -> None:
-        message = f"{reservation.display_name} is reserved for 5 minutes!"
+        display_name = escape_markdown(reservation.display_name, version=2)
+        message = f"{display_name} is reserved for 5 minutes!"
         self._send_message(message)
 
-    def _send_message(self, message: str) -> None:
+    def _send_message(self, message: str, image: bytes = None) -> None:
         log.debug("%s message: %s", self.name, message)
-        fmt = ParseMode.MARKDOWN
+        fmt = ParseMode.MARKDOWN_V2
         for chat_id in self.chat_ids:
             try:
-                self.updater.bot.send_message(
-                    chat_id=chat_id,
-                    text=message,
-                    parse_mode=fmt,
-                    timeout=self.timeout,
-                    disable_web_page_preview=True)
+                if image:
+                    self.updater.bot.send_photo(
+                        chat_id=chat_id,
+                        photo=image,
+                        caption=message,
+                        parse_mode=fmt,
+                        timeout=self.timeout)
+                else:
+                    self.updater.bot.send_message(
+                        chat_id=chat_id,
+                        text=message,
+                        parse_mode=fmt,
+                        timeout=self.timeout,
+                        disable_web_page_preview=True)
                 self.retries = 0
             except BadRequest as err:
                 log.error('Telegram Error: %s', err)

@@ -85,6 +85,8 @@ Alternatively, you can use environment variables as described in the `sample.env
 
 To update to the latest release run `git pull`.
 
+If you receive the `ModuleNotFoundError: No module named '_ctypes'` you may need to install `libffi-dev`.
+
 ### Build your own binary
 
 You could also build your own binary for your OS/Arch combination.
