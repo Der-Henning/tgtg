@@ -108,7 +108,7 @@ def test_tgtg_get_items(mocker: MockerFixture, tgtg_item: dict):
     mocker.patch('tgtg.tgtg_client.TgtgClient.login', return_value=None)
     responses.add(
         responses.POST,
-        "https://apptoogoodtogo.com/api/item/v7/",
+        "https://apptoogoodtogo.com/api/item/v8/",
         json.dumps({"items": [tgtg_item]}),
         status=200
     )
@@ -130,7 +130,7 @@ def test_tgtg_get_item(mocker: MockerFixture, tgtg_item: dict):
     item_id = tgtg_item.get('item', {}).get('item_id')
     responses.add(
         responses.POST,
-        f"https://apptoogoodtogo.com/api/item/v7/{item_id}",
+        f"https://apptoogoodtogo.com/api/item/v8/{item_id}",
         json.dumps(tgtg_item),
         status=200
     )
@@ -152,7 +152,7 @@ def test_tgtg_set_favorite(mocker: MockerFixture):
     item_id = "12345"
     responses.add(
         responses.POST,
-        f"https://apptoogoodtogo.com/api/item/v7/{item_id}/setFavorite",
+        f"https://apptoogoodtogo.com/api/item/v8/{item_id}/setFavorite",
         json.dumps({"is_favorite": True}),
         status=200
     )

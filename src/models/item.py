@@ -33,7 +33,8 @@ class Item():
             "pickup_interval", {}).get("start", None)
         self.pickup_interval_end = data.get(
             "pickup_interval", {}).get("end", None)
-        self.pickup_location = data.get("pickup_location", {}).get("address", {}).get("address_line", "-")
+        self.pickup_location = data.get("pickup_location", {}).get(
+            "address", {}).get("address_line", "-")
 
         item = data.get("item", {})
         self.item_id = item.get("item_id")
@@ -139,7 +140,8 @@ class Item():
         return "-"
 
     def get_distance_time(self, mode):
-        return self.dt_calculator.calculate_distance_time(self.pickup_location, mode, self.item_id)
+        return self.dt_calculator.calculate_distance_time(
+            self.pickup_location, mode, self.item_id)
 
     @property
     def walking_dt(self):

@@ -22,7 +22,7 @@ class DistanceTimeCalculator:
         self.origin = origin
         self.is_first_run = True
 
-        # cached DistanceTime object for each item_id
+        # cached DistanceTime object for each item_id+mode
         self.distancetime_dict: dict[str, str] = {}
 
     def calculate_distance_time(self, destination, mode, item_id):
