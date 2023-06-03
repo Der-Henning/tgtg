@@ -1,4 +1,5 @@
 import json
+import platform
 from importlib import reload
 from time import sleep
 
@@ -13,6 +14,9 @@ from notifiers.ifttt import IFTTT
 from notifiers.ntfy import Ntfy
 from notifiers.script import Script
 from notifiers.webhook import WebHook
+
+SYS_PLATFORM = platform.system()
+IS_WINDOWS = SYS_PLATFORM.lower() in ('windows', 'cygwin')
 
 
 @responses.activate
@@ -208,4 +212,5 @@ def test_script(test_item: Item, capfdbinary: pytest.CaptureFixture):
     sleep(0.1)
     captured = capfdbinary.readouterr()
 
-    assert captured.out.decode().rstrip() == test_item.display_name
+    encoding = "cp1252" if IS_WINDOWS else "utf-8"
+    assert captured.out.decode(encoding).rstrip() == test_item.display_name
