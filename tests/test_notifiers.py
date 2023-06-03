@@ -1,5 +1,6 @@
 import json
 from importlib import reload
+from time import sleep
 
 import pytest
 import responses
@@ -10,6 +11,7 @@ from notifiers.apprise import Apprise
 from notifiers.console import Console
 from notifiers.ifttt import IFTTT
 from notifiers.ntfy import Ntfy
+from notifiers.script import Script
 from notifiers.webhook import WebHook
 
 
@@ -193,3 +195,17 @@ def test_console(test_item: Item, capsys: pytest.CaptureFixture):
     assert captured.out == (
         f"{test_item.display_name} - "
         f"new amount: {test_item.items_available}\n")
+
+
+def test_script(test_item: Item, capfd: pytest.CaptureFixture):
+    reload(models.config)
+    config = models.config.Config("")
+    config._setattr("script.enabled", True)
+    config._setattr("script.command", "echo ${{display_name}}")
+
+    script = Script(config)
+    script.send(test_item)
+    sleep(0.1)
+    captured = capfd.readouterr()
+
+    assert captured.out == f"{test_item.display_name}\n"
