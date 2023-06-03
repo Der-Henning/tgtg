@@ -4,7 +4,7 @@ from pushsafer import Client
 
 from models import Config, Item, Order
 from models.errors import PushSaferConfigurationError
-from notifiers import Notifier
+from notifiers.base import Notifier
 
 log = logging.getLogger('tgtg')
 

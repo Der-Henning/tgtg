@@ -1,13 +1,15 @@
 import logging
 from typing import List
 
-from models import Config, Item, Order
+from models import Config, Item, Reservations, Order
+from models.reservations import Reservation
 from notifiers.apprise import Apprise
 from notifiers.base import Notifier
 from notifiers.console import Console
 from notifiers.ifttt import IFTTT
 from notifiers.ntfy import Ntfy
 from notifiers.push_safer import PushSafer
+from notifiers.script import Script
 from notifiers.smtp import SMTP
 from notifiers.telegram import Telegram
 from notifiers.webhook import WebHook
@@ -16,7 +18,7 @@ log = logging.getLogger("tgtg")
 
 
 class Notifiers:
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, reservations: Reservations):
         self._notifiers: List[Notifier] = [
             Apprise(config),
             Console(config),
@@ -25,7 +27,8 @@ class Notifiers:
             IFTTT(config),
             Ntfy(config),
             WebHook(config),
-            Telegram(config),
+            Telegram(config, reservations),
+            Script(config),
         ]
         log.info("Activated notifiers:")
         if self.notifier_count == 0:
@@ -48,7 +51,7 @@ class Notifiers:
         """
         return len(self._enabled_notifiers)
 
-    def send(self, item: Item) -> None:
+    def send_item(self, item: Item) -> None:
         """Send notifications on all enabled notifiers.
 
         Args:
@@ -57,6 +60,30 @@ class Notifiers:
         for notifier in self._enabled_notifiers:
             try:
                 notifier.send_item(item)
+            except Exception as exc:
+                log.error("Failed sending %s: %s", notifier, exc)
+
+    def send_reservation(self, reservation: Reservation) -> None:
+        """Send notification for new reservation
+
+        Args:
+            reservation (Reservation): New reservation
+        """
+        for notifier in self._enabled_notifiers:
+            try:
+                notifier.send_reservation(reservation)
+            except Exception as exc:
+                log.error("Failed sending %s: %s", notifier, exc)
+
+    def send_reservation(self, reservation: Reservation) -> None:
+        """Send notification for new reservation
+
+        Args:
+            reservation (Reservation): New reservation
+        """
+        for notifier in self._enabled_notifiers:
+            try:
+                notifier.send_reservation(reservation)
             except Exception as exc:
                 log.error("Failed sending %s: %s", notifier, exc)
 

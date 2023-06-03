@@ -6,7 +6,7 @@ from requests.auth import HTTPBasicAuth
 
 from models import Config, Item, Order
 from models.errors import MaskConfigurationError, WebHookConfigurationError
-from notifiers import Notifier
+from notifiers.base import Notifier
 
 log = logging.getLogger('tgtg')
 

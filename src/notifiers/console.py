@@ -2,7 +2,7 @@ import logging
 
 from models import Config, Item, Order
 from models.errors import ConsoleConfigurationError, MaskConfigurationError
-from notifiers import Notifier
+from notifiers.base import Notifier
 
 log = logging.getLogger('tgtg')
 

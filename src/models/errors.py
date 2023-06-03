@@ -24,7 +24,10 @@ class ConfigurationError(Error):
 
 class MaskConfigurationError(ConfigurationError):
     def __init__(self, variable):
-        self.message = f"Unrecognized variable {variable}"
+        self.message = (
+            f"Unrecognized variable {variable}. For details see "
+            f"https://github.com/Der-Henning/tgtg/wiki/Configuration#variables"
+        )
         super().__init__(self.message)
 
 
@@ -78,6 +81,12 @@ class WebHookConfigurationError(ConfigurationError):
 
 class TelegramConfigurationError(ConfigurationError):
     def __init__(self, message="Invalid Telegram configuration"):
+        self.message = message
+        super().__init__(self.message)
+
+
+class ScriptConfigurationError(ConfigurationError):
+    def __init__(self, message="Invalid Script configuration"):
         self.message = message
         super().__init__(self.message)
 

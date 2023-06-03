@@ -36,6 +36,11 @@ DEFAULT_CONFIG = {
         'max_polling_tries': 24,
         'polling_wait_time': 5
     },
+    'location': {
+        'enabled': False,
+        'Google_Maps_API_Key': '',
+        'Origin_Address': '',
+    },
     'apprise': {
         'enabled': False,
         'url': '',
@@ -113,12 +118,19 @@ DEFAULT_CONFIG = {
         'enabled': False,
         'token': '',
         'chat_ids': [],
+        'disable_commands': False,
         'timeout': 60,
         'cron': Cron('* * * * *'),
         'body': '*${{display_name}}*\n'
                 '*Available*: ${{items_available}}\n'
                 '*Price*: ${{price}} ${{currency}}\n'
-                '*Pickup*: ${{pickupdate}}'
+                '*Pickup*: ${{pickupdate}}',
+        'image': None
+    },
+    'script': {
+        'enabled': False,
+        'command': '',
+        'cron': Cron('* * * * *')
     },
     'location': {
         'enabled': False,
@@ -173,6 +185,7 @@ class Config():
     ntfy: dict
     webhook: dict
     telegram: dict
+    script: dict
     location: dict
     notify_ext: dict
 
@@ -386,8 +399,24 @@ class Config():
                                 "chat_ids", "telegram.chat_ids")
             self._ini_get_int(config, "TELEGRAM",
                               "timeout", "telegram.timeout")
+            self._ini_get_boolean(config, "TELEGRAM", "disableCommands",
+                                  "telegram.disable_commands")
             self._ini_get_cron(config, "TELEGRAM", "cron", "telegram.cron")
             self._ini_get(config, "TELEGRAM", "body", "telegram.body")
+            self._ini_get(config, "TELEGRAM", "image", "telegram.image")
+
+            self._ini_get_boolean(config, "SCRIPT",
+                                  "enabled", "script.enabled")
+            self._ini_get(config, "SCRIPT", "Command", "script.command")
+            self._ini_get_cron(config, "SCRIPT", "cron", "script.cron")
+
+            self._ini_get_boolean(config, "LOCATION",
+                                  "enabled", "location.enabled")
+            self._ini_get(config, "LOCATION", "Address",
+                          "location.origin_address")
+            self._ini_get(
+                config, "LOCATION",
+                "Google_Maps_API_Key", "location.gmaps_api_key")
 
             self._ini_get_boolean(config, "LOCATION",
                                   "enabled", "location.enabled")
@@ -409,7 +438,6 @@ class Config():
                           "notify_ext.body_2")
             self._ini_get(config, "NOTIFY_EXT", "body_3",
                           "notify_ext.body_3")
-
         except ValueError as err:
             raise ConfigurationError(err) from err
 
@@ -536,8 +564,15 @@ class Config():
             self._env_get("TELEGRAM_TOKEN", "telegram.token")
             self._env_get_array("TELEGRAM_CHAT_IDS", "telegram.chat_ids")
             self._env_get_int("TELEGRAM_TIMEOUT", "telegram.timeout")
+            self._env_get_boolean("TELEGRAM_DISABLE_COMMANDS",
+                                  "telegram.disable_commands")
             self._env_get_cron("TELEGRAM_CRON", "telegram.cron")
             self._env_get("TELEGRAM_BODY", "telegram.body")
+            self._env_get("TELEGRAM_IMAGE", "telegram.image")
+
+            self._env_get_boolean("SCRIPT", "script.enabled")
+            self._env_get("SCRIPT_COMMAND", "script.command")
+            self._env_get_cron("SCRIPT_CRON", "script.cron")
 
             self._env_get_boolean("LOCATION", "location.enabled")
             self._env_get("LOCATION_GOOGLE_MAPS_API_KEY",
