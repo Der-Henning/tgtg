@@ -82,6 +82,12 @@ class TelegramConfigurationError(ConfigurationError):
         super().__init__(self.message)
 
 
+class ScriptConfigurationError(ConfigurationError):
+    def __init__(self, message="Invalid Script configuration"):
+        self.message = message
+        super().__init__(self.message)
+
+
 class LocationConfigurationError(ConfigurationError):
     def __init__(self, message="Invalid Location configuration"):
         self.message = message
