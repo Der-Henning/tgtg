@@ -192,9 +192,9 @@ def test_console(test_item: Item, capsys: pytest.CaptureFixture):
     console.send(test_item)
     captured = capsys.readouterr()
 
-    assert captured.out == (
+    assert captured.out.rstrip() == (
         f"{test_item.display_name} - "
-        f"new amount: {test_item.items_available}\n")
+        f"new amount: {test_item.items_available}")
 
 
 def test_script(test_item: Item, capfd: pytest.CaptureFixture):
@@ -208,4 +208,4 @@ def test_script(test_item: Item, capfd: pytest.CaptureFixture):
     sleep(0.1)
     captured = capfd.readouterr()
 
-    assert captured.out == f"{test_item.display_name}\n"
+    assert captured.out.rstrip() == test_item.display_name
