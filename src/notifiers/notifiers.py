@@ -9,6 +9,7 @@ from notifiers.console import Console
 from notifiers.ifttt import IFTTT
 from notifiers.ntfy import Ntfy
 from notifiers.push_safer import PushSafer
+from notifiers.script import Script
 from notifiers.smtp import SMTP
 from notifiers.telegram import Telegram
 from notifiers.webhook import WebHook
@@ -27,6 +28,7 @@ class Notifiers:
             Ntfy(config),
             WebHook(config),
             Telegram(config, reservations),
+            Script(config),
         ]
         log.info("Activated notifiers:")
         if self.notifier_count == 0:

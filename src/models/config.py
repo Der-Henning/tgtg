@@ -36,6 +36,11 @@ DEFAULT_CONFIG = {
         'max_polling_tries': 24,
         'polling_wait_time': 5
     },
+    'location': {
+        'enabled': False,
+        'Google_Maps_API_Key': '',
+        'Origin_Address': '',
+    },
     'apprise': {
         'enabled': False,
         'url': '',
@@ -122,11 +127,11 @@ DEFAULT_CONFIG = {
                 '*Pickup*: ${{pickupdate}}',
         'image': None
     },
-    'location': {
+    'script': {
         'enabled': False,
-        'Google_Maps_API_Key': '',
-        'Origin_Address': '',
-    },
+        'command': '',
+        'cron': Cron('* * * * *')
+    }
 }
 
 
@@ -155,6 +160,7 @@ class Config():
     ntfy: dict
     webhook: dict
     telegram: dict
+    script: dict
     location: dict
 
     def __init__(self, file: str = None):
@@ -373,14 +379,18 @@ class Config():
             self._ini_get(config, "TELEGRAM", "body", "telegram.body")
             self._ini_get(config, "TELEGRAM", "image", "telegram.image")
 
+            self._ini_get_boolean(config, "SCRIPT",
+                                  "enabled", "script.enabled")
+            self._ini_get(config, "SCRIPT", "Command", "script.command")
+            self._ini_get_cron(config, "SCRIPT", "cron", "script.cron")
+
             self._ini_get_boolean(config, "LOCATION",
                                   "enabled", "location.enabled")
             self._ini_get(config, "LOCATION", "Address",
                           "location.origin_address")
             self._ini_get(
                 config, "LOCATION",
-                "Google_Maps_API_Key", "location.gmaps_api_key"
-            )
+                "Google_Maps_API_Key", "location.gmaps_api_key")
 
         except ValueError as err:
             raise ConfigurationError(err) from err
@@ -513,6 +523,10 @@ class Config():
             self._env_get_cron("TELEGRAM_CRON", "telegram.cron")
             self._env_get("TELEGRAM_BODY", "telegram.body")
             self._env_get("TELEGRAM_IMAGE", "telegram.image")
+
+            self._env_get_boolean("SCRIPT", "script.enabled")
+            self._env_get("SCRIPT_COMMAND", "script.command")
+            self._env_get_cron("SCRIPT_CRON", "script.cron")
 
             self._env_get_boolean("LOCATION", "location.enabled")
             self._env_get("LOCATION_GOOGLE_MAPS_API_KEY",

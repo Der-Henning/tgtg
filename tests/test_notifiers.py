@@ -1,5 +1,7 @@
 import json
+import platform
 from importlib import reload
+from time import sleep
 
 import pytest
 import responses
@@ -10,7 +12,11 @@ from notifiers.apprise import Apprise
 from notifiers.console import Console
 from notifiers.ifttt import IFTTT
 from notifiers.ntfy import Ntfy
+from notifiers.script import Script
 from notifiers.webhook import WebHook
+
+SYS_PLATFORM = platform.system()
+IS_WINDOWS = SYS_PLATFORM.lower() in ('windows', 'cygwin')
 
 
 @responses.activate
@@ -190,6 +196,21 @@ def test_console(test_item: Item, capsys: pytest.CaptureFixture):
     console.send(test_item)
     captured = capsys.readouterr()
 
-    assert captured.out == (
+    assert captured.out.rstrip() == (
         f"{test_item.display_name} - "
-        f"new amount: {test_item.items_available}\n")
+        f"new amount: {test_item.items_available}")
+
+
+def test_script(test_item: Item, capfdbinary: pytest.CaptureFixture):
+    reload(models.config)
+    config = models.config.Config("")
+    config._setattr("script.enabled", True)
+    config._setattr("script.command", "echo ${{display_name}}")
+
+    script = Script(config)
+    script.send(test_item)
+    sleep(0.1)
+    captured = capfdbinary.readouterr()
+
+    encoding = "cp1252" if IS_WINDOWS else "utf-8"
+    assert captured.out.decode(encoding).rstrip() == test_item.display_name
