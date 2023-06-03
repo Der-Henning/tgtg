@@ -40,7 +40,7 @@ You have the following three options to install the scanner, ascending in comple
 
 This is the simplest but least flexible solution suitable for most operating systems.
 
-The binaries are built for latest Ubuntu, MacOS, and Windows running on an `x64` architecture. If you are using another architecture like `arm` (e.g. RaspberryPi) you have to run from source, compile the binary yourself or use the docker images.
+The binaries are built for latest Ubuntu, MacOS, and Windows running on an `x64` architecture. If you are using another architecture like `arm` (e.g. RaspberryPi, Synology, etc.) you have to run from source, compile the binary yourself or use the docker images.
 
 1. Download latest [Releases](https://github.com/Der-Henning/tgtg/releases) for your OS
 2. Unzip the archive
@@ -50,7 +50,7 @@ The binaries are built for latest Ubuntu, MacOS, and Windows running on an `x64`
 You can run the scanner manually if you need it, add it to your startup or create a system service.
 
 The executables for Windows and MacOS are not signed by Microsoft and Apple, which would be very expensive.
-On Mac, you have to hold the control key while opening the file and on Windows, you have to confirm the displayed dialog.
+On MacOS, you have to hold the control key while opening the file and on Windows, you have to confirm the displayed dialog.
 
 ### Run with Docker
 
