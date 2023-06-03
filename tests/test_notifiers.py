@@ -197,7 +197,7 @@ def test_console(test_item: Item, capsys: pytest.CaptureFixture):
         f"new amount: {test_item.items_available}")
 
 
-def test_script(test_item: Item, capfd: pytest.CaptureFixture):
+def test_script(test_item: Item, capfdbinary: pytest.CaptureFixture):
     reload(models.config)
     config = models.config.Config("")
     config._setattr("script.enabled", True)
@@ -206,6 +206,6 @@ def test_script(test_item: Item, capfd: pytest.CaptureFixture):
     script = Script(config)
     script.send(test_item)
     sleep(0.1)
-    captured = capfd.readouterr()
+    captured = capfdbinary.readouterr()
 
-    assert captured.out.rstrip() == test_item.display_name
+    assert captured.out.decode().rstrip() == test_item.display_name
