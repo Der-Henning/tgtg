@@ -19,7 +19,7 @@ from models.errors import (TgtgAPIError, TGTGConfigurationError,
 
 log = logging.getLogger("tgtg")
 BASE_URL = "https://apptoogoodtogo.com/api/"
-API_ITEM_ENDPOINT = "item/v7/"
+API_ITEM_ENDPOINT = "item/v8/"
 AUTH_BY_EMAIL_ENDPOINT = "auth/v3/authByEmail"
 AUTH_POLLING_ENDPOINT = "auth/v3/authByRequestPollingId"
 SIGNUP_BY_EMAIL_ENDPOINT = "auth/v3/signUpByEmail"
@@ -355,6 +355,27 @@ class TgtgClient:
             f"{API_ITEM_ENDPOINT}/{item_id}",
             json={"user_id": self.user_id, "origin": None})
         return response.json()
+
+    def get_favorites(self) -> List[dict]:
+        """Returns favorites of the current tgtg account
+
+        Returns:
+            List: List of items
+        """
+        items = []
+        page = 1
+        page_size = 100
+        while True:
+            new_items = self.get_items(
+                favorites_only=True,
+                page_size=page_size,
+                page=page
+            )
+            items += new_items
+            if len(new_items) < page_size:
+                break
+            page += 1
+        return items
 
     def set_favorite(self, item_id: str, is_favorite: bool) -> None:
         self.login()
