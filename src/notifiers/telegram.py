@@ -131,7 +131,12 @@ class Telegram(Notifier):
                         disable_web_page_preview=True)
                 self.retries = 0
             except BadRequest as err:
-                log.error('Telegram Error: %s', err)
+                err_message = err.message
+                if err_message.startswith("Can't parse entities:"):
+                    err_message += ". For details see https://github.com/"
+                    err_message += "Der-Henning/tgtg/wiki/Configuration"
+                    err_message += "#note-on-markdown-v2"
+                log.error('Telegram Error: %s', err_message)
             except (NetworkError, TimedOut) as err:
                 log.warning('Telegram Error: %s', err)
                 self.retries += 1
