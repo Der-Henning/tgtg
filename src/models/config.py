@@ -36,6 +36,11 @@ DEFAULT_CONFIG = {
         'max_polling_tries': 24,
         'polling_wait_time': 5
     },
+    'location': {
+        'enabled': False,
+        'Google_Maps_API_Key': '',
+        'Origin_Address': '',
+    },
     'apprise': {
         'enabled': False,
         'url': '',
@@ -122,16 +127,10 @@ DEFAULT_CONFIG = {
                 '*Pickup*: ${{pickupdate}}',
         'image': None
     },
-    'location': {
-        'enabled': False,
-        'Google_Maps_API_Key': '',
-        'Origin_Address': '',
-    },
     'script': {
         'enabled': False,
         'command': '',
-        'timeout': 60,
-        'cron': Cron('* * * * *')   
+        'cron': Cron('* * * * *')
     }
 }
 
@@ -383,8 +382,7 @@ class Config():
             self._ini_get_boolean(config, "SCRIPT",
                                   "enabled", "script.enabled")
             self._ini_get(config, "SCRIPT", "Command", "script.command")
-            self._ini_get_int(config, "SCRIPT", "timeout", "script.timeout")
-            self._ini_get_cron(config, "SCRIPT", "cron", "script.cron")            
+            self._ini_get_cron(config, "SCRIPT", "cron", "script.cron")
 
             self._ini_get_boolean(config, "LOCATION",
                                   "enabled", "location.enabled")
@@ -528,7 +526,6 @@ class Config():
 
             self._env_get_boolean("SCRIPT", "script.enabled")
             self._env_get("SCRIPT_COMMAND", "script.command")
-            self._env_get_int("SCRIPT_TIMEOUT", "script.timeout")
             self._env_get_cron("SCRIPT_CRON", "script.cron")
 
             self._env_get_boolean("LOCATION", "location.enabled")
