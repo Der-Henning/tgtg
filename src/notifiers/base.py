@@ -1,38 +1,47 @@
 import logging
 from abc import ABC, abstractmethod
 
-from models import Config, Cron, Item, Order
+from models import Config, Item, Order
 
 log = logging.getLogger('tgtg')
 
 
 class Notifier(ABC):
-    @abstractmethod
+    messages = []
+    enabled_notify_ext = None
+
     def __init__(self, config: Config):
-        self.enabled = False
-        self.cron = Cron()
+        # only on first run of any notifier
+        self.enabled_notify_ext = config.notify_ext.get("enabled")
+        if self.messages == []:
+            self.messages.append(config.notify_ext.get("body_1"))
+            self.messages.append(config.notify_ext.get("body_2"))
+            self.messages.append(config.notify_ext.get("body_3"))
 
     @property
     def name(self):
         return self.__class__.__name__
 
-    def send(self, item: Item) -> None:
+    def send_item(self, item: Item) -> None:
+        if self._should_send_notification():
+            self._send_item(item)
+
+    def send_order(self, order: Order, index: int) -> None:
+        if self._should_send_notification():
+            self._send_order(order, self.messages[index])
+
+    def _should_send_notification(self) -> bool:
         if self.enabled and self.cron.is_now:
             log.debug("Sending %s Notification", self.name)
-            self._send(item)
-            
-    def send_order(self, order: Order) -> None:
-        log.info("sending order")
-        if self.enabled and self.cron.is_now:
-            log.debug("Sending %s Notification", self.name)
-            self._send_order(order)
+            return True
+        return False
 
     @abstractmethod
-    def _send(self, item: Item) -> None:
+    def _send_item(self, item: Item) -> None:
         """Send Item information"""
-    
+
     @abstractmethod
-    def _send_order(self, order: Order) -> None:
+    def _send_order(self, order: Order, message: str) -> None:
         """Send Order information"""
 
     def stop(self) -> None:

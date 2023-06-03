@@ -1,0 +1,5 @@
+WALKING_MODE = "walking"
+DRIVING_MODE = "driving"
+PUBLIC_TRANSPORT_MODE = "transit"
+BIKING_MODE = "bicycling"
+DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"

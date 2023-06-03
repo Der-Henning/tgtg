@@ -17,6 +17,7 @@ class SMTP(Notifier):
     """
 
     def __init__(self, config: Config):
+        super().__init__(config)
         self.server = None
         self.debug = config.debug
         self.enabled = config.smtp.get("enabled", False)
@@ -91,7 +92,7 @@ class SMTP(Notifier):
             self._connect()
             self.server.sendmail(self.sender, self.recipient, body)
 
-    def _send(self, item: Item) -> None:
+    def _send_item(self, item: Item) -> None:
         """Sends item information via Mail."""
         self._send_mail(
             item.unmask(self.subject),

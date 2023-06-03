@@ -39,7 +39,7 @@ class WebHook(Notifier):
             except MaskConfigurationError as exc:
                 raise WebHookConfigurationError(exc.message) from exc
 
-    def _send(self, item: Item) -> None:
+    def _send_item(self, item: Item) -> None:
         """Sends item information via configured Webhook endpoint"""
         url = item.unmask(self.url)
         log.debug("%s url: %s", self.name, url)

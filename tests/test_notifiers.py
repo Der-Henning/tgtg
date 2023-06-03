@@ -35,7 +35,7 @@ def test_webhook_json(test_item: Item):
     )
 
     webhook = WebHook(config)
-    webhook.send(test_item)
+    webhook.send_item(test_item)
 
     request = responses.calls[0].request
     body = json.loads(request.body)
@@ -71,7 +71,7 @@ def test_webhook_text(test_item: Item):
     )
 
     webhook = WebHook(config)
-    webhook.send(test_item)
+    webhook.send_item(test_item)
 
     request = responses.calls[0].request
 
@@ -106,7 +106,7 @@ def test_ifttt(test_item: Item):
     )
 
     ifttt = IFTTT(config)
-    ifttt.send(test_item)
+    ifttt.send_item(test_item)
 
     request = responses.calls[0].request
     body = json.loads(request.body)
@@ -136,7 +136,7 @@ def test_ntfy(test_item: Item):
     )
 
     ntfy = Ntfy(config)
-    ntfy.send(test_item)
+    ntfy.send_item(test_item)
 
     request = responses.calls[0].request
 
@@ -167,7 +167,7 @@ def test_apprise(test_item: Item):
     )
 
     apprise = Apprise(config)
-    apprise.send(test_item)
+    apprise.send_item(test_item)
 
     request = responses.calls[0].request
     body = json.loads(request.body)
@@ -187,7 +187,7 @@ def test_console(test_item: Item, capsys: pytest.CaptureFixture):
                     "new amount: ${{items_available}}")
 
     console = Console(config)
-    console.send(test_item)
+    console.send_item(test_item)
     captured = capsys.readouterr()
 
     assert captured.out == (

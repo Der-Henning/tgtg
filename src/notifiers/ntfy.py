@@ -13,6 +13,7 @@ class Ntfy(WebHook):
     """Notifier for Ntfy"""
 
     def __init__(self, config: Config):
+        super().__init__(config)
         self.enabled = config.ntfy.get("enabled", False)
         self.server = config.ntfy.get("server", "https://ntfy.sh")
         self.topic = config.ntfy.get("topic")
@@ -51,7 +52,7 @@ class Ntfy(WebHook):
             except MaskConfigurationError as exc:
                 raise NtfyConfigurationError(exc.message) from exc
 
-    def _send(self, item: Item) -> None:
+    def _send_item(self, item: Item) -> None:
         """Sends item information via configured Ntfy endpoint"""
         title = item.unmask(self.title).encode("utf-8")
         message = item.unmask(self.message).encode("utf-8")
@@ -64,8 +65,8 @@ class Ntfy(WebHook):
             "X-Tags": tags,
             "X-Click": click
         }
-        super()._send(item)
-        
+        super()._send_item(item)
+
     def _send_order(self, order: Order) -> None:
         """Send Order information"""
 

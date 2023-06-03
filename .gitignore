@@ -8,6 +8,7 @@ dist
 .coverage
 coverage.xml
 .pytest_cache
+.editorconfig
 
 .env
 config.ini

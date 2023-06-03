@@ -11,6 +11,7 @@ class Console(Notifier):
     """Notifier for the console output"""
 
     def __init__(self, config: Config):
+        super().__init__(config)
         self.enabled = config.console.get("enabled", False)
         self.body = config.console.get("body")
         self.cron = config.console.get("cron")
@@ -21,10 +22,10 @@ class Console(Notifier):
             except MaskConfigurationError as exc:
                 raise ConsoleConfigurationError(exc.message) from exc
 
-    def _send(self, item: Item) -> None:
+    def _send_item(self, item: Item) -> None:
         message = item.unmask(self.body)
         print(message)
-        
+
     def _send_order(self, order: Order) -> None:
         """Send Order information"""
 

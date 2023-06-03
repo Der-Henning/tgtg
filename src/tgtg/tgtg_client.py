@@ -82,9 +82,10 @@ class TgtgSession(requests.Session):
             kwargs["headers"] = getattr(self, "headers")
         if "headers" in kwargs and access_token:
             kwargs["headers"]["authorization"] = f"Bearer {access_token}"
-        return super().post(url, **kwargs)  
-    
-    def get(self, url: str, access_token: str = None, **kwargs) -> requests.Response:
+        return super().post(url, **kwargs)
+
+    def get(self, url: str, access_token: str = None,
+            **kwargs) -> requests.Response:
         headers = kwargs.get("headers")
         if headers is None and getattr(self, "headers"):
             kwargs["headers"] = getattr(self, "headers")
@@ -210,20 +211,6 @@ class TgtgClient:
             time.sleep(1)
             return self._post(path, **kwargs)
         raise TgtgAPIError(response.status_code, response.content)
-    
-    def get_active_orders(self) -> List[dict]:
-        """Returns list of all orders.
-
-        Returns:
-            List[Order]: List of all orders
-        """
-        response = self._post(
-            f"{ACTIVE_ORDER_ENDPOINT}",
-            json={"user_id": self.user_id, "origin": None})
-        if response.status_code == HTTPStatus.OK:
-            return response.json().get("orders", [])
-        else:
-            raise TgtgAPIError(response.status_code, response.content)
 
     def _get_user_agent(self) -> str:
         if self.fixed_user_agent:
@@ -329,6 +316,34 @@ class TgtgClient:
                     "startup_data", {}).get("user", {}).get("user_id")
                 return
         raise TgtgPollingError("Max polling retries reached. Try again.")
+
+    def get_active_orders(self, page_size=100, page=1) -> List[dict]:
+        """Returns list of all orders.
+
+        Returns:
+            List[Order]: List of all orders
+        """
+        response = self._post(
+            f"{ACTIVE_ORDER_ENDPOINT}",
+            json={"user_id": self.user_id, "origin": None,
+                  "paging": {"page": page, "size": page_size}})
+        if response.status_code == HTTPStatus.OK:
+            return response.json().get("orders", [])
+        else:
+            raise TgtgAPIError(response.status_code, response.content)
+
+    def get_inactive_orders(self, page_size=20, page=1) -> list[dict]:
+        """
+        Get all orders
+        """
+        response = self._post(
+            f"{INACTIVE_ORDER_ENDPOINT}",
+            json={"user_id": self.user_id, "origin": None,
+                  "paging": {"page": page, "size": page_size}})
+        if response.status_code == HTTPStatus.OK:
+            return response.json().get("orders", [])
+        else:
+            raise TgtgAPIError(response.status_code, response.content)
 
     def get_items(
         self,

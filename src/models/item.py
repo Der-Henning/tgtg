@@ -8,6 +8,8 @@ import requests
 
 from helpers.distance_time_calculator import DistanceTimeCalculator
 from models.errors import MaskConfigurationError
+from shared_variables import (BIKING_MODE, DATETIME_FORMAT, DRIVING_MODE,
+                              PUBLIC_TRANSPORT_MODE, WALKING_MODE)
 
 ATTRS = ["item_id", "items_available", "display_name", "description",
          "price", "currency", "pickupdate", "favorite", "rating",
@@ -70,7 +72,7 @@ class Item():
         """
         Formates datetime string from tgtg api
         """
-        fmt = "%Y-%m-%dT%H:%M:%SZ"
+        fmt = DATETIME_FORMAT
         value = datetime.datetime.strptime(datestr, fmt)
         return value.replace(tzinfo=datetime.timezone.utc).astimezone(tz=None)
 
@@ -139,22 +141,38 @@ class Item():
             return f"{pfr.day}/{pfr.month}, {prange}"
         return "-"
 
-    def get_distance_time(self, mode):
+    def _get_distance_time(self, mode):
         return self.dt_calculator.calculate_distance_time(
             self.pickup_location, mode, self.item_id)
 
     @property
     def walking_dt(self):
-        return self.get_distance_time('walking')
+        return self._get_distance_time(WALKING_MODE)
 
     @property
     def driving_dt(self):
-        return self.get_distance_time('driving')
+        return self._get_distance_time(DRIVING_MODE)
 
     @property
     def transit_dt(self):
-        return self.get_distance_time('transit')
+        return self._get_distance_time(PUBLIC_TRANSPORT_MODE)
 
     @property
     def biking_dt(self):
-        return self.get_distance_time('bicycling')
+        return self._get_distance_time(BIKING_MODE)
+
+    @property
+    def formatted_walking_dt(self):
+        return f'{self.walking_dt} min'
+
+    @property
+    def formatted_driving_dt(self):
+        return f'{self.driving_dt} min'
+
+    @property
+    def formatted_transit_dt(self):
+        return f'{self.transit_dt} min'
+
+    @property
+    def formatted_biking_dt(self):
+        return f'{self.biking_dt} min'

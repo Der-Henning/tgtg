@@ -1,5 +1,6 @@
 import logging
 import sys
+from datetime import datetime, timedelta
 from random import random
 from time import sleep
 from typing import List, NoReturn
@@ -8,8 +9,8 @@ from helpers.distance_time_calculator import DistanceTimeCalculator
 from models import Config, Item, Metrics, Order
 from models.errors import TgtgAPIError
 from notifiers import Notifiers
+from shared_variables import DATETIME_FORMAT
 from tgtg import TgtgClient
-from datetime import datetime
 
 log = logging.getLogger("tgtg")
 
@@ -41,6 +42,12 @@ class Scanner:
             self.config.location.get("gmaps_api_key"),
             self.config.location.get("origin_address"),
         )
+        self.order_notifications_enabled = self.config.notify_ext.get(
+            "enabled")
+        self.timings = self.config.notify_ext.get(
+            "timings")
+
+        self.sent_order_notifications = {}
 
     def _get_test_item(self) -> Item:
         """
@@ -67,12 +74,27 @@ class Scanner:
 
         return items[0]
 
+    def _get_test_order(self) -> Order:
+        """
+        Returns an item for test notifications
+        """
+        orders = self._get_active_orders()
+
+        if orders:
+            return orders[0]
+
+        order = self.tgtg_client.get_inactive_orders()[0]
+
+        if order:
+            return Order(order, self.distance_time_calculator)
+
+        return None
+
     def _job(self) -> None:
         """
-        Job iterates over all monitored items
+        Job iterates over all monitored items (and orders, if enabled)
         """
         items = []
-        orders = []
         for item_id in self.item_ids:
             try:
                 if item_id != "":
@@ -81,12 +103,14 @@ class Scanner:
             except TgtgAPIError as err:
                 log.error(err)
         items += self._get_favorites()
-        orders += self._get_active_orders()
+
         for item in items:
             self._check_item(item)
-            
-        for order in orders:
-            self._check_order(order)
+
+        if self.order_notifications_enabled:
+            orders = self._get_active_orders()
+            for order in orders:
+                self._check_order(order)
 
         log.debug("new State: %s", self.amounts)
 
@@ -113,7 +137,7 @@ class Scanner:
             log.error(err)
             return []
         return [Item(item, self.distance_time_calculator) for item in items]
-    
+
     def _get_active_orders(self):
         """
         Get active orders
@@ -123,7 +147,8 @@ class Scanner:
         except TgtgAPIError as err:
             log.error(err)
             return []
-        return [Order(order) for order in orders]
+        return [Order(order, self.distance_time_calculator)
+                for order in orders]
 
     def _check_item(self, item: Item) -> None:
         """
@@ -145,18 +170,36 @@ class Scanner:
                 item.item_id, item.display_name
             ).inc()
         self.amounts[item.item_id] = item.items_available
-        
+
     def _check_order(self, order: Order) -> None:
         """
-        Checks if the order is ready for pickup and triggers notifications
+        Checks if the order notification timings are reached
+        and triggers notifications
         """
-        if datetime.strptime(order.pickup_interval_start, '%Y-%m-%dT%H:%M:%SZ') > datetime.now():
-            self._send_order_ready(order)
-            # self.metrics.send_notifications.labels(
-            #     order.order_id, order.display_name
-            # ).inc()
-            
-    def _send_order_ready(self, order: Order) -> None:
+        pickup_start = datetime.strptime(order.pickup_interval_start,
+                                         DATETIME_FORMAT) + timedelta(hours=2)
+        pickup_end = datetime.strptime(order.pickup_interval_end,
+                                       DATETIME_FORMAT) + timedelta(hours=2)
+        now = datetime.now()
+
+        for index, timing in enumerate(self.timings):
+            key = timing + order.order_id
+
+            if self.sent_order_notifications.get(key, False):
+                return
+
+            if timing == "1/2":
+                halfway_point = pickup_start + (pickup_end - pickup_start) / 2
+                send_notification = now >= halfway_point
+            else:
+                send_notification = pickup_start <= now + timedelta(
+                    minutes=int(timing))
+
+            if send_notification:
+                self._send_order_ready(order, index)
+                self.sent_order_notifications[key] = True
+
+    def _send_order_ready(self, order: Order, index: int) -> None:
         """
         Send notifications for Order
         """
@@ -165,7 +208,7 @@ class Scanner:
             order.store_name,
             order.order_id,
         )
-        self.notifiers.send_order(order)
+        self.notifiers.send_order(order, index)
 
     def _send_messages(self, item: Item) -> None:
         """
@@ -190,7 +233,9 @@ class Scanner:
                 self.notifiers.notifier_count > 0:
             log.info("Sending test Notifications ...")
             self.notifiers.send(self._get_test_item())
-            
+            if self.order_notifications_enabled:
+                self.notifiers.send_order(self._get_test_order(), 1)
+
         # test tgtg API
         self.tgtg_client.login()
         self.config.save_tokens(
@@ -272,23 +317,20 @@ class Scanner:
                 break
             page += 1
         return items
-    
-    def get_active_orders(self) -> List[dict]:
-        """Returns active orders of the current tgtg account
 
-        Returns:
-            List: List of orders
+    def get_active_orders(self) -> List[dict]:
         """
-        orders = []
+        Returns active orders of the current tgtg account
+        """
         page = 1
         page_size = 100
         while True:
-            new_orders = self.tgtg_client.get_active_orders()
-            orders += new_orders
+            new_orders = self.tgtg_client.get_active_orders(
+                page=page, page_size=page_size)
+            yield from new_orders
             if len(new_orders) < page_size:
                 break
             page += 1
-        return orders
 
     def set_favorite(self, item_id: str) -> None:
         """Add item to favorites.

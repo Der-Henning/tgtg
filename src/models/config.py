@@ -125,9 +125,25 @@ DEFAULT_CONFIG = {
         'Google_Maps_API_Key': '',
         'Origin_Address': '',
     },
-    "notifiers": {
-        "order_ready_notification": False,
-        "order_body": "Your order is ready for pickup at ${{store_name}}",
+    'notify_ext': {
+        'enabled': False,
+        'timings': [130, 5, '1/2'],
+        'body_1': '*${{remaining_cancellation_time}}* minutes left until the '
+        'cancellation window expires\n'
+        '*Store*: ${{store_name}}\n'
+        '*Link*: ${{link}}',
+        'body_2': '*${{remaining_time_until_pickup_start}} minutes* until '
+        'order is ready for pickup!\n'
+        '*Remaining time*: ${{remaining_pickup_time}}\n'
+        '*Location*: ${{store_name}}\n'
+        '*Driving*: ${{driving_ct_with_exceeds}}\n'
+        '*Walking*: ${{walking_ct_with_exceeds}}',
+        'body_3': 'The pickup time is halfway through ${{store_name}}\n\n'
+        '*Remaining time*: ${{remaining_pickup_time}}\n'
+        '*Location*: ${{store_name}}\n'
+        '*Driving*: ${{driving_ct_with_exceeds}}\n'
+        '*Walking*: ${{walking_ct_with_exceeds}}',
+
     }
 }
 
@@ -158,6 +174,7 @@ class Config():
     webhook: dict
     telegram: dict
     location: dict
+    notify_ext: dict
 
     def __init__(self, file: str = None):
         self.file = Path(file) if file is not None else None
@@ -381,6 +398,18 @@ class Config():
                 "Google_Maps_API_Key", "location.gmaps_api_key"
             )
 
+            self._ini_get_boolean(config,
+                                  "NOTIFY_EXT", "enabled",
+                                  "notify_ext.enabled")
+            self._ini_get_array(config, "NOTIFY_EXT", "timings",
+                                "notify_ext.timings")
+            self._ini_get(config, "NOTIFY_EXT", "body_1",
+                          "notify_ext.body_1")
+            self._ini_get(config, "NOTIFY_EXT", "body_2",
+                          "notify_ext.body_2")
+            self._ini_get(config, "NOTIFY_EXT", "body_3",
+                          "notify_ext.body_3")
+
         except ValueError as err:
             raise ConfigurationError(err) from err
 
@@ -514,6 +543,12 @@ class Config():
             self._env_get("LOCATION_GOOGLE_MAPS_API_KEY",
                           "location.gmaps_api_key")
             self._env_get("LOCATION_ADDRESS", "location.origin_address")
+
+            self._env_get_boolean("NOTIFY_EXT_ENABLED", "notify_ext.enabled")
+            self._ini_get_array("NOTIFY_EXT_TIMINGS", "notify_ext.timings")
+            self._ini_get("NOTIFY_EXT_BODY_1", "notify_ext.body_1")
+            self._ini_get("NOTIFY_EXT_BODY_2", "notify_ext.body_2")
+            self._ini_get("NOTIFY_EXT_BODY_3", "notify_ext.body_3")
         except ValueError as err:
             raise ConfigurationError(err) from err
 

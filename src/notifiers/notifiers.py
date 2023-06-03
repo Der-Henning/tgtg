@@ -56,19 +56,19 @@ class Notifiers:
         """
         for notifier in self._enabled_notifiers:
             try:
-                notifier.send(item)
+                notifier.send_item(item)
             except Exception as exc:
                 log.error("Failed sending %s: %s", notifier, exc)
-                
+
     def stop(self) -> None:
         """Stop all notifiers"""
         for notifier in self._notifiers:
             try:
                 notifier.stop()
             except Exception as exc:
-                log.warning("Error stopping %s - %s", notifier, exc)            
-    
-    def send_order(self, order: Order) -> None:
+                log.warning("Error stopping %s - %s", notifier, exc)
+
+    def send_order(self, order: Order, index: int) -> None:
         """Send notifications on all enabled notifiers.
 
         Args:
@@ -76,6 +76,6 @@ class Notifiers:
         """
         for notifier in self._enabled_notifiers:
             try:
-                notifier.send_order(order)
+                notifier.send_order(order, index)
             except Exception as exc:
-                log.error("Failed sending %s: %s", notifier, exc)        
+                log.error("Failed sending %s: %s", notifier, exc)
