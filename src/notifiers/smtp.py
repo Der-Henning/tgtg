@@ -17,7 +17,7 @@ class SMTP(Notifier):
     """
 
     def __init__(self, config: Config):
-        super().__init__(config)
+        Notifier.__init__(self, config)
         self.server = None
         self.debug = config.debug
         self.enabled = config.smtp.get("enabled", False)
@@ -99,7 +99,7 @@ class SMTP(Notifier):
             item.unmask(self.body)
         )
 
-    def _send_order(self, order: Order) -> None:
+    def _send_order(self, order: Order, message_body: str) -> None:
         """Send Order information"""
 
     def __repr__(self) -> str:

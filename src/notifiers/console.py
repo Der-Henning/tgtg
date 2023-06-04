@@ -11,7 +11,7 @@ class Console(Notifier):
     """Notifier for the console output"""
 
     def __init__(self, config: Config):
-        super().__init__(config)
+        Notifier.__init__(self, config)
         self.enabled = config.console.get("enabled", False)
         self.body = config.console.get("body")
         self.cron = config.console.get("cron")
@@ -26,7 +26,7 @@ class Console(Notifier):
         message = item.unmask(self.body)
         print(message)
 
-    def _send_order(self, order: Order) -> None:
+    def _send_order(self, order: Order, message_body: str) -> None:
         """Send Order information"""
 
     def __repr__(self) -> str:

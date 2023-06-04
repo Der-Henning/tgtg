@@ -73,8 +73,8 @@ class Location:
                 directions["rows"][0]["elements"][0]["duration_in_traffic"]
                 ["value"], travel_mode)
         else:
-            log.debug(f"Sending Google Maps API request: {destination} using' \
-                      '{travel_mode} mode")
+            log.debug(f"Sending Google Maps API request: "
+                      f"{destination} using {travel_mode} mode")
 
             # Use cached value if available
             if key in self.distancetime_dict:

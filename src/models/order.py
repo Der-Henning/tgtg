@@ -6,7 +6,7 @@ import humanize
 
 from models.errors import MaskConfigurationError
 from models.location import DistanceTime, Location
-from shared_variables import DATETIME_FORMAT
+from shared import DATETIME_FORMAT
 
 ATTRS = [
     "order_id", "state", "cancel_until", "redeem_interval_start",

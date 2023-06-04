@@ -9,7 +9,7 @@ import requests
 
 from models.errors import MaskConfigurationError
 from models.location import DistanceTime, Location
-from shared_variables import DATETIME_FORMAT
+from shared import DATETIME_FORMAT
 
 ATTRS = ["item_id", "items_available", "display_name", "description",
          "price", "currency", "pickupdate", "favorite", "rating",

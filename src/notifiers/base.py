@@ -57,7 +57,7 @@ class Notifier(ABC):
         pass
 
     @abstractmethod
-    def _send_order(self, order: Order, message: str) -> None:
+    def _send_order(self, order: Order, message_body: str) -> None:
         """Send Order information"""
 
     def stop(self) -> None:

@@ -89,6 +89,7 @@ class Notifiers:
 
         Args:
             order (Order): Order information to send
+            index (int): Message index (body_1, body_2, body_3)
         """
         for notifier in self._enabled_notifiers:
             try:

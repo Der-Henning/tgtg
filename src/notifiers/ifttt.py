@@ -15,7 +15,7 @@ class IFTTT(WebHook):
     """
 
     def __init__(self, config: Config):
-        super().__init__(config)
+        WebHook.__init__(self, config)
         self.enabled = config.ifttt.get("enabled", False)
         self.event = config.ifttt.get("event")
         self.key = config.ifttt.get("key")
@@ -37,7 +37,7 @@ class IFTTT(WebHook):
             except MaskConfigurationError as exc:
                 raise IFTTTConfigurationError(exc.message) from exc
 
-    def _send_order(self, order: Order) -> None:
+    def _send_order(self, order: Order, message_body: str) -> None:
         """Send Order information"""
 
     def __repr__(self) -> str:

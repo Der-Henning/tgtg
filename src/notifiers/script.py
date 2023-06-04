@@ -13,7 +13,7 @@ class Script(Notifier):
     """Notifier for the script output"""
 
     def __init__(self, config: Config):
-        super().__init__(config)
+        Notifier.__init__(self, config)
         self.enabled = config.script.get("enabled", False)
         self.command = config.script.get("command")
         self.cron = config.script.get("cron")
@@ -30,8 +30,8 @@ class Script(Notifier):
         args = [item.unmask(arg) for arg in self.command.split()]
         subprocess.Popen(args)
 
-    def _send_order(self, order: Order, message: str) -> None:
-        return
+    def _send_order(self, order: Order, message_body: str) -> None:
+        """Send Order information"""
 
     def __repr__(self) -> str:
         return f"Shell script: {self.command}"

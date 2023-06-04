@@ -15,6 +15,7 @@ class WebHook(Notifier):
     """Notifier for custom Webhooks"""
 
     def __init__(self, config: Config):
+        Notifier.__init__(self, config)
         self.enabled = config.webhook.get("enabled", False)
         self.method = config.webhook.get("method")
         self.url = config.webhook.get("url")
@@ -66,7 +67,7 @@ class WebHook(Notifier):
                       self.name, res.status_code)
             log.debug("%s Response content: %s", self.name, res.text)
 
-    def _send_order(self, order: Order) -> None:
+    def _send_order(self, order: Order, message_body: str) -> None:
         """Send Order information"""
 
     def __repr__(self) -> str:

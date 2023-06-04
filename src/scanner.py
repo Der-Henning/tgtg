@@ -8,7 +8,7 @@ from typing import Dict, List, NoReturn
 from models import Config, Item, Location, Metrics, Order, Reservations
 from models.errors import TgtgAPIError
 from notifiers import Notifiers
-from shared_variables import DATETIME_FORMAT
+from shared import DATETIME_FORMAT
 from tgtg import TgtgClient
 
 log = logging.getLogger("tgtg")
@@ -38,16 +38,10 @@ class Scanner:
             datadome_cookie=self.config.tgtg.get("datadome")
         )
         self.reservations = Reservations(self.tgtg_client)
-        self.location = Location(
-            self.config.location.get("enabled"),
-            self.config.location.get("gmaps_api_key"),
-            self.config.location.get("origin_address"),
-        )
         self.order_notifications_enabled = self.config.notify_ext.get(
             "enabled")
         self.timings = self.config.notify_ext.get(
             "timings")
-
         self.sent_order_notifications = {}
 
     def _get_test_item(self) -> Item:
@@ -231,17 +225,6 @@ class Scanner:
         """
         Main Loop of the Scanner
         """
-        # activate and test notifiers
-        if self.config.metrics:
-            self.metrics.enable_metrics()
-        self.notifiers = Notifiers(self.config, self.reservations)
-        if not self.config.disable_tests and \
-                self.notifiers.notifier_count > 0:
-            log.info("Sending test Notifications ...")
-            self.notifiers.send_item(self._get_test_item())
-            if self.order_notifications_enabled:
-                self.notifiers.send_order(self._get_test_order(), 0)
-
         # test tgtg API
         self.tgtg_client.login()
         self.config.save_tokens(
@@ -256,6 +239,17 @@ class Scanner:
             self.config.location.get("gmaps_api_key"),
             self.config.location.get("origin_address"),
         )
+        # activate and test notifiers
+        if self.config.metrics:
+            self.metrics.enable_metrics()
+        self.notifiers = Notifiers(self.config, self.reservations)
+        if not self.config.disable_tests and \
+                self.notifiers.notifier_count > 0:
+            log.info("Sending test Notifications ...")
+            self.notifiers.send_item(self._get_test_item())
+            if self.order_notifications_enabled:
+                self.notifiers.send_order(self._get_test_order(), 0)
+
         # start scanner
         log.info("Scanner started ...")
         running = True

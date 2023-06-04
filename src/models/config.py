@@ -150,7 +150,7 @@ DEFAULT_CONFIG = {
         'enabled': False,
         'command': '',
         'cron': Cron('* * * * *')
-    },
+    }
 }
 
 
@@ -421,17 +421,13 @@ class Config():
                 "Google_Maps_API_Key", "location.gmaps_api_key"
             )
 
-            self._ini_get_boolean(config,
-                                  "NOTIFY_EXT", "enabled",
+            self._ini_get_boolean(config, "NOTIFY_EXT", "enabled",
                                   "notify_ext.enabled")
             self._ini_get_array(config, "NOTIFY_EXT", "timings",
                                 "notify_ext.timings")
-            self._ini_get(config, "NOTIFY_EXT", "body_1",
-                          "notify_ext.body_1")
-            self._ini_get(config, "NOTIFY_EXT", "body_2",
-                          "notify_ext.body_2")
-            self._ini_get(config, "NOTIFY_EXT", "body_3",
-                          "notify_ext.body_3")
+            self._ini_get(config, "NOTIFY_EXT", "body_1", "notify_ext.body_1")
+            self._ini_get(config, "NOTIFY_EXT", "body_2", "notify_ext.body_2")
+            self._ini_get(config, "NOTIFY_EXT", "body_3", "notify_ext.body_3")
         except ValueError as err:
             raise ConfigurationError(err) from err
 

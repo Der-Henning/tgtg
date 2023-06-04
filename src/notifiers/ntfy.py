@@ -13,7 +13,7 @@ class Ntfy(WebHook):
     """Notifier for Ntfy"""
 
     def __init__(self, config: Config):
-        super().__init__(config)
+        WebHook.__init__(self, config)
         self.enabled = config.ntfy.get("enabled", False)
         self.server = config.ntfy.get("server", "https://ntfy.sh")
         self.topic = config.ntfy.get("topic")
@@ -67,7 +67,7 @@ class Ntfy(WebHook):
         }
         super()._send_item(item)
 
-    def _send_order(self, order: Order) -> None:
+    def _send_order(self, order: Order, message_body: str) -> None:
         """Send Order information"""
 
     def __repr__(self) -> str:

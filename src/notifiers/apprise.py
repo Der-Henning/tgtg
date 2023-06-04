@@ -17,7 +17,7 @@ class Apprise(Notifier):
     """
 
     def __init__(self, config: Config):
-        super().__init__(config)
+        Notifier.__init__(self, config)
         self.enabled = config.apprise.get("enabled", False)
         self.title = config.apprise.get("title")
         self.body = config.apprise.get("body")
@@ -48,7 +48,7 @@ class Apprise(Notifier):
         apobj.notify(title=title, body=body)
         apobj.clear()
 
-    def _send_order(self, order: Order) -> None:
+    def _send_order(self, order: Order, message_body: str) -> None:
         """Send Order information"""
 
     def __repr__(self) -> str:
