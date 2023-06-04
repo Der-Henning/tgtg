@@ -172,7 +172,8 @@ class Scanner:
         log.info("Scanner started ...")
         running = True
         if self.cron.cron != "* * * * *":
-            log.info("Active on schedule: %s", self.cron.description)
+            log.info("Active on schedule: %s",
+                     self.cron.get_description(self.config.locale))
         while True:
             if self.cron.is_now:
                 if not running:
