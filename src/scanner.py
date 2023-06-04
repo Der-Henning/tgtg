@@ -5,8 +5,7 @@ from random import random
 from time import sleep
 from typing import Dict, List, NoReturn
 
-from helpers.distance_time_calculator import DistanceTimeCalculator
-from models import Config, Item, Location, Metrics, Reservations, Order
+from models import Config, Item, Location, Metrics, Order, Reservations
 from models.errors import TgtgAPIError
 from notifiers import Notifiers
 from shared_variables import DATETIME_FORMAT
@@ -38,7 +37,8 @@ class Scanner:
             user_id=self.config.tgtg.get("user_id"),
             datadome_cookie=self.config.tgtg.get("datadome")
         )
-        self.distance_time_calculator = DistanceTimeCalculator(
+        self.reservations = Reservations(self.tgtg_client)
+        self.location = Location(
             self.config.location.get("enabled"),
             self.config.location.get("gmaps_api_key"),
             self.config.location.get("origin_address"),
@@ -62,7 +62,7 @@ class Scanner:
             return items[0]
         items = sorted(
             [
-                Item(item, self.distance_time_calculator)
+                Item(item, self.location)
                 for item in self.tgtg_client.get_items(
                     favorites_only=False,
                     latitude=53.5511,
@@ -87,7 +87,7 @@ class Scanner:
         order = self.tgtg_client.get_inactive_orders()[0]
 
         if order:
-            return Order(order, self.distance_time_calculator)
+            return Order(order, self.location)
 
         return None
 
@@ -100,7 +100,7 @@ class Scanner:
             try:
                 if item_id != "":
                     item = self.tgtg_client.get_item(item_id)
-                    items.append(Item(item, self.distance_time_calculator))
+                    items.append(Item(item, self.location))
                     item = self.tgtg_client.get_item(item_id)
                     items.append(Item(item, self.location))
             except TgtgAPIError as err:
@@ -145,7 +145,7 @@ class Scanner:
         except TgtgAPIError as err:
             log.error(err)
             return []
-        return [Item(item, self.distance_time_calculator) for item in items]
+        return [Item(item, self.location) for item in items]
         return [Item(item, self.location) for item in items]
 
     def _get_active_orders(self):
@@ -157,7 +157,7 @@ class Scanner:
         except TgtgAPIError as err:
             log.error(err)
             return []
-        return [Order(order, self.distance_time_calculator)
+        return [Order(order, self.location)
                 for order in orders]
 
     def _check_item(self, item: Item) -> None:
@@ -186,10 +186,10 @@ class Scanner:
         Checks if the order notification timings are reached
         and triggers notifications
         """
-        pickup_start = datetime.strptime(order.pickup_interval_start,
-                                         DATETIME_FORMAT) + timedelta(hours=2)
-        pickup_end = datetime.strptime(order.pickup_interval_end,
-                                       DATETIME_FORMAT) + timedelta(hours=2)
+        pickup_start = datetime.strptime(
+            order.pickup_interval_start, DATETIME_FORMAT) + timedelta(hours=2)
+        pickup_end = datetime.strptime(
+            order.pickup_interval_end, DATETIME_FORMAT) + timedelta(hours=2)
         now = datetime.now()
 
         for index, timing in enumerate(self.timings):
@@ -213,11 +213,7 @@ class Scanner:
         """
         Send notifications for Order
         """
-        log.info(
-            "Sending notifications for %s - %s is ready for pickup",
-            order.store_name,
-            order.order_id,
-        )
+        log.info("Sending order notification for %s", order.store_name)
         self.notifiers.send_order(order, index)
 
     def _send_messages(self, item: Item) -> None:
@@ -229,7 +225,7 @@ class Scanner:
             item.display_name,
             item.items_available,
         )
-        self.notifiers.send(item)
+        self.notifiers.send_item(item)
 
     def run(self) -> NoReturn:
         """
@@ -238,13 +234,13 @@ class Scanner:
         # activate and test notifiers
         if self.config.metrics:
             self.metrics.enable_metrics()
-        self.notifiers = Notifiers(self.config)
+        self.notifiers = Notifiers(self.config, self.reservations)
         if not self.config.disable_tests and \
                 self.notifiers.notifier_count > 0:
             log.info("Sending test Notifications ...")
-            self.notifiers.send(self._get_test_item())
+            self.notifiers.send_item(self._get_test_item())
             if self.order_notifications_enabled:
-                self.notifiers.send_order(self._get_test_order(), 1)
+                self.notifiers.send_order(self._get_test_order(), 0)
 
         # test tgtg API
         self.tgtg_client.login()
@@ -260,14 +256,6 @@ class Scanner:
             self.config.location.get("gmaps_api_key"),
             self.config.location.get("origin_address"),
         )
-        # activate and test notifiers
-        if self.config.metrics:
-            self.metrics.enable_metrics()
-        self.notifiers = Notifiers(self.config, self.reservations)
-        if not self.config.disable_tests and \
-                self.notifiers.notifier_count > 0:
-            log.info("Sending test Notifications ...")
-            self.notifiers.send(self._get_test_item())
         # start scanner
         log.info("Scanner started ...")
         running = True

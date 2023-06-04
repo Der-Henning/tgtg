@@ -2,6 +2,7 @@ import datetime
 import logging
 import random
 from time import sleep
+from typing import Any
 
 from telegram import (InlineKeyboardButton, InlineKeyboardMarkup, ParseMode,
                       Update)
@@ -11,7 +12,7 @@ from telegram.ext import (CallbackContext, CallbackQueryHandler,
                           CommandHandler, Updater)
 from telegram.utils.helpers import escape_markdown
 
-from models import Config, Item, Reservations, Order
+from models import Config, Item, Order, Reservations
 from models.errors import MaskConfigurationError, TelegramConfigurationError
 from models.reservations import Reservation
 from notifiers.base import Notifier
@@ -82,24 +83,22 @@ class Telegram(Notifier):
             if not self.disable_commands:
                 self.updater.start_polling()
 
-    def _unmask(self, text: str, item: Item) -> str:
-        if text in ["${{item_logo_bytes}}", "${{item_cover_bytes}}"]:
-            matches = item._get_variables(text)
-            return getattr(item, matches[0].group(1))
-        for match in item._get_variables(text):
-            if hasattr(item, match.group(1)):
-                val = str(getattr(item, match.group(1)))
+    def _unmask(self, text: str, obj: Any) -> str:
+        if text in ["${{item_logo_bytes}}", "${{item_cover_bytes}}",
+                    "${{cancellation_remaining}}",
+                    "${{pickup_start_remaining}}",
+                    "${{pickup_remaining}}"]:
+            matches = obj._get_variables(text)
+            return getattr(obj, matches[0].group(1))
+        for match in obj._get_variables(text):
+            if hasattr(obj, match.group(1)):
+                val = str(getattr(obj, match.group(1)))
                 val = escape_markdown(val, version=2)
                 text = text.replace(match.group(0), val)
         return text
 
-    def _send(self, item: Item) -> None:
+    def _send_item(self, item: Item) -> None:
         """Send item information as Telegram message"""
-        if self.mute and self.mute > datetime.datetime.now():
-            return
-        if self.mute:
-            log.info("Reactivated Telegram Notifications")
-            self.mute = None
         message = self._unmask(self.body, item)
         image = None
         if self.image:
@@ -111,7 +110,16 @@ class Telegram(Notifier):
         message = f"{display_name} is reserved for 5 minutes!"
         self._send_message(message)
 
+    def _send_order(self, order: Order, message_body: str) -> None:
+        if self.enabled_notify_ext:
+            self._send_message(self._unmask(message_body, order))
+
     def _send_message(self, message: str, image: bytes = None) -> None:
+        if self.mute and self.mute > datetime.now():
+            return
+        if self.mute:
+            log.info("Reactivated Telegram Notifications")
+            self.mute = None
         log.debug("%s message: %s", self.name, message)
         fmt = ParseMode.MARKDOWN_V2
         for chat_id in self.chat_ids:
@@ -148,11 +156,6 @@ class Telegram(Notifier):
                 self._send_message(message)
             except TelegramError as err:
                 log.error('Telegram Error: %s', err)
-
-    def _send_reservation(self, reservation: Reservation) -> None:
-        display_name = escape_markdown(reservation.display_name, version=2)
-        message = f"{display_name} is reserved for 5 minutes!"
-        self._send_message(message)
 
     def _mute(self, update: Update, context: CallbackContext) -> None:
         """Deactivates Telegram Notifications for x days"""

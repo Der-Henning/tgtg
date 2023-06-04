@@ -7,11 +7,9 @@ from typing import Any, Union
 import humanize
 import requests
 
-from helpers.distance_time_calculator import DistanceTimeCalculator
 from models.errors import MaskConfigurationError
 from models.location import DistanceTime, Location
-from shared_variables import (BIKING_MODE, DATETIME_FORMAT, DRIVING_MODE,
-                              PUBLIC_TRANSPORT_MODE, WALKING_MODE)
+from shared_variables import DATETIME_FORMAT
 
 ATTRS = ["item_id", "items_available", "display_name", "description",
          "price", "currency", "pickupdate", "favorite", "rating",
@@ -156,7 +154,7 @@ class Item():
         if self.location is None:
             return None
         return self.location.calculate_distance_time(
-            self.pickup_location, travel_mode)
+            self.pickup_location, travel_mode, False)
 
     def _get_distance(self, travel_mode: str) -> str:
         distance_time = self._get_distance_time(travel_mode)

@@ -1,10 +1,12 @@
+import datetime
 import re
-from datetime import datetime, timedelta
+from typing import Any, Union
 
-from helpers.distance_time_calculator import DistanceTimeCalculator
+import humanize
+
 from models.errors import MaskConfigurationError
-from shared_variables import (BIKING_MODE, DATETIME_FORMAT, DRIVING_MODE,
-                              PUBLIC_TRANSPORT_MODE, WALKING_MODE)
+from models.location import DistanceTime, Location
+from shared_variables import DATETIME_FORMAT
 
 ATTRS = [
     "order_id", "state", "cancel_until", "redeem_interval_start",
@@ -24,17 +26,21 @@ ATTRS = [
     "item_cover_image_is_automatically_created", "is_buffet",
     "can_user_supply_packaging", "packaging_option", "pickup_window_changed",
     "is_store_we_care", "can_show_best_before_explainer", "show_sales_taxes",
-    "order_type", "is_support_available", "last_updated_at_utc"
+    "order_type", "is_support_available", "last_updated_at_utc",
+    "duration_driving", "duration_walking", "duration_bicycling",
+    "duration_transit", "distance_driving", "distance_walking",
+    "distance_bicycling", "distance_transit", "pickup_remaining",
+    "cancellation_remaining", "pickup_start_remaining"
 ]
 
 
-class Order:
+class Order():
     """
     Takes the raw data from the TGTG API and
     returns well formated data for notifications.
     """
 
-    def __init__(self, data: dict, dt_calculator: DistanceTimeCalculator):
+    def __init__(self, data: dict, location: Location):
         self.order_id = data.get("order_id")
         self.state = data.get("state")
         self.cancel_until = data.get("cancel_until")
@@ -118,8 +124,7 @@ class Order:
         self.order_type = data.get("order_type")
         self.is_support_available = data.get("is_support_available")
         self.last_updated_at_utc = data.get("last_updated_at_utc")
-
-        self.dt_calculator = dt_calculator
+        self.location = location
 
     @staticmethod
     def check_mask(text: str) -> None:
@@ -145,88 +150,63 @@ class Order:
                 text = text.replace(match.group(0), str(val))
         return text
 
-    @property
-    def remaining_pickup_time(self):
-        pickup_interval_end = datetime.strptime(self.pickup_interval_end,
-                                                DATETIME_FORMAT)
-        return int((pickup_interval_end + timedelta(hours=2) - datetime.now()
-                    ).total_seconds() // 60)
+    def _get_variables(self, text: str) -> list[re.Match]:
+        """
+        Returns a list of all variables in the provided string
+        """
+        return list(re.finditer(r"\${{([a-zA-Z0-9_]+)}}", text))
+
+    def _calculate_remaining_time(self, target_time: str) -> int:
+        target = datetime.datetime.strptime(target_time, DATETIME_FORMAT)
+        remaining_time = (target + datetime.timedelta(hours=2) -
+                          datetime.datetime.now()).total_seconds() // 60
+        return max(0, int(remaining_time))
 
     @property
-    def remaining_cancellation_time(self):
-        cancel_until = datetime.strptime(self.cancel_until,
-                                         DATETIME_FORMAT)
-        return int((cancel_until + timedelta(hours=2) - datetime.now()
-                    ).total_seconds() // 60)
+    def pickup_remaining(self):
+        return self._calculate_remaining_time(self.pickup_interval_end)
 
     @property
-    def remaining_time_until_pickup_start(self):
-        pickup_interval_start = datetime.strptime(self.pickup_interval_start,
-                                                  DATETIME_FORMAT)
-        return int((pickup_interval_start + timedelta(hours=2) - datetime.now()
-                    ).total_seconds() // 60)
+    def cancellation_remaining(self):
+        return self._calculate_remaining_time(self.cancel_until)
+
+    @property
+    def pickup_start_remaining(self):
+        return self._calculate_remaining_time(self.pickup_interval_start)
 
     @property
     def link(self) -> str:
         return f"https://share.toogoodtogo.com/item/{self.item_id}"
 
-    def _get_distance_time_with_traffic(self, mode):
-        return self.dt_calculator.calculate_time_with_traffic(
-            self.pickup_location, mode, self.item_id)
+    def _get_distance(self, travel_mode: str) -> str:
+        distance_time = self._get_distance_time(travel_mode)
+        if distance_time is None:
+            return 'n/a'
+        return f"{distance_time.distance / 1000:.1f} km"
 
-    @property
-    def driving_ct(self) -> int:
-        return self._get_distance_time_with_traffic(DRIVING_MODE)
+    def _get_duration(self, travel_mode: str) -> str:
+        distance_time = self._get_distance_time(travel_mode)
+        if distance_time is None:
+            return 'n/a'
+        return humanize.precisedelta(
+            datetime.timedelta(seconds=distance_time.duration),
+            minimum_unit="minutes", format="%0.0f")
 
-    @property
-    def walking_ct(self) -> int:
-        return self._get_distance_time_with_traffic(WALKING_MODE)
+    def _get_distance_time(self, travel_mode: str
+                           ) -> Union[DistanceTime, None]:
+        if self.location is None:
+            return None
+        return self.location.calculate_distance_time(
+            self.pickup_location, travel_mode, True)
 
-    @property
-    def biking_ct(self) -> int:
-        return self._get_distance_time_with_traffic(BIKING_MODE)
-
-    @property
-    def transit_ct(self) -> int:
-        return self._get_distance_time_with_traffic(PUBLIC_TRANSPORT_MODE)
-
-    @property
-    def formatted_driving_ct(self) -> str:
-        return f'{self.driving_ct} min'
-
-    @property
-    def formatted_walking_ct(self) -> str:
-        return f'{self.walking_ct} min'
-
-    @property
-    def formatted_biking_ct(self) -> str:
-        return f'{self.biking_ct} min'
-
-    @property
-    def formatted_transit_ct(self) -> str:
-        return f'{self.transit_ct} min'
-
-    def _exceeds_pickup_time_by(self, ct) -> int:
-        return self.remaining_pickup_time - ct
-
-    def _get_ct_with_exceeds(self, ct):
-        exceeds_by = self._exceeds_pickup_time_by(ct)
-        if exceeds_by > 0:
-            return f'{ct} min'
-        return f'{ct} min - ({exceeds_by} min too late)'
-
-    @property
-    def driving_ct_with_exceeds(self) -> str:
-        return self._get_ct_with_exceeds(self.driving_ct)
-
-    @property
-    def walking_ct_with_exceeds(self) -> str:
-        return self._get_ct_with_exceeds(self.walking_ct)
-
-    @property
-    def biking_ct_with_exceeds(self) -> str:
-        return self._get_ct_with_exceeds(self.biking_ct)
-
-    @property
-    def transit_ct_with_exceeds(self) -> str:
-        return self._get_ct_with_exceeds(self.transit_ct)
+    def __getattribute__(self, __name: str) -> Any:
+        try:
+            return super().__getattribute__(__name)
+        except AttributeError:
+            if __name in ATTRS and __name.startswith(("distance", "duration")):
+                _type, _mode = __name.split("_")
+                if _type == "distance":
+                    return self._get_distance(_mode)
+                if _type == "duration":
+                    return self._get_duration(_mode)
+            raise

@@ -1,7 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 
-from models import Config, Cron, Item, Order
+from models import Config, Item, Order
 from models.reservations import Reservation
 
 log = logging.getLogger('tgtg')
@@ -12,8 +12,8 @@ class Notifier(ABC):
     enabled_notify_ext = None
 
     def __init__(self, config: Config):
-        # only on first run of any notifier
         self.enabled_notify_ext = config.notify_ext.get("enabled")
+        # only on first run of any notifier
         if self.messages == []:
             self.messages.append(config.notify_ext.get("body_1"))
             self.messages.append(config.notify_ext.get("body_2"))

@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-from models import Config, Item, Reservations, Order
+from models import Config, Item, Order, Reservations
 from models.reservations import Reservation
 from notifiers.apprise import Apprise
 from notifiers.base import Notifier
@@ -60,18 +60,6 @@ class Notifiers:
         for notifier in self._enabled_notifiers:
             try:
                 notifier.send_item(item)
-            except Exception as exc:
-                log.error("Failed sending %s: %s", notifier, exc)
-
-    def send_reservation(self, reservation: Reservation) -> None:
-        """Send notification for new reservation
-
-        Args:
-            reservation (Reservation): New reservation
-        """
-        for notifier in self._enabled_notifiers:
-            try:
-                notifier.send_reservation(reservation)
             except Exception as exc:
                 log.error("Failed sending %s: %s", notifier, exc)
 
