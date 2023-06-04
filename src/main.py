@@ -147,18 +147,19 @@ def main() -> NoReturn:
     log = logging.getLogger("tgtg")
     log.setLevel(logging.INFO)
 
-    # Load config
-    config = Config(config_file) if Path(config_file).is_file() else Config()
-
-    # Activate debugging mode
-    if args.debug:
-        config.debug = True
-    if config.debug:
-        for logger_name in logging.root.manager.loggerDict:
-            logging.getLogger(logger_name).setLevel(logging.DEBUG)
-        log.info("Debugging mode enabled")
-
     try:
+        # Load config
+        config = (Config(config_file) if Path(config_file).is_file()
+                  else Config())
+
+        # Activate debugging mode
+        if args.debug:
+            config.debug = True
+        if config.debug:
+            for logger_name in logging.root.manager.loggerDict:
+                logging.getLogger(logger_name).setLevel(logging.DEBUG)
+            log.info("Debugging mode enabled")
+
         scanner = Scanner(config)
         if args.tokens:
             credentials = scanner.get_credentials()

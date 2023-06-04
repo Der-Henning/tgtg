@@ -163,7 +163,7 @@ class Config():
 
     item_ids: list
     sleep_time: int
-    schedule_cron: str
+    schedule_cron: Cron
     debug: bool
     locale: str
     metrics: bool

@@ -36,7 +36,8 @@ class Notifiers:
         for notifier in self._enabled_notifiers:
             log.info("- %s", notifier)
             if notifier.cron.cron != "* * * * *":
-                log.info("  Schedule: %s", notifier.cron.description)
+                log.info("  Schedule: %s",
+                         notifier.cron.get_description(config.locale))
 
     @property
     def _enabled_notifiers(self) -> List[Notifier]:
