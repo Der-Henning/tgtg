@@ -67,7 +67,7 @@ class WebHook(Notifier):
                       self.name, res.status_code)
             log.debug("%s Response content: %s", self.name, res.text)
 
-    def _send_order(self, order: Order, message_body: str) -> None:
+    def _send_order(self, order: Order) -> None:
         """Send Order information"""
 
     def __repr__(self) -> str:

@@ -48,7 +48,7 @@ class Apprise(Notifier):
         apobj.notify(title=title, body=body)
         apobj.clear()
 
-    def _send_order(self, order: Order, message_body: str) -> None:
+    def _send_order(self, order: Order) -> None:
         """Send Order information"""
 
     def __repr__(self) -> str:

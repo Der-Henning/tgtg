@@ -1,3 +1,4 @@
+import ast
 import codecs
 import configparser
 import json
@@ -43,22 +44,30 @@ DEFAULT_CONFIG = {
     },
     'notify_ext': {
         'enabled': False,
-        'timings': [130, 5, '1/2'],
-        'body_1': '*${{remaining_cancellation_time}}* minutes left until the '
-        'cancellation window expires\n'
-        '*Store*: ${{store_name}}\n'
-        '*Link*: ${{link}}',
-        'body_2': '*${{remaining_time_until_pickup_start}} minutes* until '
-        'order is ready for pickup!\n'
-        '*Remaining time*: ${{remaining_pickup_time}}\n'
-        '*Location*: ${{store_name}}\n'
-        '*Driving*: ${{driving_ct_with_exceeds}}\n'
-        '*Walking*: ${{walking_ct_with_exceeds}}',
-        'body_3': 'The pickup time is halfway through ${{store_name}}\n\n'
-        '*Remaining time*: ${{remaining_pickup_time}}\n'
-        '*Location*: ${{store_name}}\n'
-        '*Driving*: ${{driving_ct_with_exceeds}}\n'
-        '*Walking*: ${{walking_ct_with_exceeds}}',
+        'notifications': [
+            {
+                'timing': 130,
+                'message': '*${{remaining_cancellation_time}}* minutes left until the cancellation window expires\n'
+                           '*Store*: ${{store_name}}\n'
+                           '*Link*: ${{link}}'
+            },
+            {
+                'timing': 5,
+                'message': '*${{remaining_time_until_pickup_start}} minutes* until order is ready for pickup!\n'
+                           '*Remaining time*: ${{remaining_pickup_time}}\n'
+                           '*Location*: ${{store_name}}\n'
+                           '*Driving*: ${{driving_ct_with_exceeds}}\n'
+                           '*Walking*: ${{walking_ct_with_exceeds}}'
+            },
+            {
+                'timing': '1/2',
+                'message': 'The pickup time is halfway through ${{store_name}}\n\n'
+                           '*Remaining time*: ${{remaining_pickup_time}}\n'
+                           '*Location*: ${{store_name}}\n'
+                           '*Driving*: ${{driving_ct_with_exceeds}}\n'
+                           '*Walking*: ${{walking_ct_with_exceeds}}'
+            }
+        ]
     },
     'apprise': {
         'enabled': False,
@@ -291,6 +300,14 @@ class Config():
             value = config[section].get(key, None)
             if value is not None:
                 self._setattr(attr, Cron(value))
+                    
+    def _ini_get_notifications(self, config: configparser.ConfigParser,
+                            section: str, key: str, attr: str) -> None:
+        if section in config:
+            value = config[section].get(key, None)
+            if value:
+                notifications = ast.literal_eval(value)
+                self._setattr(attr, notifications)
 
     def _read_ini(self) -> None:
         try:
@@ -423,11 +440,8 @@ class Config():
 
             self._ini_get_boolean(config, "NOTIFY_EXT", "enabled",
                                   "notify_ext.enabled")
-            self._ini_get_array(config, "NOTIFY_EXT", "timings",
-                                "notify_ext.timings")
-            self._ini_get(config, "NOTIFY_EXT", "body_1", "notify_ext.body_1")
-            self._ini_get(config, "NOTIFY_EXT", "body_2", "notify_ext.body_2")
-            self._ini_get(config, "NOTIFY_EXT", "body_3", "notify_ext.body_3")
+            self._ini_get_notifications(config, "NOTIFY_EXT", "notifications", 
+                                        "notify_ext.notifications")
         except ValueError as err:
             raise ConfigurationError(err) from err
 
@@ -464,6 +478,13 @@ class Config():
         value = environ.get(key, None)
         if value is not None:
             self._setattr(attr, Cron(value))
+            
+    def _env_get_notifications(self, key: str, attr: str) -> None:
+        value = environ.get(key, None)
+        if value:
+            notifications = ast.literal_eval(value)
+            self._setattr(attr, notifications)
+
 
     def _read_env(self) -> None:
         try:
@@ -570,10 +591,8 @@ class Config():
             self._env_get("LOCATION_ADDRESS", "location.origin_address")
 
             self._env_get_boolean("NOTIFY_EXT_ENABLED", "notify_ext.enabled")
-            self._env_get_array("NOTIFY_EXT_TIMINGS", "notify_ext.timings")
-            self._env_get("NOTIFY_EXT_BODY_1", "notify_ext.body_1")
-            self._env_get("NOTIFY_EXT_BODY_2", "notify_ext.body_2")
-            self._env_get("NOTIFY_EXT_BODY_3", "notify_ext.body_3")
+            self._env_get_notifications("NOTIFY_EXT_NOTIFICATIONS", "notify_ext.notifications")
+
         except ValueError as err:
             raise ConfigurationError(err) from err
 

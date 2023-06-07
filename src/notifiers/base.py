@@ -29,9 +29,9 @@ class Notifier(ABC):
         if self._should_send_notification():
             self._send_item(item)
 
-    def send_order(self, order: Order, index: int) -> None:
+    def send_order(self, order: Order) -> None:
         if self._should_send_notification():
-            self._send_order(order, self.messages[index])
+            self._send_order(order)
 
     def _should_send_notification(self) -> bool:
         if self.enabled and self.cron.is_now:
@@ -57,7 +57,7 @@ class Notifier(ABC):
         pass
 
     @abstractmethod
-    def _send_order(self, order: Order, message_body: str) -> None:
+    def _send_order(self, order: Order) -> None:
         """Send Order information"""
 
     def stop(self) -> None:

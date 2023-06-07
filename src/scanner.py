@@ -40,8 +40,8 @@ class Scanner:
         self.reservations = Reservations(self.tgtg_client)
         self.order_notifications_enabled = self.config.notify_ext.get(
             "enabled")
-        self.timings = self.config.notify_ext.get(
-            "timings")
+        self.notifications = self.config.notify_ext.get(
+            "notifications")
         self.sent_order_notifications = {}
 
     def _get_test_item(self) -> Item:
@@ -73,17 +73,28 @@ class Scanner:
         """
         Returns an item for test notifications
         """
-        orders = self._get_active_orders()
-
-        if orders:
-            return orders[0]
-
-        order = self.tgtg_client.get_inactive_orders()[0]
+        order = self._get_active_orders()[0]
+        
+        if not order:
+            order = self._get_inactive_orders()[0]
 
         if order:
-            return Order(order, self.location)
+            order.notification_message = self.config.notify_ext.get("notifications")[1]["message"]
+            return order
 
         return None
+    
+    def _get_inactive_orders(self):
+        """
+        Get inactive orders
+        """
+        try:
+            orders = self.tgtg_client.get_inactive_orders()
+        except TgtgAPIError as err:
+            log.error(err)
+            return []
+        return [Order(order, self.location)
+                for order in orders]
 
     def _job(self) -> None:
         """
@@ -186,9 +197,11 @@ class Scanner:
             order.pickup_interval_end, DATETIME_FORMAT) + timedelta(hours=2)
         now = datetime.now()
 
-        for index, timing in enumerate(self.timings):
-            key = timing + order.order_id
-
+        for notification in self.notifications:
+            timing = notification["timing"]
+            message = notification['message']
+            key = str(timing) + message
+            
             if self.sent_order_notifications.get(key, False):
                 return
 
@@ -200,15 +213,16 @@ class Scanner:
                     minutes=int(timing))
 
             if send_notification:
-                self._send_order_ready(order, index)
+                order.notification_message = message
+                self._send_order_ready(order)
                 self.sent_order_notifications[key] = True
 
-    def _send_order_ready(self, order: Order, index: int) -> None:
+    def _send_order_ready(self, order: Order) -> None:
         """
         Send notifications for Order
         """
         log.info("Sending order notification for %s", order.store_name)
-        self.notifiers.send_order(order, index)
+        self.notifiers.send_order(order)
 
     def _send_messages(self, item: Item) -> None:
         """
@@ -248,7 +262,7 @@ class Scanner:
             log.info("Sending test Notifications ...")
             self.notifiers.send_item(self._get_test_item())
             if self.order_notifications_enabled:
-                self.notifiers.send_order(self._get_test_order(), 0)
+                self.notifiers.send_order(self._get_test_order())
 
         # start scanner
         log.info("Scanner started ...")

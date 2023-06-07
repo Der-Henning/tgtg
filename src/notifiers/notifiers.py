@@ -84,15 +84,14 @@ class Notifiers:
             except Exception as exc:
                 log.warning("Error stopping %s - %s", notifier, exc)
 
-    def send_order(self, order: Order, index: int) -> None:
+    def send_order(self, order: Order) -> None:
         """Send notifications on all enabled notifiers.
 
         Args:
             order (Order): Order information to send
-            index (int): Message index (body_1, body_2, body_3)
         """
         for notifier in self._enabled_notifiers:
             try:
-                notifier.send_order(order, index)
+                notifier.send_order(order)
             except Exception as exc:
                 log.error("Failed sending %s: %s", notifier, exc)

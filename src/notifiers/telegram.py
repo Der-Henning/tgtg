@@ -110,9 +110,9 @@ class Telegram(Notifier):
         message = f"{display_name} is reserved for 5 minutes!"
         self._send_message(message)
 
-    def _send_order(self, order: Order, message_body: str) -> None:
+    def _send_order(self, order: Order) -> None:
         if self.enabled_notify_ext:
-            self._send_message(self._unmask(message_body, order))
+            self._send_message(self._unmask(order.notification_message, order))
 
     def _send_message(self, message: str, image: bytes = None) -> None:
         if self.mute and self.mute > datetime.now():

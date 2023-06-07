@@ -125,6 +125,8 @@ class Order():
         self.is_support_available = data.get("is_support_available")
         self.last_updated_at_utc = data.get("last_updated_at_utc")
         self.location = location
+        
+        self.notification_message = None
 
     @staticmethod
     def check_mask(text: str) -> None:

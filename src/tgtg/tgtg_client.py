@@ -318,10 +318,7 @@ class TgtgClient:
         raise TgtgPollingError("Max polling retries reached. Try again.")
 
     def get_active_orders(self, page_size=100, page=1) -> List[dict]:
-        """Returns list of all orders.
-
-        Returns:
-            List[Order]: List of all orders
+        """Gets list of all orders (data)
         """
         response = self._post(
             f"{ACTIVE_ORDER_ENDPOINT}",

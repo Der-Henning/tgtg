@@ -67,7 +67,7 @@ class Ntfy(WebHook):
         }
         super()._send_item(item)
 
-    def _send_order(self, order: Order, message_body: str) -> None:
+    def _send_order(self, order: Order) -> None:
         """Send Order information"""
 
     def __repr__(self) -> str:

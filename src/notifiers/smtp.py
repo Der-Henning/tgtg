@@ -99,7 +99,7 @@ class SMTP(Notifier):
             item.unmask(self.body)
         )
 
-    def _send_order(self, order: Order, message_body: str) -> None:
+    def _send_order(self, order: Order) -> None:
         """Send Order information"""
 
     def __repr__(self) -> str:

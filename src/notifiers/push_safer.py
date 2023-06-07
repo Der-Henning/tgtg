@@ -35,7 +35,7 @@ class PushSafer(Notifier):
         self.client.send_message(message, item.display_name,
                                  self.device_id)
 
-    def _send_order(self, order: Order, message_body: str) -> None:
+    def _send_order(self, order: Order) -> None:
         """Send Order information"""
 
     def __repr__(self) -> str:
