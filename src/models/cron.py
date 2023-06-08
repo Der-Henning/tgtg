@@ -10,8 +10,7 @@ log = logging.getLogger('tgtg')
 
 class Cron():
     def __init__(self, cron_str: str = None) -> None:
-        _cron_str = cron_str.strip()
-        self.cron = _cron_str if _cron_str else '* * * * *'
+        self.cron = cron_str.strip() if cron_str else '* * * * *'
         self.options = Options()
         self.options.use_24hour_time_format = True
         self.options.day_of_week_start_index_zero = True
@@ -28,9 +27,11 @@ class Cron():
 
     @property
     def is_now(self) -> bool:
+        """ Returns True if the cron expression matches the current time """
         return pycron.is_now(self.cron)
 
     def get_description(self, locale: str = "en") -> str:
+        """ Returns a human-readable description of the cron expression """
         self.options.locale_code = locale
         return get_description(self.cron, options=self.options)
 
