@@ -48,23 +48,22 @@ class Scanner:
         """
         Returns an item for test notifications
         """
-        items = sorted(self._get_favorites(),
-                       key=lambda x: x.items_available,
-                       reverse=True)
-
-        if items:
-            return items[0]
         items = sorted(
+            self._get_favorites(),
+            key=lambda x: x.items_available,
+            reverse=True
+        ) or sorted(
             [
                 Item(item, self.location)
                 for item in self.tgtg_client.get_items(
                     favorites_only=False,
                     latitude=53.5511,
                     longitude=9.9937,
-                    radius=50)
+                    radius=50
+                )
             ],
             key=lambda x: x.items_available,
-            reverse=True,
+            reverse=True
         )
 
         return items[0]
@@ -73,17 +72,16 @@ class Scanner:
         """
         Returns an item for test notifications
         """
-        order = self._get_active_orders()[0]
-        
-        if not order:
-            order = self._get_inactive_orders()[0]
+        orders = self._get_active_orders() or self._get_inactive_orders()
 
-        if order:
-            order.notification_message = self.config.notify_ext.get("notifications")[1]["message"]
+        if orders:
+            order = orders[0]
+            order.notification_message = self.config.notify_ext.get(
+                "notifications")[0]["message"]
             return order
 
         return None
-    
+
     def _get_inactive_orders(self):
         """
         Get inactive orders
@@ -151,7 +149,6 @@ class Scanner:
             log.error(err)
             return []
         return [Item(item, self.location) for item in items]
-        return [Item(item, self.location) for item in items]
 
     def _get_active_orders(self):
         """
@@ -201,21 +198,35 @@ class Scanner:
             timing = notification["timing"]
             message = notification['message']
             key = str(timing) + message
-            
+
             if self.sent_order_notifications.get(key, False):
                 return
 
             if timing == "1/2":
-                halfway_point = pickup_start + (pickup_end - pickup_start) / 2
-                send_notification = now >= halfway_point
+                halfway_elapsed = pickup_start + (
+                    pickup_end - pickup_start) / 2
+                send_notification = now >= halfway_elapsed
+            elif timing == "1/3":
+                one_third_elapsed = pickup_start + (
+                    pickup_end - pickup_start) / 3
+                send_notification = now >= one_third_elapsed
+            elif timing == "2/3":
+                two_thirds_elapsed = pickup_start + (
+                    pickup_end - pickup_start) * 2 / 3
+                send_notification = now >= two_thirds_elapsed
             else:
-                send_notification = pickup_start <= now + timedelta(
-                    minutes=int(timing))
+                timing_minutes = int(timing)
+                if timing_minutes >= 0:
+                    send_notification = pickup_start <= now + timedelta(
+                        minutes=timing_minutes)
+                else:
+                    send_notification = pickup_start <= now - timedelta(
+                        minutes=-timing_minutes)
 
             if send_notification:
                 order.notification_message = message
-                self._send_order_ready(order)
                 self.sent_order_notifications[key] = True
+                self._send_order_ready(order)
 
     def _send_order_ready(self, order: Order) -> None:
         """

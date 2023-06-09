@@ -208,7 +208,7 @@ def test_script(test_item: Item, capfdbinary: pytest.CaptureFixture):
     config._setattr("script.command", "echo ${{display_name}}")
 
     script = Script(config)
-    script.send(test_item)
+    script.send_item(test_item)
     sleep(0.1)
     captured = capfdbinary.readouterr()
 
