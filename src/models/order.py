@@ -1,14 +1,9 @@
 import datetime
-import re
-from typing import Any, Union
-
-import humanize
-
-from models.errors import MaskConfigurationError
-from models.location import DistanceTime, Location
+from models.location import Location
+from models.order_item_base import Order_Item_Base
 from shared import DATETIME_FORMAT
 
-ATTRS = [
+ORDER_ATTRS = [
     "order_id", "state", "cancel_until", "redeem_interval_start",
     "redeem_interval_end", "pickup_interval_start", "pickup_interval_end",
     "store_time_zone", "quantity", "price_including_taxes_code",
@@ -18,29 +13,28 @@ ATTRS = [
     "total_applied_taxes_minor_units", "total_applied_taxes_decimals",
     "sales_tax_description", "sales_tax_percentage", "sales_tax_amount_code",
     "sales_tax_amount_minor_units", "sales_tax_amount_decimals",
-    "pickup_location", "can_be_rated", "payment_method_display_name",
-    "is_rated", "time_of_purchase", "store_id", "store_name", "store_branch",
-    "store_logo_picture_id", "store_logo_current_url",
-    "store_logo_is_automatically_created", "item_id",
+    "can_be_rated", "payment_method_display_name", "is_rated",
+    "time_of_purchase", "store_id", "store_branch", "store_logo_picture_id",
+    "store_logo_current_url", "store_logo_is_automatically_created",
     "item_cover_image_picture_id", "item_cover_image_current_url",
     "item_cover_image_is_automatically_created", "is_buffet",
-    "can_user_supply_packaging", "packaging_option", "pickup_window_changed",
+    "can_user_supply_packaging", "pickup_window_changed",
     "is_store_we_care", "can_show_best_before_explainer", "show_sales_taxes",
     "order_type", "is_support_available", "last_updated_at_utc",
-    "duration_driving", "duration_walking", "duration_bicycling",
-    "duration_transit", "distance_driving", "distance_walking",
-    "distance_bicycling", "distance_transit", "pickup_remaining",
-    "cancellation_remaining", "pickup_start_remaining"
+    "pickup_remaining", "cancellation_remaining", "pickup_start_remaining"
 ]
 
 
-class Order():
+class Order(Order_Item_Base):
+    ATTRS = Order_Item_Base.ATTRS.copy() + ORDER_ATTRS
+
     """
     Takes the raw data from the TGTG API and
     returns well formated data for notifications.
     """
-
-    def __init__(self, data: dict, location: Location):
+    def __init__(self, data: dict, location: Location = None):
+        super().__init__(data, location)
+        self.is_order = True
         self.order_id = data.get("order_id")
         self.state = data.get("state")
         self.cancel_until = data.get("cancel_until")
@@ -87,9 +81,6 @@ class Order():
             self.sales_tax_amount_minor_units = tax_amount.get("minor_units")
             self.sales_tax_amount_decimals = tax_amount.get("decimals")
 
-        self.pickup_location = data.get("pickup_location", {}).get(
-            "address", {}).get("address_line", "-")
-
         self.can_be_rated = data.get("can_be_rated")
         self.payment_method_display_name = data.get(
             "payment_method_display_name")
@@ -128,36 +119,6 @@ class Order():
 
         self.notification_message = None
 
-    @staticmethod
-    def check_mask(text: str) -> None:
-        """
-        Checks whether the variables in the provided string are available
-
-        Raises MaskConfigurationError
-        """
-        for match in re.finditer(r"\${{([a-zA-Z0-9_]+)}}", text):
-            if not match.group(1) in ATTRS:
-                raise MaskConfigurationError(match.group(0))
-
-    def unmask(self, text: str) -> str:
-        """
-        Replaces variables with the current values.
-        """
-        if text in ["${{item_logo_bytes}}", "${{item_cover_bytes}}"]:
-            matches = re.findall(r"\${{([a-zA-Z0-9_]+)}}", text)
-            return getattr(self, matches[0])
-        for match in re.finditer(r"\${{([a-zA-Z0-9_]+)}}", text):
-            if hasattr(self, match.group(1)):
-                val = getattr(self, match.group(1))
-                text = text.replace(match.group(0), str(val))
-        return text
-
-    def _get_variables(self, text: str) -> list[re.Match]:
-        """
-        Returns a list of all variables in the provided string
-        """
-        return list(re.finditer(r"\${{([a-zA-Z0-9_]+)}}", text))
-
     def _calculate_remaining_time(self, target_time: str) -> int:
         target = datetime.datetime.strptime(target_time, DATETIME_FORMAT)
         remaining_time = (target + datetime.timedelta(hours=2) -
@@ -175,40 +136,3 @@ class Order():
     @property
     def pickup_start_remaining(self):
         return self._calculate_remaining_time(self.pickup_interval_start)
-
-    @property
-    def link(self) -> str:
-        return f"https://share.toogoodtogo.com/item/{self.item_id}"
-
-    def _get_distance(self, travel_mode: str) -> str:
-        distance_time = self._get_distance_time(travel_mode)
-        if distance_time is None:
-            return 'n/a'
-        return f"{distance_time.distance / 1000:.1f} km"
-
-    def _get_duration(self, travel_mode: str) -> str:
-        distance_time = self._get_distance_time(travel_mode)
-        if distance_time is None:
-            return 'n/a'
-        return humanize.precisedelta(
-            datetime.timedelta(seconds=distance_time.duration),
-            minimum_unit="minutes", format="%0.0f")
-
-    def _get_distance_time(self, travel_mode: str
-                           ) -> Union[DistanceTime, None]:
-        if self.location is None:
-            return None
-        return self.location.calculate_distance_time(
-            self.pickup_location, travel_mode, True)
-
-    def __getattribute__(self, __name: str) -> Any:
-        try:
-            return super().__getattribute__(__name)
-        except AttributeError:
-            if __name in ATTRS and __name.startswith(("distance", "duration")):
-                _type, _mode = __name.split("_")
-                if _type == "distance":
-                    return self._get_distance(_mode)
-                if _type == "duration":
-                    return self._get_duration(_mode)
-            raise
