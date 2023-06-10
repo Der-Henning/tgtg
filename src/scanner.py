@@ -174,6 +174,12 @@ class Scanner:
         if self.cron.cron != "* * * * *":
             log.info("Active on schedule: %s",
                      self.cron.get_description(self.config.locale))
+        if self.config.sleep_time != 60:
+            log.info("Cron time setting override, scan every: %s seconds.",
+                     self.config.sleep_time)
+            if self.cron.minutes != "* ":
+                log.error("Cron settings different then sleep settings.\n")
+                assert False
         while True:
             if self.cron.is_now:
                 if not running:

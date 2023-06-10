@@ -30,6 +30,10 @@ class Cron():
         """ Returns True if the cron expression matches the current time """
         return pycron.is_now(self.cron)
 
+    @property
+    def minutes(self) -> str:
+        return self.cron[:2]
+
     def get_description(self, locale: str = "en") -> str:
         """ Returns a human-readable description of the cron expression """
         self.options.locale_code = locale
