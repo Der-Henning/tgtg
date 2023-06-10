@@ -79,7 +79,7 @@ class Scanner:
             self._check_item(item)
 
         amounts = {item_id: self.state.get(item_id).items_available
-                   for item_id in self.state.keys()
+                   for item_id in self.state
                    if self.state.get(item_id) is not None}
         log.debug("new State: %s", amounts)
         self.reservations.make_orders(

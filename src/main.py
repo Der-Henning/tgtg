@@ -304,7 +304,7 @@ def _register_signals() -> None:
 
 def _handle_exit_signal(signum: int, _frame: Any) -> None:
     log = logging.getLogger("tgtg")
-    log.debug('Received signal %d' % signum)
+    log.debug('Received signal %d', signum)
     raise KeyboardInterrupt
 
 
