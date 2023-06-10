@@ -19,7 +19,11 @@ executable:
 	zip -j dist/scanner.zip dist/*
 
 test:
-	python -m pytest -v -m "not tgtg_api" --cov src/
+	@if which python3 >/dev/null 2>&1; then \
+        python3 -m pytest -v -m "not tgtg_api" --cov src/; \
+    else \
+        python -m pytest -v -m "not tgtg_api" --cov src/; \
+    fi
 
 lint:
 	pre-commit run -a
