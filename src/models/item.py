@@ -25,6 +25,7 @@ class Item(Order_Item_Base):
     Takes the raw data from the TGTG API and
     returns well formated data for notifications.
     """
+
     def __init__(self, data: dict, location: Location = None):
         super().__init__(data, location)
         self.is_order = False

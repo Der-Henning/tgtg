@@ -3,6 +3,7 @@ import re
 from typing import Any, Union
 
 import humanize
+
 from models.errors import MaskConfigurationError
 from models.location import DistanceTime, Location
 

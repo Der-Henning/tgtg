@@ -1,4 +1,5 @@
 import datetime
+
 from models.location import Location
 from models.order_item_base import Order_Item_Base
 from shared import DATETIME_FORMAT
@@ -32,6 +33,7 @@ class Order(Order_Item_Base):
     Takes the raw data from the TGTG API and
     returns well formated data for notifications.
     """
+
     def __init__(self, data: dict, location: Location = None):
         super().__init__(data, location)
         self.is_order = True
