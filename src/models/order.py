@@ -43,11 +43,6 @@ class Order(Order_Item_Base):
         self.redeem_interval_start = redeem_interval.get("start")
         self.redeem_interval_end = redeem_interval.get("end")
 
-        self.pickup_interval_start = data.get(
-            "pickup_interval", {}).get("start", None)
-        self.pickup_interval_end = data.get(
-            "pickup_interval", {}).get("end", None)
-
         self.store_time_zone = data.get("store_time_zone")
         self.quantity = data.get("quantity")
 
@@ -96,8 +91,6 @@ class Order(Order_Item_Base):
         self.store_logo_is_automatically_created = store_logo.get(
             "is_automatically_created")
 
-        self.item_id = data.get("item_id")
-
         item_cover_image = data.get("item_cover_image", {})
         self.item_cover_image_picture_id = item_cover_image.get("picture_id")
         self.item_cover_image_current_url = item_cover_image.get("current_url")
@@ -115,7 +108,6 @@ class Order(Order_Item_Base):
         self.order_type = data.get("order_type")
         self.is_support_available = data.get("is_support_available")
         self.last_updated_at_utc = data.get("last_updated_at_utc")
-        self.location = location
 
         self.notification_message = None
 

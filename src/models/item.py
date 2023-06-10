@@ -31,13 +31,8 @@ class Item(Order_Item_Base):
         self.items_available = data.get("items_available", 0)
         self.display_name = data.get("display_name", "-")
         self.favorite = "Yes" if data.get("favorite", False) else "No"
-        self.pickup_interval_start = data.get(
-            "pickup_interval", {}).get("start", None)
-        self.pickup_interval_end = data.get(
-            "pickup_interval", {}).get("end", None)
 
         item = data.get("item", {})
-        self.item_id = item.get("item_id")
         self.rating = item.get("average_overall_rating", {}).get(
             "average_overall_rating", None)
         self.rating = "-" if not self.rating else f"{self.rating:.1f}"
