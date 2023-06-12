@@ -19,7 +19,10 @@ class Scanner:
         self.config = config
         self.metrics = Metrics(self.config.metrics_port)
         self.item_ids = set(self.config.item_ids)
-        self.cron = self.config.schedule_cron
+        self.cron1 = self.config.schedule_cron1
+        self.cron2 = self.config.schedule_cron2
+        self.cron3 = self.config.schedule_cron3
+        self.cron4 = self.config.schedule_cron4
         self.state: Dict[str, Item] = {}
         self.notifiers = None
         self.location = None
@@ -171,10 +174,40 @@ class Scanner:
         # start scanner
         log.info("Scanner started ...")
         running = True
-        if self.cron.cron != "* * * * *":
-            log.info("Active on schedule: %s", self.cron.description)
+        if self.cron1.cron != "* * * * *":
+            log.info("Active on schedule: %s", self.cron1.description)
+        if self.cron2.cron != "0 0 1 1 *":
+            log.info("Active on schedule: %s", self.cron2.description)
+        if self.cron3.cron != "0 0 1 1 *":
+            log.info("Active on schedule: %s", self.cron3.description)
+        if self.cron4.cron != "0 0 1 1 *":
+            log.info("Active on schedule: %s", self.cron4.description)
         while True:
-            if self.cron.is_now:
+            if self.cron1.is_now:
+                if not running:
+                    log.info("Scanner reenabled by cron schedule.")
+                    running = True
+                try:
+                    self._job()
+                except Exception:
+                    log.error("Job Error! - %s", sys.exc_info())
+            elif self.cron2.is_now:
+                if not running:
+                    log.info("Scanner reenabled by cron schedule.")
+                    running = True
+                try:
+                    self._job()
+                except Exception:
+                    log.error("Job Error! - %s", sys.exc_info())
+            elif self.cron3.is_now:
+                if not running:
+                    log.info("Scanner reenabled by cron schedule.")
+                    running = True
+                try:
+                    self._job()
+                except Exception:
+                    log.error("Job Error! - %s", sys.exc_info())
+            elif self.cron4.is_now:
                 if not running:
                     log.info("Scanner reenabled by cron schedule.")
                     running = True
