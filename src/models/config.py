@@ -18,10 +18,7 @@ log = logging.getLogger("tgtg")
 DEFAULT_CONFIG = {
     'item_ids': [],
     'sleep_time': 60,
-    'schedule_cron1': Cron('* * * * *'),
-    'schedule_cron4': Cron('0 0 1 1 0'),
-    'schedule_cron4': Cron('0 0 1 1 0'),
-    'schedule_cron4': Cron('0 0 1 1 0'),
+    'schedule_cron': [Cron('* * * * *')],
     'debug': False,
     'locale': "en_US",
     'metrics': False,
