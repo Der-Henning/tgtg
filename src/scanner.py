@@ -177,31 +177,7 @@ class Scanner:
         log.info("Active on schedule: %s",
                  ", ".join([cron.description for cron in self.cron if cron.cron != "* * * * *"])
         while True:
-            if self.cron1.is_now:
-                if not running:
-                    log.info("Scanner reenabled by cron schedule.")
-                    running = True
-                try:
-                    self._job()
-                except Exception:
-                    log.error("Job Error! - %s", sys.exc_info())
-            elif self.cron2.is_now:
-                if not running:
-                    log.info("Scanner reenabled by cron schedule.")
-                    running = True
-                try:
-                    self._job()
-                except Exception:
-                    log.error("Job Error! - %s", sys.exc_info())
-            elif self.cron3.is_now:
-                if not running:
-                    log.info("Scanner reenabled by cron schedule.")
-                    running = True
-                try:
-                    self._job()
-                except Exception:
-                    log.error("Job Error! - %s", sys.exc_info())
-            elif self.cron4.is_now:
+            if any([cron.isnow for cron in self.cron]):
                 if not running:
                     log.info("Scanner reenabled by cron schedule.")
                     running = True
