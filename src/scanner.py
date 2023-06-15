@@ -174,14 +174,8 @@ class Scanner:
         # start scanner
         log.info("Scanner started ...")
         running = True
-        if self.cron1.cron != "* * * * *":
-            log.info("Active on schedule: %s", self.cron1.description)
-        if self.cron2.cron != "0 0 1 1 *":
-            log.info("Active on schedule: %s", self.cron2.description)
-        if self.cron3.cron != "0 0 1 1 *":
-            log.info("Active on schedule: %s", self.cron3.description)
-        if self.cron4.cron != "0 0 1 1 *":
-            log.info("Active on schedule: %s", self.cron4.description)
+        log.info("Active on schedule: %s",
+                 ", ".join([cron.description for cron in self.cron if cron.cron != "* * * * *"])
         while True:
             if self.cron1.is_now:
                 if not running:
