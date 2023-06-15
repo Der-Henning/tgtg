@@ -147,10 +147,7 @@ class Config():
 
     item_ids: list
     sleep_time: int
-    schedule_cron1: str
-    schedule_cron2: str
-    schedule_cron3: str
-    schedule_cron4: str
+    schedule_cron: list[Cron]
     debug: bool
     locale: str
     metrics: bool
