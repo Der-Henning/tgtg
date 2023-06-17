@@ -1,7 +1,7 @@
 FROM python:3.10-slim
 
-RUN addgroup --gid 1001 --system tgtg && \
-    adduser --shell /bin/false --disabled-password --uid 1001 --system --group tgtg
+RUN addgroup --gid 1001 tgtg && \
+    adduser --shell /bin/false --disabled-password --uid 1001 --gid 1001 tgtg
 RUN mkdir -p /app
 RUN chown tgtg:tgtg /app
 RUN mkdir -p /tokens
