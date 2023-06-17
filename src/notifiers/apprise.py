@@ -2,7 +2,7 @@ import logging
 
 import apprise
 
-from models import Config, Item
+from models import Config, Item, Order
 from models.errors import AppriseConfigurationError, MaskConfigurationError
 from notifiers.base import Notifier
 
@@ -17,6 +17,7 @@ class Apprise(Notifier):
     """
 
     def __init__(self, config: Config):
+        Notifier.__init__(self, config)
         self.enabled = config.apprise.get("enabled", False)
         self.title = config.apprise.get("title")
         self.body = config.apprise.get("body")
@@ -32,7 +33,7 @@ class Apprise(Notifier):
             except MaskConfigurationError as exc:
                 raise AppriseConfigurationError(exc.message) from exc
 
-    def _send(self, item: Item) -> None:
+    def _send_item(self, item: Item) -> None:
         """Sends item information via configured Apprise URL"""
         url = item.unmask(self.url)
         title = item.unmask(self.title)
@@ -46,6 +47,9 @@ class Apprise(Notifier):
         apobj.add(self.url)
         apobj.notify(title=title, body=body)
         apobj.clear()
+
+    def _send_order(self, order: Order) -> None:
+        """Send Order information"""
 
     def __repr__(self) -> str:
         return f"Apprise: {self.url}"

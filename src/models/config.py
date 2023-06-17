@@ -1,3 +1,4 @@
+import ast
 import codecs
 import configparser
 import json
@@ -40,6 +41,23 @@ DEFAULT_CONFIG = {
         'enabled': False,
         'Google_Maps_API_Key': '',
         'Origin_Address': '',
+    },
+    'notify_ext': {
+        'enabled': False,
+        'notifications': [
+            {
+                'timing': 130,
+                'message': '*${{cancellation_remaining}}* minutes left'
+            },
+            {
+                'timing': 5,
+                'message': '*${{pickup_start_remaining}} minutes left'
+            },
+            {
+                'timing': '1/2',
+                'message': '*${{pickup_remaining}} minutes left'
+            }
+        ]
     },
     'apprise': {
         'enabled': False,
@@ -162,6 +180,7 @@ class Config():
     telegram: dict
     script: dict
     location: dict
+    notify_ext: dict
 
     def __init__(self, file: str = None):
         self.file = Path(file) if file is not None else None
@@ -271,6 +290,14 @@ class Config():
             value = config[section].get(key, None)
             if value is not None:
                 self._setattr(attr, Cron(value))
+
+    def _ini_get_notifications(self, config: configparser.ConfigParser,
+                               section: str, key: str, attr: str) -> None:
+        if section in config:
+            value = config[section].get(key, None)
+            if value:
+                notifications = ast.literal_eval(value)
+                self._setattr(attr, notifications)
 
     def _read_ini(self) -> None:
         try:
@@ -392,6 +419,19 @@ class Config():
                 config, "LOCATION",
                 "Google_Maps_API_Key", "location.gmaps_api_key")
 
+            self._ini_get_boolean(config, "LOCATION",
+                                  "enabled", "location.enabled")
+            self._ini_get(config, "LOCATION", "Address",
+                          "location.origin_address")
+            self._ini_get(
+                config, "LOCATION",
+                "Google_Maps_API_Key", "location.gmaps_api_key"
+            )
+
+            self._ini_get_boolean(config, "NOTIFY_EXT", "enabled",
+                                  "notify_ext.enabled")
+            self._ini_get_notifications(config, "NOTIFY_EXT", "notifications",
+                                        "notify_ext.notifications")
         except ValueError as err:
             raise ConfigurationError(err) from err
 
@@ -428,6 +468,12 @@ class Config():
         value = environ.get(key, None)
         if value is not None:
             self._setattr(attr, Cron(value))
+
+    def _env_get_notifications(self, key: str, attr: str) -> None:
+        value = environ.get(key, None)
+        if value:
+            notifications = ast.literal_eval(value)
+            self._setattr(attr, notifications)
 
     def _read_env(self) -> None:
         try:
@@ -532,6 +578,11 @@ class Config():
             self._env_get("LOCATION_GOOGLE_MAPS_API_KEY",
                           "location.gmaps_api_key")
             self._env_get("LOCATION_ADDRESS", "location.origin_address")
+
+            self._env_get_boolean("NOTIFY_EXT_ENABLED", "notify_ext.enabled")
+            self._env_get_notifications(
+                "NOTIFY_EXT_NOTIFICATIONS", "notify_ext.notifications")
+
         except ValueError as err:
             raise ConfigurationError(err) from err
 

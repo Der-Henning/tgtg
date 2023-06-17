@@ -1,12 +1,14 @@
 import logging
 import sys
+from datetime import datetime, timedelta
 from random import random
 from time import sleep
 from typing import Dict, List, NoReturn
 
-from models import Config, Item, Location, Metrics, Reservations
+from models import Config, Item, Location, Metrics, Order, Reservations
 from models.errors import TgtgAPIError
 from notifiers import Notifiers
+from shared import DATETIME_FORMAT
 from tgtg import TgtgClient
 
 log = logging.getLogger("tgtg")
@@ -36,35 +38,65 @@ class Scanner:
             datadome_cookie=self.config.tgtg.get("datadome")
         )
         self.reservations = Reservations(self.tgtg_client)
+        self.order_notifications_enabled = self.config.notify_ext.get(
+            "enabled")
+        self.notifications = self.config.notify_ext.get(
+            "notifications")
+        self.sent_order_notifications = {}
 
     def _get_test_item(self) -> Item:
         """
         Returns an item for test notifications
         """
-        items = sorted(self._get_favorites(),
-                       key=lambda x: x.items_available,
-                       reverse=True)
-
-        if items:
-            return items[0]
         items = sorted(
+            self._get_favorites(),
+            key=lambda x: x.items_available,
+            reverse=True
+        ) or sorted(
             [
                 Item(item, self.location)
                 for item in self.tgtg_client.get_items(
                     favorites_only=False,
                     latitude=53.5511,
                     longitude=9.9937,
-                    radius=50)
+                    radius=50
+                )
             ],
             key=lambda x: x.items_available,
-            reverse=True,
+            reverse=True
         )
 
         return items[0]
 
+    def _get_test_order(self) -> Order:
+        """
+        Returns an item for test notifications
+        """
+        orders = self._get_active_orders() or self._get_inactive_orders()
+
+        if orders:
+            order = orders[0]
+            order.notification_message = self.config.notify_ext.get(
+                "notifications")[0]["message"]
+            return order
+
+        return None
+
+    def _get_inactive_orders(self):
+        """
+        Get inactive orders
+        """
+        try:
+            orders = self.tgtg_client.get_inactive_orders()
+        except TgtgAPIError as err:
+            log.error(err)
+            return []
+        return [Order(order, self.location)
+                for order in orders]
+
     def _job(self) -> None:
         """
-        Job iterates over all monitored items
+        Job iterates over all monitored items (and orders, if enabled)
         """
         items = []
         for item_id in self.item_ids:
@@ -72,15 +104,23 @@ class Scanner:
                 if item_id != "":
                     item = self.tgtg_client.get_item(item_id)
                     items.append(Item(item, self.location))
+                    item = self.tgtg_client.get_item(item_id)
+                    items.append(Item(item, self.location))
             except TgtgAPIError as err:
                 log.error(err)
         items += self._get_favorites()
+
         for item in items:
             self._check_item(item)
 
         amounts = {item_id: self.state.get(item_id).items_available
                    for item_id in self.state.keys()
                    if self.state.get(item_id) is not None}
+        if self.order_notifications_enabled:
+            orders = self._get_active_orders()
+            for order in orders:
+                self._check_order(order)
+
         log.debug("new State: %s", amounts)
         self.reservations.make_orders(
             self.state,
@@ -110,6 +150,18 @@ class Scanner:
             return []
         return [Item(item, self.location) for item in items]
 
+    def _get_active_orders(self):
+        """
+        Get active orders
+        """
+        try:
+            orders = self.get_active_orders()
+        except TgtgAPIError as err:
+            log.error(err)
+            return []
+        return [Order(order, self.location)
+                for order in orders]
+
     def _check_item(self, item: Item) -> None:
         """
         Checks if the available item amount raised from zero to something
@@ -131,6 +183,58 @@ class Scanner:
                                        ).set(item.items_available)
         self.state[item.item_id] = item
 
+    def _check_order(self, order: Order) -> None:
+        """
+        Checks if the order notification timings are reached
+        and triggers notifications
+        """
+        pickup_start = datetime.strptime(
+            order.pickup_interval_start, DATETIME_FORMAT) + timedelta(hours=2)
+        pickup_end = datetime.strptime(
+            order.pickup_interval_end, DATETIME_FORMAT) + timedelta(hours=2)
+        now = datetime.now()
+
+        for notification in self.notifications:
+            timing = notification["timing"]
+            message = notification['message']
+            key = str(timing) + message
+
+            if self.sent_order_notifications.get(key, False):
+                return
+
+            if timing == "1/2":
+                halfway_elapsed = pickup_start + (
+                    pickup_end - pickup_start) / 2
+                send_notification = now >= halfway_elapsed
+            elif timing == "1/3":
+                one_third_elapsed = pickup_start + (
+                    pickup_end - pickup_start) / 3
+                send_notification = now >= one_third_elapsed
+            elif timing == "2/3":
+                two_thirds_elapsed = pickup_start + (
+                    pickup_end - pickup_start) * 2 / 3
+                send_notification = now >= two_thirds_elapsed
+            else:
+                timing_minutes = int(timing)
+                if timing_minutes >= 0:
+                    send_notification = pickup_start <= now + timedelta(
+                        minutes=timing_minutes)
+                else:
+                    send_notification = pickup_start <= now - timedelta(
+                        minutes=-timing_minutes)
+
+            if send_notification:
+                order.notification_message = message
+                self.sent_order_notifications[key] = True
+                self._send_order_ready(order)
+
+    def _send_order_ready(self, order: Order) -> None:
+        """
+        Send notifications for Order
+        """
+        log.info("Sending order notification for %s", order.store_name)
+        self.notifiers.send_order(order)
+
     def _send_messages(self, item: Item) -> None:
         """
         Send notifications for Item
@@ -140,7 +244,7 @@ class Scanner:
             item.display_name,
             item.items_available,
         )
-        self.notifiers.send(item)
+        self.notifiers.send_item(item)
 
     def run(self) -> NoReturn:
         """
@@ -167,7 +271,10 @@ class Scanner:
         if not self.config.disable_tests and \
                 self.notifiers.notifier_count > 0:
             log.info("Sending test Notifications ...")
-            self.notifiers.send(self._get_test_item())
+            self.notifiers.send_item(self._get_test_item())
+            if self.order_notifications_enabled:
+                self.notifiers.send_order(self._get_test_order())
+
         # start scanner
         log.info("Scanner started ...")
         running = True
@@ -229,6 +336,20 @@ class Scanner:
             List: List of items
         """
         return self.tgtg_client.get_favorites()
+
+    def get_active_orders(self) -> List[dict]:
+        """
+        Returns active orders of the current tgtg account
+        """
+        page = 1
+        page_size = 100
+        while True:
+            new_orders = self.tgtg_client.get_active_orders(
+                page=page, page_size=page_size)
+            yield from new_orders
+            if len(new_orders) < page_size:
+                break
+            page += 1
 
     def set_favorite(self, item_id: str) -> None:
         """Add item to favorites.

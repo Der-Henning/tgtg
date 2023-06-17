@@ -4,7 +4,7 @@ import logging
 import requests
 from requests.auth import HTTPBasicAuth
 
-from models import Config, Item
+from models import Config, Item, Order
 from models.errors import MaskConfigurationError, WebHookConfigurationError
 from notifiers.base import Notifier
 
@@ -15,6 +15,7 @@ class WebHook(Notifier):
     """Notifier for custom Webhooks"""
 
     def __init__(self, config: Config):
+        Notifier.__init__(self, config)
         self.enabled = config.webhook.get("enabled", False)
         self.method = config.webhook.get("method")
         self.url = config.webhook.get("url")
@@ -39,7 +40,7 @@ class WebHook(Notifier):
             except MaskConfigurationError as exc:
                 raise WebHookConfigurationError(exc.message) from exc
 
-    def _send(self, item: Item) -> None:
+    def _send_item(self, item: Item) -> None:
         """Sends item information via configured Webhook endpoint"""
         url = item.unmask(self.url)
         log.debug("%s url: %s", self.name, url)
@@ -65,6 +66,9 @@ class WebHook(Notifier):
             log.error("%s Request failed with status code %s",
                       self.name, res.status_code)
             log.debug("%s Response content: %s", self.name, res.text)
+
+    def _send_order(self, order: Order) -> None:
+        """Send Order information"""
 
     def __repr__(self) -> str:
         return f"WebHook: {self.url}"

@@ -1,6 +1,6 @@
 import logging
 
-from models import Config, Item
+from models import Config, Item, Order
 from models.errors import IFTTTConfigurationError, MaskConfigurationError
 from notifiers.webhook import WebHook
 
@@ -15,6 +15,7 @@ class IFTTT(WebHook):
     """
 
     def __init__(self, config: Config):
+        WebHook.__init__(self, config)
         self.enabled = config.ifttt.get("enabled", False)
         self.event = config.ifttt.get("event")
         self.key = config.ifttt.get("key")
@@ -35,6 +36,9 @@ class IFTTT(WebHook):
                 Item.check_mask(self.body)
             except MaskConfigurationError as exc:
                 raise IFTTTConfigurationError(exc.message) from exc
+
+    def _send_order(self, order: Order) -> None:
+        """Send Order information"""
 
     def __repr__(self) -> str:
         return f"IFTTT: {self.key}"
