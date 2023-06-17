@@ -7,6 +7,9 @@ RUN chown tgtg:tgtg /app
 RUN mkdir -p /tokens
 RUN chown tgtg:tgtg /tokens
 ENV TGTG_TOKEN_PATH=/tokens
+ENV DOCKER=true
+ENV PYTHONUNBUFFERED=1
+
 VOLUME /tokens
 WORKDIR /app
 USER tgtg

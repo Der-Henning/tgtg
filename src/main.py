@@ -35,7 +35,7 @@ SYS_PLATFORM = platform.system()
 IS_WINDOWS = SYS_PLATFORM.lower() in ('windows', 'cygwin')
 IS_EXECUTABLE = getattr(sys, "_MEIPASS", False)
 PROG_PATH = Path(sys.executable) if IS_EXECUTABLE else Path(__file__)
-IS_DOCKER = os.environ.get("DOCKER", False)
+IS_DOCKER = os.environ.get("DOCKER", "False").lower() in ('true', '1', 't')
 
 
 def main() -> NoReturn:
@@ -153,6 +153,7 @@ def main() -> NoReturn:
         # Load config
         config = (Config(config_file) if Path(config_file).is_file()
                   else Config())
+        config.docker = IS_DOCKER
 
         # Activate debugging mode
         if args.debug:
