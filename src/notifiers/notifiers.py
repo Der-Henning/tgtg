@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-from models import Config, Item, Reservations
+from models import Config, Cron, Item, Reservations
 from models.reservations import Reservation
 from notifiers.apprise import Apprise
 from notifiers.base import Notifier
@@ -35,7 +35,7 @@ class Notifiers:
             log.warning("No notifiers configured!")
         for notifier in self._enabled_notifiers:
             log.info("- %s", notifier)
-            if notifier.cron.cron != "* * * * *":
+            if notifier.cron != Cron("* * * * *"):
                 log.info("  Schedule: %s",
                          notifier.cron.get_description(config.locale))
 

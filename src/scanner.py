@@ -6,7 +6,7 @@ from typing import Dict, List, NoReturn
 
 from progress.spinner import Spinner
 
-from models import Config, Item, Location, Metrics, Reservations
+from models import Config, Cron, Item, Location, Metrics, Reservations
 from models.errors import TgtgAPIError
 from notifiers import Notifiers
 from tgtg import TgtgClient
@@ -194,7 +194,7 @@ class Scanner:
         # start scanner
         log.info("Scanner started ...")
         running = True
-        if self.cron.cron != "* * * * *":
+        if self.cron != Cron("* * * * *"):
             log.info("Active on schedule: %s",
                      self.cron.get_description(self.config.locale))
         activity = Activity(not (self.config.docker or self.config.quiet))
