@@ -25,6 +25,7 @@ DEFAULT_CONFIG = {
     'metrics_port': 8000,
     'disable_tests': False,
     'quiet': False,
+    'docker': False,
     'tgtg': {
         'username': None,
         'access_token': None,
@@ -146,6 +147,7 @@ class Config():
     sleep_time: int
     schedule_cron: list[Cron]
     debug: bool
+    docker: bool
     locale: str
     metrics: bool
     metrics_port: int
