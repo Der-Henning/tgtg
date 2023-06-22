@@ -10,8 +10,9 @@ log = logging.getLogger('tgtg')
 
 class Cron():
     def __init__(self, cron_str: str = None) -> None:
-        self.crons = (set([cron.strip() for cron in cron_str.split(';')])
-                      if cron_str else {'* * * * *'})
+        self.crons = (
+            list(dict.fromkeys([cron.strip() for cron in cron_str.split(';')]))
+            if cron_str else ['* * * * *'])
         self.options = Options()
         self.options.use_24hour_time_format = True
         self.options.day_of_week_start_index_zero = True
@@ -35,9 +36,8 @@ class Cron():
     def get_description(self, locale: str = "en") -> str:
         """ Returns a human-readable description of the cron expression """
         self.options.locale_code = locale
-        descriptions = [get_description(cron, options=self.options)
-                        for cron in self.crons]
-        return "; ".join(descriptions)
+        return "; ".join(get_description(cron, options=self.options)
+                         for cron in self.crons)
 
     def __eq__(self, __o: object) -> bool:
         return getattr(__o, "crons") == self.crons

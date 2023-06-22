@@ -46,4 +46,4 @@ def test_eq():
 
 
 def test_repr():
-    assert repr(Cron("0 0 * * *")) == "Cron({'0 0 * * *'})"
+    assert repr(Cron("0 0 * * *")) == "Cron(['0 0 * * *'])"
