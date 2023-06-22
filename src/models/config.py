@@ -18,7 +18,7 @@ log = logging.getLogger("tgtg")
 DEFAULT_CONFIG = {
     'item_ids': [],
     'sleep_time': 60,
-    'schedule_cron': [Cron('* * * * *')],
+    'schedule_cron': Cron('* * * * *'),
     'debug': False,
     'locale': "en_US",
     'metrics': False,
@@ -145,7 +145,7 @@ class Config():
 
     item_ids: list
     sleep_time: int
-    schedule_cron: list[Cron]
+    schedule_cron: Cron
     debug: bool
     docker: bool
     locale: str
@@ -282,10 +282,7 @@ class Config():
             self._ini_get_boolean(config, "MAIN", "debug", "debug")
             self._ini_get_array(config, "MAIN", "ItemIDs", "item_ids")
             self._ini_get_int(config, "MAIN", "SleepTime", "sleep_time")
-            self._ini_get_cron(config, "MAIN", "ScheduleCron1", "schedule_cron1")
-            self._ini_get_cron(config, "MAIN", "ScheduleCron2", "schedule_cron2")
-            self._ini_get_cron(config, "MAIN", "ScheduleCron3", "schedule_cron3")
-            self._ini_get_cron(config, "MAIN", "ScheduleCron4", "schedule_cron4")
+            self._ini_get_cron(config, "MAIN", "ScheduleCron", "schedule_cron")
             self._ini_get_boolean(config, "MAIN", "Metrics", "metrics")
             self._ini_get_int(config, "MAIN", "MetricsPort", "metrics_port")
             self._ini_get_boolean(config, "MAIN", "DisableTests",
@@ -439,10 +436,7 @@ class Config():
             self._env_get_boolean("DEBUG", "debug")
             self._env_get_array("ITEM_IDS", "item_ids")
             self._env_get_int("SLEEP_TIME", "sleep_time")
-            self._env_get_cron("SCHEDULE_CRON1", "schedule_cron1")
-            self._env_get_cron("SCHEDULE_CRON2", "schedule_cron2")
-            self._env_get_cron("SCHEDULE_CRON3", "schedule_cron3")
-            self._env_get_cron("SCHEDULE_CRON4", "schedule_cron4")
+            self._env_get_cron("SCHEDULE_CRON", "schedule_cron")
             self._env_get_boolean("METRICS", "metrics")
             self._env_get_int("METRICS_PORT", "metrics_port")
             self._env_get_boolean("DISABLE_TESTS", "disable_tests")
