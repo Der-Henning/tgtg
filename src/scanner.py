@@ -4,12 +4,35 @@ from random import random
 from time import sleep
 from typing import Dict, List, NoReturn
 
-from models import Config, Item, Location, Metrics, Reservations
+from progress.spinner import Spinner
+
+from models import Config, Cron, Item, Location, Metrics, Reservations
 from models.errors import TgtgAPIError
 from notifiers import Notifiers
 from tgtg import TgtgClient
 
 log = logging.getLogger("tgtg")
+
+
+class Activity:
+    """ Activity class that creates a spinner if active is True """
+
+    def __init__(self, active: bool):
+        self.active = active
+        self.spinner = None
+        if self.active:
+            self.spinner = Spinner("Scanning... ")
+
+    def next(self) -> None:
+        """ Next function that updates the spinner """
+        if self.spinner:
+            self.spinner.next()
+
+    def flush(self) -> None:
+        """ Flush function that flushes the spinner """
+        if self.spinner:
+            sys.stdout.write("\x1b[80D\x1b[K")
+            sys.stdout.flush()
 
 
 class Scanner:
@@ -171,8 +194,11 @@ class Scanner:
         # start scanner
         log.info("Scanner started ...")
         running = True
-        if self.cron.cron != "* * * * *":
-            log.info("Active on schedule: %s", self.cron.description)
+        if self.cron != Cron("* * * * *"):
+            log.info("Active on schedule: %s",
+                     self.cron.get_description(self.config.locale))
+        activity = Activity(self.config.activity and not
+                            (self.config.docker or self.config.quiet))
         while True:
             if self.cron.is_now:
                 if not running:
@@ -182,10 +208,17 @@ class Scanner:
                     self._job()
                 except Exception:
                     log.error("Job Error! - %s", sys.exc_info())
+                finally:
+                    sleep_time = self.config.sleep_time * (.9 + .2 * random())
+                    for _ in range(int(sleep_time)):
+                        activity.next()
+                        sleep(sleep_time / int(sleep_time))
+                        activity.flush()
             elif running:
                 log.info("Scanner disabled by cron schedule.")
                 running = False
-            sleep(self.config.sleep_time * (0.9 + 0.2 * random()))
+            else:
+                sleep(60)
 
     def __del__(self) -> None:
         """

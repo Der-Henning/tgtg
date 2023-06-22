@@ -2,6 +2,7 @@ import argparse
 import http.client as http_client
 import json
 import logging
+import os
 import platform
 import signal
 import sys
@@ -11,7 +12,7 @@ from typing import Any, NoReturn, Union
 import colorlog
 import requests
 from packaging import version
-from requests.exceptions import HTTPError
+from requests.exceptions import RequestException
 
 from _version import __author__, __url__, __version__
 from models import Config
@@ -34,6 +35,7 @@ SYS_PLATFORM = platform.system()
 IS_WINDOWS = SYS_PLATFORM.lower() in ('windows', 'cygwin')
 IS_EXECUTABLE = getattr(sys, "_MEIPASS", False)
 PROG_PATH = Path(sys.executable) if IS_EXECUTABLE else Path(__file__)
+IS_DOCKER = os.environ.get("DOCKER", "False").lower() in ('true', '1', 't')
 
 
 def main() -> NoReturn:
@@ -50,7 +52,7 @@ def main() -> NoReturn:
     parser.add_argument(
         "-v", "--version",
         action="version",
-        version=f"v{_get_version_info()}"
+        version=f"v{__version__}"
     )
     parser.add_argument(
         "-d", "--debug",
@@ -147,18 +149,20 @@ def main() -> NoReturn:
     log = logging.getLogger("tgtg")
     log.setLevel(logging.INFO)
 
-    # Load config
-    config = Config(config_file) if Path(config_file).is_file() else Config()
-
-    # Activate debugging mode
-    if args.debug:
-        config.debug = True
-    if config.debug:
-        for logger_name in logging.root.manager.loggerDict:
-            logging.getLogger(logger_name).setLevel(logging.DEBUG)
-        log.info("Debugging mode enabled")
-
     try:
+        # Load config
+        config = (Config(config_file) if Path(config_file).is_file()
+                  else Config())
+        config.docker = IS_DOCKER
+
+        # Activate debugging mode
+        if args.debug:
+            config.debug = True
+        if config.debug:
+            for logger_name in logging.root.manager.loggerDict:
+                logging.getLogger(logger_name).setLevel(logging.DEBUG)
+            log.info("Debugging mode enabled")
+
         scanner = Scanner(config)
         if args.tokens:
             credentials = scanner.get_credentials()
@@ -253,9 +257,8 @@ def _get_new_version() -> Union[dict, None]:
         if version.parse(__version__) < version.parse(
                 lastest_release.get("tag_name")):
             return lastest_release
-    except HTTPError as err:
-        log.warning("Failed getting latest version!")
-        log.debug(err)
+    except (RequestException, version.InvalidVersion, ValueError) as err:
+        log.warning("Failed getting latest version! - %s", err)
     return None
 
 
@@ -266,16 +269,11 @@ def _print_version_check() -> None:
         if lastest_release is not None:
             log.info(
                 "New Version %s available!", version.parse(
-                    lastest_release.get("tag_name"))
-            )
+                    lastest_release.get("tag_name")))
             log.info("Please visit %s", lastest_release.get("html_url"))
             log.info("")
-    except (
-        requests.exceptions.RequestException,
-        version.InvalidVersion,
-        ValueError,
-    ) as err:
-        log.error("Failed checking for new Version! - %s", err)
+    except (version.InvalidVersion, ValueError) as err:
+        log.warning("Failed checking for new Version! - %s", err)
 
 
 def _print_welcome_message() -> None:
