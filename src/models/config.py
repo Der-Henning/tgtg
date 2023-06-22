@@ -26,6 +26,7 @@ DEFAULT_CONFIG = {
     'disable_tests': False,
     'quiet': False,
     'docker': False,
+    'activity': True,
     'tgtg': {
         'username': None,
         'access_token': None,
@@ -148,6 +149,7 @@ class Config():
     schedule_cron: Cron
     debug: bool
     docker: bool
+    activity: bool
     locale: str
     metrics: bool
     metrics_port: int
@@ -289,6 +291,7 @@ class Config():
                                   "disable_tests")
             self._ini_get_boolean(config, "MAIN", "quiet", "quiet")
             self._ini_get(config, "MAIN", "locale", "locale")
+            self._ini_get_boolean(config, "MAIN", "Activity", "activity")
 
             self._ini_get(config, "TGTG", "Username", "tgtg.username")
             self._ini_get(config, "TGTG", "AccessToken", "tgtg.access_token")
@@ -442,6 +445,7 @@ class Config():
             self._env_get_boolean("DISABLE_TESTS", "disable_tests")
             self._env_get_boolean("QUIET", "quiet")
             self._env_get("LOCALE", "locale")
+            self._env_get_boolean("ACTIVITY", "activity")
 
             self._env_get("TGTG_USERNAME", "tgtg.username")
             self._env_get("TGTG_ACCESS_TOKEN", "tgtg.access_token")

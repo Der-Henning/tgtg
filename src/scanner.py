@@ -197,7 +197,8 @@ class Scanner:
         if self.cron != Cron("* * * * *"):
             log.info("Active on schedule: %s",
                      self.cron.get_description(self.config.locale))
-        activity = Activity(not (self.config.docker or self.config.quiet))
+        activity = Activity(self.config.activity and not
+                            (self.config.docker or self.config.quiet))
         while True:
             if self.cron.is_now:
                 if not running:
