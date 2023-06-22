@@ -25,8 +25,8 @@ def test_description():
     assert Cron("* 6-22 * * *").get_description() == \
         "Every minute, between 06:00 and 22:59"
     assert Cron("* 6-22 * * 1-5; * 19-22 * * 0,6").get_description() == \
-        "Every minute, between 06:00 and 22:59, Monday through Friday; \
-            Every minute, between 19:00 and 22:59, only on Sunday and Saturday"
+        ("Every minute, between 06:00 and 22:59, Monday through Friday; "
+         "Every minute, between 19:00 and 22:59, only on Sunday and Saturday")
     with pytest.raises(ConfigurationError):
         Cron("* * * * 0-7")
     with pytest.raises(ConfigurationError):

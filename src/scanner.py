@@ -199,7 +199,7 @@ class Scanner:
                      self.cron.get_description(self.config.locale))
         activity = Activity(not (self.config.docker or self.config.quiet))
         while True:
-            if any([cron.isnow for cron in self.cron]):
+            if self.cron.is_now:
                 if not running:
                     log.info("Scanner reenabled by cron schedule.")
                     running = True
