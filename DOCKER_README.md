@@ -67,6 +67,10 @@ services:
       #- TELEGRAM_TIMEOUT=60
       #- TELEGRAM_BODY=
 
+      - SCRIPT=false
+      - SCRIPT_COMMAND=
+      #- SCRIPT_CRON=
+
       - IFTTT=false
       - IFTTT_EVENT=tgtg_notification
       - IFTTT_KEY=
