@@ -68,6 +68,12 @@ services:
                                                       ## In some cases you may have to add
                                                       ## 'TELEGRAM_BODY={{` ... `}}'
 
+      - SCRIPT=false                                  ## true = enable running a script
+      - SCRIPT_COMMAND=                               ## Path to custom script. Example:
+                                                      ## SCRIPT_COMMAND=/home/user/tgtg/src/notify.sh
+                                                      ## Make sure the script is executable!
+      #- SCRIPT_CRON=
+
       - IFTTT=false                                   ## true = enable notifications via IFTTT Webhooks
       - IFTTT_EVENT=tgtg_notification                 ## IFTTT Webhooks Event
       - IFTTT_KEY=                                    ## IFTTT Webhooks Key

@@ -73,7 +73,7 @@ class Telegram(Notifier):
                            'Deactivate Telegram Notifications for '
                            '1 or x days'),
                 BotCommand('unmute', 'Reactivate Telegram Notifications'),
-                BotCommand('reserve', 'Reserve the next available Mafic Bag'),
+                BotCommand('reserve', 'Reserve the next available Magic Bag'),
                 BotCommand('reservations', 'List and cancel Reservations'),
                 BotCommand('orders', 'List and cancel active Orders'),
                 BotCommand('cancelall', 'Cancels all active orders')
