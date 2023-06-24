@@ -73,7 +73,7 @@ class Telegram(Notifier):
                            'Deactivate Telegram Notifications for '
                            '1 or x days'),
                 BotCommand('unmute', 'Reactivate Telegram Notifications'),
-                BotCommand('reserve', 'Reserve the next available Mafic Bag'),
+                BotCommand('reserve', 'Reserve the next available Magic Bag'),
                 BotCommand('reservations', 'List and cancel Reservations'),
                 BotCommand('orders', 'List and cancel active Orders'),
                 BotCommand('cancelall', 'Cancels all active orders')
@@ -106,8 +106,9 @@ class Telegram(Notifier):
         self._send_message(message, image)
 
     def _send_reservation(self, reservation: Reservation) -> None:
-        display_name = escape_markdown(reservation.display_name, version=2)
-        message = f"{display_name} is reserved for 5 minutes!"
+        message = escape_markdown(
+            f"{reservation.display_name} is reserved for 5 minutes",
+            version=2)
         self._send_message(message)
 
     def _send_message(self, message: str, image: bytes = None) -> None:

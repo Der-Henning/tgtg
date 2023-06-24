@@ -10,8 +10,8 @@ Readme, source, and documentation on [https://github.com/Der-Henning/tgtg](https
 
 - [`edge`](https://github.com/Der-Henning/tgtg/blob/main/Dockerfile)
 - [`edge-alpine`](https://github.com/Der-Henning/tgtg/blob/main/Dockerfile.alpine)
-- [`v1`, `v1.17`, `v1.17.0`, `latest`](https://github.com/Der-Henning/tgtg/blob/v1.17.0/Dockerfile)
-- [`v1-alpine`, `v1.17-alpine`, `v1.17.0-alpine`, `latest-alpine`](https://github.com/Der-Henning/tgtg/blob/v1.17.0/Dockerfile.alpine)
+- [`v1`, `v1.17`, `v1.17.1`, `latest`](https://github.com/Der-Henning/tgtg/blob/v1.17.1/Dockerfile)
+- [`v1-alpine`, `v1.17-alpine`, `v1.17.1-alpine`, `latest-alpine`](https://github.com/Der-Henning/tgtg/blob/v1.17.1/Dockerfile.alpine)
 
 # Quick Start
 
@@ -66,6 +66,10 @@ services:
       - TELEGRAM_CHAT_IDS=
       #- TELEGRAM_TIMEOUT=60
       #- TELEGRAM_BODY=
+
+      - SCRIPT=false
+      - SCRIPT_COMMAND=
+      #- SCRIPT_CRON=
 
       - IFTTT=false
       - IFTTT_EVENT=tgtg_notification
