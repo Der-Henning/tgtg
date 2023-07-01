@@ -8,6 +8,7 @@ description = "Scanner for Too Good To Go Notifications"
 license = "GPL-3.0 license"
 name = "tgtg"
 readme = "README.md"
+repository = "https://github.com/Der-Henning/tgtg"
 version = "1.17.1"
 
 [tool.poetry.dependencies]

@@ -30,7 +30,8 @@ VOLUME /tokens
 FROM base as builder
 RUN pip install "poetry==$POETRY_VERSION"
 WORKDIR $PYSETUP_PATH
-COPY ./poetry.lock ./pyproject.toml ./
+COPY ./poetry.lock ./pyproject.toml ./README.md ./
+COPY ./src ./src
 RUN poetry install --without test,build
 
 # Create Production Image

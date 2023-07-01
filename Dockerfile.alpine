@@ -31,7 +31,8 @@ FROM base as builder
 RUN apk update && apk add alpine-sdk libffi-dev
 RUN pip install "poetry==$POETRY_VERSION"
 WORKDIR $PYSETUP_PATH
-COPY ./poetry.lock ./pyproject.toml ./
+COPY ./poetry.lock ./pyproject.toml ./README.md ./
+COPY ./src ./src
 RUN poetry install --without test,build
 
 # Create Production Image
