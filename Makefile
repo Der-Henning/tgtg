@@ -1,5 +1,6 @@
-image:
+images:
 	docker build -f Dockerfile -t tgtg-scanner:latest .
+	docker build -f Dockerfile.alpine -t tgtg-scanner:alpine-latest .
 
 install:
 	poetry install

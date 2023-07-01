@@ -13,9 +13,11 @@ ENV PATH="$VENV_PATH/bin:$PATH"
 ENV TGTG_TOKEN_PATH=/tokens
 ENV DOCKER=true
 ENV POETRY_VERSION=1.5.1
+ENV UID=1001
+ENV GUI=1001
 
-RUN addgroup --gid 1001 tgtg && \
-    adduser --shell /bin/false --disabled-password --uid 1001 --gid 1001 tgtg
+RUN addgroup --gid $GUI tgtg && \
+    adduser --shell /bin/false --disabled-password --uid $UID --gid $GUI tgtg
 RUN mkdir -p /app
 RUN chown tgtg:tgtg /app
 RUN mkdir -p /tokens
@@ -33,8 +35,9 @@ RUN poetry install --without test,build
 
 # Create Production Image
 FROM python-base as production
+COPY ./entrypoint.sh /entrypoint.sh
 COPY --from=builder $VENV_PATH $VENV_PATH
 COPY --chown=tgtg:tgtg ./src /app
+ENTRYPOINT /entrypoint.sh
 WORKDIR /app
-USER tgtg
-CMD [ "python", "-u", "main.py" ]
+CMD [ "python", "main.py" ]
