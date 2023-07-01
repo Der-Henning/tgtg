@@ -1,9 +1,46 @@
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]
+
+[tool.poetry]
+authors = ["Henning Merklinger <henning.merklinger@gmail.com>"]
+description = "Scanner for Too Good To Go Notifications"
+license = "GPL-3.0 license"
+name = "tgtg"
+readme = "README.md"
+version = "1.17.1"
+
+[tool.poetry.dependencies]
+apprise = "^1.4.0"
+colorlog = "^6.7.0"
+cron-descriptor = "^1.4.0"
+googlemaps = "^4.10.0"
+humanize = "^4.7.0"
+packaging = "^23.1"
+progress = "^1.6"
+prometheus-client = "^0.17.0"
+pycron = "^3.0.0"
+python = ">=3.9,<3.13"
+python-pushsafer = "^1.1"
+python-telegram-bot = "^13.15"
+requests = "^2.31.0"
+
+[tool.poetry.group.build.dependencies]
+pyinstaller = "^5.13.0"
+
+[tool.poetry.group.test.dependencies]
+pre-commit = "^3.3.3"
+pytest = "^7.4.0"
+pytest-cov = "^4.1.0"
+pytest-mock = "^3.11.1"
+responses = "^0.23.1"
+
 [tool.pytest.ini_options]
 addopts = [
-    "--import-mode=importlib",
+  "--import-mode=importlib"
 ]
 markers = [
-    "tgtg_api: test directly calls the tgtg API (deselect with '-m \"not tgtg_api\"')"
+  "tgtg_api: test directly calls the tgtg API (deselect with '-m \"not tgtg_api\"')"
 ]
 pythonpath = [
   "src"

@@ -9,48 +9,32 @@
 			// Update 'VARIANT' to pick a Python version: 3, 3.10, 3.9, 3.8, 3.7, 3.6
 			// Append -bullseye or -buster to pin to an OS version.
 			// Use -bullseye variants on local on arm64/Apple Silicon.
-			"VARIANT": "3.10"
+			"VARIANT": "3.10",
 			// Options
-			// "NODE_VERSION": "lts/*"
+			// "NODE_VERSION": "lts/*",
+			"POETRY_VERSION": "1.5.1"
 		}
 	},
-	// "runArgs": [
-	// 	"--env-file",
-	// 	".env"
-	// ],
 	// Set *default* container specific settings.json values on container create.
 	"customizations": {
 		"vscode": {
 			"settings": {
-				"python.defaultInterpreterPath": "/usr/local/bin/python",
-				"python.linting.enabled": true,
-				"python.linting.flake8Enabled": true,
-				"python.linting.flake8Args": [
-					"--max-line-length=79"
-				],
-				"python.linting.pylintEnabled": false,
-				"python.formatting.provider": "autopep8",
-				"python.formatting.autopep8Args": [
-					"--in-place",
-					"--max-line-length=79"
-				],
-				"python.testing.pytestEnabled": true,
-				"python.testing.pytestArgs": [
-					"tests"
-				],
-				"isort.check": true
+				"python.defaultInterpreterPath": "./.venv/bin/python",
+				"python.terminal.activateEnvironment": true,
+				"python.terminal.activateEnvInCurrentTerminal": true
 			},
 			// Add the IDs of extensions you want installed when the container is created.
 			"extensions": [
-				"ms-python.python",
-				"njpwerner.autodocstring"
+				"ms-python.python"
 			]
 		}
 	},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
+	"forwardPorts": [
+		8000
+	],
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "pre-commit install --install-hooks",
+	"postCreateCommand": "poetry install && poetry run pre-commit install --install-hooks",
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "vscode",
 	"features": {

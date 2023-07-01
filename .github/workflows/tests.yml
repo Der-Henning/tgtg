@@ -9,19 +9,20 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: ["ubuntu-latest", "windows-latest", "macos-latest"]
-        python: ["3.9", "3.10", "3.11"]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ['3.9', '3.10', '3.11']
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python }}
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install pytest-cov pytest-mock responses pre-commit
-      - name: Run linting
-        run: pre-commit run -a
-      - name: Run tests
-        run: python -m pytest -v -m "not tgtg_api" --cov src/ --cov-report=xml
-      - uses: codecov/codecov-action@v3
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python }}
+    - uses: abatilo/actions-poetry@v2
+      with:
+        poetry-version: 1.5.1
+    - name: Install dependencies
+      run: poetry install --without build
+    - name: Run linting
+      run: poetry run pre-commit run -a
+    - name: Run tests
+      run: poetry run pytest -v -m "not tgtg_api" --cov src/ --cov-report=xml
+    - uses: codecov/codecov-action@v3
