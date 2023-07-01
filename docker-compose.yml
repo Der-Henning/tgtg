@@ -1,115 +1,25 @@
 version: '3.3'
+
 services:
-  app:
-    image: derhenning/tgtg:latest         ## pre build image from docker hub
+  scanner:
+    image: derhenning/tgtg:latest-alpine         ## pre build image from docker hub
     #image: tgtg-scanner:latest           ## locally build image
     environment:
-    - TZ=Europe/Berlin                                ## Set timezone for pickupdate, otherwise will be utc
-    - DEBUG=false                                     ## true for debug log messages
-    - TGTG_USERNAME=                                  ## TGTG Username / Login EMail
-    - SLEEP_TIME=60                                   ## Time to wait till next scan in seconds - default 60 seconds
-      #- SCHEDULE_CRON=                               ## (optional) Scheduler in cron schedule expression
-                                                      ## Example of cron schedule expression:
-                                                      ## - SCHEDULE_CRON=* 12-14 * * 1-5
-                                                      ## => allowed to run at hours between 12:00 and 14:59 on monday to friday
-                                                      ## more help with formatting at https://crontab.guru/#*_12-14_*_*_1-5
-                                                      ## The Scanner will not make any requests to the TGTG API in the excluded periods
-    - LOCATION=false                                  ## true = calculate distance and travel time to the item location/store
-    - LOCATION_GOOGLE_MAPS_API_KEY=                   ## Google Maps API Key https://developers.google.com/maps/documentation/javascript/get-api-key
-    - LOCATION_ADDRESS=                               ## Home/Origin address
+    # Configuration via environment variables.
+    # Basic example using Telegram notifications
+    # For more options and details visit https://github.com/Der-Henning/tgtg/wiki/Configuration
 
-    - ITEM_IDS=                                       ## (optional) Comma seperated list of Item Ids to scan
-    - METRICS=false                                   ## Enable to export metrics for Prometheus
-    - METRICS_PORT=8000                               ## Port for metrics http server
-    - DISABLE_TESTS=false                             ## true to disable test notifications on startup
-    - QUIET=false                                     ## true to disable all console messages. Only errors and console notifier messages
-    - LOCALE=en_US                                    ## set locale to localize ${{pickupdate}}
+    - TGTG_USERNAME=
+    - SLEEP_TIME=60
+    - TZ=Europe/Berlin
+    - LOCALE=de_DE
 
-    - APPRISE=false                                   ## true = enable notifications via Apprise
-    - APPRISE_URL=                                    ## Apprise URL
-                                                      ## See the list of supported services: https://github.com/caronc/apprise/wiki
-      #- APPRISE_CRON=
-      #- APPRISE_TITLE=                               ##
-      #- APPRISE_BODY=                                ## Message body, variables as described below
-                                                      ## The supported message format depends on the chosen service
-                                                      ## Default: '${{display_name}} - new amount: ${{items_available}} - https://share.toogoodtogo.com/item/${{item_id}}'
+    - TELEGRAM=true
+    - TELEGRAM_TOKEN=
+    - TELEGRAM_CHAT_IDS=
 
-    - CONSOLE=false                                   ## true = enable simple console notifications
-      #- CONSOLE_BODY=                                ## console message with variables as described below
-      #- CONSOLE_CRON=                                ## Disable notifications based on cron
-
-    - SMTP=false                                      ## true = enable mail notifications via smtp
-    - SMTP_HOST=smtp.gmail.com                        ## smtp Server - smtp.gmail.com for google
-    - SMTP_PORT=587                                   ## smtp Server Port - 587 for TLS, 465 for SSL, 25 for unsecured
-    - SMTP_USERNAME=max.mustermann@gmail.com          ## smtp Login - your EMail for google
-    - SMTP_PASSWORD=                                  ## smtp Login Password - your Login PW for google
-    - SMTP_TLS=true                                   ## enable TLS
-    - SMTP_SSL=false                                  ## enable SSL
-    - SMTP_SENDER=max.mustermann@gmail.com            ## sender adress - same as Login for google and most smtp servers
-    - SMTP_RECIPIENT=max.mustermann@gmail.com         ## recipient for notifications - can be the same as sender
-      #- SMTP_CRON=
-      #- SMTP_SUBJECT=                                 ## Subject and Body options are optional.
-      #- SMTP_BODY=                                    ## Subject and Body options can use variables as described below
-                                                      ## The Body option is interpreted as HTML
-
-    - PUSH_SAFER=false                                ## true = enable notifications via pushsafer.com
-    - PUSH_SAFER_KEY=
-    - PUSH_SAFER_DEVICE_ID=
-      #- PUSH_SAFER_CRON=
-
-    - TELEGRAM=false                                  ## true = enable notifications via Telegram
-    - TELEGRAM_TOKEN=                                 ## Telegram Bot token - see @botfather
-    - TELEGRAM_CHAT_IDS=                              ## Telegram Chat id, multiple ids separated by comma
-    - TELEGRAM_TIMEOUT=60                             ## Timeout for Telegram API requests
-      #- TELEGRAM_CRON=
-      #- TELEGRAM_BODY=                               ## Optional message body as markdown, variables as described below
-                                                      ## Example:
-                                                      ## 'TELEGRAM_BODY=*$${{display_name}}*\n*Available*: $${{items_available}}\n*Rating*: $${{rating}}\n*Price*: $${{price}} $${{currency}}\n*Pickup*: $${{pickupdate}}'
-                                                      ## In some cases you may have to add
-                                                      ## 'TELEGRAM_BODY={{` ... `}}'
-
-    - SCRIPT=false                                    ## true = enable running a script
-    - SCRIPT_COMMAND=                                 ## Path to custom script. Example:
-                                                      ## SCRIPT_COMMAND=/home/user/tgtg/src/notify.sh
-                                                      ## Make sure the script is executable!
-      #- SCRIPT_CRON=
-
-    - IFTTT=false                                     ## true = enable notifications via IFTTT Webhooks
-    - IFTTT_EVENT=tgtg_notification                   ## IFTTT Webhooks Event
-    - IFTTT_KEY=                                      ## IFTTT Webhooks Key
-      #- IFTTT_CRON=
-    - IFTTT_BODY=                                     ## IFTTT json data body
-                                                      ## Default: {"value1": "$${{display_name}}", "value2": $${{items_available}}, "value3": "https://share.toogoodtogo.com/item/$${{item_id}}"}
-
-      ## Possible $${{variable}} variables: item_id, items_available, display_name, price, currency, pickupdate, item_logo, item_cover, scanned_on
-    - NTFY=false                                      ## true = enable notifications via ntfy
-    - NTFY_SERVER=https://ntfy.sh                     ## server to use for ntfy url
-    - NTFY_TOPIC=                                     ## topic the topic to use for ntfy url
-      #- NTFY_TITLE=New TGTG Items                    ## Title of the notification
-      #- NTFY_BODY=                                   ## Body of the notification
-                                                      ## Default: ${{display_name}} - New Amount: ${{items_available}} - https://share.toogoodtogo.com/item/${{item_id}}
-      #- NTFY_PRIORITY=default                        ## Priority of the notification
-      #- NTFY_TAGS=tgtg                               ## Tags of the notification
-      #- NTFY_CLICK=                                  ## URL to open on click - Default: https://share.toogoodtogo.com/item/${{item_id}}
-      #- NTFY_USERNAME=                               ## Username for the ntfy server/topic
-      #- NTFY_PASSWORD=                               ## Password for the ntfy server/topic
-      #- NTFY_TIMEOUT=60                              ## Request Timeout
-      #- NTFY_CRON=
-
-      ## Possible $${{variable}} variables: item_id, items_available, display_name, price, currency, pickupdate, item_logo, item_cover, scanned_on
-      ## Link to item in App: https://share.toogoodtogo.com/item/${{item_id}}
-      ## Example:
-   ## - 'WEBHOOK_BODY={"message": "$${{display_name}} - New Amount: $${{items_available}}", "priority": 2, "title": "New TGTG Items"}'
-      ## Notice that you have to enclose the variable with ''
-    - WEBHOOK=false                                   ## true = enable notifications via costum WebHook
-    - WEBHOOK_URL=                                    ## URL of your WebHook, can contain $${{variable}}
-    - WEBHOOK_METHOD=POST                             ## Request Method
-    - WEBHOOK_BODY={}                                 ## Data to send, can contain $${{variable}}
-    - WEBHOOK_TYPE=application/json                   ## Content-Type for header, default: text/plain
-    - WEBHOOK_HEADERS={}                              ## Additional headers
-    - WEBHOOK_TIMEOUT=60                              ## Request Timeout
-      #- WEBHOOK_CRON=
     volumes:
     - tokens:/tokens             ## volume to save TGTG credentials to reuse on next start up and avoid login mail
+
 volumes:
   tokens:
