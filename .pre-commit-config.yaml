@@ -40,5 +40,6 @@ repos:
   hooks:
   - id: pretty-format-toml
     args: [--autofix]
+    exclude: poetry.lock
   - id: pretty-format-yaml
     args: [--autofix, --indent, '2']
