@@ -36,6 +36,7 @@ IS_WINDOWS = SYS_PLATFORM.lower() in ('windows', 'cygwin')
 IS_EXECUTABLE = getattr(sys, "_MEIPASS", False)
 PROG_PATH = Path(sys.executable) if IS_EXECUTABLE else Path(__file__)
 IS_DOCKER = os.environ.get("DOCKER", "False").lower() in ('true', '1', 't')
+LOGS_PATH = os.environ.get("LOGS_PATH", PROG_PATH.parent)
 
 
 def main() -> NoReturn:
@@ -43,7 +44,7 @@ def main() -> NoReturn:
     _register_signals()
 
     config_file = Path(PROG_PATH.parent, "config.ini")
-    log_file = Path(PROG_PATH.parent, "scanner.log")
+    log_file = Path(LOGS_PATH, "scanner.log")
 
     parser = argparse.ArgumentParser(
         description="TooGoodToGo scanner and notifier.",

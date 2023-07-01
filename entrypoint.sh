@@ -1,10 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
-usermod -u ${UID} tgtg && groupmod -g ${GUID} tgtg
+echo "Updating UID and GID to ${UID}:${GID}"
+usermod -u ${UID} tgtg && groupmod -g ${GID} tgtg
+chown -R ${UID}:${GID} /tokens /logs
 
-chown -R tgtg:tgtg /app /tokens
-
-su - tgtg
-
-exec "$@"
+echo "Starting tgtg"
+exec runuser -u tgtg "$@"

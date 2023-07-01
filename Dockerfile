@@ -1,4 +1,4 @@
-FROM python:3.10-slim as python-base
+FROM python:3.10-slim as base
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -11,33 +11,34 @@ ENV PYTHONUNBUFFERED=1 \
     VENV_PATH="/opt/pysetup/.venv"
 ENV PATH="$VENV_PATH/bin:$PATH"
 ENV TGTG_TOKEN_PATH=/tokens
+ENV LOGS_PATH=/logs
 ENV DOCKER=true
 ENV POETRY_VERSION=1.5.1
-ENV UID=1001
-ENV GUI=1001
+ENV UID=1000
+ENV GID=1000
 
-RUN addgroup --gid $GUI tgtg && \
-    adduser --shell /bin/false --disabled-password --uid $UID --gid $GUI tgtg
+RUN addgroup --gid $GID tgtg && \
+    adduser --shell /bin/false --disabled-password --uid $UID --gid $GID tgtg
 RUN mkdir -p /app
-RUN chown tgtg:tgtg /app
+RUN mkdir -p /logs
 RUN mkdir -p /tokens
 RUN chown tgtg:tgtg /tokens
+RUN chown tgtg:tgtg /logs
 VOLUME /tokens
 
 # Build dependencies
-FROM python-base as builder
-RUN apt-get update && \
-    apt-get install --no-install-recommends -y build-essential
+FROM base as builder
 RUN pip install "poetry==$POETRY_VERSION"
 WORKDIR $PYSETUP_PATH
 COPY ./poetry.lock ./pyproject.toml ./
 RUN poetry install --without test,build
 
 # Create Production Image
-FROM python-base as production
+FROM base as production
 COPY ./entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 COPY --from=builder $VENV_PATH $VENV_PATH
-COPY --chown=tgtg:tgtg ./src /app
-ENTRYPOINT /entrypoint.sh
+COPY ./src /app
+ENTRYPOINT [ "/entrypoint.sh" ]
 WORKDIR /app
 CMD [ "python", "main.py" ]
