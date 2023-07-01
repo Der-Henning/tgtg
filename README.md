@@ -64,22 +64,22 @@ The container automatically creates a volume mounting `\tokens` where the app sa
 
 To update the running container to the latest version of the selected tag run
 
-````bash
+```bash
 docker-compose pull
 docker-compose up -d
-````
+```
 
 ### Run from source
 
 Method for advanced usage.
 
-1. Install Git, Python>=3.9, and pip
+1. Install Git, Python>=3.9, and poetry
 2. Clone the repository `git clone https://github.com/Der-Henning/tgtg`
 3. Enter repository folder `cd tgtg`
-4. Run `pip install -r requirements.txt`
+4. Run `poetry install --without test,build`
 5. Create config file `cp src/config.sample.ini src/config.ini`
 6. Modify `src/config.ini` as described in the [Wiki](https://github.com/Der-Henning/tgtg/wiki/Configuration)
-7. Run `python src/main.py`
+7. Run `poetry run scanner`
 
 Alternatively, you can use environment variables as described in the `sample.env` file. The scanner will look for environment variables if no `config.ini` is present.
 
@@ -92,8 +92,8 @@ If you receive the `ModuleNotFoundError: No module named '_ctypes'` you may need
 You could also build your own binary for your OS/Arch combination.
 
 1. Clone the repository as described above
-2. Run `pip install -r requirements-build.txt`
-3. Run `make executable` or `pyinstaller scanner.spec`
+2. Run `poetry install --without test`
+3. Run `make executable`
 
 You will find the bundled binary including the `config.ini` in the `./dist` directory.
 
@@ -105,9 +105,9 @@ After a successful login, the scanner will send a test notification on all confi
 
 ### Helper functions
 
-The executable or the `src/main.py` contains some useful helper functions that can be accessed via optional command line arguments. Running `scanner[.exe] --help` or `python src/main.py --help` displays the available commands.
+The executable or the `src/main.py` contains some useful helper functions that can be accessed via optional command line arguments. Running `scanner[.exe] --help`, `poetry run scanner --help` or `python src/main.py --help` displays the available commands.
 
-````
+```
 usage: main.py [-h] [-v] [-d] [-t | -f | -F | -a item_id [item_id ...] | -r item_id [item_id ...] | -R] [-j | -J]
 
 TooGoodToGo scanner and notifier.
@@ -126,13 +126,13 @@ options:
   -R, --remove_all      remove all favorites and exit
   -j, --json            output as plain JSON
   -J, --json_pretty     output as pretty JSON
-````
+```
 
 Example (Unix only):
 
-````bash
-python src/main.py -f -J >> items.json
-````
+```bash
+poetry run scanner -f -J >> items.json
+```
 
 Creates a formatted JSON file containing all your favorite items and their available information.
 
@@ -142,7 +142,7 @@ Enabling the metrics option will expose an HTTP server on the specified port sup
 
 Scrape config:
 
-````xml
+```xml
   - job_name: 'TGTG'
     scrape_interval: 1m
     scheme: http
@@ -150,7 +150,7 @@ Scrape config:
     static_configs:
     - targets:
       - 'localhost:8000'
-````
+```
 
 ## Development
 
@@ -160,20 +160,18 @@ If you are developing with VSCode, you can open the project in the configured de
 
 Alternatively, install all required development environment dependencies, including linting, testing, and building by executing
 
-````bash
-pip install -r requirements-dev.txt
-````
+```bash
+poetry install
+```
 
 ### Makefile commands
 
-- `make image` builds docker image with tag `tgtg-scanner:latest`
+- `make images` builds docker images with tag `tgtg-scanner:latest` and `tgtg-scanner:alpine-latest`
 - `make install` installs development dependencies
-- `make start` is short for `python src/main.py`
-- `make bash` starts dev python docker image with installed dependencies and mounted project in bash
+- `make start` is short for `poetry run scanner -d`
 - `make executable` creates a bundled executable in `/dist`
 - `make test` runs unit tests
 - `make lint` run pre-commit hooks
-- `make clean` cleans up docker-compose
 
 ### Creating new notifiers
 

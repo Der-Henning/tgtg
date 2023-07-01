@@ -6,7 +6,7 @@ install:
 	poetry install
 
 start:
-	python src/main.py -d
+	poetry run scanner -d
 
 executable:
 	rm -r ./build ||:

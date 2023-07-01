@@ -36,6 +36,9 @@ pytest-cov = "^4.1.0"
 pytest-mock = "^3.11.1"
 responses = "^0.23.1"
 
+[tool.poetry.scripts]
+scanner = "src.main:main"
+
 [tool.pytest.ini_options]
 addopts = [
   "--import-mode=importlib"
