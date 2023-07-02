@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-from models import Config, Cron, Item, Reservations
+from models import Config, Cron, Favorites, Item, Reservations
 from models.reservations import Reservation
 from notifiers.apprise import Apprise
 from notifiers.base import Notifier
@@ -18,7 +18,8 @@ log = logging.getLogger("tgtg")
 
 
 class Notifiers:
-    def __init__(self, config: Config, reservations: Reservations):
+    def __init__(self, config: Config, reservations: Reservations,
+                 favorites: Favorites):
         self._notifiers: List[Notifier] = [
             Apprise(config),
             Console(config),
@@ -27,7 +28,7 @@ class Notifiers:
             IFTTT(config),
             Ntfy(config),
             WebHook(config),
-            Telegram(config, reservations),
+            Telegram(config, reservations, favorites),
             Script(config),
         ]
         log.info("Activated notifiers:")
