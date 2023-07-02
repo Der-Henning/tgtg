@@ -1,4 +1,4 @@
-FROM python:3.10-alpine as base
+FROM python:3.10-slim as base
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -17,8 +17,8 @@ ENV POETRY_VERSION=1.5.1
 ENV UID=1000
 ENV GID=1000
 
-RUN addgroup --gid $GID --system tgtg && \
-    adduser --shell /bin/false --disabled-password --uid $UID --system --ingroup tgtg tgtg
+RUN addgroup --gid $GID tgtg && \
+    adduser --shell /bin/false --disabled-password --uid $UID --gid $GID tgtg
 RUN mkdir -p /app
 RUN mkdir -p /logs
 RUN mkdir -p /tokens
@@ -28,7 +28,6 @@ VOLUME /tokens
 
 # Build dependencies
 FROM base as builder
-RUN apk update && apk add alpine-sdk libffi-dev
 RUN pip install "poetry==$POETRY_VERSION"
 WORKDIR $PYSETUP_PATH
 COPY ./poetry.lock ./pyproject.toml ./README.md ./
@@ -37,8 +36,7 @@ RUN poetry install --without test,build
 
 # Create Production Image
 FROM base as production
-RUN apk update && apk add shadow runuser
-COPY ./entrypoint.sh /entrypoint.sh
+COPY ./docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 COPY --from=builder $VENV_PATH $VENV_PATH
 COPY ./src /app

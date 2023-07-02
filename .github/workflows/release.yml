@@ -55,7 +55,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
         repository: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}
         short-description: ${{ github.event.repository.description }}
-        readme-filepath: ./DOCKER_README.md
+        readme-filepath: ./docker/DOCKER_README.md
   releases:
     name: Build Release Files
     runs-on: ${{ matrix.os }}
