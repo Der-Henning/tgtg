@@ -1,6 +1,7 @@
 # Release Checklist
 
-Since I always forget something when I create a new release, here is a small checklist for my future me.
+Since I always forget something when I create a new release,
+here is a small checklist for my future me.
 
 * [ ] Read this checklist.
 * [ ] Make sure all tests are passing.

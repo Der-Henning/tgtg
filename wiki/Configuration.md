@@ -1,3 +1,4 @@
+<!-- markdownlint-disable-next-line MD041 -->
 ## Basic configuration
 
 The only required option is the Email aka Username to your TGTG account.
@@ -11,7 +12,6 @@ Username = my_mail@example.com
 
 This config will start the scanner and lead you through the login process.
 After the successful login, you will see changes in the available amounts of your favorite magic bags in the console window.
-
 
 ## Variables
 
@@ -55,7 +55,7 @@ Variables with the `locale` property are affected by the `locale` option and ret
 
 ## Cron Scheduler
 
-For formatting support see: https://crontab.guru/#*_12-14_*_*_1-5
+For formatting support see: <https://crontab.guru/#*_12-14_*_*_1-5>
 
 You can combine multiple crons as semicolon separated list.
 
@@ -78,7 +78,6 @@ You can combine multiple crons as semicolon separated list.
 | | TZ | timezone for docker based setups, e.g. `Berlin/Europe` |
 | | UID | set user id for docker container | `1000` |
 | | GID | set group id for docker container | `1000` |
-
 
 ### [TGTG] / TGTG account
 
@@ -127,7 +126,6 @@ You can combine multiple crons as semicolon separated list.
 | Body | SMTP_BODY | email html body | `<b>${{display_name}}</b> </br> New Amount: ${{items_available}}` | | YES |
 | Cron | SMTP_CRON | enable notification only on schedule | `* * * * *` |
 
-
 ### [PUSHSAFER] / Pushsafer Notifier
 
 | config.ini | environment | description | default | required if enabled | variables |
@@ -136,7 +134,6 @@ You can combine multiple crons as semicolon separated list.
 | Key | PUSH_SAFER_KEY | Pushsafer API key | | YES |
 | DeviceID | PUSH_SAFER_DEVICE_ID | Pushsafer device ID | | YES |
 | Cron | PUSH_SAFER_CRON | enable notification only on schedule | `* * * * *` |
-
 
 ### [IFTTT] / IFTTT Notifier
 
@@ -148,7 +145,6 @@ You can combine multiple crons as semicolon separated list.
 | Body | IFTTT_BODY | JSON message body | `{"value1": "${{display_name}}", "value2": ${{items_available}}, "value3": "${{link}}"}` | | YES |
 | Timeout | IFTTT_TIMEOUT | timeout for API requests | 60 |
 | Cron | IFTTT_CRON | enable notification only on schedule | `* * * * *` |
-
 
 ### [TELEGRAM] / Telegram Notifier
 
@@ -163,13 +159,15 @@ You can combine multiple crons as semicolon separated list.
 | Cron | TELEGRAM_CRON | enable notification only on schedule | `* * * * *` |
 
 #### Note on Markdown V2
+
 As of Version 1.17.0 the Telegram Notifier uses the Markdown V2 parser of the Telegram API.
-This requires all special markdown characters, that should not be parsed as markdown commands, to be escaped with a preceding `\`.
+This requires all special markdown characters, that should not be parsed as markdown commands,
+to be escaped with a preceding `\`.
 The special characters are `_`, `*`, `[`, `]`, `(`, `)`, `~`, `` ` ``, `>`, `#`, `+`, `-`, `=`, `|`, `{`, `}`, `.` and `!`.
 
 ### [APPRISE] / Apprise Notifier
 
-For details on the service URL configuration see https://github.com/caronc/apprise.
+For details on the service URL configuration see <https://github.com/caronc/apprise>.
 
 | config.ini | environment | description | default | required if enabled | variables |
 |------------|-------------|-------------|---------|:-------------------:|:---------:|

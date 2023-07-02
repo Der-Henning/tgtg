@@ -2,6 +2,7 @@
 
 Readme, source, and documentation on [https://github.com/Der-Henning/tgtg](https://github.com/Der-Henning/tgtg).
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Supported Tags and respective `Dockerfile` links
 
  The `latest` images represent the latest stable release.
@@ -13,13 +14,14 @@ Readme, source, and documentation on [https://github.com/Der-Henning/tgtg](https
 - [`v1`, `v1.17`, `v1.17.1`, `latest`](https://github.com/Der-Henning/tgtg/blob/v1.17.1/Dockerfile)
 - [`v1-alpine`, `v1.17-alpine`, `v1.17.1-alpine`, `latest-alpine`](https://github.com/Der-Henning/tgtg/blob/v1.17.1/Dockerfile.alpine)
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Quick Start
 
 **Docker Compose Example:**
 
 Basic example using Telegram notifications.
 
-For more options and details visit https://github.com/Der-Henning/tgtg/wiki/Configuration.
+For more options and details visit <https://github.com/Der-Henning/tgtg/wiki/Configuration>.
 
 ````xml
 version: '3.3'

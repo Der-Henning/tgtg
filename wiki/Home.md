@@ -1,4 +1,5 @@
-Welcome to the TGTG Scanner wiki!
+<!-- markdownlint-disable-next-line MD041 -->
+## Welcome to the TGTG Scanner wiki
 
 1. [Configuration](Configuration.md)
     1. [Basic configuration](Configuration.md#basic-configuration)
