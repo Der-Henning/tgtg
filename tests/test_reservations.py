@@ -2,8 +2,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from models.item import Item
-from models.reservations import Order, Reservation, Reservations
+from tgtg_scanner.models.item import Item
+from tgtg_scanner.models.reservations import Order, Reservation, Reservations
 
 
 @pytest.fixture

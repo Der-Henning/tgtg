@@ -7,8 +7,8 @@ from typing import Any, Union
 import humanize
 import requests
 
-from models.errors import MaskConfigurationError
-from models.location import DistanceTime, Location
+from tgtg_scanner.models.errors import MaskConfigurationError
+from tgtg_scanner.models.location import DistanceTime, Location
 
 ATTRS = ["item_id", "items_available", "display_name", "description",
          "price", "currency", "pickupdate", "favorite", "rating",

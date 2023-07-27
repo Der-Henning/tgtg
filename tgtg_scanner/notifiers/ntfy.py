@@ -2,9 +2,10 @@ import logging
 
 from requests.auth import HTTPBasicAuth
 
-from models import Config, Item
-from models.errors import MaskConfigurationError, NtfyConfigurationError
-from notifiers.webhook import WebHook
+from tgtg_scanner.models import Config, Item
+from tgtg_scanner.models.errors import (MaskConfigurationError,
+                                        NtfyConfigurationError)
+from tgtg_scanner.notifiers.webhook import WebHook
 
 log = logging.getLogger('tgtg')
 

@@ -1,18 +1,18 @@
 import logging
 from typing import List
 
-from models import Config, Cron, Item, Reservations
-from models.reservations import Reservation
-from notifiers.apprise import Apprise
-from notifiers.base import Notifier
-from notifiers.console import Console
-from notifiers.ifttt import IFTTT
-from notifiers.ntfy import Ntfy
-from notifiers.push_safer import PushSafer
-from notifiers.script import Script
-from notifiers.smtp import SMTP
-from notifiers.telegram import Telegram
-from notifiers.webhook import WebHook
+from tgtg_scanner.models import Config, Cron, Item, Reservations
+from tgtg_scanner.models.reservations import Reservation
+from tgtg_scanner.notifiers.apprise import Apprise
+from tgtg_scanner.notifiers.base import Notifier
+from tgtg_scanner.notifiers.console import Console
+from tgtg_scanner.notifiers.ifttt import IFTTT
+from tgtg_scanner.notifiers.ntfy import Ntfy
+from tgtg_scanner.notifiers.push_safer import PushSafer
+from tgtg_scanner.notifiers.script import Script
+from tgtg_scanner.notifiers.smtp import SMTP
+from tgtg_scanner.notifiers.telegram import Telegram
+from tgtg_scanner.notifiers.webhook import WebHook
 
 log = logging.getLogger("tgtg")
 

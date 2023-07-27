@@ -1,3 +1,18 @@
+# Ignore everything
+*
+
+# Allow files and directories
+!/docker
+!/tgtg_scanner
+!/pyproject.toml
+!/poetry.lock
+!/README.md
+!/LICENSE
+
+# Ignore unnecessary files inside allowed directories
+# This should go after the allowed directories
+**/.DS_Store
+**/Thumbs.db
 **/__pycache__/
 **/.ipynb_checkpoints/
 **/config.ini

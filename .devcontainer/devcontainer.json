@@ -21,11 +21,18 @@
 			"settings": {
 				"python.defaultInterpreterPath": "./.venv/bin/python",
 				"python.terminal.activateEnvironment": true,
-				"python.terminal.activateEnvInCurrentTerminal": true
+				"python.terminal.activateEnvInCurrentTerminal": true,
+				"editor.rulers": [79],
+				"python.testing.pytestArgs": [
+					"tests"
+				],
+				"python.testing.unittestEnabled": false,
+				"python.testing.pytestEnabled": true
 			},
 			// Add the IDs of extensions you want installed when the container is created.
 			"extensions": [
-				"ms-python.python"
+				"ms-python.python",
+				"GitHub.vscode-pull-request-github"
 			]
 		}
 	},
@@ -38,6 +45,7 @@
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "vscode",
 	"features": {
-		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
+		// "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
 	}
 }

@@ -1,9 +1,10 @@
 import logging
 import subprocess
 
-from models import Config, Item
-from models.errors import MaskConfigurationError, ScriptConfigurationError
-from notifiers import Notifier
+from tgtg_scanner.models import Config, Item
+from tgtg_scanner.models.errors import (MaskConfigurationError,
+                                        ScriptConfigurationError)
+from tgtg_scanner.notifiers import Notifier
 
 log = logging.getLogger('tgtg')
 

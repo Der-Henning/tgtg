@@ -16,7 +16,7 @@ block_cipher = None
 
 
 a = Analysis(
-    ['src/main.py'],
+    ['tgtg_scanner/__main__.py'],
     pathex=[],
     binaries=binaries,
     datas=datas,

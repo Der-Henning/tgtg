@@ -14,10 +14,10 @@ import requests
 from packaging import version
 from requests.exceptions import RequestException
 
-from _version import __author__, __url__, __version__
-from models import Config
-from models.errors import ConfigurationError, TgtgAPIError
-from scanner import Scanner
+from tgtg_scanner._version import __author__, __url__, __version__
+from tgtg_scanner.models import Config
+from tgtg_scanner.models.errors import ConfigurationError, TgtgAPIError
+from tgtg_scanner.scanner import Scanner
 
 VERSION_URL = "https://api.github.com/repos/Der-Henning/tgtg/releases/latest"
 
@@ -34,16 +34,16 @@ http_client.HTTPConnection.debuglevel = 0
 SYS_PLATFORM = platform.system()
 IS_WINDOWS = SYS_PLATFORM.lower() in ('windows', 'cygwin')
 IS_EXECUTABLE = getattr(sys, "_MEIPASS", False)
-PROG_PATH = Path(sys.executable) if IS_EXECUTABLE else Path(__file__)
+PROG_PATH = Path(sys.executable) if IS_EXECUTABLE else Path(os.getcwd())
 IS_DOCKER = os.environ.get("DOCKER", "False").lower() in ('true', '1', 't')
-LOGS_PATH = os.environ.get("LOGS_PATH", PROG_PATH.parent)
+LOGS_PATH = os.environ.get("LOGS_PATH", PROG_PATH)
 
 
 def main() -> NoReturn:
     """Wrapper for Scanner and Helper functions."""
     _register_signals()
 
-    config_file = Path(PROG_PATH.parent, "config.ini")
+    config_file = Path(PROG_PATH, "config.ini")
     log_file = Path(LOGS_PATH, "scanner.log")
 
     parser = argparse.ArgumentParser(

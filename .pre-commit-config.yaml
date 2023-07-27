@@ -16,7 +16,6 @@ repos:
   rev: v2.0.2
   hooks:
   - id: autopep8
-    files: ^(src|tests)/
     args:
     - --in-place
     - --max-line-length=79
@@ -25,13 +24,11 @@ repos:
   rev: 5.12.0
   hooks:
   - id: isort
-    files: ^(src|tests)/
 
 - repo: https://github.com/PyCQA/flake8
   rev: 6.0.0
   hooks:
   - id: flake8
-    files: ^(src|tests)/
     args:
     - --max-line-length=79
 

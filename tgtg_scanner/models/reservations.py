@@ -2,8 +2,8 @@ import logging
 from dataclasses import dataclass
 from typing import Callable, Dict, List
 
-from models.item import Item
-from tgtg import TgtgClient
+from tgtg_scanner.models.item import Item
+from tgtg_scanner.tgtg import TgtgClient
 
 log = logging.getLogger("tgtg")
 

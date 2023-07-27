@@ -1,8 +1,8 @@
 import logging
 from abc import ABC, abstractmethod
 
-from models import Config, Cron, Item
-from models.reservations import Reservation
+from tgtg_scanner.models import Config, Cron, Item
+from tgtg_scanner.models.reservations import Reservation
 
 log = logging.getLogger('tgtg')
 

@@ -4,7 +4,7 @@ from typing import Union
 
 import googlemaps
 
-from models.errors import LocationConfigurationError
+from tgtg_scanner.models.errors import LocationConfigurationError
 
 log = logging.getLogger("tgtg")
 

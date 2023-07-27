@@ -1,6 +1,6 @@
 import requests
 
-from models.metrics import Metrics
+from tgtg_scanner.models.metrics import Metrics
 
 
 def test_metrics():

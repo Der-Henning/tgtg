@@ -6,4 +6,4 @@ usermod -u ${UID} tgtg && groupmod -g ${GID} tgtg
 chown -R ${UID}:${GID} /tokens /logs
 
 echo "Starting tgtg"
-exec runuser -u tgtg "$@"
+exec runuser -u tgtg -- "$@"

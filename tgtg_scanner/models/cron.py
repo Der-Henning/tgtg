@@ -3,7 +3,7 @@ import logging
 import pycron
 from cron_descriptor import Options, get_description
 
-from models.errors import ConfigurationError
+from tgtg_scanner.models.errors import ConfigurationError
 
 log = logging.getLogger('tgtg')
 

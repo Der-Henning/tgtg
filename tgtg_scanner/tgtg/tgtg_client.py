@@ -14,8 +14,8 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
-from models.errors import (TgtgAPIError, TGTGConfigurationError,
-                           TgtgLoginError, TgtgPollingError)
+from tgtg_scanner.models.errors import (TgtgAPIError, TGTGConfigurationError,
+                                        TgtgLoginError, TgtgPollingError)
 
 log = logging.getLogger("tgtg")
 BASE_URL = "https://apptoogoodtogo.com/api/"

@@ -4,11 +4,12 @@ requires = ["poetry-core>=1.0.0"]
 
 [tool.poetry]
 authors = ["Henning Merklinger <henning.merklinger@gmail.com>"]
-description = "Scanner for Too Good To Go Notifications"
+description = "Notifications for Too Good To Go"
 documentation = "https://github.com/Der-Henning/tgtg/wiki"
 keywords = ["tgtg", "toogoodtogo", "notifications"]
-license = "GPL-3.0 license"
-name = "tgtg"
+license = "GPL-3.0-or-later"
+name = "tgtg-scanner"
+packages = [{include = "tgtg_scanner"}]
 readme = "README.md"
 repository = "https://github.com/Der-Henning/tgtg"
 version = "1.17.1"
@@ -39,7 +40,7 @@ pytest-mock = "^3.11.1"
 responses = "^0.23.1"
 
 [tool.poetry.scripts]
-scanner = "src.main:main"
+scanner = "tgtg_scanner.__main__:main"
 
 [tool.pytest.ini_options]
 addopts = [
@@ -49,5 +50,5 @@ markers = [
   "tgtg_api: test directly calls the tgtg API (deselect with '-m \"not tgtg_api\"')"
 ]
 pythonpath = [
-  "src"
+  "."
 ]

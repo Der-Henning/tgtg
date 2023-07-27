@@ -11,10 +11,11 @@ from telegram.ext import (CallbackContext, CallbackQueryHandler,
                           CommandHandler, Updater)
 from telegram.utils.helpers import escape_markdown
 
-from models import Config, Item, Reservations
-from models.errors import MaskConfigurationError, TelegramConfigurationError
-from models.reservations import Order, Reservation
-from notifiers.base import Notifier
+from tgtg_scanner.models import Config, Item, Reservations
+from tgtg_scanner.models.errors import (MaskConfigurationError,
+                                        TelegramConfigurationError)
+from tgtg_scanner.models.reservations import Order, Reservation
+from tgtg_scanner.notifiers.base import Notifier
 
 log = logging.getLogger('tgtg')
 

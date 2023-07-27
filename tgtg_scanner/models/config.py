@@ -9,8 +9,8 @@ from typing import Any
 
 import humanize
 
-from models.cron import Cron
-from models.errors import ConfigurationError
+from tgtg_scanner.models.cron import Cron
+from tgtg_scanner.models.errors import ConfigurationError
 
 log = logging.getLogger("tgtg")
 

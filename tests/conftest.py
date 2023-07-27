@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from models import Item
+from tgtg_scanner.models import Item
 
 
 @pytest.fixture

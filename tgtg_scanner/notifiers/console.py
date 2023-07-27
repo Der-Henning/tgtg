@@ -1,8 +1,9 @@
 import logging
 
-from models import Config, Item
-from models.errors import ConsoleConfigurationError, MaskConfigurationError
-from notifiers.base import Notifier
+from tgtg_scanner.models import Config, Item
+from tgtg_scanner.models.errors import (ConsoleConfigurationError,
+                                        MaskConfigurationError)
+from tgtg_scanner.notifiers.base import Notifier
 
 log = logging.getLogger('tgtg')
 

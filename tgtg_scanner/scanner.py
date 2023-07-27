@@ -6,10 +6,11 @@ from typing import Dict, List, NoReturn
 
 from progress.spinner import Spinner
 
-from models import Config, Cron, Item, Location, Metrics, Reservations
-from models.errors import TgtgAPIError
-from notifiers import Notifiers
-from tgtg import TgtgClient
+from tgtg_scanner.models import (Config, Cron, Item, Location, Metrics,
+                                 Reservations)
+from tgtg_scanner.models.errors import TgtgAPIError
+from tgtg_scanner.notifiers import Notifiers
+from tgtg_scanner.tgtg import TgtgClient
 
 log = logging.getLogger("tgtg")
 
