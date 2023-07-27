@@ -8,12 +8,14 @@ from telegram import (InlineKeyboardButton, InlineKeyboardMarkup, ParseMode,
 from telegram.bot import BotCommand
 from telegram.error import BadRequest, NetworkError, TelegramError, TimedOut
 from telegram.ext import (CallbackContext, CallbackQueryHandler,
-                          CommandHandler, Updater)
+                          CommandHandler, Filters, MessageHandler, Updater)
 from telegram.utils.helpers import escape_markdown
 
-from tgtg_scanner.models import Config, Item, Reservations
+from tgtg_scanner.models import Config, Favorites, Item, Reservations
 from tgtg_scanner.models.errors import (MaskConfigurationError,
                                         TelegramConfigurationError)
+from tgtg_scanner.models.favorites import (AddFavoriteRequest,
+                                           RemoveFavoriteRequest)
 from tgtg_scanner.models.reservations import Order, Reservation
 from tgtg_scanner.notifiers.base import Notifier
 
@@ -26,7 +28,8 @@ class Telegram(Notifier):
     """
     MAX_RETRIES = 10
 
-    def __init__(self, config: Config, reservations: Reservations):
+    def __init__(self, config: Config, reservations: Reservations,
+                 favorites: Favorites):
         self.updater = None
         self.config = config
         self.enabled = config.telegram.get("enabled", False)
@@ -41,6 +44,7 @@ class Telegram(Notifier):
         self.mute = None
         self.retries = 0
         self.reservations = reservations
+        self.favorites = favorites
         if self.enabled and (not self.token or not self.body):
             raise TelegramConfigurationError()
         if self.enabled:
@@ -65,7 +69,15 @@ class Telegram(Notifier):
                 CommandHandler("reservations", self._cancel_reservations_menu),
                 CommandHandler("orders", self._cancel_orders_menu),
                 CommandHandler("cancelall", self._cancel_all_orders),
-                CallbackQueryHandler(self._callback_query_handler)]
+                CommandHandler("listfavorites", self._list_favorites),
+                CommandHandler("listfavoriteids", self._list_favorite_ids),
+                CommandHandler("addfavorites", self._add_favorites),
+                CommandHandler("removefavorites", self._remove_favorites),
+                MessageHandler(Filters.regex(
+                    r'^https:\/\/share\.toogoodtogo\.com\/item\/(\d+)\/?'
+                ), self._url_handler),
+                CallbackQueryHandler(self._callback_query_handler)
+            ]
             for handler in handlers:
                 self.updater.dispatcher.add_handler(handler)
             self.updater.dispatcher.add_error_handler(self._error)
@@ -77,7 +89,12 @@ class Telegram(Notifier):
                 BotCommand('reserve', 'Reserve the next available Magic Bag'),
                 BotCommand('reservations', 'List and cancel Reservations'),
                 BotCommand('orders', 'List and cancel active Orders'),
-                BotCommand('cancelall', 'Cancels all active orders')
+                BotCommand('cancelall', 'Cancels all active orders'),
+                BotCommand('listfavorites', 'List all favorites'),
+                BotCommand('listfavoriteids',
+                           'List all item ids from favorites'),
+                BotCommand('addfavorites', 'Add item ids to favorites'),
+                BotCommand('removefavorites', 'Remove Item ids from favorites')
             ])
             if not self.disable_commands:
                 self.updater.start_polling()
@@ -226,6 +243,118 @@ class Telegram(Notifier):
         update.message.reply_text("Cancelled all active Orders")
         log.debug("Cancelled all active Orders")
 
+    def _list_favorites(self,
+                        update: Update,
+                        context: CallbackContext) -> None:
+        del context
+        favorites = self.favorites.get_favorites()
+        if not favorites:
+            update.message.reply_text(
+                "You currently don't have any favorites.")
+        else:
+            update.message.reply_text(
+                "\n".join([f"• {item.item_id} - {item.display_name}"
+                           for item in favorites]))
+
+    def _list_favorite_ids(self,
+                           update: Update,
+                           context: CallbackContext) -> None:
+        del context
+        favorites = self.favorites.get_favorites()
+        if not favorites:
+            update.message.reply_text(
+                "You currently don't have any favorites.")
+        else:
+            update.message.reply_text(
+                " ".join([item.item_id for item in favorites]))
+
+    def _add_favorites(self,
+                       update: Update,
+                       context: CallbackContext) -> None:
+        if not context.args:
+            update.message.reply_text(
+                "Please supply item ids in one of the following ways: " +
+                "'/addfavorites 12345 23456 34567' or " +
+                "'/addfavorites 12345,23456,34567'")
+            return
+
+        item_ids = list(filter(bool, map(str.strip,
+                                         [split_args for arg in context.args
+                                          for split_args in arg.split(",")]
+                                         )))
+        self.favorites.add_favorites(item_ids)
+        update.message.reply_text(
+            f"Added the following item ids to favorites: {' '.join(item_ids)}")
+        log.debug('Added the following item ids to favorites: "%s"', item_ids)
+
+    def _remove_favorites(self,
+                          update: Update,
+                          context: CallbackContext) -> None:
+        if not context.args:
+            update.message.reply_text(
+                "Please supply item ids in one of the following ways: " +
+                "'/removefavorites 12345 23456 34567' or " +
+                "'/removefavorites 12345,23456,34567'")
+            return
+
+        item_ids = list(filter(bool, map(str.strip,
+                                         [split_args for arg in context.args
+                                          for split_args in arg.split(",")]
+                                         )))
+        self.favorites.remove_favorite(item_ids)
+        update.message.reply_text(
+            "Removed the following item ids from favorites: "
+            + f"{' '.join(item_ids)}")
+        log.debug('Removed the following item ids from favorites: '
+                  + '"%s"', item_ids)
+
+    def _url_handler(self,
+                     update: Update,
+                     context: CallbackContext) -> None:
+        item_id = context.matches[0].group(1)
+        item_favorite = self.favorites.is_item_favorite(item_id)
+        item = self.favorites.get_item_by_id(item_id)
+        if item.item_id is None:
+            update.message.reply_text("There is no Item with this link")
+            return
+
+        if item_favorite:
+            update.message.reply_text(
+                f"{item.display_name} is in your favorites. " +
+                "Do you want to remove it?",
+                reply_markup=(InlineKeyboardMarkup([[
+                    InlineKeyboardButton("Yes",
+                                         callback_data=RemoveFavoriteRequest(
+                                             item_id,
+                                             item.display_name,
+                                             True
+                                         )),
+                    InlineKeyboardButton("No",
+                                         callback_data=RemoveFavoriteRequest(
+                                             item_id,
+                                             item.display_name,
+                                             False
+                                         ))
+                ]])))
+        else:
+            update.message.reply_text(
+                f"{item.display_name} is not in your favorites. " +
+                "Do you want to add it?",
+                reply_markup=(InlineKeyboardMarkup([[
+                    InlineKeyboardButton("Yes",
+                                         callback_data=AddFavoriteRequest(
+                                             item_id,
+                                             item.display_name,
+                                             True
+                                         )),
+                    InlineKeyboardButton("No",
+                                         callback_data=AddFavoriteRequest(
+                                             item_id,
+                                             item.display_name,
+                                             False
+                                         ))
+                ]])))
+
     def _callback_query_handler(self,
                                 update: Update,
                                 context: CallbackContext) -> None:
@@ -248,6 +377,25 @@ class Telegram(Notifier):
             update.callback_query.answer(
                 f"Canceled Order for {data.display_name}")
             log.debug('Canceled order for "%s"', data.display_name)
+        if isinstance(data, AddFavoriteRequest):
+            if data.proceed:
+                self.favorites.add_favorites([data.item_id])
+                update.callback_query.edit_message_text(
+                    f"Added {data.item_display_name} to favorites")
+                log.debug('Added "%s" to favorites', data.item_display_name)
+                log.debug('Removed "%s" from favorites',
+                          data.item_display_name)
+            else:
+                update.callback_query.delete_message()
+        if isinstance(data, RemoveFavoriteRequest):
+            if data.proceed:
+                self.favorites.remove_favorite([data.item_id])
+                update.callback_query.edit_message_text(
+                    f"Removed {data.item_display_name} from favorites")
+                log.debug('Removed "%s" from favorites',
+                          data.item_display_name)
+            else:
+                update.callback_query.delete_message()
 
     def _error(self, update: Update, context: CallbackContext) -> None:
         """Log Errors caused by Updates."""

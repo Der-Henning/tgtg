@@ -6,8 +6,8 @@ from typing import Dict, List, NoReturn
 
 from progress.spinner import Spinner
 
-from tgtg_scanner.models import (Config, Cron, Item, Location, Metrics,
-                                 Reservations)
+from tgtg_scanner.models import (Config, Cron, Favorites, Item, Location,
+                                 Metrics, Reservations)
 from tgtg_scanner.models.errors import TgtgAPIError
 from tgtg_scanner.notifiers import Notifiers
 from tgtg_scanner.tgtg import TgtgClient
@@ -60,6 +60,7 @@ class Scanner:
             datadome_cookie=self.config.tgtg.get("datadome")
         )
         self.reservations = Reservations(self.tgtg_client)
+        self.favorites = Favorites(self.tgtg_client)
 
     def _get_test_item(self) -> Item:
         """
@@ -187,7 +188,8 @@ class Scanner:
         # activate and test notifiers
         if self.config.metrics:
             self.metrics.enable_metrics()
-        self.notifiers = Notifiers(self.config, self.reservations)
+        self.notifiers = Notifiers(
+            self.config, self.reservations, self.favorites)
         if not self.config.disable_tests and \
                 self.notifiers.notifier_count > 0:
             log.info("Sending test Notifications ...")
