@@ -74,9 +74,7 @@ jobs:
       with:
         python-version: '3.10'
     - name: Setup Poetry
-      run: |
-        pip install --upgrade pip setuptools wheel
-        pip install "poetry==1.5.1"
+      run: pip install --upgrade pip setuptools wheel poetry==1.5.1
     - name: Install dependencies
       run: poetry install --without test
     - name: Run PyInstaller

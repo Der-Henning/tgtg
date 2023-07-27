@@ -34,7 +34,7 @@ http_client.HTTPConnection.debuglevel = 0
 SYS_PLATFORM = platform.system()
 IS_WINDOWS = SYS_PLATFORM.lower() in ('windows', 'cygwin')
 IS_EXECUTABLE = getattr(sys, "_MEIPASS", False)
-PROG_PATH = Path(sys.executable) if IS_EXECUTABLE else Path(os.getcwd())
+PROG_PATH = Path(sys.executable).parent if IS_EXECUTABLE else Path(os.getcwd())
 IS_DOCKER = os.environ.get("DOCKER", "False").lower() in ('true', '1', 't')
 LOGS_PATH = os.environ.get("LOGS_PATH", PROG_PATH)
 
