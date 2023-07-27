@@ -73,9 +73,8 @@ jobs:
     - uses: actions/setup-python@v4
       with:
         python-version: '3.10'
-    - uses: abatilo/actions-poetry@v2
-      with:
-        poetry-version: 1.5.1
+    - name: Install Poetry
+      run: pip install --upgrade pip setuptools wheel && \ pip install "poetry==1.5.1"
     - name: Install dependencies
       run: poetry install --without test
     - name: Run PyInstaller
