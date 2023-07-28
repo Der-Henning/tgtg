@@ -390,7 +390,7 @@ class TgtgClient:
             json={"item_count": item_count})
         if response.json().get("state") != "SUCCESS":
             raise TgtgAPIError(response.status_code, response.content)
-        return response.json().get("order")
+        return response.json().get("order", {})
 
     def get_order_status(self, order_id: str) -> dict:
         self.login()

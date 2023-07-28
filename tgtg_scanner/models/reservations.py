@@ -27,7 +27,7 @@ class Reservations():
     def __init__(self, client: TgtgClient) -> None:
         self.client = client
         self.reservation_query: List[Reservation] = []
-        self.active_orders: List[Order] = []
+        self.active_orders: Dict[str, Order] = {}
 
     def reserve(self, item_id: str,
                 display_name: str,
@@ -54,6 +54,7 @@ class Reservations():
             if state.get(reservation.item_id).items_available > 0:
                 try:
                     self._create_order(reservation)
+                    self.reservation_query.remove(reservation)
                     callback(reservation)
                 except Exception as exc:
                     log.error("Create Order Error: %s", exc)
@@ -61,26 +62,21 @@ class Reservations():
     def update_active_orders(self) -> None:
         """Remove orders that are not active anymore
         """
-        for order in self.active_orders:
-            res = self.client.get_order_status(order.id)
+        for order_id in list(self.active_orders):
+            res = self.client.get_order_status(order_id)
             if res.get("state") != "RESERVED":
-                self.active_orders.remove(order)
+                del self.active_orders[order_id]
 
-    def cancel_order(self, order: Order) -> None:
+    def cancel_order(self, order_id: str) -> None:
         """Cancel an order
         """
-        self.client.abort_order(order.id)
+        self.client.abort_order(order_id)
 
     def cancel_all_orders(self) -> None:
         """Cancel all active orders
         """
-        for order in self.active_orders:
-            self.cancel_order(order)
-
-    def get_favorites(self) -> List[Item]:
-        """Get all favorite items
-        """
-        return [Item(item) for item in self.client.get_favorites()]
+        for order_id in list(self.active_orders):
+            self.cancel_order(order_id)
 
     def _create_order(self, reservation: Reservation) -> None:
         res = self.client.create_order(
@@ -91,5 +87,4 @@ class Reservations():
                           reservation.item_id,
                           reservation.amount,
                           reservation.display_name)
-            self.active_orders.append(order)
-            self.reservation_query.remove(reservation)
+            self.active_orders[order_id] = order

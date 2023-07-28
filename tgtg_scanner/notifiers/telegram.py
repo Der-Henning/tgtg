@@ -189,7 +189,7 @@ class Telegram(Notifier):
                            update: Update,
                            context: CallbackContext) -> None:
         del context
-        favorites = self.reservations.get_favorites()
+        favorites = self.favorites.get_favorites()
         buttons = [[
             InlineKeyboardButton(
                 f"{item.display_name}: {item.items_available}",
