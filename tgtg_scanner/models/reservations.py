@@ -52,8 +52,11 @@ class Reservations():
         """
         for reservation in self.reservation_query:
             if state.get(reservation.item_id).items_available > 0:
-                self._create_order(reservation)
-                callback(reservation)
+                try:
+                    self._create_order(reservation)
+                    callback(reservation)
+                except Exception as exc:
+                    log.error("Create Order Error: %s", exc)
 
     def update_active_orders(self) -> None:
         """Remove orders that are not active anymore
@@ -80,15 +83,13 @@ class Reservations():
         return [Item(item) for item in self.client.get_favorites()]
 
     def _create_order(self, reservation: Reservation) -> None:
-        try:
-            res = self.client.create_order(
-                reservation.item_id, reservation.amount)
-            order_id = res.get("id")
+        res = self.client.create_order(
+            reservation.item_id, reservation.amount)
+        order_id = res.get("id")
+        if order_id:
             order = Order(order_id,
                           reservation.item_id,
                           reservation.amount,
                           reservation.display_name)
             self.active_orders.append(order)
             self.reservation_query.remove(reservation)
-        except Exception as exc:
-            log.error("Create Order Error: %s", exc)
