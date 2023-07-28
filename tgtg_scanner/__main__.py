@@ -14,7 +14,8 @@ import requests
 from packaging import version
 from requests.exceptions import RequestException
 
-from tgtg_scanner._version import __author__, __url__, __version__
+from tgtg_scanner._version import (__author__, __description__, __url__,
+                                   __version__)
 from tgtg_scanner.models import Config
 from tgtg_scanner.models.errors import ConfigurationError, TgtgAPIError
 from tgtg_scanner.scanner import Scanner
@@ -46,64 +47,51 @@ def main() -> NoReturn:
     config_file = Path(PROG_PATH, "config.ini")
     log_file = Path(LOGS_PATH, "scanner.log")
 
-    parser = argparse.ArgumentParser(
-        description="TooGoodToGo scanner and notifier.",
-        prog=PROG_PATH.name
-    )
+    parser = argparse.ArgumentParser(description=__description__)
     parser.add_argument(
         "-v", "--version",
         action="version",
-        version=f"v{__version__}"
-    )
+        version=f"v{__version__}")
     parser.add_argument(
         "-d", "--debug",
         action="store_true",
-        help="activate debugging mode"
-    )
+        help="activate debugging mode")
     helper_group = parser.add_mutually_exclusive_group(required=False)
     helper_group.add_argument(
         "-t", "--tokens",
         action="store_true",
-        help="display your current access tokens and exit",
-    )
+        help="display your current access tokens and exit",)
     helper_group.add_argument(
         "-f", "--favorites",
         action="store_true",
-        help="display your favorites and exit"
-    )
+        help="display your favorites and exit")
     helper_group.add_argument(
         "-F", "--favorite_ids",
         action="store_true",
-        help="display the item ids of your favorites and exit",
-    )
+        help="display the item ids of your favorites and exit",)
     helper_group.add_argument(
         "-a", "--add",
         nargs="+",
         metavar="item_id",
-        help="add item ids to favorites and exit",
-    )
+        help="add item ids to favorites and exit",)
     helper_group.add_argument(
         "-r", "--remove",
         nargs="+",
         metavar="item_id",
-        help="remove item ids from favorites and exit",
-    )
+        help="remove item ids from favorites and exit",)
     helper_group.add_argument(
         "-R", "--remove_all",
         action="store_true",
-        help="remove all favorites and exit"
-    )
+        help="remove all favorites and exit")
     json_group = parser.add_mutually_exclusive_group(required=False)
     json_group.add_argument(
         "-j", "--json",
         action="store_true",
-        help="output as plain json"
-    )
+        help="output as plain json")
     json_group.add_argument(
         "-J", "--json_pretty",
         action="store_true",
-        help="output as pretty json"
-    )
+        help="output as pretty json")
     args = parser.parse_args()
 
     # Disable logging for json output
@@ -129,9 +117,7 @@ def main() -> NoReturn:
             "INFO": "green",
             "WARNING": "yellow",
             "ERROR": "red",
-            "CRITICAL": "red",
-        },
-    )
+            "CRITICAL": "red"})
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(stream_formatter)
     logging.root.addHandler(stream_handler)

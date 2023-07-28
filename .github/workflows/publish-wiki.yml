@@ -1,15 +1,19 @@
 name: Publish wiki
+
 on:
   push:
     branches: [main]
     paths:
     - wiki/**
     - .github/workflows/publish-wiki.yml
+
 concurrency:
   group: publish-wiki
   cancel-in-progress: true
+
 permissions:
   contents: write
+
 jobs:
   publish-wiki:
     runs-on: ubuntu-latest

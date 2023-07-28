@@ -21,11 +21,11 @@ jobs:
       matrix:
         include:
         - base: slim
-          tag: ''
+          suffix: ''
           file: ./docker/Dockerfile
           context: ./
         - base: alpine
-          tag: -alpine
+          suffix: -alpine
           file: ./docker/Dockerfile.alpine
           context: ./
     steps:
@@ -42,9 +42,9 @@ jobs:
       with:
         images: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}
         flavor: |
-          suffix=${{ matrix.tag }},onlatest=true
+          suffix=${{ matrix.suffix }},onlatest=true
         tags: |
-          type=edge,branch=main,suffix=${{ matrix.tag }}
+          type=edge,branch=main,suffix=${{ matrix.suffix }}
           type=semver,pattern=v{{version}}
           type=semver,pattern=v{{major}}.{{minor}}
           type=semver,pattern=v{{major}}
@@ -71,6 +71,7 @@ jobs:
         repository: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}
         short-description: ${{ github.event.repository.description }}
         readme-filepath: ./docker/DOCKER_README.md
+
   releases:
     name: Build Release Files
     runs-on: ${{ matrix.os }}

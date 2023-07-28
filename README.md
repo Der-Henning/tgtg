@@ -94,16 +94,30 @@ docker-compose pull
 docker-compose up -d
 ```
 
+### Install as package
+
+1. Install Git, Python>=3.9 and pip
+2. Run `pip install git+https://github.com/Der-Henning/tgtg`
+3. Create `config.ini` as described in the
+[Wiki](https://github.com/Der-Henning/tgtg/wiki/Configuration)
+4. Start scanner with `python -m tgtg_scanner`
+
+To update to the latest release run
+`pip install --upgrade git+https://github.com/Der-Henning/tgtg`.
+
+If you receive the `ModuleNotFoundError: No module named '_ctypes'`
+you may need to install `libffi-dev`.
+
 ### Run from source
 
 Method for advanced usage.
 
-1. Install Git, Python>=3.9, and poetry
+1. Install Git, Python>=3.9 and poetry
 2. Clone the repository `git clone https://github.com/Der-Henning/tgtg`
 3. Enter repository folder `cd tgtg`
 4. Run `poetry install --without test,build`
-5. Create config file `cp src/config.sample.ini src/config.ini`
-6. Modify `src/config.ini` as described in the
+5. Create config file `cp config.sample.ini config.ini`
+6. Modify `config.ini` as described in the
 [Wiki](https://github.com/Der-Henning/tgtg/wiki/Configuration)
 7. Run `poetry run scanner`
 
@@ -137,13 +151,13 @@ If you don't receive any notifications, please check your configuration.
 
 ### Helper functions
 
-The executable or the `src/main.py` contains some useful helper functions that can be
+The executable or the `tgtg_scanner/__main__.py` contains some useful helper functions that can be
 accessed via optional command line arguments.
-Running `scanner[.exe] --help`, `poetry run scanner --help` or `python src/main.py --help`
-displays the available commands.
+Running `scanner[.exe] --help`, `poetry run scanner --help`, `python tgtg_scanner/__main__.py --help`
+or `python -m tgtg_scanner --help` displays the available commands.
 
 ```bash
-usage: main.py [-h] [-v] [-d] [-t | -f | -F | -a item_id [item_id ...] | -r item_id [item_id ...] | -R] [-j | -J]
+usage: scanner [-h] [-v] [-d] [-t | -f | -F | -a item_id [item_id ...] | -r item_id [item_id ...] | -R] [-j | -J]
 
 TooGoodToGo scanner and notifier.
 
@@ -203,7 +217,7 @@ poetry install
 
 ### Makefile commands
 
-- `make images` builds docker images with tag `tgtg-scanner:latest` and `tgtg-scanner:alpine-latest`
+- `make images` builds docker images with tag `tgtg-scanner:latest` and `tgtg-scanner:latest-alpine`
 - `make install` installs development dependencies
 - `make start` is short for `poetry run scanner -d`
 - `make executable` creates a bundled executable in `/dist`

@@ -6,13 +6,13 @@ I use it to make a LED lightstripe flash.
 
 `docker-compose.yml` config:
 
-```yml
+```yaml
 environment:
-    - WEBHOOK=true
-    - WEBHOOK_URL=http://openhab.domain/rest/items/TGTG_New_Item
-    - WEBHOOK_METHOD=POST
-    - WEBHOOK_BODY=ON
-    - WEBHOOK_TIMEOUT=60
+- WEBHOOK=true
+- WEBHOOK_URL=http://openhab.domain/rest/items/TGTG_New_Item
+- WEBHOOK_METHOD=POST
+- WEBHOOK_BODY=ON
+- WEBHOOK_TIMEOUT=60
 ```
 
 Openhab item file `tgtg.items`:
