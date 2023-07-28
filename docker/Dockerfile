@@ -27,6 +27,7 @@ RUN apt-get update && apt-get upgrade -y
 
 # Build dependencies
 FROM base as builder
+RUN apt-get install -y build-essential libssl-dev libffi-dev python3-dev cargo pkg-config
 RUN pip install --upgrade pip setuptools wheel && \
     pip install "poetry==$POETRY_VERSION" poetry-plugin-bundle
 WORKDIR $PYSETUP_PATH
