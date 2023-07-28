@@ -17,11 +17,11 @@ jobs:
         include:
         - base: slim
           tag: ''
-          file: ./Dockerfile
+          file: ./docker/Dockerfile
           context: ./
         - base: alpine
           tag: -alpine
-          file: ./Dockerfile.alpine
+          file: ./docker/Dockerfile.alpine
           context: ./
     steps:
     - uses: actions/checkout@v3
@@ -90,7 +90,7 @@ jobs:
     - name: Make filename for archive
       id: filename
       shell: bash
-      run: echo "FILENAME=scanner-${{ github.ref_name }}-${{ matrix.tag }}.zip" >> $GITHUB_OUTPUT
+      run: echo "FILENAME=scanner-${{ github.ref_name }}-${{ matrix.tag }}.zip" | sed -r 's,/,-,g' >> $GITHUB_OUTPUT
     - name: Zip files (linux/macos)
       if: matrix.tag == 'linux' || matrix.tag == 'macos'
       run: zip -j ./${{ steps.filename.outputs.FILENAME }} ./dist/*
