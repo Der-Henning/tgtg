@@ -9,7 +9,7 @@ on:
   pull_request:
 
 env:
-  PYTHON_VERSION: 3.10
+  PYTHON_VERSION: '3.10'
   POETRY_VERSION: 1.5.1
 
 jobs:
