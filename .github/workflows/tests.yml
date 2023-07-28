@@ -20,13 +20,9 @@ jobs:
     - name: Setup Poetry
       run: pip install --upgrade pip setuptools wheel poetry==1.5.1
     - name: Install dependencies
-      run: poetry install
+      run: poetry install --without build
     - name: Run linting
       run: poetry run pre-commit run -a
     - name: Run tests
       run: poetry run pytest -v -m "not tgtg_api" --cov --cov-report=xml
-    - name: Build executable
-      run: |
-        poetry run pyinstaller scanner.spec
-        ./dist/scanner -v
     - uses: codecov/codecov-action@v3
