@@ -3,6 +3,9 @@ name: Tests
 on:
   pull_request:
 
+env:
+  POETRY_VERSION: 1.5.1
+
 jobs:
   tests:
     name: Run Tests
@@ -18,7 +21,7 @@ jobs:
       with:
         python-version: ${{ matrix.python }}
     - name: Setup Poetry
-      run: pip install --upgrade pip setuptools wheel poetry==1.5.1
+      run: pip install --upgrade pip setuptools wheel poetry==$POETRY_VERSION
     - name: Install dependencies
       run: poetry install --without build
     - name: Run linting

@@ -8,6 +8,10 @@ on:
     - v*
   pull_request:
 
+env:
+  PYTHON_VERSION: 3.10
+  POETRY_VERSION: 1.5.1
+
 jobs:
   docker-images:
     name: Build Docker Images
@@ -26,6 +30,13 @@ jobs:
           context: ./
     steps:
     - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: $PYTHON_VERSION
+    - name: Setup Poetry
+      run: pip install --upgrade pip setuptools wheel poetry==$POETRY_VERSION
+    - name: Export requirements.txt
+      run: poetry export -f requirements.txt --output requirements.txt
     - uses: docker/metadata-action@v4
       id: meta
       with:
@@ -77,9 +88,9 @@ jobs:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: $PYTHON_VERSION
     - name: Setup Poetry
-      run: pip install --upgrade pip setuptools wheel poetry==1.5.1
+      run: pip install --upgrade pip setuptools wheel poetry==$POETRY_VERSION
     - name: Install dependencies
       run: poetry install --without test
     - name: Run PyInstaller
