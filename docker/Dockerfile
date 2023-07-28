@@ -1,45 +1,36 @@
-FROM python:3-slim as base
+FROM python:3.10-slim
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
-    PIP_DEFAULT_TIMEOUT=100 \
-    POETRY_VIRTUALENVS_IN_PROJECT=true \
-    POETRY_NO_INTERACTION=1 \
-    CARGO_NET_GIT_FETCH_WITH_CLI=true \
-    PYSETUP_PATH="/opt/pysetup" \
-    VENV_PATH="/opt/pysetup/.venv"
+    PIP_NO_WARN_SCRIPT_LOCATION=0
 ENV TGTG_TOKEN_PATH=/tokens
 ENV LOGS_PATH=/logs
 ENV DOCKER=true
-ENV POETRY_VERSION=1.5.1
 ENV UID=1000
 ENV GID=1000
 
 RUN addgroup --gid $GID tgtg && \
-    adduser --shell /bin/false --disabled-password --uid $UID --gid $GID tgtg
+    adduser --shell /bin/false \
+            --disabled-password \
+            --uid $UID \
+            --gid $GID \
+            tgtg
 RUN mkdir -p /logs
 RUN mkdir -p /tokens
 RUN chown tgtg:tgtg /tokens
 RUN chown tgtg:tgtg /logs
 VOLUME /tokens
-RUN apt-get update && apt-get upgrade -y
-WORKDIR $PYSETUP_PATH
-COPY . .
 
-# Build dependencies
-FROM base as builder
-RUN apt-get install -y build-essential libssl-dev libffi-dev python3-dev cargo pkg-config
-RUN pip install --upgrade pip setuptools wheel && \
-    pip install "poetry==$POETRY_VERSION"
-RUN poetry install --without test,build
+RUN --mount=type=bind,target=/context \
+    pip install -r /context/docker/requirements.txt && \
+    pip install /context
 
-# Create Production Image
-FROM base as production
-ENV PATH="$VENV_PATH/bin:$PATH"
 COPY ./docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
-COPY --from=builder $VENV_PATH $VENV_PATH
+
+RUN python -m tgtg_scanner -v
+
 ENTRYPOINT [ "/entrypoint.sh" ]
 CMD [ "python", "-m", "tgtg_scanner" ]

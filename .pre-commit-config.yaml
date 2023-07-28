@@ -46,3 +46,11 @@ repos:
   hooks:
   - id: markdownlint
     args: [--fix]
+
+- repo: https://github.com/python-poetry/poetry
+  rev: 1.5.1    # add version here
+  hooks:
+  - id: poetry-check
+  - id: poetry-lock
+  - id: poetry-export
+    args: [-f, requirements.txt, -o, ./docker/requirements.txt]
