@@ -27,7 +27,7 @@ RUN apk update
 
 # Build dependencies
 FROM base as builder
-RUN apk add --no-cache alpine-sdk libffi-dev
+RUN apk add --no-cache alpine-sdk libffi-dev gcc musl-dev python3-dev openssl-dev
 RUN pip install --upgrade pip setuptools wheel && \
     pip install "poetry==$POETRY_VERSION" poetry-plugin-bundle
 WORKDIR $PYSETUP_PATH
