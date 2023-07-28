@@ -1,4 +1,4 @@
-FROM python:3.10-slim as base
+FROM python:3-slim as base
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -7,6 +7,7 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_DEFAULT_TIMEOUT=100 \
     POETRY_VIRTUALENVS_IN_PROJECT=true \
     POETRY_NO_INTERACTION=1 \
+    CARGO_NET_GIT_FETCH_WITH_CLI=true \
     PYSETUP_PATH="/opt/pysetup" \
     VENV_PATH="/opt/pysetup/.venv"
 ENV TGTG_TOKEN_PATH=/tokens

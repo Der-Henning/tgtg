@@ -13,6 +13,7 @@ jobs:
     name: Build Docker Images
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: ${{ github.event_name == 'push' }}
       matrix:
         include:
         - base: slim
@@ -63,6 +64,7 @@ jobs:
     name: Build Release Files
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: ${{ github.event_name == 'push' }}
       matrix:
         include:
         - os: ubuntu-latest
