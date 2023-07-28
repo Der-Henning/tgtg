@@ -21,7 +21,7 @@ jobs:
       with:
         python-version: ${{ matrix.python }}
     - name: Setup Poetry
-      run: pip install --upgrade pip setuptools wheel poetry==$POETRY_VERSION
+      run: pip install --upgrade pip setuptools wheel poetry==${{ env.POETRY_VERSION }}
     - name: Install dependencies
       run: poetry install --without build
     - name: Run linting
