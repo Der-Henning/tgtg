@@ -26,7 +26,7 @@ VOLUME /tokens
 
 RUN apk update && apk add --no-cache shadow runuser
 RUN --mount=type=bind,target=/context \
-    pip install -r /context/docker/requirements.txt && \
+    pip install -r /context/requirements.txt && \
     pip install /context
 
 COPY ./docker/entrypoint.sh /entrypoint.sh

@@ -24,7 +24,7 @@ RUN chown tgtg:tgtg /logs
 VOLUME /tokens
 
 RUN --mount=type=bind,target=/context \
-    pip install -r /context/docker/requirements.txt && \
+    pip install -r /context/requirements.txt && \
     pip install /context
 
 COPY ./docker/entrypoint.sh /entrypoint.sh
