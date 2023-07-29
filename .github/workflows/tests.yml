@@ -25,7 +25,7 @@ jobs:
         pip install --upgrade pip setuptools wheel poetry==${{ env.POETRY_VERSION }}
         poetry config virtualenvs.create true --local
         poetry config virtualenvs.in-project true --local
-        poetry config experimental.new-installer false --local
+        poetry config installer.max-workers 1 --local
     - uses: actions/cache@v3
       with:
         path: ./.venv
