@@ -156,15 +156,20 @@ accessed via optional command line arguments.
 Running `scanner[.exe] --help`, `poetry run scanner --help`, `python tgtg_scanner/__main__.py --help`
 or `python -m tgtg_scanner --help` displays the available commands.
 
-```bash
-usage: scanner [-h] [-v] [-d] [-t | -f | -F | -a item_id [item_id ...] | -r item_id [item_id ...] | -R] [-j | -J]
+<!-- markdownlint-disable MD013 -->
+```txt
+usage: scanner [-h] [-v] [-d] [-c config_file] [-l log_file] [-t | -f | -F | -a item_id [item_id ...] | -r item_id [item_id ...] | -R] [-j | -J]
 
-TooGoodToGo scanner and notifier.
+Notifications for Too Good To Go
 
 options:
   -h, --help            show this help message and exit
-  -v, --version         shows the program's version number and exit
+  -v, --version         show program's version number and exit
   -d, --debug           activate debugging mode
+  -c config_file, --config config_file
+                        path to config file (default: config.ini)
+  -l log_file, --log_file log_file
+                        path to log file (default: scanner.log)
   -t, --tokens          display your current access tokens and exit
   -f, --favorites       display your favorites and exit
   -F, --favorite_ids    display the item ids of your favorites and exit
@@ -173,9 +178,10 @@ options:
   -r item_id [item_id ...], --remove item_id [item_id ...]
                         remove item ids from favorites and exit
   -R, --remove_all      remove all favorites and exit
-  -j, --json            output as plain JSON
-  -J, --json_pretty     output as pretty JSON
+  -j, --json            output as plain json
+  -J, --json_pretty     output as pretty json
 ```
+<!-- markdownlint-enable MD013 -->
 
 Example (Unix only):
 

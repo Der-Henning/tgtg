@@ -44,7 +44,7 @@ def main() -> NoReturn:
     """Wrapper for Scanner and Helper functions."""
     _register_signals()
 
-    config_file = Path(PROG_PATH, "config.ini")
+    config_file = _get_config_file()
     log_file = Path(LOGS_PATH, "scanner.log")
 
     parser = argparse.ArgumentParser(description=__description__)
@@ -56,6 +56,17 @@ def main() -> NoReturn:
         "-d", "--debug",
         action="store_true",
         help="activate debugging mode")
+    parser.add_argument(
+        "-c", "--config",
+        metavar="config_file",
+        type=Path,
+        help="path to config file (default: config.ini)")
+    parser.add_argument(
+        "-l", "--log_file",
+        metavar="log_file",
+        type=Path,
+        default=log_file,
+        help="path to log file (default: scanner.log)")
     helper_group = parser.add_mutually_exclusive_group(required=False)
     helper_group.add_argument(
         "-t", "--tokens",
@@ -123,7 +134,8 @@ def main() -> NoReturn:
     logging.root.addHandler(stream_handler)
 
     # Define file formatter and handler
-    file_handler = logging.FileHandler(log_file, mode="w", encoding='utf-8')
+    file_handler = logging.FileHandler(
+        args.log_file, mode="w", encoding='utf-8')
     file_formatter = logging.Formatter(
         fmt=("[%(asctime)s][%(name)s]"
              "[%(filename)s:%(funcName)s:%(lineno)d]"
@@ -136,10 +148,16 @@ def main() -> NoReturn:
     log = logging.getLogger("tgtg")
     log.setLevel(logging.INFO)
 
+    # Set config file from args
+    if args.config:
+        if not args.config.is_file():
+            log.error("Config file %s not found!", args.config)
+            sys.exit(1)
+        config_file = args.config
+
     try:
         # Load config
-        config = (Config(config_file) if Path(config_file).is_file()
-                  else Config())
+        config = Config(config_file)
         config.docker = IS_DOCKER
 
         # Activate debugging mode
@@ -216,6 +234,15 @@ def main() -> NoReturn:
         sys.exit(0)
     except SystemExit:
         sys.exit(1)
+
+
+def _get_config_file() -> Union[Path, None]:
+    config_file = Path(PROG_PATH, "config.ini")
+    if config_file.is_file():
+        return config_file
+    config_file = Path(PROG_PATH, "tgtg_scanner", "config.ini")
+    if config_file.is_file():
+        return config_file
 
 
 def _get_version_info() -> str:

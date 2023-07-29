@@ -20,8 +20,17 @@ jobs:
     - uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python }}
+    - uses: abatilo/actions-poetry@v2
+      with:
+        poetry-version: ${{ env.POETRY_VERSION }}
     - name: Setup Poetry
-      run: pip install --upgrade pip setuptools wheel poetry==${{ env.POETRY_VERSION }}
+      run: |
+        poetry config virtualenvs.create true --local
+        poetry config virtualenvs.in-project true --local
+    - uses: actions/cache@v3
+      with:
+        path: ./.venv
+        key: venv-test-poetry-${{ env.POETRY_VERSION }}-python-${{ matrix.python }}-${{ hashFiles('poetry.lock') }}
     - name: Install dependencies
       run: poetry install --without build
     - name: Run linting

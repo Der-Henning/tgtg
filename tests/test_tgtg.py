@@ -178,8 +178,8 @@ def test_tgtg_set_favorite(mocker: MockerFixture):
 @pytest.mark.tgtg_api
 def test_tgtg_api(item_properties: dict):
     reload(tgtg_scanner.models.config)
-    if pathlib.Path('tgtg_scanner/config.ini').exists():
-        config = tgtg_scanner.models.config.Config('tgtg_scanner/config.ini')
+    if pathlib.Path('config.ini').is_file():
+        config = tgtg_scanner.models.config.Config('config.ini')
     else:
         config = tgtg_scanner.models.config.Config()
 
