@@ -1,7 +1,0 @@
-__title__ = "TGTG Scanner"
-__description__ = "Provides notifications for TGTG magic bags"
-__version__ = "1.17.1"
-__author__ = "Henning Merklinger"
-__author_email__ = "henning.merklinger@gmail.com"
-__license__ = "GPL"
-__url__ = "https://github.com/Der-Henning/tgtg"

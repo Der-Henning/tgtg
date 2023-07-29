@@ -8,8 +8,8 @@ import pytest
 import responses
 from pytest_mock.plugin import MockerFixture
 
-import models.config
-from tgtg.tgtg_client import USER_AGENTS, TgtgClient
+import tgtg_scanner.models.config
+from tgtg_scanner.tgtg.tgtg_client import USER_AGENTS, TgtgClient
 
 
 def test_get_latest_apk_version():
@@ -20,8 +20,9 @@ def test_get_latest_apk_version():
 
 def test_get_user_agent(mocker: MockerFixture):
     apk_version = "22.11.11"
-    mocker.patch('tgtg.tgtg_client.TgtgClient.get_latest_apk_version',
-                 return_value=apk_version)
+    mocker.patch(
+        'tgtg_scanner.tgtg.tgtg_client.TgtgClient.get_latest_apk_version',
+        return_value=apk_version)
     client = TgtgClient(
         email='test@example.com'
     )
@@ -31,8 +32,9 @@ def test_get_user_agent(mocker: MockerFixture):
 
 @responses.activate
 def test_tgtg_login_with_mail(mocker: MockerFixture):
-    mocker.patch('tgtg.tgtg_client.TgtgClient.get_latest_apk_version',
-                 return_value="22.11.11")
+    mocker.patch(
+        'tgtg_scanner.tgtg.tgtg_client.TgtgClient.get_latest_apk_version',
+        return_value="22.11.11")
     client = TgtgClient(
         email='test@example.com',
         polling_wait_time=1
@@ -77,8 +79,9 @@ def test_tgtg_login_with_mail(mocker: MockerFixture):
 
 @responses.activate
 def test_tgtg_login_with_token(mocker: MockerFixture):
-    mocker.patch('tgtg.tgtg_client.TgtgClient.get_latest_apk_version',
-                 return_value="22.11.11")
+    mocker.patch(
+        'tgtg_scanner.tgtg.tgtg_client.TgtgClient.get_latest_apk_version',
+        return_value="22.11.11")
     client = TgtgClient(
         email='test@example.com',
         access_token='old_access_token',
@@ -103,9 +106,11 @@ def test_tgtg_login_with_token(mocker: MockerFixture):
 
 @responses.activate
 def test_tgtg_get_items(mocker: MockerFixture, tgtg_item: dict):
-    mocker.patch('tgtg.tgtg_client.TgtgClient.get_latest_apk_version',
-                 return_value="22.11.11")
-    mocker.patch('tgtg.tgtg_client.TgtgClient.login', return_value=None)
+    mocker.patch(
+        'tgtg_scanner.tgtg.tgtg_client.TgtgClient.get_latest_apk_version',
+        return_value="22.11.11")
+    mocker.patch('tgtg_scanner.tgtg.tgtg_client.TgtgClient.login',
+                 return_value=None)
     responses.add(
         responses.POST,
         "https://apptoogoodtogo.com/api/item/v8/",
@@ -124,9 +129,11 @@ def test_tgtg_get_items(mocker: MockerFixture, tgtg_item: dict):
 
 @responses.activate
 def test_tgtg_get_item(mocker: MockerFixture, tgtg_item: dict):
-    mocker.patch('tgtg.tgtg_client.TgtgClient.get_latest_apk_version',
-                 return_value="22.11.11")
-    mocker.patch('tgtg.tgtg_client.TgtgClient.login', return_value=None)
+    mocker.patch(
+        'tgtg_scanner.tgtg.tgtg_client.TgtgClient.get_latest_apk_version',
+        return_value="22.11.11")
+    mocker.patch('tgtg_scanner.tgtg.tgtg_client.TgtgClient.login',
+                 return_value=None)
     item_id = tgtg_item.get('item', {}).get('item_id')
     responses.add(
         responses.POST,
@@ -146,9 +153,11 @@ def test_tgtg_get_item(mocker: MockerFixture, tgtg_item: dict):
 
 @responses.activate
 def test_tgtg_set_favorite(mocker: MockerFixture):
-    mocker.patch('tgtg.tgtg_client.TgtgClient.get_latest_apk_version',
-                 return_value="22.11.11")
-    mocker.patch('tgtg.tgtg_client.TgtgClient.login', return_value=None)
+    mocker.patch(
+        'tgtg_scanner.tgtg.tgtg_client.TgtgClient.get_latest_apk_version',
+        return_value="22.11.11")
+    mocker.patch('tgtg_scanner.tgtg.tgtg_client.TgtgClient.login',
+                 return_value=None)
     item_id = "12345"
     responses.add(
         responses.POST,
@@ -168,11 +177,11 @@ def test_tgtg_set_favorite(mocker: MockerFixture):
 
 @pytest.mark.tgtg_api
 def test_tgtg_api(item_properties: dict):
-    reload(models.config)
-    if pathlib.Path('src/config.ini').exists():
-        config = models.config.Config('src/config.ini')
+    reload(tgtg_scanner.models.config)
+    if pathlib.Path('config.ini').is_file():
+        config = tgtg_scanner.models.config.Config('config.ini')
     else:
-        config = models.config.Config()
+        config = tgtg_scanner.models.config.Config()
 
     env_file = environ.get("GITHUB_ENV", None)
 

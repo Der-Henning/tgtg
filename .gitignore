@@ -4,10 +4,12 @@ dist
 .vscode
 .DS_Store
 .venv
+venv
 .ipynb_checkpoints
 .coverage
 coverage.xml
 .pytest_cache
+requirements.txt
 
 .env
 config.ini
