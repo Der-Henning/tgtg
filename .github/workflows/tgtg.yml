@@ -12,13 +12,23 @@ jobs:
   test:
     name: Run Test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
-    - name: Setup Poetry
-      run: pip install --upgrade pip setuptools wheel poetry==${{ env.POETRY_VERSION }}
+    - uses: snok/install-poetry@v1
+      with:
+        version: ${{ env.POETRY_VERSION }}
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+    - uses: actions/cache@v3
+      with:
+        path: ./.venv
+        key: venv-test-poetry-${{ env.POETRY_VERSION }}-python-${{ env.PYTHON_VERSION }}-${{ hashFiles('poetry.lock') }}
     - name: Install dependencies
       run: poetry install --without build
     - name: Run tests

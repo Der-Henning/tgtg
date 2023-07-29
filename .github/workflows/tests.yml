@@ -32,6 +32,10 @@ jobs:
       with:
         path: ./.venv
         key: venv-test-poetry-${{ env.POETRY_VERSION }}-python-${{ matrix.python }}-${{ hashFiles('poetry.lock') }}
+    - uses: actions/cache@v3
+      with:
+        path: ~/.cache/pre-commit/
+        key: pre-commit-python-${{ matrix.python }}-${{ hashFiles('poetry.lock', '.pre-commit-config.yaml') }}
     - name: Install dependencies
       run: poetry install --no-interaction --without build
     - name: Run linting
