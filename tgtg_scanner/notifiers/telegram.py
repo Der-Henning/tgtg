@@ -2,6 +2,7 @@ import datetime
 import logging
 import random
 from time import sleep
+from typing import Union
 
 from telegram import (InlineKeyboardButton, InlineKeyboardMarkup, ParseMode,
                       Update)
@@ -30,6 +31,7 @@ class Telegram(Notifier):
 
     def __init__(self, config: Config, reservations: Reservations,
                  favorites: Favorites):
+        super().__init__(config, reservations, favorites)
         self.updater = None
         self.config = config
         self.enabled = config.telegram.get("enabled", False)
@@ -43,8 +45,6 @@ class Telegram(Notifier):
         self.cron = config.telegram.get("cron")
         self.mute = None
         self.retries = 0
-        self.reservations = reservations
-        self.favorites = favorites
         if self.enabled and (not self.token or not self.body):
             raise TelegramConfigurationError()
         if self.enabled:
@@ -110,24 +110,23 @@ class Telegram(Notifier):
                 text = text.replace(match.group(0), val)
         return text
 
-    def _send(self, item: Item) -> None:
+    def _send(self, item: Union[Item, Reservation]) -> None:
         """Send item information as Telegram message"""
         if self.mute and self.mute > datetime.datetime.now():
             return
         if self.mute:
             log.info("Reactivated Telegram Notifications")
             self.mute = None
-        message = self._unmask(self.body, item)
         image = None
-        if self.image:
-            image = self._unmask(self.image, item)
+        if isinstance(item, Item):
+            message = self._unmask(self.body, item)
+            if self.image:
+                image = self._unmask(self.image, item)
+        elif isinstance(item, Reservation):
+            message = escape_markdown(
+                f"{item.display_name} is reserved for 5 minutes",
+                version=2)
         self._send_message(message, image)
-
-    def _send_reservation(self, reservation: Reservation) -> None:
-        message = escape_markdown(
-            f"{reservation.display_name} is reserved for 5 minutes",
-            version=2)
-        self._send_message(message)
 
     def _send_message(self, message: str, image: bytes = None) -> None:
         log.debug("%s message: %s", self.name, message)
@@ -433,6 +432,7 @@ class Telegram(Notifier):
                 ','.join(self.chat_ids))
 
     def stop(self) -> None:
+        super().stop()
         if self.updater is not None:
             self.updater.stop()
 

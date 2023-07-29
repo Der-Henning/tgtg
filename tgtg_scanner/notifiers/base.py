@@ -1,7 +1,10 @@
 import logging
+import threading
 from abc import ABC, abstractmethod
+from queue import Queue
+from typing import Union
 
-from tgtg_scanner.models import Config, Cron, Item
+from tgtg_scanner.models import Config, Cron, Favorites, Item, Reservations
 from tgtg_scanner.models.reservations import Reservation
 
 log = logging.getLogger('tgtg')
@@ -9,37 +12,58 @@ log = logging.getLogger('tgtg')
 
 class Notifier(ABC):
     @abstractmethod
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, reservations: Reservations,
+                 favorites: Favorites):
         self.enabled = False
+        self.reservations = reservations
+        self.favorites = favorites
         self.cron = Cron()
+        self.thread = threading.Thread(target=self._run)
+        self.queue = Queue()
 
     @property
     def name(self):
         """Get notifier name"""
         return self.__class__.__name__
 
-    def send(self, item: Item) -> None:
-        """Send notification for new item"""
-        if self.enabled and self.cron.is_now:
-            log.debug("Sending %s Notification", self.name)
-            self._send(item)
+    def _run(self) -> None:
+        """Run notifier"""
+        while True:
+            item = self.queue.get()
+            if item is None:
+                break
+            try:
+                log.debug("Sending %s Notification", self.name)
+                self._send(item)
+            except Exception as exc:
+                log.error("Failed sending %s: %s", self.name, exc)
 
-    def send_reservation(self, reservation: Reservation) -> None:
-        """Send notification for new reservation
-
-        Args:
-            reservation (Reservation): Reservation to send
-        """
+    def start(self) -> None:
+        """Run notifier in thread"""
         if self.enabled:
-            log.debug("Sending %s new Reservation", self.name)
-            self._send_reservation(reservation)
+            log.debug("Starting %s thread", self.name)
+            self.thread.start()
+
+    def send(self, item: Union[Item, Reservation]) -> None:
+        """Send notification"""
+        if self.enabled and self.cron.is_now:
+            self.queue.put(item)
+            if not self.thread.is_alive():
+                log.debug("Thread %s is dead. Restarting", self.name)
+                self.start()
 
     @abstractmethod
-    def _send(self, item: Item) -> None:
+    def _send(self, item: Union[Item, Reservation]) -> None:
         """Send Item information"""
-
-    def _send_reservation(self, reservation: Reservation) -> None:
         pass
 
     def stop(self) -> None:
         """Stop notifier"""
+        if self.thread.is_alive():
+            log.debug("Stopping %s thread", self.name)
+            self.queue.put(None)
+            self.thread.join()
+
+    @abstractmethod
+    def __repr__(self) -> str:
+        pass

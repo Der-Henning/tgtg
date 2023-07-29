@@ -109,7 +109,7 @@ class Scanner:
         log.debug("new State: %s", amounts)
         self.reservations.make_orders(
             self.state,
-            self.notifiers.send_reservation)
+            self.notifiers.send)
 
         if len(self.state) == 0:
             log.warning("No items in observation! Did you add any favorites?")
@@ -190,6 +190,7 @@ class Scanner:
             self.metrics.enable_metrics()
         self.notifiers = Notifiers(
             self.config, self.reservations, self.favorites)
+        self.notifiers.start()
         if not self.config.disable_tests and \
                 self.notifiers.notifier_count > 0:
             log.info("Sending test Notifications ...")

@@ -1,12 +1,14 @@
 import json
 import logging
+from typing import Union
 
 import requests
 from requests.auth import HTTPBasicAuth
 
-from tgtg_scanner.models import Config, Item
+from tgtg_scanner.models import Config, Favorites, Item, Reservations
 from tgtg_scanner.models.errors import (MaskConfigurationError,
                                         WebHookConfigurationError)
+from tgtg_scanner.models.reservations import Reservation
 from tgtg_scanner.notifiers.base import Notifier
 
 log = logging.getLogger('tgtg')
@@ -15,7 +17,9 @@ log = logging.getLogger('tgtg')
 class WebHook(Notifier):
     """Notifier for custom Webhooks"""
 
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, reservations: Reservations,
+                 favorites: Favorites):
+        super().__init__(config, reservations, favorites)
         self.enabled = config.webhook.get("enabled", False)
         self.method = config.webhook.get("method")
         self.url = config.webhook.get("url")
@@ -40,32 +44,33 @@ class WebHook(Notifier):
             except MaskConfigurationError as exc:
                 raise WebHookConfigurationError(exc.message) from exc
 
-    def _send(self, item: Item) -> None:
+    def _send(self, item: Union[Item, Reservation]) -> None:
         """Sends item information via configured Webhook endpoint"""
-        url = item.unmask(self.url)
-        log.debug("%s url: %s", self.name, url)
-        body = None
-        headers = self.headers
-        if self.type:
-            headers["Content-Type"] = self.type
-        if self.body:
-            body = item.unmask(self.body)
-            if isinstance(body, bytes):
-                pass
-            elif self.type and 'json' in self.type:
-                body = json.dumps(json.loads(body.replace('\n', '\\n')))
-                log.debug("%s body: %s", self.name, body)
-            else:
-                body = body.encode('utf-8')
-                log.debug("%s body: %s", self.name, body)
-        log.debug("%s headers: %s", self.name, headers)
-        res = requests.request(method=self.method, url=url,
-                               timeout=self.timeout, data=body,
-                               headers=headers, auth=self.auth)
-        if not res.ok:
-            log.error("%s Request failed with status code %s",
-                      self.name, res.status_code)
-            log.debug("%s Response content: %s", self.name, res.text)
+        if isinstance(item, Item):
+            url = item.unmask(self.url)
+            log.debug("%s url: %s", self.name, url)
+            body = None
+            headers = self.headers
+            if self.type:
+                headers["Content-Type"] = self.type
+            if self.body:
+                body = item.unmask(self.body)
+                if isinstance(body, bytes):
+                    pass
+                elif self.type and 'json' in self.type:
+                    body = json.dumps(json.loads(body.replace('\n', '\\n')))
+                    log.debug("%s body: %s", self.name, body)
+                else:
+                    body = body.encode('utf-8')
+                    log.debug("%s body: %s", self.name, body)
+            log.debug("%s headers: %s", self.name, headers)
+            res = requests.request(method=self.method, url=url,
+                                   timeout=self.timeout, data=body,
+                                   headers=headers, auth=self.auth)
+            if not res.ok:
+                log.error("%s Request failed with status code %s",
+                          self.name, res.status_code)
+                log.debug("%s Response content: %s", self.name, res.text)
 
     def __repr__(self) -> str:
         return f"WebHook: {self.url}"

@@ -2,7 +2,7 @@ import logging
 
 from requests.auth import HTTPBasicAuth
 
-from tgtg_scanner.models import Config, Item
+from tgtg_scanner.models import Config, Favorites, Item, Reservations
 from tgtg_scanner.models.errors import (MaskConfigurationError,
                                         NtfyConfigurationError)
 from tgtg_scanner.notifiers.webhook import WebHook
@@ -13,7 +13,9 @@ log = logging.getLogger('tgtg')
 class Ntfy(WebHook):
     """Notifier for Ntfy"""
 
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, reservations: Reservations,
+                 favorites: Favorites):
+        super(WebHook, self).__init__(config, reservations, favorites)
         self.enabled = config.ntfy.get("enabled", False)
         self.server = config.ntfy.get("server", "https://ntfy.sh")
         self.topic = config.ntfy.get("topic")
