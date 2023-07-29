@@ -81,9 +81,6 @@ jobs:
   releases:
     name: Build Release Files
     runs-on: ${{ matrix.os }}
-    defaults:
-      run:
-        shell: bash
     strategy:
       fail-fast: ${{ github.event_name == 'push' }}
       matrix:
@@ -99,11 +96,11 @@ jobs:
     - uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
-    - uses: snok/install-poetry@v1
-      with:
-        version: ${{ env.POETRY_VERSION }}
-        virtualenvs-create: true
-        virtualenvs-in-project: true
+    - name: Setup Poetry
+      run: |
+        pip install --upgrade pip setuptools wheel poetry==${{ env.POETRY_VERSION }}
+        poetry config virtualenvs.create true --local
+        poetry config virtualenvs.in-project true --local
     - uses: actions/cache@v3
       with:
         path: ./.venv
@@ -121,8 +118,12 @@ jobs:
       id: filename
       shell: bash
       run: echo "FILENAME=scanner-${{ github.ref_name }}-${{ matrix.tag }}.zip" | sed -r 's,/,-,g' >> $GITHUB_OUTPUT
-    - name: Zip files
+    - name: Zip files (linux/macos)
+      if: matrix.tag == 'linux' || matrix.tag == 'macos'
       run: zip -j ./${{ steps.filename.outputs.FILENAME }} ./dist/*
+    - name: Zip files (win)
+      if: matrix.tag == 'win'
+      run: Compress-Archive ./dist/* ./${{ steps.filename.outputs.FILENAME }}
     - name: Upload archive
       uses: actions/upload-artifact@v3
       with:

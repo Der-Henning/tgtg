@@ -162,7 +162,7 @@ def tgtg_item():
                 'is_automatically_created': False
             },
             'is_manufacturer': False},
-        'display_name': 'Chutney Indian Food - Hamburg – Europapassage 2.OG',
+        'display_name': 'Chutney Indian Food - Hamburg - Europapassage 2.OG',
         'pickup_interval': {
             'start': '2022-12-30T19:00:00Z',
             'end': '2022-12-30T19:30:00Z'
