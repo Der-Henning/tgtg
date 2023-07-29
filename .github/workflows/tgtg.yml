@@ -25,7 +25,7 @@ jobs:
     - uses: actions/cache@v3
       with:
         path: ./.venv
-        key: venv-test-poetry-${{ env.POETRY_VERSION }}-python-${{ env.PYTHON_VERSION }}-${{ hashFiles('poetry.lock') }}
+        key: venv-test-poetry-${{ env.POETRY_VERSION }}-python-${{ env.PYTHON_VERSION }}-${{ hashFiles('poetry.lock') }}-${{ runner.os }}
     - name: Install dependencies
       run: poetry install --without build
     - name: Run tests
