@@ -5,10 +5,10 @@
 
 version: 2
 updates:
-    - package-ecosystem: "pip" # See documentation for possible values
-      directory: "/" # Location of package manifests
-      schedule:
-          interval: "daily"
-      target-branch: "dev"
-      assignees:
-          - "Der-Henning"
+- package-ecosystem: pip       # See documentation for possible values
+  directory: /                 # Location of package manifests
+  schedule:
+    interval: daily
+  target-branch: dev
+  assignees:
+  - Der-Henning

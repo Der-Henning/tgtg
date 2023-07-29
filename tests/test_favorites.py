@@ -2,8 +2,8 @@ from unittest.mock import MagicMock, call
 
 import pytest
 
-from models.errors import TgtgAPIError
-from models.favorites import Favorites
+from tgtg_scanner.models.errors import TgtgAPIError
+from tgtg_scanner.models.favorites import Favorites
 
 
 @pytest.fixture
@@ -15,8 +15,7 @@ def favorites():
 def test_is_item_favorite(favorites: Favorites, tgtg_item: dict):
     favorites.client.get_favorites.return_value = []
     is_favorite = favorites.is_item_favorite(
-        tgtg_item.get("item", {}).get("item_id")
-    )
+        tgtg_item.get("item", {}).get("item_id"))
     assert is_favorite == tgtg_item.get("favorite")
 
     is_favorite = favorites.is_item_favorite("123")
@@ -59,5 +58,4 @@ def test_remove_favorites(favorites: Favorites):
     favorites.client.set_favorite = set_favorite_mock
     favorites.remove_favorite(["123", "234"])
     set_favorite_mock.assert_has_calls(
-        [call("123", False), call("234", False)]
-    )
+        [call("123", False), call("234", False)])

@@ -1,6 +1,6 @@
 from pytest_mock.plugin import MockerFixture
 
-from models import Location
+from tgtg_scanner.models import Location
 
 
 def test_calculate_distance_time(mocker: MockerFixture):

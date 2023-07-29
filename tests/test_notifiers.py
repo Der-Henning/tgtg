@@ -6,14 +6,14 @@ from time import sleep
 import pytest
 import responses
 
-import models.config
-from models.item import Item
-from notifiers.apprise import Apprise
-from notifiers.console import Console
-from notifiers.ifttt import IFTTT
-from notifiers.ntfy import Ntfy
-from notifiers.script import Script
-from notifiers.webhook import WebHook
+import tgtg_scanner.models.config
+from tgtg_scanner.models.item import Item
+from tgtg_scanner.notifiers.apprise import Apprise
+from tgtg_scanner.notifiers.console import Console
+from tgtg_scanner.notifiers.ifttt import IFTTT
+from tgtg_scanner.notifiers.ntfy import Ntfy
+from tgtg_scanner.notifiers.script import Script
+from tgtg_scanner.notifiers.webhook import WebHook
 
 SYS_PLATFORM = platform.system()
 IS_WINDOWS = SYS_PLATFORM.lower() in ('windows', 'cygwin')
@@ -21,8 +21,8 @@ IS_WINDOWS = SYS_PLATFORM.lower() in ('windows', 'cygwin')
 
 @responses.activate
 def test_webhook_json(test_item: Item):
-    reload(models.config)
-    config = models.config.Config("")
+    reload(tgtg_scanner.models.config)
+    config = tgtg_scanner.models.config.Config("")
     config._setattr("webhook.enabled", True)
     config._setattr("webhook.method", "POST")
     config._setattr("webhook.url", "https://api.example.com")
@@ -58,8 +58,8 @@ def test_webhook_json(test_item: Item):
 
 @responses.activate
 def test_webhook_text(test_item: Item):
-    reload(models.config)
-    config = models.config.Config("")
+    reload(tgtg_scanner.models.config)
+    config = tgtg_scanner.models.config.Config("")
     config._setattr("webhook.enabled", True)
     config._setattr("webhook.method", "POST")
     config._setattr("webhook.url", "https://api.example.com")
@@ -91,8 +91,8 @@ def test_webhook_text(test_item: Item):
 
 @responses.activate
 def test_ifttt(test_item: Item):
-    reload(models.config)
-    config = models.config.Config("")
+    reload(tgtg_scanner.models.config)
+    config = tgtg_scanner.models.config.Config("")
     config._setattr("ifttt.enabled", True)
     config._setattr("ifttt.event", "tgtg_notification")
     config._setattr("ifttt.key", "secret_key")
@@ -126,8 +126,8 @@ def test_ifttt(test_item: Item):
 
 @responses.activate
 def test_ntfy(test_item: Item):
-    reload(models.config)
-    config = models.config.Config("")
+    reload(tgtg_scanner.models.config)
+    config = tgtg_scanner.models.config.Config("")
     config._setattr("ntfy.enabled", True)
     config._setattr("ntfy.server", "https://ntfy.sh")
     config._setattr("ntfy.topic", "tgtg_test")
@@ -158,8 +158,8 @@ def test_ntfy(test_item: Item):
 
 @responses.activate
 def test_apprise(test_item: Item):
-    reload(models.config)
-    config = models.config.Config("")
+    reload(tgtg_scanner.models.config)
+    config = tgtg_scanner.models.config.Config("")
     config._setattr("apprise.enabled", True)
     config._setattr("apprise.url", "ntfy://tgtg_test")
     config._setattr("apprise.title", "New Items - ${{display_name}}")
@@ -186,8 +186,8 @@ def test_apprise(test_item: Item):
 
 
 def test_console(test_item: Item, capsys: pytest.CaptureFixture):
-    reload(models.config)
-    config = models.config.Config("")
+    reload(tgtg_scanner.models.config)
+    config = tgtg_scanner.models.config.Config("")
     config._setattr("console.enabled", True)
     config._setattr("console.body", "${{display_name}} - "
                     "new amount: ${{items_available}}")
@@ -202,8 +202,8 @@ def test_console(test_item: Item, capsys: pytest.CaptureFixture):
 
 
 def test_script(test_item: Item, capfdbinary: pytest.CaptureFixture):
-    reload(models.config)
-    config = models.config.Config("")
+    reload(tgtg_scanner.models.config)
+    config = tgtg_scanner.models.config.Config("")
     config._setattr("script.enabled", True)
     config._setattr("script.command", "echo ${{display_name}}")
 
