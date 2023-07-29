@@ -10,6 +10,9 @@ jobs:
   tests:
     name: Run Tests
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
@@ -30,7 +33,7 @@ jobs:
         path: ./.venv
         key: venv-test-poetry-${{ env.POETRY_VERSION }}-python-${{ matrix.python }}-${{ hashFiles('poetry.lock') }}
     - name: Install dependencies
-      run: poetry install --without build
+      run: poetry install --no-interaction --without build
     - name: Run linting
       run: poetry run pre-commit run -a
     - name: Run tests
