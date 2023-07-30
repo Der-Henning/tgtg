@@ -16,16 +16,10 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python: ['3.9', '3.10', '3.11']
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
+    - uses: ./.github/actions/setup-poetry-action.yml
       with:
-        python-version: ${{ matrix.python }}
-    - name: Setup Poetry
-      run: |
-        pip install --upgrade pip setuptools wheel poetry==${{ env.POETRY_VERSION }}
-        poetry config virtualenvs.create true --local
-        poetry config virtualenvs.in-project true --local
-        poetry config installer.max-workers 1 --local
+        python_version: ${{ matrix.python }}
+        poetry_version: ${{ env.POETRY_VERSION }}
     - uses: actions/cache@v3
       with:
         path: ./.venv
