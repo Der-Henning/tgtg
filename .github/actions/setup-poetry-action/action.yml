@@ -1,18 +1,20 @@
 name: Poetry Setup Action
 
-on:
-  workflow_call:
-    inputs:
-      version:
-        required: true
-        type: string
+inputs:
+  poetry-version:
+    required: true
+    type: string
+    default: latest
 
-jobs:
-  setup-poetry:
-    steps:
-    - name: Setup Poetry
-      run: |
-        pip install --upgrade pip setuptools wheel poetry==${{ inputs.version }}
-        poetry config virtualenvs.create true
-        poetry config virtualenvs.in-project true
-        poetry config installer.max-workers 1
+runs:
+  using: composite
+  steps:
+  - if: ${{ inputs.poetry-version != 'latest' }}
+    run: pip install --upgrade pip setuptools wheel poetry==${{ inputs.poetry-version }}
+  - if: ${{ inputs.poetry-version == 'latest' }}
+    run: pip install --upgrade pip setuptools wheel poetry
+  - name: Configure Poetry
+    run: |
+      poetry config virtualenvs.create true
+      poetry config virtualenvs.in-project true
+      poetry config installer.max-workers 1

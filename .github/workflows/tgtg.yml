@@ -19,7 +19,7 @@ jobs:
         python-version: ${{ env.PYTHON_VERSION }}
     - uses: ./.github/actions/setup-poetry-action
       with:
-        version: ${{ env.POETRY_VERSION }}
+        poetry-version: ${{ env.POETRY_VERSION }}
     - uses: actions/cache@v3
       with:
         path: ./.venv
