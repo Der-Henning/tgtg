@@ -90,6 +90,10 @@ jobs:
           tag: macos
     steps:
     - uses: actions/checkout@v3
+    - uses: actions/cache@v3
+      with:
+        path: ./.venv
+        key: venv-build-poetry-${{ env.POETRY_VERSION }}-python-${{ env.PYTHON_VERSION }}-${{ hashFiles('poetry.lock') }}-${{ runner.os }}
     - uses: ./.github/actions/setup-poetry-action
       with:
         poetry-version: ${{ env.POETRY_VERSION }}
