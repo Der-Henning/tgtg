@@ -32,10 +32,13 @@ jobs:
           file: ./docker/Dockerfile.alpine
           context: ./
     steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
     - uses: ./.github/actions/setup-poetry-action.yml
       with:
-        python_version: ${{ env.PYTHON_VERSION }}
-        poetry_version: ${{ env.POETRY_VERSION }}
+        version: ${{ env.POETRY_VERSION }}
     - name: Export requirements.txt
       run: poetry export -f requirements.txt --output requirements.txt
     - uses: docker/metadata-action@v4
@@ -87,10 +90,13 @@ jobs:
         - os: macos-latest
           tag: macos
     steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
     - uses: ./.github/actions/setup-poetry-action.yml
       with:
-        python_version: ${{ env.PYTHON_VERSION }}
-        poetry_version: ${{ env.POETRY_VERSION }}
+        version: ${{ env.POETRY_VERSION }}
     - uses: actions/cache@v3
       with:
         path: ./.venv

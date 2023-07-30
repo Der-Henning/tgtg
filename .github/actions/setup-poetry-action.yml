@@ -3,23 +3,16 @@ name: Poetry Setup Action
 on:
   workflow_call:
     inputs:
-      python_version:
-        required: true
-        type: string
-      poetry_version:
+      version:
         required: true
         type: string
 
 jobs:
   setup-poetry:
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
-      with:
-        python-version: ${{ inputs.python_version }}
     - name: Setup Poetry
       run: |
-        pip install --upgrade pip setuptools wheel poetry==${{ inputs.poetry_version }}
+        pip install --upgrade pip setuptools wheel poetry==${{ inputs.version }}
         poetry config virtualenvs.create true
         poetry config virtualenvs.in-project true
         poetry config installer.max-workers 1
