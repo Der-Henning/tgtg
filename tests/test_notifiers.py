@@ -2,11 +2,13 @@ import json
 import platform
 from importlib import reload
 from time import sleep
+from unittest.mock import MagicMock
 
 import pytest
 import responses
 
 import tgtg_scanner.models.config
+from tgtg_scanner.models import Favorites, Reservations
 from tgtg_scanner.models.item import Item
 from tgtg_scanner.notifiers.apprise import Apprise
 from tgtg_scanner.notifiers.console import Console
@@ -19,8 +21,19 @@ SYS_PLATFORM = platform.system()
 IS_WINDOWS = SYS_PLATFORM.lower() in ('windows', 'cygwin')
 
 
+@pytest.fixture
+def reservations() -> Reservations:
+    return MagicMock()
+
+
+@pytest.fixture
+def favorites() -> Favorites:
+    return MagicMock()
+
+
 @responses.activate
-def test_webhook_json(test_item: Item):
+def test_webhook_json(test_item: Item, reservations: Reservations,
+                      favorites: Favorites):
     reload(tgtg_scanner.models.config)
     config = tgtg_scanner.models.config.Config("")
     config._setattr("webhook.enabled", True)
@@ -37,11 +50,12 @@ def test_webhook_json(test_item: Item):
     responses.add(
         responses.POST,
         "https://api.example.com",
-        status=200
-    )
+        status=200)
 
-    webhook = WebHook(config)
+    webhook = WebHook(config, reservations, favorites)
+    webhook.start()
     webhook.send(test_item)
+    webhook.stop()
 
     request = responses.calls[0].request
     body = json.loads(request.body)
@@ -57,7 +71,8 @@ def test_webhook_json(test_item: Item):
 
 
 @responses.activate
-def test_webhook_text(test_item: Item):
+def test_webhook_text(test_item: Item, reservations: Reservations,
+                      favorites: Favorites):
     reload(tgtg_scanner.models.config)
     config = tgtg_scanner.models.config.Config("")
     config._setattr("webhook.enabled", True)
@@ -73,11 +88,12 @@ def test_webhook_text(test_item: Item):
     responses.add(
         responses.POST,
         "https://api.example.com",
-        status=200
-    )
+        status=200)
 
-    webhook = WebHook(config)
+    webhook = WebHook(config, reservations, favorites)
+    webhook.start()
     webhook.send(test_item)
+    webhook.stop()
 
     request = responses.calls[0].request
 
@@ -90,7 +106,8 @@ def test_webhook_text(test_item: Item):
 
 
 @responses.activate
-def test_ifttt(test_item: Item):
+def test_ifttt(test_item: Item, reservations: Reservations,
+               favorites: Favorites):
     reload(tgtg_scanner.models.config)
     config = tgtg_scanner.models.config.Config("")
     config._setattr("ifttt.enabled", True)
@@ -108,11 +125,12 @@ def test_ifttt(test_item: Item):
         f"/with/key/{config.ifttt.get('key')}",
         body="Congratulations! You've fired the tgtg_notification event",
         content_type="text/plain",
-        status=200
-    )
+        status=200)
 
-    ifttt = IFTTT(config)
+    ifttt = IFTTT(config, reservations, favorites)
+    ifttt.start()
     ifttt.send(test_item)
+    ifttt.stop()
 
     request = responses.calls[0].request
     body = json.loads(request.body)
@@ -125,7 +143,8 @@ def test_ifttt(test_item: Item):
 
 
 @responses.activate
-def test_ntfy(test_item: Item):
+def test_ntfy(test_item: Item, reservations: Reservations,
+              favorites: Favorites):
     reload(tgtg_scanner.models.config)
     config = tgtg_scanner.models.config.Config("")
     config._setattr("ntfy.enabled", True)
@@ -138,11 +157,12 @@ def test_ntfy(test_item: Item):
     responses.add(
         responses.POST,
         f"{config.ntfy.get('server')}/{config.ntfy.get('topic')}",
-        status=200
-    )
+        status=200)
 
-    ntfy = Ntfy(config)
+    ntfy = Ntfy(config, reservations, favorites)
+    ntfy.start()
     ntfy.send(test_item)
+    ntfy.stop()
 
     request = responses.calls[0].request
 
@@ -157,7 +177,8 @@ def test_ntfy(test_item: Item):
 
 
 @responses.activate
-def test_apprise(test_item: Item):
+def test_apprise(test_item: Item, reservations: Reservations,
+                 favorites: Favorites):
     reload(tgtg_scanner.models.config)
     config = tgtg_scanner.models.config.Config("")
     config._setattr("apprise.enabled", True)
@@ -169,11 +190,12 @@ def test_apprise(test_item: Item):
     responses.add(
         responses.POST,
         "https://ntfy.sh/",
-        status=200
-    )
+        status=200)
 
-    apprise = Apprise(config)
+    apprise = Apprise(config, reservations, favorites)
+    apprise.start()
     apprise.send(test_item)
+    apprise.stop()
 
     request = responses.calls[0].request
     body = json.loads(request.body)
@@ -185,32 +207,39 @@ def test_apprise(test_item: Item):
         f'- https://share.toogoodtogo.com/item/{test_item.item_id}')
 
 
-def test_console(test_item: Item, capsys: pytest.CaptureFixture):
+def test_console(test_item: Item, reservations: Reservations,
+                 favorites: Favorites, capsys: pytest.CaptureFixture):
     reload(tgtg_scanner.models.config)
     config = tgtg_scanner.models.config.Config("")
     config._setattr("console.enabled", True)
     config._setattr("console.body", "${{display_name}} - "
                     "new amount: ${{items_available}}")
 
-    console = Console(config)
+    console = Console(config, reservations, favorites)
+    console.start()
     console.send(test_item)
+    sleep(0.1)
     captured = capsys.readouterr()
+    console.stop()
 
     assert captured.out.rstrip() == (
         f"{test_item.display_name} - "
         f"new amount: {test_item.items_available}")
 
 
-def test_script(test_item: Item, capfdbinary: pytest.CaptureFixture):
+def test_script(test_item: Item, reservations: Reservations,
+                favorites: Favorites, capfdbinary: pytest.CaptureFixture):
     reload(tgtg_scanner.models.config)
     config = tgtg_scanner.models.config.Config("")
     config._setattr("script.enabled", True)
     config._setattr("script.command", "echo ${{display_name}}")
 
-    script = Script(config)
+    script = Script(config, reservations, favorites)
+    script.start()
     script.send(test_item)
     sleep(0.1)
     captured = capfdbinary.readouterr()
+    script.stop()
 
     encoding = "cp1252" if IS_WINDOWS else "utf-8"
     assert captured.out.decode(encoding).rstrip() == test_item.display_name
