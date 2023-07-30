@@ -17,22 +17,15 @@ jobs:
         python: ['3.9', '3.10', '3.11']
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python }}
     - uses: ./.github/actions/setup-poetry-action
       with:
         poetry-version: ${{ env.POETRY_VERSION }}
-    - uses: actions/cache@v3
-      with:
-        path: ./.venv
-        key: venv-test-poetry-${{ env.POETRY_VERSION }}-python-${{ matrix.python }}-${{ hashFiles('poetry.lock') }}-${{ runner.os }}
+        python-version: ${{ matrix.python }}
+        without: build
     - uses: actions/cache@v3
       with:
         path: ~/.cache/pre-commit
         key: pre-commit-python-${{ matrix.python }}-${{ hashFiles('poetry.lock', '.pre-commit-config.yaml') }}-${{ runner.os }}
-    - name: Install dependencies
-      run: poetry install --no-interaction --without build
     - name: Run linting
       run: poetry run pre-commit run -a
     - name: Run tests

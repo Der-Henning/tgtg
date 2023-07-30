@@ -2,13 +2,27 @@ name: Poetry Setup Action
 
 inputs:
   poetry-version:
-    required: true
+    required: false
     type: string
     default: latest
+  python-version:
+    required: false
+    type: string
+    default: 3.10
+  install-dependencies:
+    required: false
+    type: boolean
+    default: true
+  without:
+    required: false
+    type: string
 
 runs:
   using: composite
   steps:
+  - uses: actions/setup-python@v4
+    with:
+      python-version: ${{ inputs.python-version }}
   - if: ${{ inputs.poetry-version != 'latest' }}
     shell: bash
     run: pip install --upgrade pip setuptools wheel poetry==${{ inputs.poetry-version }}
@@ -21,3 +35,16 @@ runs:
       poetry config virtualenvs.create true
       poetry config virtualenvs.in-project true
       poetry config installer.max-workers 1
+  - uses: actions/cache@v3
+    if: ${{ inputs.install-dependencies == true }}
+    with:
+      path: ./.venv
+      key: venv-poetry-${{ inputs.poetry-version }}-python-${{ inputs.python-version }}-without-${{ inputs.without }}-${{ hashFiles('poetry.lock') }}-${{ runner.os }}
+  - name: Install dependencies
+    if: ${{ inputs.without != '' }} and ${{ inputs.install-dependencies == true }}
+    shell: bash
+    run: poetry install --no-interaction --without build
+  - name: Install dependencies
+    if: ${{ inputs.without == '' }} and ${{ inputs.install-dependencies == true }}
+    shell: bash
+    run: poetry install --no-interaction
