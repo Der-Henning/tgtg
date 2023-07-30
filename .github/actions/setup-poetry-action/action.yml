@@ -36,10 +36,10 @@ runs:
       poetry config virtualenvs.in-project true
       poetry config installer.max-workers 1
   - name: Install dependencies
-    if: ${{ inputs.without != '' }} && ${{ inputs.install-dependencies == true }}
+    if: inputs.without != '' && inputs.install-dependencies
     shell: bash
-    run: poetry install --no-interaction --without build
+    run: poetry install --no-interaction --without ${{ inputs.without }}
   - name: Install dependencies
-    if: ${{ inputs.without == '' }} && ${{ inputs.install-dependencies == true }}
+    if: inputs.without == '' && inputs.install-dependencies
     shell: bash
     run: poetry install --no-interaction
