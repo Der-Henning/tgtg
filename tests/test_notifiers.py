@@ -218,7 +218,7 @@ def test_console(test_item: Item, reservations: Reservations,
     console = Console(config, reservations, favorites)
     console.start()
     console.send(test_item)
-    sleep(0.1)
+    sleep(0.5)
     captured = capsys.readouterr()
     console.stop()
 
@@ -237,7 +237,7 @@ def test_script(test_item: Item, reservations: Reservations,
     script = Script(config, reservations, favorites)
     script.start()
     script.send(test_item)
-    sleep(0.1)
+    sleep(0.5)
     captured = capfdbinary.readouterr()
     script.stop()
 
