@@ -409,7 +409,7 @@ class Config():
     def _env_get_boolean(self, key: str, attr: str) -> None:
         value = environ.get(key, None)
         if value is not None:
-            self._setattr(attr, value.lower() in ('true', '1', 't'))
+            self._setattr(attr, value.lower() in {'true', '1', 't'})
 
     def _env_get_int(self, key: str, attr: str) -> None:
         self._setattr(attr, int(environ.get(key, self._getattr(attr))))

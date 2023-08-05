@@ -1,14 +1,12 @@
 import json
 import platform
-from importlib import reload
 from time import sleep
 from unittest.mock import MagicMock
 
 import pytest
 import responses
 
-import tgtg_scanner.models.config
-from tgtg_scanner.models import Favorites, Reservations
+from tgtg_scanner.models import Config, Favorites, Reservations
 from tgtg_scanner.models.item import Item
 from tgtg_scanner.notifiers.apprise import Apprise
 from tgtg_scanner.notifiers.console import Console
@@ -18,7 +16,7 @@ from tgtg_scanner.notifiers.script import Script
 from tgtg_scanner.notifiers.webhook import WebHook
 
 SYS_PLATFORM = platform.system()
-IS_WINDOWS = SYS_PLATFORM.lower() in ('windows', 'cygwin')
+IS_WINDOWS = SYS_PLATFORM.lower() in {'windows', 'cygwin'}
 
 
 @pytest.fixture
@@ -34,8 +32,7 @@ def favorites() -> Favorites:
 @responses.activate
 def test_webhook_json(test_item: Item, reservations: Reservations,
                       favorites: Favorites):
-    reload(tgtg_scanner.models.config)
-    config = tgtg_scanner.models.config.Config("")
+    config = Config("")
     config._setattr("webhook.enabled", True)
     config._setattr("webhook.method", "POST")
     config._setattr("webhook.url", "https://api.example.com")
@@ -73,8 +70,7 @@ def test_webhook_json(test_item: Item, reservations: Reservations,
 @responses.activate
 def test_webhook_text(test_item: Item, reservations: Reservations,
                       favorites: Favorites):
-    reload(tgtg_scanner.models.config)
-    config = tgtg_scanner.models.config.Config("")
+    config = Config("")
     config._setattr("webhook.enabled", True)
     config._setattr("webhook.method", "POST")
     config._setattr("webhook.url", "https://api.example.com")
@@ -108,8 +104,7 @@ def test_webhook_text(test_item: Item, reservations: Reservations,
 @responses.activate
 def test_ifttt(test_item: Item, reservations: Reservations,
                favorites: Favorites):
-    reload(tgtg_scanner.models.config)
-    config = tgtg_scanner.models.config.Config("")
+    config = Config("")
     config._setattr("ifttt.enabled", True)
     config._setattr("ifttt.event", "tgtg_notification")
     config._setattr("ifttt.key", "secret_key")
@@ -145,8 +140,7 @@ def test_ifttt(test_item: Item, reservations: Reservations,
 @responses.activate
 def test_ntfy(test_item: Item, reservations: Reservations,
               favorites: Favorites):
-    reload(tgtg_scanner.models.config)
-    config = tgtg_scanner.models.config.Config("")
+    config = Config("")
     config._setattr("ntfy.enabled", True)
     config._setattr("ntfy.server", "https://ntfy.sh")
     config._setattr("ntfy.topic", "tgtg_test")
@@ -179,8 +173,7 @@ def test_ntfy(test_item: Item, reservations: Reservations,
 @responses.activate
 def test_apprise(test_item: Item, reservations: Reservations,
                  favorites: Favorites):
-    reload(tgtg_scanner.models.config)
-    config = tgtg_scanner.models.config.Config("")
+    config = Config("")
     config._setattr("apprise.enabled", True)
     config._setattr("apprise.url", "ntfy://tgtg_test")
     config._setattr("apprise.title", "New Items - ${{display_name}}")
@@ -209,8 +202,7 @@ def test_apprise(test_item: Item, reservations: Reservations,
 
 def test_console(test_item: Item, reservations: Reservations,
                  favorites: Favorites, capsys: pytest.CaptureFixture):
-    reload(tgtg_scanner.models.config)
-    config = tgtg_scanner.models.config.Config("")
+    config = Config("")
     config._setattr("console.enabled", True)
     config._setattr("console.body", "${{display_name}} - "
                     "new amount: ${{items_available}}")
@@ -229,8 +221,7 @@ def test_console(test_item: Item, reservations: Reservations,
 
 def test_script(test_item: Item, reservations: Reservations,
                 favorites: Favorites, capfdbinary: pytest.CaptureFixture):
-    reload(tgtg_scanner.models.config)
-    config = tgtg_scanner.models.config.Config("")
+    config = Config("")
     config._setattr("script.enabled", True)
     config._setattr("script.command", "echo ${{display_name}}")
 
