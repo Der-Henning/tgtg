@@ -1,4 +1,5 @@
 import configparser
+import platform
 import tempfile
 from random import randint
 from uuid import uuid4
@@ -7,6 +8,9 @@ import pytest
 
 from tgtg_scanner.models import Config, Cron
 from tgtg_scanner.models.config import DEFAULT_CONFIG
+
+SYS_PLATFORM = platform.system()
+IS_WINDOWS = SYS_PLATFORM.lower() in {'windows', 'cygwin'}
 
 
 def test_default_ini_config():
@@ -24,7 +28,7 @@ def test_default_env_config():
 
 
 def test_config_set():
-    with tempfile.NamedTemporaryFile() as temp_file:
+    with tempfile.NamedTemporaryFile(delete=not IS_WINDOWS) as temp_file:
         config = Config(temp_file.name)
 
         assert config.set("MAIN", "debug", True)
@@ -36,7 +40,7 @@ def test_config_set():
 
 
 def test_save_tokens_to_ini():
-    with tempfile.NamedTemporaryFile() as temp_file:
+    with tempfile.NamedTemporaryFile(delete=not IS_WINDOWS) as temp_file:
         access_token = uuid4().hex
         refresh_token = uuid4().hex
         user_id = str(randint(10**9, 10**10-1))
@@ -71,7 +75,7 @@ def test_token_path(monkeypatch: pytest.MonkeyPatch):
 
 
 def test_ini_get():
-    with tempfile.NamedTemporaryFile() as temp_file:
+    with tempfile.NamedTemporaryFile(delete=not IS_WINDOWS) as temp_file:
         content = (
             "[MAIN]\n"
             "Debug = true\n"
