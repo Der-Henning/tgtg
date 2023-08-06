@@ -231,10 +231,16 @@ def main() -> NoReturn:
 
 
 def _get_config_file() -> Union[Path, None]:
+    # Default: config.ini in current working directory or next to executable
     config_file = Path(PROG_PATH, "config.ini")
     if config_file.is_file():
         return config_file
-    config_file = Path(PROG_PATH, "tgtg_scanner", "config.ini")
+    # config.ini in project folder (same place as config.sample.ini)
+    config_file = Path(Path(__file__).parents[1], "config.ini")
+    if config_file.is_file():
+        return config_file
+    # legacy: config.ini in src folder
+    config_file = Path(Path(__file__).parents[1], "src", "config.ini")
     if config_file.is_file():
         return config_file
     return None
