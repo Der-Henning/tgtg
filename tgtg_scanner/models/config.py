@@ -173,10 +173,10 @@ class Config():
             setattr(self, key, DEFAULT_CONFIG[key])
 
         if self.file is not None:
-            if not self.file.exists():
+            if not self.file.is_file():
                 raise ConfigurationError(
                     f"Configuration file '{self.file.absolute()}' "
-                    "does not exist!")
+                    "is not a file!")
             self._read_ini()
             log.info("Loaded config from %s", self.file.absolute())
         else:

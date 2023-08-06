@@ -6,8 +6,7 @@ from unittest.mock import MagicMock
 import pytest
 import responses
 
-from tgtg_scanner.models import Config, Favorites, Reservations
-from tgtg_scanner.models.item import Item
+from tgtg_scanner.models import Config, Cron, Favorites, Item, Reservations
 from tgtg_scanner.notifiers.apprise import Apprise
 from tgtg_scanner.notifiers.console import Console
 from tgtg_scanner.notifiers.ifttt import IFTTT
@@ -32,12 +31,13 @@ def favorites() -> Favorites:
 @responses.activate
 def test_webhook_json(test_item: Item, reservations: Reservations,
                       favorites: Favorites):
-    config = Config("")
+    config = Config()
     config._setattr("webhook.enabled", True)
     config._setattr("webhook.method", "POST")
     config._setattr("webhook.url", "https://api.example.com")
     config._setattr("webhook.type", "application/json")
     config._setattr("webhook.headers", {"Accept": "json"})
+    config._setattr("webhook.cron", Cron())
     config._setattr("webhook.body",
                     '{"content": "${{items_available}} panier(s) '
                     'disponible(s) à ${{price}} € \nÀ récupérer '
@@ -70,12 +70,13 @@ def test_webhook_json(test_item: Item, reservations: Reservations,
 @responses.activate
 def test_webhook_text(test_item: Item, reservations: Reservations,
                       favorites: Favorites):
-    config = Config("")
+    config = Config()
     config._setattr("webhook.enabled", True)
     config._setattr("webhook.method", "POST")
     config._setattr("webhook.url", "https://api.example.com")
     config._setattr("webhook.type", "text/plain")
     config._setattr("webhook.headers", {"Accept": "json"})
+    config._setattr("webhook.cron", Cron())
     config._setattr("webhook.body",
                     '${{items_available}} panier(s) '
                     'disponible(s) à ${{price}} € \nÀ récupérer '
@@ -104,10 +105,11 @@ def test_webhook_text(test_item: Item, reservations: Reservations,
 @responses.activate
 def test_ifttt(test_item: Item, reservations: Reservations,
                favorites: Favorites):
-    config = Config("")
+    config = Config()
     config._setattr("ifttt.enabled", True)
     config._setattr("ifttt.event", "tgtg_notification")
     config._setattr("ifttt.key", "secret_key")
+    config._setattr("ifttt.cron", Cron())
     config._setattr("ifttt.body",
                     '{"value1": "${{display_name}}", '
                     '"value2": ${{items_available}}, '
@@ -140,11 +142,12 @@ def test_ifttt(test_item: Item, reservations: Reservations,
 @responses.activate
 def test_ntfy(test_item: Item, reservations: Reservations,
               favorites: Favorites):
-    config = Config("")
+    config = Config()
     config._setattr("ntfy.enabled", True)
     config._setattr("ntfy.server", "https://ntfy.sh")
     config._setattr("ntfy.topic", "tgtg_test")
     config._setattr("ntfy.title", "New Items - ${{display_name}}")
+    config._setattr("ntfy.cron", Cron())
     config._setattr("ntfy.body",
                     '${{display_name}} - New Amount: ${{items_available}} - '
                     'https://share.toogoodtogo.com/item/${{item_id}}')
@@ -173,10 +176,11 @@ def test_ntfy(test_item: Item, reservations: Reservations,
 @responses.activate
 def test_apprise(test_item: Item, reservations: Reservations,
                  favorites: Favorites):
-    config = Config("")
+    config = Config()
     config._setattr("apprise.enabled", True)
     config._setattr("apprise.url", "ntfy://tgtg_test")
     config._setattr("apprise.title", "New Items - ${{display_name}}")
+    config._setattr("apprise.cron", Cron())
     config._setattr("apprise.body",
                     '${{display_name}} - New Amount: ${{items_available}} - '
                     'https://share.toogoodtogo.com/item/${{item_id}}')
@@ -202,8 +206,9 @@ def test_apprise(test_item: Item, reservations: Reservations,
 
 def test_console(test_item: Item, reservations: Reservations,
                  favorites: Favorites, capsys: pytest.CaptureFixture):
-    config = Config("")
+    config = Config()
     config._setattr("console.enabled", True)
+    config._setattr("console.cron", Cron())
     config._setattr("console.body", "${{display_name}} - "
                     "new amount: ${{items_available}}")
 
@@ -221,8 +226,9 @@ def test_console(test_item: Item, reservations: Reservations,
 
 def test_script(test_item: Item, reservations: Reservations,
                 favorites: Favorites, capfdbinary: pytest.CaptureFixture):
-    config = Config("")
+    config = Config()
     config._setattr("script.enabled", True)
+    config._setattr("script.cron", Cron())
     config._setattr("script.command", "echo ${{display_name}}")
 
     script = Script(config, reservations, favorites)

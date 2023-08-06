@@ -14,10 +14,11 @@ IS_WINDOWS = SYS_PLATFORM.lower() in {'windows', 'cygwin'}
 
 
 def test_default_ini_config():
-    config = Config("")
-    for key in DEFAULT_CONFIG:
-        assert hasattr(config, key)
-        assert getattr(config, key) == DEFAULT_CONFIG.get(key)
+    with tempfile.NamedTemporaryFile(delete=not IS_WINDOWS) as temp_file:
+        config = Config(temp_file.name)
+        for key in DEFAULT_CONFIG:
+            assert hasattr(config, key)
+            assert getattr(config, key) == DEFAULT_CONFIG.get(key)
 
 
 def test_default_env_config():
