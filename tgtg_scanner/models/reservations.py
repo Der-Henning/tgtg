@@ -57,7 +57,7 @@ class Reservations():
                     self.reservation_query.remove(reservation)
                     callback(reservation)
                 except Exception as exc:
-                    log.error("Create Order Error: %s", exc)
+                    log.warning("Order failed: %s", exc)
 
     def update_active_orders(self) -> None:
         """Remove orders that are not active anymore
