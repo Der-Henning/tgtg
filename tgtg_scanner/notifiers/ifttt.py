@@ -1,6 +1,6 @@
 import logging
 
-from tgtg_scanner.models import Config, Item
+from tgtg_scanner.models import Config, Favorites, Item, Reservations
 from tgtg_scanner.models.errors import (IFTTTConfigurationError,
                                         MaskConfigurationError)
 from tgtg_scanner.notifiers.webhook import WebHook
@@ -15,7 +15,9 @@ class IFTTT(WebHook):
     https://ifttt.com/maker_webhooks
     """
 
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, reservations: Reservations,
+                 favorites: Favorites):
+        super(WebHook, self).__init__(config,  reservations, favorites)
         self.enabled = config.ifttt.get("enabled", False)
         self.event = config.ifttt.get("event")
         self.key = config.ifttt.get("key")

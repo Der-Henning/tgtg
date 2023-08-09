@@ -1,3 +1,3 @@
-from tgtg_scanner.tgtg.tgtg_client import TgtgClient
+# flake8: noqa
 
-__all__ = ['TgtgClient']
+from tgtg_scanner.tgtg.tgtg_client import TgtgClient

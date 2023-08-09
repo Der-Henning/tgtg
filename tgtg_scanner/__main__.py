@@ -33,10 +33,10 @@ HEADER = (
 http_client.HTTPConnection.debuglevel = 0
 
 SYS_PLATFORM = platform.system()
-IS_WINDOWS = SYS_PLATFORM.lower() in ('windows', 'cygwin')
+IS_WINDOWS = SYS_PLATFORM.lower() in {'windows', 'cygwin'}
 IS_EXECUTABLE = getattr(sys, "_MEIPASS", False)
 PROG_PATH = Path(sys.executable).parent if IS_EXECUTABLE else Path(os.getcwd())
-IS_DOCKER = os.environ.get("DOCKER", "False").lower() in ('true', '1', 't')
+IS_DOCKER = os.environ.get("DOCKER", "False").lower() in {'true', '1', 't'}
 LOGS_PATH = os.environ.get("LOGS_PATH", PROG_PATH)
 
 
@@ -60,6 +60,7 @@ def main() -> NoReturn:
         "-c", "--config",
         metavar="config_file",
         type=Path,
+        default=config_file,
         help="path to config file (default: config.ini)")
     parser.add_argument(
         "-l", "--log_file",
@@ -148,16 +149,9 @@ def main() -> NoReturn:
     log = logging.getLogger("tgtg")
     log.setLevel(logging.INFO)
 
-    # Set config file from args
-    if args.config:
-        if not args.config.is_file():
-            log.error("Config file %s not found!", args.config)
-            sys.exit(1)
-        config_file = args.config
-
     try:
         # Load config
-        config = Config(config_file)
+        config = Config(args.config)
         config.docker = IS_DOCKER
 
         # Activate debugging mode
@@ -237,12 +231,19 @@ def main() -> NoReturn:
 
 
 def _get_config_file() -> Union[Path, None]:
+    # Default: config.ini in current working directory or next to executable
     config_file = Path(PROG_PATH, "config.ini")
     if config_file.is_file():
         return config_file
-    config_file = Path(PROG_PATH, "tgtg_scanner", "config.ini")
+    # config.ini in project folder (same place as config.sample.ini)
+    config_file = Path(Path(__file__).parents[1], "config.ini")
     if config_file.is_file():
         return config_file
+    # legacy: config.ini in src folder
+    config_file = Path(Path(__file__).parents[1], "src", "config.ini")
+    if config_file.is_file():
+        return config_file
+    return None
 
 
 def _get_version_info() -> str:

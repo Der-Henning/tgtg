@@ -17,25 +17,15 @@ jobs:
         python: ['3.9', '3.10', '3.11']
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
+    - uses: ./.github/actions/setup-poetry-action
       with:
+        poetry-version: ${{ env.POETRY_VERSION }}
         python-version: ${{ matrix.python }}
-    - name: Setup Poetry
-      run: |
-        pip install --upgrade pip setuptools wheel poetry==${{ env.POETRY_VERSION }}
-        poetry config virtualenvs.create true --local
-        poetry config virtualenvs.in-project true --local
-        poetry config installer.max-workers 1 --local
-    - uses: actions/cache@v3
-      with:
-        path: ./.venv
-        key: venv-test-poetry-${{ env.POETRY_VERSION }}-python-${{ matrix.python }}-${{ hashFiles('poetry.lock') }}-${{ runner.os }}
+        without: build
     - uses: actions/cache@v3
       with:
         path: ~/.cache/pre-commit
         key: pre-commit-python-${{ matrix.python }}-${{ hashFiles('poetry.lock', '.pre-commit-config.yaml') }}-${{ runner.os }}
-    - name: Install dependencies
-      run: poetry install --no-interaction --without build
     - name: Run linting
       run: poetry run pre-commit run -a
     - name: Run tests

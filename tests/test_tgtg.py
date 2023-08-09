@@ -1,14 +1,13 @@
 import json
 import pathlib
 import re
-from importlib import reload
 from os import environ
 
 import pytest
 import responses
 from pytest_mock.plugin import MockerFixture
 
-import tgtg_scanner.models.config
+from tgtg_scanner.models import Config
 from tgtg_scanner.tgtg.tgtg_client import USER_AGENTS, TgtgClient
 
 
@@ -177,11 +176,10 @@ def test_tgtg_set_favorite(mocker: MockerFixture):
 
 @pytest.mark.tgtg_api
 def test_tgtg_api(item_properties: dict):
-    reload(tgtg_scanner.models.config)
     if pathlib.Path('config.ini').is_file():
-        config = tgtg_scanner.models.config.Config('config.ini')
+        config = Config('config.ini')
     else:
-        config = tgtg_scanner.models.config.Config()
+        config = Config()
 
     env_file = environ.get("GITHUB_ENV", None)
 

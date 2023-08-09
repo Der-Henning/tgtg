@@ -33,14 +33,11 @@ jobs:
           context: ./
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
+    - uses: ./.github/actions/setup-poetry-action
       with:
+        poetry-version: ${{ env.POETRY_VERSION }}
         python-version: ${{ env.PYTHON_VERSION }}
-    - name: Setup Poetry
-      run: |
-        pip install --upgrade pip setuptools wheel poetry==${{ env.POETRY_VERSION }}
-        poetry config virtualenvs.create true --local
-        poetry config virtualenvs.in-project true --local
+        install-dependencies: false
     - name: Export requirements.txt
       run: poetry export -f requirements.txt --output requirements.txt
     - uses: docker/metadata-action@v4
@@ -93,20 +90,11 @@ jobs:
           tag: macos
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
+    - uses: ./.github/actions/setup-poetry-action
       with:
+        poetry-version: ${{ env.POETRY_VERSION }}
         python-version: ${{ env.PYTHON_VERSION }}
-    - name: Setup Poetry
-      run: |
-        pip install --upgrade pip setuptools wheel poetry==${{ env.POETRY_VERSION }}
-        poetry config virtualenvs.create true --local
-        poetry config virtualenvs.in-project true --local
-    - uses: actions/cache@v3
-      with:
-        path: ./.venv
-        key: venv-build-poetry-${{ env.POETRY_VERSION }}-python-${{ env.PYTHON_VERSION }}-${{ hashFiles('poetry.lock') }}-${{ runner.os }}
-    - name: Install dependencies
-      run: poetry install --without test
+        without: test
     - name: Run PyInstaller
       run: |
         poetry run pyinstaller scanner.spec

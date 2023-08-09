@@ -1,108 +1,108 @@
 import configparser
-from importlib import reload
-from pathlib import Path
+import platform
+import tempfile
+from random import randint
+from uuid import uuid4
 
 import pytest
 
-import tgtg_scanner.models.config
-from tgtg_scanner.models.cron import Cron
+from tgtg_scanner.models import Config, Cron
+from tgtg_scanner.models.config import DEFAULT_CONFIG
+
+SYS_PLATFORM = platform.system()
+IS_WINDOWS = SYS_PLATFORM.lower() in {'windows', 'cygwin'}
 
 
 def test_default_ini_config():
-    reload(tgtg_scanner.models.config)
-    config = tgtg_scanner.models.config.Config("")
-    for key in tgtg_scanner.models.config.DEFAULT_CONFIG:
-        assert hasattr(config, key)
-        assert getattr(
-            config, key) == tgtg_scanner.models.config.DEFAULT_CONFIG.get(key)
+    with tempfile.NamedTemporaryFile(delete=not IS_WINDOWS) as temp_file:
+        config = Config(temp_file.name)
+        for key in DEFAULT_CONFIG:
+            assert hasattr(config, key)
+            assert getattr(config, key) == DEFAULT_CONFIG.get(key)
 
 
 def test_default_env_config():
-    reload(tgtg_scanner.models.config)
-    config = tgtg_scanner.models.config.Config()
-    for key in tgtg_scanner.models.config.DEFAULT_CONFIG:
+    config = Config()
+    for key in DEFAULT_CONFIG:
         assert hasattr(config, key)
-        assert getattr(
-            config, key) == tgtg_scanner.models.config.DEFAULT_CONFIG.get(key)
+        assert getattr(config, key) == DEFAULT_CONFIG.get(key)
 
 
-def test_config_set(temp_path: Path):
-    reload(tgtg_scanner.models.config)
-    config_path = Path(temp_path, "config.ini")
-    config_path.touch(exist_ok=True)
-    config = tgtg_scanner.models.config.Config(config_path.absolute())
+def test_config_set():
+    with tempfile.NamedTemporaryFile(delete=not IS_WINDOWS) as temp_file:
+        config = Config(temp_file.name)
 
-    assert config.set("MAIN", "debug", True)
+        assert config.set("MAIN", "debug", True)
 
-    config_parser = configparser.ConfigParser()
-    config_parser.read(config_path, encoding='utf-8')
+        config_parser = configparser.ConfigParser()
+        config_parser.read(temp_file.name, encoding='utf-8')
 
-    assert config_parser.getboolean("MAIN", "debug")
+        assert config_parser.getboolean("MAIN", "debug")
 
 
-def test_save_tokens_to_ini(temp_path: Path):
-    reload(tgtg_scanner.models.config)
-    config_path = Path(temp_path, "config.ini")
-    config_path.touch(exist_ok=True)
-    config = tgtg_scanner.models.config.Config(config_path.absolute())
-    config.save_tokens("test_access_token", "test_refresh_token",
-                       "test_user_id", "test_cookie")
+def test_save_tokens_to_ini():
+    with tempfile.NamedTemporaryFile(delete=not IS_WINDOWS) as temp_file:
+        access_token = uuid4().hex
+        refresh_token = uuid4().hex
+        user_id = str(randint(10**9, 10**10-1))
+        datadome = uuid4().hex
+        config = Config(temp_file.name)
+        config.save_tokens(access_token, refresh_token, user_id, datadome)
 
-    config_parser = configparser.ConfigParser()
-    config_parser.read(config_path, encoding='utf-8')
+        config_parser = configparser.ConfigParser()
+        config_parser.read(temp_file.name, encoding='utf-8')
 
-    assert config_parser.get("TGTG", "AccessToken") == "test_access_token"
-    assert config_parser.get("TGTG", "RefreshToken") == "test_refresh_token"
-    assert config_parser.get("TGTG", "UserId") == "test_user_id"
-    assert config_parser.get("TGTG", "Datadome") == "test_cookie"
-
-
-def test_token_path(temp_path: Path, monkeypatch: pytest.MonkeyPatch):
-    reload(tgtg_scanner.models.config)
-    monkeypatch.setenv("TGTG_TOKEN_PATH", str(temp_path.absolute()))
-
-    config = tgtg_scanner.models.config.Config()
-    config.save_tokens("test_access_token", "test_refresh_token",
-                       "test_user_id", "test_cookie")
-    config._load_tokens()
-
-    assert config.tgtg.get("access_token") == "test_access_token"
-    assert config.tgtg.get("refresh_token") == "test_refresh_token"
-    assert config.tgtg.get("user_id") == "test_user_id"
-    assert config.tgtg.get("datadome") == "test_cookie"
+        assert config_parser.get("TGTG", "AccessToken") == access_token
+        assert config_parser.get("TGTG", "RefreshToken") == refresh_token
+        assert config_parser.get("TGTG", "UserId") == user_id
+        assert config_parser.get("TGTG", "Datadome") == datadome
 
 
-def test_ini_get(temp_path: Path):
-    reload(tgtg_scanner.models.config)
-    config_path = Path(temp_path, "config.ini")
+def test_token_path(monkeypatch: pytest.MonkeyPatch):
+    with tempfile.TemporaryDirectory() as temp_dir:
+        monkeypatch.setenv("TGTG_TOKEN_PATH", temp_dir)
+        access_token = uuid4().hex
+        refresh_token = uuid4().hex
+        user_id = uuid4().hex
+        datadome = uuid4().hex
+        config = Config()
+        config.save_tokens(access_token, refresh_token, user_id, datadome)
+        config._load_tokens()
 
-    with open(config_path, 'w', encoding='utf-8') as file:
-        file.writelines([
-            "[MAIN]\n",
-            "Debug = true\n",
-            "ItemIDs = 23423, 32432, 234532\n",
-            "[WEBHOOK]\n",
-            "timeout = 42\n",
-            'headers = {"Accept": "json"}\n',
-            "cron = * * 1-5 * *\n",
+        assert config.tgtg.get("access_token") == access_token
+        assert config.tgtg.get("refresh_token") == refresh_token
+        assert config.tgtg.get("user_id") == user_id
+        assert config.tgtg.get("datadome") == datadome
+
+
+def test_ini_get():
+    with tempfile.NamedTemporaryFile(delete=not IS_WINDOWS) as temp_file:
+        content = (
+            "[MAIN]\n"
+            "Debug = true\n"
+            "ItemIDs = 23423, 32432, 234532\n"
+            "[WEBHOOK]\n"
+            "timeout = 42\n"
+            'headers = {"Accept": "json"}\n'
+            "cron = * * 1-5 * *\n"
             'body = {"content": "${{items_available}} panier(s) à '
-            '${{price}} € \\nÀ récupérer"}'
-        ])
+            '${{price}} € \\nÀ récupérer"}')
 
-    config = tgtg_scanner.models.config.Config(config_path.absolute())
+        temp_file.write(content.encode('utf-8'))
+        temp_file.seek(0)
+        config = Config(temp_file.name)
 
-    assert config.debug is True
-    assert config.item_ids == ["23423", "32432", "234532"]
-    assert config.webhook.get("timeout") == 42
-    assert config.webhook.get("headers") == {"Accept": "json"}
-    assert config.webhook.get("cron") == Cron("* * 1-5 * *")
-    assert config.webhook.get("body") == ('{"content": "${{items_available}} '
-                                          'panier(s) à ${{price}} € \n'
-                                          'À récupérer"}')
+        assert config.debug is True
+        assert config.item_ids == ["23423", "32432", "234532"]
+        assert config.webhook.get("timeout") == 42
+        assert config.webhook.get("headers") == {"Accept": "json"}
+        assert config.webhook.get("cron") == Cron("* * 1-5 * *")
+        assert config.webhook.get("body") == (
+            '{"content": "${{items_available}} panier(s) à ${{price}} € \n'
+            'À récupérer"}')
 
 
 def test_env_get(monkeypatch: pytest.MonkeyPatch):
-    reload(tgtg_scanner.models.config)
     monkeypatch.setenv("DEBUG", "true")
     monkeypatch.setenv("ITEM_IDS", "23423, 32432, 234532")
     monkeypatch.setenv("WEBHOOK_TIMEOUT", "42")
@@ -111,7 +111,7 @@ def test_env_get(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("WEBHOOK_BODY", '{"content": "${{items_available}} '
                        'panier(s) à ${{price}} € \\nÀ récupérer"}')
 
-    config = tgtg_scanner.models.config.Config()
+    config = Config()
 
     assert config.debug is True
     assert config.item_ids == ["23423", "32432", "234532"]

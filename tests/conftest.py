@@ -1,6 +1,3 @@
-import shutil
-from pathlib import Path
-
 import pytest
 
 from tgtg_scanner.models import Item
@@ -31,14 +28,6 @@ def item_properties():
             "decimals"
         ]
     }
-
-
-@pytest.fixture
-def temp_path():
-    temp_path = Path("./pytest_tmp")
-    temp_path.mkdir(exist_ok=True)
-    yield temp_path
-    shutil.rmtree(temp_path)
 
 
 @pytest.fixture

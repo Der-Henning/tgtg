@@ -173,10 +173,10 @@ class Config():
             setattr(self, key, DEFAULT_CONFIG[key])
 
         if self.file is not None:
-            if not self.file.exists():
+            if not self.file.is_file():
                 raise ConfigurationError(
                     f"Configuration file '{self.file.absolute()}' "
-                    "does not exist!")
+                    "is not a file!")
             self._read_ini()
             log.info("Loaded config from %s", self.file.absolute())
         else:
@@ -409,7 +409,7 @@ class Config():
     def _env_get_boolean(self, key: str, attr: str) -> None:
         value = environ.get(key, None)
         if value is not None:
-            self._setattr(attr, value.lower() in ('true', '1', 't'))
+            self._setattr(attr, value.lower() in {'true', '1', 't'})
 
     def _env_get_int(self, key: str, attr: str) -> None:
         self._setattr(attr, int(environ.get(key, self._getattr(attr))))
