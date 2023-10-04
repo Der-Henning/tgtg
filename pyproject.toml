@@ -26,7 +26,7 @@ prometheus-client = "^0.17.0"
 pycron = "^3.0.0"
 python = ">=3.9,<3.13"
 python-pushsafer = "^1.1"
-python-telegram-bot = "^13.15"
+python-telegram-bot = "^20.6"
 requests = "^2.31.0"
 
 [tool.poetry.group.build.dependencies]
