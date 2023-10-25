@@ -73,6 +73,7 @@ DEFAULT_CONFIG = {
         'password': '',
         'sender': '',
         'recipient': [],
+        'recipients_per_item': '',
         'cron': Cron('* * * * *'),
         'subject': 'New Magic Bags',
         'body': '<b>${{display_name}}</b> </br>'
@@ -335,6 +336,8 @@ class Config():
             self._ini_get_cron(config, "SMTP", "cron", "smtp.cron")
             self._ini_get(config, "SMTP", "Sender", "smtp.sender")
             self._ini_get_array(config, "SMTP", "Recipient", "smtp.recipient")
+            self._ini_get(config, "SMTP", "RecipientsPerItem",
+                          "smtp.recipients_per_item")
             self._ini_get(config, "SMTP", "Subject", "smtp.subject")
             self._ini_get(config, "SMTP", "Body", "smtp.body")
 
