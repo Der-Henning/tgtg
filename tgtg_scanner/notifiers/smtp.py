@@ -1,3 +1,4 @@
+import json
 import logging
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -33,6 +34,7 @@ class SMTP(Notifier):
         self.password = config.smtp.get("password")
         self.sender = config.smtp.get("sender")
         self.recipient = config.smtp.get("recipient")
+        self.recipients_per_item = config.smtp.get("recipients_per_item")
         self.subject = config.smtp.get("subject")
         self.body = config.smtp.get("body")
         self.cron = config.smtp.get("cron")
@@ -81,27 +83,63 @@ class SMTP(Notifier):
         if status != 250:
             self._connect()
 
-    def _send_mail(self, subject: str, html: str) -> None:
+    def _send_mail(self, subject: str, html: str, id: int) -> None:
         """Sends mail with html body"""
         message = MIMEMultipart('alternative')
         message['From'] = self.sender
-        message['To'] = ", ".join(self.recipient)
+
+        # Contains either the main recipient or recipient(s) that should be
+        # notified for the specific item
+        item = str(id)
+        recipients = []
+
+        # Determine recipient(s)
+        if self.recipients_per_item:
+            try:
+                # If JSON is not valid or doesn't contain an address for the
+                # given item, the main recipient will be notified
+                data = json.loads(self.recipients_per_item)
+
+                if isinstance(data, dict):
+                    if item in data:
+                        # Find addresses based on item to be notified
+                        for address in data[item]:
+                            recipients.append(address)
+                    else:
+                        recipients.append(self.recipient[0])
+                else:
+                    recipients.append(self.recipient[0])
+
+                message['To'] = ", ".join(recipients)
+            except Exception as e:
+                log = logging.getLogger("tgtg")
+                log.warning(
+                    f"Error parsing ({e}). Falling back to main recipient.")
+
+                # Fallback to main recipient
+                message['To'] = ", ".join(self.recipient)
+                recipients.append(self.recipient)
+        else:
+            message['To'] = ", ".join(self.recipient)
+            recipients.append(self.recipient)
+
         message['Subject'] = subject
         message.attach(MIMEText(html, 'html'))
         body = message.as_string()
         self._stay_connected()
         try:
-            self.server.sendmail(self.sender, self.recipient, body)
+            self.server.sendmail(self.sender, recipients, body)
         except SMTPException:
             self._connect()
-            self.server.sendmail(self.sender, self.recipient, body)
+            self.server.sendmail(self.sender, recipients, body)
 
     def _send(self, item: Union[Item, Reservation]) -> None:
         """Sends item information via Mail."""
         if isinstance(item, Item):
             self._send_mail(
                 item.unmask(self.subject),
-                item.unmask(self.body)
+                item.unmask(self.body),
+                item.item_id
             )
 
     def __repr__(self) -> str:
