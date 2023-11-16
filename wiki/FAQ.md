@@ -56,7 +56,7 @@ The bot implements the following commands.
 
 + \reserve: Lists all your favorite magic bags.
 Clicking on each of the items will trigger a reservation for one bag as soon as it is available.
-For each time you click on the item, another magic bag will be added.
+For each time you click on the item, an additional magic bag will be added.
 + \reservations: Lists all magic bags you activated with \reserve that have not yet been triggered.
 Click to cancel the reservation for the next available bag.
 + \orders: Lists all triggered and active reservations. Click to cancel the reservation.
