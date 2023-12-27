@@ -2,7 +2,7 @@ import logging
 from dataclasses import dataclass
 from typing import List
 
-from tgtg_scanner.models.errors import TgtgAPIError
+from tgtg_scanner.errors import TgtgAPIError
 from tgtg_scanner.models.item import Item
 from tgtg_scanner.tgtg import TgtgClient
 

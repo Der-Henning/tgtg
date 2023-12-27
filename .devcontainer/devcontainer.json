@@ -32,6 +32,7 @@
 			// Add the IDs of extensions you want installed when the container is created.
 			"extensions": [
 				"ms-python.python",
+				"ms-toolsai.jupyter",
 				"GitHub.vscode-pull-request-github"
 			]
 		}

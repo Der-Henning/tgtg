@@ -4,7 +4,7 @@ from typing import Union
 
 import googlemaps
 
-from tgtg_scanner.models.errors import LocationConfigurationError
+from tgtg_scanner.errors import LocationConfigurationError
 
 log = logging.getLogger("tgtg")
 
@@ -14,8 +14,8 @@ class DistanceTime:
     """
     Dataclass for distance and time.
     """
-    distance: str
-    duration: str
+    distance: float
+    duration: float
     travel_mode: str
 
 
@@ -73,8 +73,8 @@ class Location:
         directions = self.gmaps.directions(self.origin, destination,
                                            mode=travel_mode)
         distance_time = DistanceTime(
-            directions[0]["legs"][0]["distance"]["value"],
-            directions[0]["legs"][0]["duration"]["value"],
+            float(directions[0]["legs"][0]["distance"]["value"]),
+            float(directions[0]["legs"][0]["duration"]["value"]),
             travel_mode)
 
         # cache value

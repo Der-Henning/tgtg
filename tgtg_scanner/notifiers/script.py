@@ -2,9 +2,9 @@ import logging
 import subprocess
 from typing import Union
 
+from tgtg_scanner.errors import (MaskConfigurationError,
+                                 ScriptConfigurationError)
 from tgtg_scanner.models import Config, Favorites, Item, Reservations
-from tgtg_scanner.models.errors import (MaskConfigurationError,
-                                        ScriptConfigurationError)
 from tgtg_scanner.models.reservations import Reservation
 from tgtg_scanner.notifiers import Notifier
 

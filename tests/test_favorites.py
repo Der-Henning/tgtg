@@ -2,7 +2,7 @@ from unittest.mock import MagicMock, call
 
 import pytest
 
-from tgtg_scanner.models.errors import TgtgAPIError
+from tgtg_scanner.errors import TgtgAPIError
 from tgtg_scanner.models.favorites import Favorites
 
 

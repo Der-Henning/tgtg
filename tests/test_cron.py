@@ -1,8 +1,8 @@
 
 import pytest
 
+from tgtg_scanner.errors import ConfigurationError
 from tgtg_scanner.models.cron import Cron
-from tgtg_scanner.models.errors import ConfigurationError
 
 
 def test_description():

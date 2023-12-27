@@ -5,9 +5,9 @@ from typing import Union
 import requests
 from requests.auth import HTTPBasicAuth
 
+from tgtg_scanner.errors import (MaskConfigurationError,
+                                 WebHookConfigurationError)
 from tgtg_scanner.models import Config, Favorites, Item, Reservations
-from tgtg_scanner.models.errors import (MaskConfigurationError,
-                                        WebHookConfigurationError)
 from tgtg_scanner.models.reservations import Reservation
 from tgtg_scanner.notifiers.base import Notifier
 

@@ -7,7 +7,7 @@ from typing import Any, Union
 import humanize
 import requests
 
-from tgtg_scanner.models.errors import MaskConfigurationError
+from tgtg_scanner.errors import MaskConfigurationError
 from tgtg_scanner.models.location import DistanceTime, Location
 
 ATTRS = ["item_id", "items_available", "display_name", "description",
@@ -28,7 +28,7 @@ class Item():
     returns well formated data for notifications.
     """
 
-    def __init__(self, data: dict, location: Location = None):
+    def __init__(self, data: dict, location: Union[Location, None] = None):
         self.items_available = data.get("items_available", 0)
         self.display_name = data.get("display_name", "-")
         self.favorite = "Yes" if data.get("favorite", False) else "No"
@@ -89,7 +89,7 @@ class Item():
                 raise MaskConfigurationError(match.group(0))
 
     @staticmethod
-    def get_image(url: str) -> bytes:
+    def get_image(url: str) -> Union[bytes, None]:
         response = requests.get(url)
         if not response.status_code == HTTPStatus.OK:
             log.warning("Get Image Error: %s - %s",
@@ -99,11 +99,11 @@ class Item():
         return response.content
 
     @property
-    def item_logo_bytes(self) -> bytes:
+    def item_logo_bytes(self) -> Union[bytes, None]:
         return self.get_image(self.item_logo)
 
     @property
-    def item_cover_bytes(self) -> bytes:
+    def item_cover_bytes(self) -> Union[bytes, None]:
         return self.get_image(self.item_cover)
 
     @property

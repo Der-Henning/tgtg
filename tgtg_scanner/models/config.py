@@ -2,15 +2,15 @@ import codecs
 import configparser
 import json
 import logging
-from io import TextIOWrapper
 from os import environ
 from pathlib import Path
-from typing import Any
+from typing import IO, Any, Union
 
 import humanize
 
+from tgtg_scanner.errors import ConfigurationError
 from tgtg_scanner.models.cron import Cron
-from tgtg_scanner.models.errors import ConfigurationError
+from tgtg_scanner.tgtg.tgtg_client import BASE_URL
 
 log = logging.getLogger("tgtg")
 
@@ -36,7 +36,8 @@ DEFAULT_CONFIG = {
         'timeout': 60,
         'access_token_lifetime': 14400,
         'max_polling_tries': 24,
-        'polling_wait_time': 5
+        'polling_wait_time': 5,
+        'url': BASE_URL
     },
     'location': {
         'enabled': False,
@@ -167,7 +168,7 @@ class Config():
     script: dict
     location: dict
 
-    def __init__(self, file: str = None):
+    def __init__(self, file: Union[str, None] = None):
         self.file = Path(file) if file is not None else None
         for key in DEFAULT_CONFIG:
             setattr(self, key, DEFAULT_CONFIG[key])
@@ -188,7 +189,7 @@ class Config():
         if (self.locale and not self.locale.startswith('en')):
             humanize.i18n.activate(self.locale)
 
-    def _open(self, file: str, mode: str) -> TextIOWrapper:
+    def _open(self, file: str, mode: str) -> IO[Any]:
         return open(Path(self.token_path, file), mode, encoding='utf-8')
 
     def _load_tokens(self) -> None:
@@ -210,7 +211,7 @@ class Config():
             except EnvironmentError as err:
                 log.error("Error loading Tokens - %s", err)
 
-    def _getattr(self, attr: str) -> None:
+    def _getattr(self, attr: str) -> Any:
         if '.' in attr:
             _attr, _key = attr.split(".")
             return self.__dict__[_attr][_key]
@@ -225,7 +226,8 @@ class Config():
 
     @staticmethod
     def _decode(value: str) -> str:
-        return codecs.escape_decode(bytes(value, "utf-8"))[0].decode("utf-8")
+        return (codecs.escape_decode(bytes(value, "utf-8"))[0]
+                .decode("utf-8"))  # type: ignore[attr-defined]
 
     def _ini_get(self, config: configparser.ConfigParser,
                  section: str, key: str, attr: str) -> None:
@@ -277,6 +279,8 @@ class Config():
                 self._setattr(attr, Cron(value))
 
     def _read_ini(self) -> None:
+        if self.file is None:
+            return
         try:
             config = configparser.ConfigParser()
             config.read(self.file, encoding='utf-8')
@@ -548,7 +552,7 @@ class Config():
         if self.file is not None:
             try:
                 config = configparser.ConfigParser()
-                config.optionxform = str
+                config.optionxform = str  # type: ignore
                 config.read(self.file, encoding='utf-8')
                 if section not in config.sections():
                     config.add_section(section)
@@ -569,7 +573,7 @@ class Config():
         if self.file is not None:
             try:
                 config = configparser.ConfigParser()
-                config.optionxform = str
+                config.optionxform = str  # type: ignore
                 config.read(self.file, encoding='utf-8')
                 if "TGTG" not in config.sections():
                     config.add_section("TGTG")

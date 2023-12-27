@@ -16,9 +16,10 @@ from requests.exceptions import RequestException
 
 from tgtg_scanner._version import (__author__, __description__, __url__,
                                    __version__)
+from tgtg_scanner.errors import ConfigurationError, TgtgAPIError
 from tgtg_scanner.models import Config
-from tgtg_scanner.models.errors import ConfigurationError, TgtgAPIError
 from tgtg_scanner.scanner import Scanner
+from tgtg_scanner.tgtg.tgtg_client import BASE_URL
 
 VERSION_URL = "https://api.github.com/repos/Der-Henning/tgtg/releases/latest"
 
@@ -68,6 +69,10 @@ def main() -> NoReturn:
         type=Path,
         default=log_file,
         help="path to log file (default: scanner.log)")
+    parser.add_argument(
+        "--tgtg-url",
+        default=BASE_URL,
+        help="TGTG API URL for testing")
     helper_group = parser.add_mutually_exclusive_group(required=False)
     helper_group.add_argument(
         "-t", "--tokens",
@@ -162,6 +167,9 @@ def main() -> NoReturn:
                 logging.getLogger(logger_name).setLevel(logging.DEBUG)
             log.info("Debugging mode enabled")
 
+        if args.tgtg_url:
+            config.tgtg["url"] = args.tgtg_url
+
         scanner = Scanner(config)
         if args.tokens:
             credentials = scanner.get_credentials()
@@ -225,6 +233,7 @@ def main() -> NoReturn:
         sys.exit(1)
     except KeyboardInterrupt:
         log.info("Shutting down scanner ...")
+        scanner.stop()
         sys.exit(0)
     except SystemExit:
         sys.exit(1)

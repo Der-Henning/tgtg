@@ -10,6 +10,7 @@ venv
 coverage.xml
 .pytest_cache
 requirements.txt
+.mypy_cache
 
 .env
 config.ini

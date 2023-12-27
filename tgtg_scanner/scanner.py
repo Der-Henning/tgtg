@@ -6,9 +6,9 @@ from typing import Dict, List, NoReturn
 
 from progress.spinner import Spinner
 
+from tgtg_scanner.errors import TgtgAPIError
 from tgtg_scanner.models import (Config, Cron, Favorites, Item, Location,
                                  Metrics, Reservations)
-from tgtg_scanner.models.errors import TgtgAPIError
 from tgtg_scanner.notifiers import Notifiers
 from tgtg_scanner.tgtg import TgtgClient
 
@@ -57,7 +57,8 @@ class Scanner:
             access_token=self.config.tgtg.get("access_token"),
             refresh_token=self.config.tgtg.get("refresh_token"),
             user_id=self.config.tgtg.get("user_id"),
-            datadome_cookie=self.config.tgtg.get("datadome")
+            datadome_cookie=self.config.tgtg.get("datadome"),
+            url=self.config.tgtg.get("url")
         )
         self.reservations = Reservations(self.tgtg_client)
         self.favorites = Favorites(self.tgtg_client)
@@ -224,9 +225,9 @@ class Scanner:
             else:
                 sleep(60)
 
-    def __del__(self) -> None:
+    def stop(self) -> None:
         """
-        Cleanup on shutdown
+        Stop scanner.
         """
         if self.notifiers:
             self.notifiers.stop()

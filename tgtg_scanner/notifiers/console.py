@@ -1,9 +1,9 @@
 import logging
 from typing import Union
 
+from tgtg_scanner.errors import (ConsoleConfigurationError,
+                                 MaskConfigurationError)
 from tgtg_scanner.models import Config, Favorites, Item, Reservations
-from tgtg_scanner.models.errors import (ConsoleConfigurationError,
-                                        MaskConfigurationError)
 from tgtg_scanner.models.reservations import Reservation
 from tgtg_scanner.notifiers.base import Notifier
 

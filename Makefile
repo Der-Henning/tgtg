@@ -21,3 +21,6 @@ test:
 
 lint:
 	poetry run pre-commit run -a
+
+tgtg-server:
+	poetry run tgtg_server

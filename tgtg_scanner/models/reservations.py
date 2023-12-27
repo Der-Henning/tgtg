@@ -51,7 +51,8 @@ class Reservations():
             callback (Callable[[Reservation], None]): Callback for each order
         """
         for reservation in self.reservation_query:
-            if state.get(reservation.item_id).items_available > 0:
+            item = state.get(reservation.item_id)
+            if item and item.items_available > 0:
                 try:
                     self._create_order(reservation)
                     self.reservation_query.remove(reservation)

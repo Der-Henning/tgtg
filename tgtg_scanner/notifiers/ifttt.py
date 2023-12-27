@@ -1,8 +1,7 @@
 import logging
 
+from tgtg_scanner.errors import IFTTTConfigurationError, MaskConfigurationError
 from tgtg_scanner.models import Config, Favorites, Item, Reservations
-from tgtg_scanner.models.errors import (IFTTTConfigurationError,
-                                        MaskConfigurationError)
 from tgtg_scanner.notifiers.webhook import WebHook
 
 log = logging.getLogger('tgtg')

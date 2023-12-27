@@ -5,9 +5,8 @@ from email.mime.text import MIMEText
 from smtplib import SMTPException, SMTPServerDisconnected
 from typing import Union
 
+from tgtg_scanner.errors import MaskConfigurationError, SMTPConfigurationError
 from tgtg_scanner.models import Config, Favorites, Item, Reservations
-from tgtg_scanner.models.errors import (MaskConfigurationError,
-                                        SMTPConfigurationError)
 from tgtg_scanner.models.reservations import Reservation
 from tgtg_scanner.notifiers.base import Notifier
 

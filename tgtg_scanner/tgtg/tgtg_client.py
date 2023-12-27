@@ -7,15 +7,15 @@ import re
 import time
 from datetime import datetime
 from http import HTTPStatus
-from typing import List
-from urllib.parse import urljoin
+from typing import List, Union
+from urllib.parse import urljoin, urlparse
 
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
-from tgtg_scanner.models.errors import (TgtgAPIError, TGTGConfigurationError,
-                                        TgtgLoginError, TgtgPollingError)
+from tgtg_scanner.errors import (TgtgAPIError, TGTGConfigurationError,
+                                 TgtgLoginError, TgtgPollingError)
 
 log = logging.getLogger("tgtg")
 BASE_URL = "https://apptoogoodtogo.com/api/"
@@ -55,34 +55,43 @@ class TgtgSession(requests.Session):
         )
     )
 
-    def __init__(self, user_agent: str = None, language: str = "en-UK",
-                 timeout: int = None, proxies: dict = None,
-                 datadome_cookie: str = None, *args, **kwargs) -> None:
+    def __init__(self,
+                 user_agent: Union[str, None] = None,
+                 language: str = "en-UK",
+                 timeout: Union[int, None] = None,
+                 proxies: Union[dict, None] = None,
+                 datadome_cookie: Union[str, None] = None,
+                 base_url: str = BASE_URL,
+                 *args,
+                 **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.mount("https://", self.http_adapter)
         self.mount("http://", self.http_adapter)
         self.headers = {
-            "user-agent": user_agent,
             "accept-language": language,
             "accept": "application/json",
             "content-type": "application/json; charset=utf-8",
             "Accept-Encoding": "gzip",
         }
+        if user_agent:
+            self.headers["user-agent"] = user_agent
         self.timeout = timeout
-        self.proxies = proxies
+        if proxies:
+            self.proxies = proxies
         if datadome_cookie:
+            domain = urlparse(base_url).netloc.split(':')[0]
+            domain = f".{'local' if domain == 'localhost' else domain}"
             self.cookies.set("datadome", datadome_cookie,
-                             domain=".apptoogoodtogo.com",
-                             path="/", secure=True)
+                             domain=domain, path="/", secure=True)
 
-    def post(self, url: str, access_token: str = None, **kwargs
+    def post(self, *args, access_token: Union[str, None] = None, **kwargs
              ) -> requests.Response:
         headers = kwargs.get("headers")
         if headers is None and getattr(self, "headers"):
             kwargs["headers"] = getattr(self, "headers")
         if "headers" in kwargs and access_token:
             kwargs["headers"]["authorization"] = f"Bearer {access_token}"
-        return super().post(url, **kwargs)
+        return super().post(*args, **kwargs)
 
     def send(self, request, **kwargs):
         for key in ["timeout", "proxies"]:
@@ -147,7 +156,8 @@ class TgtgClient:
                            self.language,
                            self.timeout,
                            self.proxies,
-                           self.datadome_cookie)
+                           self.datadome_cookie,
+                           self.base_url)
 
     def get_credentials(self) -> dict:
         """Returns current tgtg api credentials.
@@ -227,6 +237,9 @@ class TgtgClient:
             timeout=30,
         )
         match = APK_RE_SCRIPT.search(response.text)
+        if not match:
+            raise TgtgAPIError(
+                "Failed to get latest APK version from Google Play Store.")
         data = json.loads(match.group(1))
         return data[1][2][140][0][0][0]
 
