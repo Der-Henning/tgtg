@@ -105,7 +105,7 @@ class TgtgSession(requests.Session):
 class TgtgClient:
     def __init__(
         self,
-        url=BASE_URL,
+        base_url=BASE_URL,
         email=None,
         access_token=None,
         refresh_token=None,
@@ -120,10 +120,10 @@ class TgtgClient:
         polling_wait_time=DEFAULT_POLLING_WAIT_TIME,
         device_type="ANDROID",
     ):
-        if url != BASE_URL:
-            log.warn("Using custom tgtg base url: %s", url)
+        if base_url != BASE_URL:
+            log.warn("Using custom tgtg base url: %s", base_url)
 
-        self.base_url = url
+        self.base_url = base_url
 
         self.email = email
         self.access_token = access_token

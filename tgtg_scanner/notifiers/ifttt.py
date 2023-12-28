@@ -16,12 +16,12 @@ class IFTTT(WebHook):
 
     def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
         super(WebHook, self).__init__(config, reservations, favorites)
-        self.enabled = config.ifttt.get("enabled", False)
-        self.event = config.ifttt.get("event")
-        self.key = config.ifttt.get("key")
-        self.body = config.ifttt.get("body")
-        self.cron = config.ifttt.get("cron")
-        self.timeout = config.ifttt.get("timeout")
+        self.enabled = config.ifttt.enabled
+        self.event = config.ifttt.event
+        self.key = config.ifttt.key
+        self.body = config.ifttt.body
+        self.cron = config.ifttt.cron
+        self.timeout = config.ifttt.timeout
         self.headers = {}
         self.method = "POST"
         self.url = f"https://maker.ifttt.com/trigger/" f"{self.event}/with/key/{self.key}"

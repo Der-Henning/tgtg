@@ -7,7 +7,6 @@ from uuid import uuid4
 import pytest
 
 from tgtg_scanner.models import Config, Cron
-from tgtg_scanner.models.config import DEFAULT_CONFIG
 
 SYS_PLATFORM = platform.system()
 IS_WINDOWS = SYS_PLATFORM.lower() in {"windows", "cygwin"}
@@ -16,16 +15,14 @@ IS_WINDOWS = SYS_PLATFORM.lower() in {"windows", "cygwin"}
 def test_default_ini_config():
     with tempfile.NamedTemporaryFile(delete=not IS_WINDOWS) as temp_file:
         config = Config(temp_file.name)
-        for key in DEFAULT_CONFIG:
-            assert hasattr(config, key)
-            assert getattr(config, key) == DEFAULT_CONFIG.get(key)
+        assert hasattr(config, "metrics_port")
+        assert config.metrics_port == 8000
 
 
 def test_default_env_config():
     config = Config()
-    for key in DEFAULT_CONFIG:
-        assert hasattr(config, key)
-        assert getattr(config, key) == DEFAULT_CONFIG.get(key)
+    assert hasattr(config, "metrics_port")
+    assert config.metrics_port == 8000
 
 
 def test_config_set():
@@ -69,10 +66,10 @@ def test_token_path(monkeypatch: pytest.MonkeyPatch):
         config.save_tokens(access_token, refresh_token, user_id, datadome)
         config._load_tokens()
 
-        assert config.tgtg.get("access_token") == access_token
-        assert config.tgtg.get("refresh_token") == refresh_token
-        assert config.tgtg.get("user_id") == user_id
-        assert config.tgtg.get("datadome") == datadome
+        assert config.tgtg.access_token == access_token
+        assert config.tgtg.refresh_token == refresh_token
+        assert config.tgtg.user_id == user_id
+        assert config.tgtg.datadome == datadome
 
 
 def test_ini_get():
@@ -95,10 +92,10 @@ def test_ini_get():
 
         assert config.debug is True
         assert config.item_ids == ["23423", "32432", "234532"]
-        assert config.webhook.get("timeout") == 42
-        assert config.webhook.get("headers") == {"Accept": "json"}
-        assert config.webhook.get("cron") == Cron("* * 1-5 * *")
-        assert config.webhook.get("body") == ('{"content": "${{items_available}} panier(s) à ${{price}} € \n' 'À récupérer"}')
+        assert config.webhook.timeout == 42
+        assert config.webhook.headers == {"Accept": "json"}
+        assert config.webhook.cron == Cron("* * 1-5 * *")
+        assert config.webhook.body == ('{"content": "${{items_available}} panier(s) à ${{price}} € \n' 'À récupérer"}')
 
 
 def test_env_get(monkeypatch: pytest.MonkeyPatch):
@@ -116,7 +113,7 @@ def test_env_get(monkeypatch: pytest.MonkeyPatch):
 
     assert config.debug is True
     assert config.item_ids == ["23423", "32432", "234532"]
-    assert config.webhook.get("timeout") == 42
-    assert config.webhook.get("headers") == {"Accept": "json"}
-    assert config.webhook.get("cron") == Cron("* * 1-5 * *")
-    assert config.webhook.get("body") == ('{"content": "${{items_available}} ' "panier(s) à ${{price}} € \n" 'À récupérer"}')
+    assert config.webhook.timeout == 42
+    assert config.webhook.headers == {"Accept": "json"}
+    assert config.webhook.cron == Cron("* * 1-5 * *")
+    assert config.webhook.body == ('{"content": "${{items_available}} ' "panier(s) à ${{price}} € \n" 'À récupérer"}')

@@ -39,17 +39,17 @@ class Telegram(Notifier):
         super().__init__(config, reservations, favorites)
         self.application: Application = None
         self.config = config
-        self.enabled = config.telegram.get("enabled", False)
-        self.token = config.telegram.get("token")
-        self.body = config.telegram.get("body")
-        self.image = config.telegram.get("image")
-        self.chat_ids = config.telegram.get("chat_ids")
-        self.timeout = config.telegram.get("timeout", 60)
-        self.disable_commands = config.telegram.get("disable_commands", False)
-        self.cron = config.telegram.get("cron")
-        self.mute = None
+        self.enabled = config.telegram.enabled
+        self.token = config.telegram.token
+        self.body = config.telegram.body
+        self.image = config.telegram.image
+        self.chat_ids = config.telegram.chat_ids
+        self.timeout = config.telegram.timeout
+        self.disable_commands = config.telegram.disable_commands
+        self.cron = config.telegram.cron
+        self.mute: Union[datetime.datetime, None] = None
         self.retries = 0
-        self.event_loop: asyncio.AbstractEventLoop = None
+        self.event_loop = asyncio.get_event_loop()
         self.polling_thread = threading.Thread(target=self._polling)
         self.stop_signal = False
         if self.enabled:
@@ -123,7 +123,6 @@ class Telegram(Notifier):
 
     def start(self) -> None:
         super().start()
-        self.event_loop = asyncio.get_event_loop()
         if not self.chat_ids:
             self.event_loop.run_until_complete(self._get_chat_ids())
         if not self.disable_commands:
@@ -137,19 +136,26 @@ class Telegram(Notifier):
 
     def stop(self) -> None:
         self.stop_signal = True
-        self.polling_thread.join()
+        if self.polling_thread.is_alive():
+            self.polling_thread.join()
+        if self.event_loop.is_running():
+            self.event_loop.stop()
+        self.event_loop.close()
         super().stop()
 
     def _unmask(self, text: str, item: Item) -> str:
-        if text in ["${{item_logo_bytes}}", "${{item_cover_bytes}}"]:
-            matches = item._get_variables(text)
-            return getattr(item, matches[0].group(1))
         for match in item._get_variables(text):
             if hasattr(item, match.group(1)):
                 val = str(getattr(item, match.group(1)))
                 val = escape_markdown(val, version=2)
                 text = text.replace(match.group(0), val)
         return text
+
+    def _unmask_image(self, text: str, item: Item) -> Union[bytes, None]:
+        if text in ["${{item_logo_bytes}}", "${{item_cover_bytes}}"]:
+            matches = item._get_variables(text)
+            return bytes(getattr(item, matches[0].group(1)))
+        return None
 
     def _send(self, item: Union[Item, Reservation]) -> None:
         """Send item information as Telegram message"""
@@ -162,12 +168,12 @@ class Telegram(Notifier):
         if isinstance(item, Item):
             message = self._unmask(self.body, item)
             if self.image:
-                image = self._unmask(self.image, item)
+                image = self._unmask_image(self.image, item)
         elif isinstance(item, Reservation):
             message = escape_markdown(f"{item.display_name} is reserved for 5 minutes", version=2)
         self.event_loop.run_until_complete(self._send_message(message, image))
 
-    async def _send_message(self, message: str, image: bytes = None) -> None:
+    async def _send_message(self, message: str, image: Union[bytes, None] = None) -> None:
         log.debug("%s message: %s", self.name, message)
         fmt = ParseMode.MARKDOWN_V2
         for chat_id in self.chat_ids:
@@ -235,7 +241,9 @@ class Telegram(Notifier):
 
     async def _cancel_orders_menu(self, update: Update, _) -> None:
         self.reservations.update_active_orders()
-        buttons = [[InlineKeyboardButton(order.display_name, callback_data=order)] for order in self.reservations.active_orders]
+        buttons = [
+            [InlineKeyboardButton(order.display_name, callback_data=order)] for order in self.reservations.active_orders.values()
+        ]
         if len(buttons) == 0:
             await update.message.reply_text("No active Orders")
             return
@@ -365,7 +373,7 @@ class Telegram(Notifier):
             await update.callback_query.answer(f"Removed {data.display_name} form reservation queue")
             log.debug('Removed "%s" from reservation queue', data.display_name)
         if isinstance(data, Order):
-            self.reservations.cancel_order(data)
+            self.reservations.cancel_order(data.id)
             await update.callback_query.answer(f"Canceled Order for {data.display_name}")
             log.debug('Canceled order for "%s"', data.display_name)
         if isinstance(data, AddFavoriteRequest):

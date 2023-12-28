@@ -29,5 +29,5 @@ jobs:
     - name: Run linting
       run: poetry run pre-commit run -a
     - name: Run tests
-      run: poetry run pytest -v -m "not tgtg_api" --cov --cov-report=xml
+      run: poetry run pytest -v -m "not tgtg_api" --cov=tgtg_scanner --cov-report=xml
     - uses: codecov/codecov-action@v3

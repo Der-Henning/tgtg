@@ -36,7 +36,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         response = requests.post(url, post_data, headers=headers)
 
         response_data = response.content
-        if path == API_ITEM_ENDPOINT:
+        if path.startswith(API_ITEM_ENDPOINT):
             response_json = response.json()
             for i in range(len(response_json.get("items"))):
                 new_avail = random.randint(0, 3)

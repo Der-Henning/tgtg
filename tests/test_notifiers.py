@@ -31,19 +31,18 @@ def favorites() -> Favorites:
 @responses.activate
 def test_webhook_json(test_item: Item, reservations: Reservations, favorites: Favorites):
     config = Config()
-    config._setattr("webhook.enabled", True)
-    config._setattr("webhook.method", "POST")
-    config._setattr("webhook.url", "https://api.example.com")
-    config._setattr("webhook.type", "application/json")
-    config._setattr("webhook.headers", {"Accept": "json"})
-    config._setattr("webhook.cron", Cron())
-    config._setattr(
-        "webhook.body",
+    config.webhook.enabled = True
+    config.webhook.method = "POST"
+    config.webhook.url = "https://api.example.com"
+    config.webhook.type = "application/json"
+    config.webhook.headers = {"Accept": "json"}
+    config.webhook.cron = Cron()
+    config.webhook.body = (
         '{"content": "${{items_available}} panier(s) '
         "disponible(s) à ${{price}} € \nÀ récupérer "
         "${{pickupdate}}\n"
         'https://toogoodtogo.com/item/${{item_id}}"'
-        ', "username": "${{display_name}}"}',
+        ', "username": "${{display_name}}"}'
     )
     responses.add(responses.POST, "https://api.example.com", status=200)
 
@@ -70,18 +69,17 @@ def test_webhook_json(test_item: Item, reservations: Reservations, favorites: Fa
 @responses.activate
 def test_webhook_text(test_item: Item, reservations: Reservations, favorites: Favorites):
     config = Config()
-    config._setattr("webhook.enabled", True)
-    config._setattr("webhook.method", "POST")
-    config._setattr("webhook.url", "https://api.example.com")
-    config._setattr("webhook.type", "text/plain")
-    config._setattr("webhook.headers", {"Accept": "json"})
-    config._setattr("webhook.cron", Cron())
-    config._setattr(
-        "webhook.body",
+    config.webhook.enabled = True
+    config.webhook.method = "POST"
+    config.webhook.url = "https://api.example.com"
+    config.webhook.type = "text/plain"
+    config.webhook.headers = {"Accept": "json"}
+    config.webhook.cron = Cron()
+    config.webhook.body = (
         "${{items_available}} panier(s) "
         "disponible(s) à ${{price}} € \nÀ récupérer "
         "${{pickupdate}}\n"
-        "https://toogoodtogo.com/item/${{item_id}}",
+        "https://toogoodtogo.com/item/${{item_id}}"
     )
     responses.add(responses.POST, "https://api.example.com", status=200)
 
@@ -104,20 +102,19 @@ def test_webhook_text(test_item: Item, reservations: Reservations, favorites: Fa
 @responses.activate
 def test_ifttt(test_item: Item, reservations: Reservations, favorites: Favorites):
     config = Config()
-    config._setattr("ifttt.enabled", True)
-    config._setattr("ifttt.event", "tgtg_notification")
-    config._setattr("ifttt.key", "secret_key")
-    config._setattr("ifttt.cron", Cron())
-    config._setattr(
-        "ifttt.body",
+    config.ifttt.enabled = True
+    config.ifttt.event = "tgtg_notification"
+    config.ifttt.key = "secret_key"
+    config.ifttt.cron = Cron()
+    config.ifttt.body = (
         '{"value1": "${{display_name}}", '
         '"value2": ${{items_available}}, '
         '"value3": "https://share.toogoodtogo.com/'
-        'item/${{item_id}}"}',
+        'item/${{item_id}}"}'
     )
     responses.add(
         responses.POST,
-        f"https://maker.ifttt.com/trigger/" f"{config.ifttt.get('event')}" f"/with/key/{config.ifttt.get('key')}",
+        f"https://maker.ifttt.com/trigger/" f"{config.ifttt.event}" f"/with/key/{config.ifttt.key}",
         body="Congratulations! You've fired the tgtg_notification event",
         content_type="text/plain",
         status=200,
@@ -142,18 +139,15 @@ def test_ifttt(test_item: Item, reservations: Reservations, favorites: Favorites
 @responses.activate
 def test_ntfy(test_item: Item, reservations: Reservations, favorites: Favorites):
     config = Config()
-    config._setattr("ntfy.enabled", True)
-    config._setattr("ntfy.server", "https://ntfy.sh")
-    config._setattr("ntfy.topic", "tgtg_test")
-    config._setattr("ntfy.title", "New Items - ${{display_name}}")
-    config._setattr("ntfy.cron", Cron())
-    config._setattr(
-        "ntfy.body",
-        "${{display_name}} - New Amount: ${{items_available}} - " "https://share.toogoodtogo.com/item/${{item_id}}",
-    )
+    config.ntfy.enabled = True
+    config.ntfy.server = "https://ntfy.sh"
+    config.ntfy.topic = "tgtg_test"
+    config.ntfy.title = "New Items - ${{display_name}}"
+    config.ntfy.cron = Cron()
+    config.ntfy.body = "${{display_name}} - New Amount: ${{items_available}} - " "https://share.toogoodtogo.com/item/${{item_id}}"
     responses.add(
         responses.POST,
-        f"{config.ntfy.get('server')}/{config.ntfy.get('topic')}",
+        f"{config.ntfy.server}/{config.ntfy.topic}",
         status=200,
     )
 
@@ -164,7 +158,7 @@ def test_ntfy(test_item: Item, reservations: Reservations, favorites: Favorites)
 
     request = responses.calls[0].request
 
-    assert request.url == (f"{config.ntfy.get('server')}/" f"{config.ntfy.get('topic')}")
+    assert request.url == (f"{config.ntfy.server}/" f"{config.ntfy.topic}")
     assert request.headers.get("X-Message").decode("utf-8") == (
         f"{test_item.display_name} - New Amount: {test_item.items_available} "
         f"- https://share.toogoodtogo.com/item/{test_item.item_id}"
@@ -175,13 +169,12 @@ def test_ntfy(test_item: Item, reservations: Reservations, favorites: Favorites)
 @responses.activate
 def test_apprise(test_item: Item, reservations: Reservations, favorites: Favorites):
     config = Config()
-    config._setattr("apprise.enabled", True)
-    config._setattr("apprise.url", "ntfy://tgtg_test")
-    config._setattr("apprise.title", "New Items - ${{display_name}}")
-    config._setattr("apprise.cron", Cron())
-    config._setattr(
-        "apprise.body",
-        "${{display_name}} - New Amount: ${{items_available}} - " "https://share.toogoodtogo.com/item/${{item_id}}",
+    config.apprise.enabled = True
+    config.apprise.url = "ntfy://tgtg_test"
+    config.apprise.title = "New Items - ${{display_name}}"
+    config.apprise.cron = Cron()
+    config.apprise.body = (
+        "${{display_name}} - New Amount: ${{items_available}} - " "https://share.toogoodtogo.com/item/${{item_id}}"
     )
     responses.add(responses.POST, "https://ntfy.sh/", status=200)
 
@@ -208,9 +201,9 @@ def test_console(
     capsys: pytest.CaptureFixture,
 ):
     config = Config()
-    config._setattr("console.enabled", True)
-    config._setattr("console.cron", Cron())
-    config._setattr("console.body", "${{display_name}} - " "new amount: ${{items_available}}")
+    config.console.enabled = True
+    config.console.cron = Cron()
+    config.console.body = "${{display_name}} - " "new amount: ${{items_available}}"
 
     console = Console(config, reservations, favorites)
     console.start()
@@ -229,9 +222,9 @@ def test_script(
     capfdbinary: pytest.CaptureFixture,
 ):
     config = Config()
-    config._setattr("script.enabled", True)
-    config._setattr("script.cron", Cron())
-    config._setattr("script.command", "echo ${{display_name}}")
+    config.script.enabled = True
+    config.script.cron = Cron()
+    config.script.command = "echo ${{display_name}}"
 
     script = Script(config, reservations, favorites)
     script.start()

@@ -14,9 +14,9 @@ class Console(Notifier):
 
     def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
         super().__init__(config, reservations, favorites)
-        self.enabled = config.console.get("enabled", False)
-        self.body = config.console.get("body")
-        self.cron = config.console.get("cron")
+        self.enabled = config.console.enabled
+        self.body = config.console.body
+        self.cron = config.console.cron
 
         if self.enabled:
             try:

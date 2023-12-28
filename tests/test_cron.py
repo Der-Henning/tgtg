@@ -1,6 +1,5 @@
 import pytest
 
-from tgtg_scanner.errors import ConfigurationError
 from tgtg_scanner.models.cron import Cron
 
 
@@ -19,10 +18,12 @@ def test_description():
         "Every minute, between 06:00 and 22:59, Monday through Friday; "
         "Every minute, between 19:00 and 22:59, only on Sunday and Saturday"
     )
-    with pytest.raises(ConfigurationError):
+    with pytest.raises(ValueError):
         Cron("* * * * 0-7")
-    with pytest.raises(ConfigurationError):
+    with pytest.raises(ValueError):
         Cron("* * * * 7")
+    with pytest.raises(ValueError):
+        Cron("abc")
 
 
 def test_is_now():

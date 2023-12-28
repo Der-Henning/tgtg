@@ -15,9 +15,9 @@ class Script(Notifier):
 
     def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
         super().__init__(config, reservations, favorites)
-        self.enabled = config.script.get("enabled", False)
-        self.command = config.script.get("command")
-        self.cron = config.script.get("cron")
+        self.enabled = config.script.enabled
+        self.command = config.script.command
+        self.cron = config.script.cron
 
         if self.enabled:
             if self.command is None:
@@ -29,6 +29,8 @@ class Script(Notifier):
                     raise ScriptConfigurationError(exc.message) from exc
 
     def _send(self, item: Union[Item, Reservation]) -> None:
+        if self.command is None:
+            raise ScriptConfigurationError()
         if isinstance(item, Item):
             args = [item.unmask(arg) for arg in self.command.split()]
             subprocess.Popen(args)

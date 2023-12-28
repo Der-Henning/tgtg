@@ -26,7 +26,7 @@ class Location:
     PUBLIC_TRANSPORT_MODE = "transit"
     BIKING_MODE = "bicycling"
 
-    def __init__(self, enabled: bool, api_key: str, origin: str):
+    def __init__(self, enabled: bool = False, api_key: Union[str, None] = None, origin: Union[str, None] = None) -> None:
         """
         Initializes Location class.
         First run flag important only for validating origin address.
@@ -34,14 +34,14 @@ class Location:
         self.enabled = enabled
         self.origin = origin
         if enabled:
-            if not api_key or not origin:
+            if api_key is None or self.origin is None:
                 raise LocationConfigurationError("Location enabled but no API key or origin address given")
             try:
                 self.gmaps = googlemaps.Client(key=api_key)
-            except ValueError as exc:
+                if not self._is_address_valid(self.origin):
+                    raise LocationConfigurationError("Invalid origin address")
+            except (ValueError, googlemaps.exceptions.ApiError) as exc:
                 raise LocationConfigurationError(exc) from exc
-            if not self._is_address_valid(self.origin):
-                raise LocationConfigurationError("Invalid origin address")
 
         # cached DistanceTime object for each item_id+mode
         self.distancetime_dict: dict[str, DistanceTime] = {}

@@ -55,16 +55,16 @@ class Scanner:
         self.notifiers: Union[Notifiers, None] = None
         self.location: Union[Location, None] = None
         self.tgtg_client = TgtgClient(
-            email=self.config.tgtg.get("username"),
-            timeout=self.config.tgtg.get("timeout"),
-            access_token_lifetime=self.config.tgtg.get("access_token_lifetime"),
-            max_polling_tries=self.config.tgtg.get("max_polling_tries"),
-            polling_wait_time=self.config.tgtg.get("polling_wait_time"),
-            access_token=self.config.tgtg.get("access_token"),
-            refresh_token=self.config.tgtg.get("refresh_token"),
-            user_id=self.config.tgtg.get("user_id"),
-            datadome_cookie=self.config.tgtg.get("datadome"),
-            url=self.config.tgtg.get("url"),
+            email=self.config.tgtg.username,
+            timeout=self.config.tgtg.timeout,
+            access_token_lifetime=self.config.tgtg.access_token_lifetime,
+            max_polling_tries=self.config.tgtg.max_polling_tries,
+            polling_wait_time=self.config.tgtg.polling_wait_time,
+            access_token=self.config.tgtg.access_token,
+            refresh_token=self.config.tgtg.refresh_token,
+            user_id=self.config.tgtg.user_id,
+            datadome_cookie=self.config.tgtg.datadome,
+            base_url=self.config.tgtg.base_url,
         )
         self.reservations = Reservations(self.tgtg_client)
         self.favorites = Favorites(self.tgtg_client)
@@ -179,9 +179,9 @@ class Scanner:
         )
         # activate location service
         self.location = Location(
-            self.config.location.get("enabled"),
-            self.config.location.get("gmaps_api_key"),
-            self.config.location.get("origin_address"),
+            self.config.location.enabled,
+            self.config.location.google_maps_api_key,
+            self.config.location.origin_address,
         )
         # activate and test notifiers
         if self.config.metrics:

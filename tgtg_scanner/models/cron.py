@@ -4,8 +4,6 @@ from typing import Union
 import pycron
 from cron_descriptor import Options, get_description
 
-from tgtg_scanner.errors import ConfigurationError
-
 log = logging.getLogger("tgtg")
 
 
@@ -18,11 +16,11 @@ class Cron:
         try:
             self.is_now
         except ValueError as err:
-            raise ConfigurationError(f"Cron expression parsing error - {err}") from err
+            raise ValueError(f"Cron expression parsing error - {err}") from err
         for cron in self.crons:
             _, _, _, _, dow = cron.split()
             if any(int(day) > 6 for day in dow.split("-") if day.isdigit()):
-                raise ConfigurationError("Cron expression parsing error - " "day of week must be between 0 and 6 (Sunday=0)")
+                raise ValueError("Cron expression parsing error - " "day of week must be between 0 and 6 (Sunday=0)")
 
     @property
     def is_now(self) -> bool:

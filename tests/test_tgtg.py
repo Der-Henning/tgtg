@@ -183,15 +183,15 @@ def test_tgtg_api(item_properties: dict):
     env_file = environ.get("GITHUB_ENV", None)
 
     client = TgtgClient(
-        email=config.tgtg.get("username"),
-        timeout=config.tgtg.get("timeout"),
-        access_token_lifetime=config.tgtg.get("access_token_lifetime"),
-        max_polling_tries=config.tgtg.get("max_polling_tries"),
-        polling_wait_time=config.tgtg.get("polling_wait_time"),
-        access_token=config.tgtg.get("access_token"),
-        refresh_token=config.tgtg.get("refresh_token"),
-        user_id=config.tgtg.get("user_id"),
-        datadome_cookie=config.tgtg.get("datadome"),
+        email=config.tgtg.username,
+        timeout=config.tgtg.timeout,
+        access_token_lifetime=config.tgtg.access_token_lifetime,
+        max_polling_tries=config.tgtg.max_polling_tries,
+        polling_wait_time=config.tgtg.polling_wait_time,
+        access_token=config.tgtg.access_token,
+        refresh_token=config.tgtg.refresh_token,
+        user_id=config.tgtg.user_id,
+        datadome_cookie=config.tgtg.datadome,
     )
 
     # get credentials and safe tokens to GITHUB_ENV file

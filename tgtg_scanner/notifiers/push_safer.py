@@ -20,13 +20,13 @@ class PushSafer(Notifier):
 
     def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
         super().__init__(config, reservations, favorites)
-        self.enabled = config.push_safer.get("enabled", False)
-        self.key = config.push_safer.get("key")
-        self.device_id = config.push_safer.get("deviceId")
-        self.cron = config.push_safer.get("cron")
-        if self.enabled and (not self.key or not self.device_id):
-            raise PushSaferConfigurationError()
+        self.enabled = config.pushsafer.enabled
+        self.key = config.pushsafer.key
+        self.device_id = config.pushsafer.device_id
+        self.cron = config.pushsafer.cron
         if self.enabled:
+            if self.key is None or self.device_id is None:
+                raise PushSaferConfigurationError()
             self.client = Client(self.key)
 
     def _send(self, item: Union[Item, Reservation]) -> None:
