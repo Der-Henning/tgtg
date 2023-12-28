@@ -843,13 +843,13 @@ files = [
 
 [[package]]
 name = "ipykernel"
-version = "6.27.1"
+version = "6.28.0"
 description = "IPython Kernel for Jupyter"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "ipykernel-6.27.1-py3-none-any.whl", hash = "sha256:dab88b47f112f9f7df62236511023c9bdeef67abc73af7c652e4ce4441601686"},
-    {file = "ipykernel-6.27.1.tar.gz", hash = "sha256:7d5d594b6690654b4d299edba5e872dc17bb7396a8d0609c97cb7b8a1c605de6"},
+    {file = "ipykernel-6.28.0-py3-none-any.whl", hash = "sha256:c6e9a9c63a7f4095c0a22a79f765f079f9ec7be4f2430a898ddea889e8665661"},
+    {file = "ipykernel-6.28.0.tar.gz", hash = "sha256:69c11403d26de69df02225916f916b37ea4b9af417da0a8c827f84328d88e5f3"},
 ]
 
 [package.dependencies]
@@ -863,7 +863,7 @@ matplotlib-inline = ">=0.1"
 nest-asyncio = "*"
 packaging = "*"
 psutil = "*"
-pyzmq = ">=20"
+pyzmq = ">=24"
 tornado = ">=6.1"
 traitlets = ">=5.4.0"
 
@@ -1054,13 +1054,13 @@ test = ["coverage", "ipykernel (>=6.14)", "mypy", "paramiko", "pre-commit", "pyt
 
 [[package]]
 name = "jupyter-core"
-version = "5.5.1"
+version = "5.6.0"
 description = "Jupyter core package. A base package on which Jupyter projects rely."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "jupyter_core-5.5.1-py3-none-any.whl", hash = "sha256:220dfb00c45f0d780ce132bb7976b58263f81a3ada6e90a9b6823785a424f739"},
-    {file = "jupyter_core-5.5.1.tar.gz", hash = "sha256:1553311a97ccd12936037f36b9ab4d6ae8ceea6ad2d5c90d94a909e752178e40"},
+    {file = "jupyter_core-5.6.0-py3-none-any.whl", hash = "sha256:7613ee3c01f1b0632b927d368bf4e2f5d38503320b2179eec46eea91d026b0ce"},
+    {file = "jupyter_core-5.6.0.tar.gz", hash = "sha256:2970f1554685c89ebfedd784e44eea62d17a935e817f7bb704329a6129e178ca"},
 ]
 
 [package.dependencies]
@@ -1657,13 +1657,13 @@ files = [
 
 [[package]]
 name = "prometheus-client"
-version = "0.17.1"
+version = "0.19.0"
 description = "Python client for the Prometheus monitoring system."
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.8"
 files = [
-    {file = "prometheus_client-0.17.1-py3-none-any.whl", hash = "sha256:e537f37160f6807b8202a6fc4764cdd19bac5480ddd3e0d463c3002b34462101"},
-    {file = "prometheus_client-0.17.1.tar.gz", hash = "sha256:21e674f39831ae3f8acde238afd9a27a37d0d2fb5a28ea094f0ce25d2cbf2091"},
+    {file = "prometheus_client-0.19.0-py3-none-any.whl", hash = "sha256:c88b1e6ecf6b41cd8fb5731c7ae919bf66df6ec6fafa555cd6c0e16ca169ae92"},
+    {file = "prometheus_client-0.19.0.tar.gz", hash = "sha256:4585b0d1223148c27a225b10dbec5ae9bc4c81a99a3fa80774fa6209935324e1"},
 ]
 
 [package.extras]
@@ -1774,35 +1774,37 @@ windows-terminal = ["colorama (>=0.4.6)"]
 
 [[package]]
 name = "pyinstaller"
-version = "5.13.2"
+version = "6.3.0"
 description = "PyInstaller bundles a Python application and all its dependencies into a single package."
 optional = false
-python-versions = "<3.13,>=3.7"
+python-versions = "<3.13,>=3.8"
 files = [
-    {file = "pyinstaller-5.13.2-py3-none-macosx_10_13_universal2.whl", hash = "sha256:16cbd66b59a37f4ee59373a003608d15df180a0d9eb1a29ff3bfbfae64b23d0f"},
-    {file = "pyinstaller-5.13.2-py3-none-manylinux2014_aarch64.whl", hash = "sha256:8f6dd0e797ae7efdd79226f78f35eb6a4981db16c13325e962a83395c0ec7420"},
-    {file = "pyinstaller-5.13.2-py3-none-manylinux2014_i686.whl", hash = "sha256:65133ed89467edb2862036b35d7c5ebd381670412e1e4361215e289c786dd4e6"},
-    {file = "pyinstaller-5.13.2-py3-none-manylinux2014_ppc64le.whl", hash = "sha256:7d51734423685ab2a4324ab2981d9781b203dcae42839161a9ee98bfeaabdade"},
-    {file = "pyinstaller-5.13.2-py3-none-manylinux2014_s390x.whl", hash = "sha256:2c2fe9c52cb4577a3ac39626b84cf16cf30c2792f785502661286184f162ae0d"},
-    {file = "pyinstaller-5.13.2-py3-none-manylinux2014_x86_64.whl", hash = "sha256:c63ef6133eefe36c4b2f4daf4cfea3d6412ece2ca218f77aaf967e52a95ac9b8"},
-    {file = "pyinstaller-5.13.2-py3-none-musllinux_1_1_aarch64.whl", hash = "sha256:aadafb6f213549a5906829bb252e586e2cf72a7fbdb5731810695e6516f0ab30"},
-    {file = "pyinstaller-5.13.2-py3-none-musllinux_1_1_x86_64.whl", hash = "sha256:b2e1c7f5cceb5e9800927ddd51acf9cc78fbaa9e79e822c48b0ee52d9ce3c892"},
-    {file = "pyinstaller-5.13.2-py3-none-win32.whl", hash = "sha256:421cd24f26144f19b66d3868b49ed673176765f92fa9f7914cd2158d25b6d17e"},
-    {file = "pyinstaller-5.13.2-py3-none-win_amd64.whl", hash = "sha256:ddcc2b36052a70052479a9e5da1af067b4496f43686ca3cdda99f8367d0627e4"},
-    {file = "pyinstaller-5.13.2-py3-none-win_arm64.whl", hash = "sha256:27cd64e7cc6b74c5b1066cbf47d75f940b71356166031deb9778a2579bb874c6"},
-    {file = "pyinstaller-5.13.2.tar.gz", hash = "sha256:c8e5d3489c3a7cc5f8401c2d1f48a70e588f9967e391c3b06ddac1f685f8d5d2"},
+    {file = "pyinstaller-6.3.0-py3-none-macosx_10_13_universal2.whl", hash = "sha256:75a6f2a6f835a2e6e0899d10e60c10caf5defd25aced38b1dd48fbbabc89de07"},
+    {file = "pyinstaller-6.3.0-py3-none-manylinux2014_aarch64.whl", hash = "sha256:de25beb176f73a944758553caacec46cc665bf3910ad8a174706d79cf6e95340"},
+    {file = "pyinstaller-6.3.0-py3-none-manylinux2014_i686.whl", hash = "sha256:e436fcc0ea87c3f132baac916d508c24c84a8f6d8a06c3154fbc753f169b76c7"},
+    {file = "pyinstaller-6.3.0-py3-none-manylinux2014_ppc64le.whl", hash = "sha256:b721d793a33b6d9946c7dd95d3ea7589c0424b51cf1b9fe580f03c544f1336b2"},
+    {file = "pyinstaller-6.3.0-py3-none-manylinux2014_s390x.whl", hash = "sha256:96c37a1ee5b2fd5bb25c098ef510661d6d17b6515d0b86d8fc93727dd2475ba3"},
+    {file = "pyinstaller-6.3.0-py3-none-manylinux2014_x86_64.whl", hash = "sha256:abe91106a3bbccc3f3a27af4325676ecdb6f46cb842ac663625002a870fc503b"},
+    {file = "pyinstaller-6.3.0-py3-none-musllinux_1_1_aarch64.whl", hash = "sha256:41c937fe8f07ae02009b3b5a96ac3eb0800a4f8a97af142d4100060fe2135bb9"},
+    {file = "pyinstaller-6.3.0-py3-none-musllinux_1_1_x86_64.whl", hash = "sha256:886b3b995b674905a20ad5b720b47cc395897d7b391117831027a4c8c5d67a58"},
+    {file = "pyinstaller-6.3.0-py3-none-win32.whl", hash = "sha256:0597fb04337695e5cc5250253e0655530bf14f264b7a5b7d219cc65f6889c4bd"},
+    {file = "pyinstaller-6.3.0-py3-none-win_amd64.whl", hash = "sha256:156b32ba943e0090bcc68e40ae1cb68fd92b7f1ab6fe0bdf8faf3d3cfc4e12dd"},
+    {file = "pyinstaller-6.3.0-py3-none-win_arm64.whl", hash = "sha256:1eadbd1fae84e2e6c678d8b4ed6a232ec5c8fe3a839aea5a3071c4c0282f98cc"},
+    {file = "pyinstaller-6.3.0.tar.gz", hash = "sha256:914d4c96cc99472e37ac552fdd82fbbe09e67bb592d0717fcffaa99ea74273df"},
 ]
 
 [package.dependencies]
 altgraph = "*"
+importlib-metadata = {version = ">=4.6", markers = "python_version < \"3.10\""}
 macholib = {version = ">=1.8", markers = "sys_platform == \"darwin\""}
+packaging = ">=22.0"
 pefile = {version = ">=2022.5.30", markers = "sys_platform == \"win32\""}
 pyinstaller-hooks-contrib = ">=2021.4"
 pywin32-ctypes = {version = ">=0.2.1", markers = "sys_platform == \"win32\""}
 setuptools = ">=42.0.0"
 
 [package.extras]
-encryption = ["tinyaes (>=1.0.0)"]
+completion = ["argcomplete"]
 hook-testing = ["execnet (>=1.5.0)", "psutil", "pytest (>=2.7.3)"]
 
 [[package]]
@@ -2207,23 +2209,22 @@ rsa = ["oauthlib[signedtoken] (>=3.0.0)"]
 
 [[package]]
 name = "responses"
-version = "0.23.3"
+version = "0.24.1"
 description = "A utility library for mocking out the `requests` Python library."
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "responses-0.23.3-py3-none-any.whl", hash = "sha256:e6fbcf5d82172fecc0aa1860fd91e58cbfd96cee5e96da5b63fa6eb3caa10dd3"},
-    {file = "responses-0.23.3.tar.gz", hash = "sha256:205029e1cb334c21cb4ec64fc7599be48b859a0fd381a42443cdd600bfe8b16a"},
+    {file = "responses-0.24.1-py3-none-any.whl", hash = "sha256:a2b43f4c08bfb9c9bd242568328c65a34b318741d3fab884ac843c5ceeb543f9"},
+    {file = "responses-0.24.1.tar.gz", hash = "sha256:b127c6ca3f8df0eb9cc82fd93109a3007a86acb24871834c47b77765152ecf8c"},
 ]
 
 [package.dependencies]
 pyyaml = "*"
 requests = ">=2.30.0,<3.0"
-types-PyYAML = "*"
 urllib3 = ">=1.25.10,<3.0"
 
 [package.extras]
-tests = ["coverage (>=6.0.0)", "flake8", "mypy", "pytest (>=7.0.0)", "pytest-asyncio", "pytest-cov", "pytest-httpserver", "tomli", "tomli-w", "types-requests"]
+tests = ["coverage (>=6.0.0)", "flake8", "mypy", "pytest (>=7.0.0)", "pytest-asyncio", "pytest-cov", "pytest-httpserver", "tomli", "tomli-w", "types-PyYAML", "types-requests"]
 
 [[package]]
 name = "rfc3339-validator"
@@ -2539,17 +2540,6 @@ files = [
 ]
 
 [[package]]
-name = "types-pyyaml"
-version = "6.0.12.12"
-description = "Typing stubs for PyYAML"
-optional = false
-python-versions = "*"
-files = [
-    {file = "types-PyYAML-6.0.12.12.tar.gz", hash = "sha256:334373d392fde0fdf95af5c3f1661885fa10c52167b14593eb856289e1855062"},
-    {file = "types_PyYAML-6.0.12.12-py3-none-any.whl", hash = "sha256:c05bc6c158facb0676674b7f11fe3960db4f389718e19e62bd2b84d6205cfd24"},
-]
-
-[[package]]
 name = "typing-extensions"
 version = "4.9.0"
 description = "Backported and Experimental Type Hints for Python 3.8+"
@@ -2681,4 +2671,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.13"
-content-hash = "326875735685174ac9cc22d5869a1a3e7f3ffda1e761c31cc374c7f4db20ab7d"
+content-hash = "22958417a625ba4c4a47d1e078023548239f73f51f00d67d0997d85d99702737"

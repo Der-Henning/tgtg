@@ -23,29 +23,28 @@ def test_make_orders(reservations: Reservations, tgtg_item: dict):
     reservations.make_orders({"123": Item(tgtg_item)}, callback_mock)
     assert len(reservations.active_orders) == 1
     assert len(reservations.reservation_query) == 0
-    callback_mock.assert_called_once_with(
-        Reservation("123", 1, "Test Item"))
+    callback_mock.assert_called_once_with(Reservation("123", 1, "Test Item"))
 
 
 def test_update_active_orders(reservations: Reservations):
     order = Order("1", "123", 1, "Test Item")
-    reservations.client.get_order_status.return_value = {"state": "RESERVED"}
+    reservations.client.get_order_status.return_value = {"state": "RESERVED"}  # type: ignore[attr-defined]
     reservations.active_orders = {order.id: order}
     reservations.update_active_orders()
     assert len(reservations.active_orders) == 1
-    reservations.client.get_order_status.return_value = {"state": "CANELLED"}
+    reservations.client.get_order_status.return_value = {"state": "CANELLED"}  # type: ignore[attr-defined]
     reservations.update_active_orders()
     assert len(reservations.active_orders) == 0
 
 
 def test_cancel_order(reservations: Reservations):
     order = Order("1", "123", 1, "Test Item")
-    reservations.active_orders = [order]
-    reservations.cancel_order(order)
+    reservations.active_orders = {order.id: order}
+    reservations.cancel_order(order.id)
 
 
 def test_cancel_all_orders(reservations: Reservations):
     order1 = Order("1", "123", 1, "Test Item 1")
     order2 = Order("2", "123", 2, "Test Item 2")
-    reservations.active_orders = [order1, order2]
+    reservations.active_orders = {order1.id: order1, order2.id: order2}
     reservations.cancel_all_orders()

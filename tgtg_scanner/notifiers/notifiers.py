@@ -1,5 +1,5 @@
 import logging
-from typing import List, Union
+from typing import Type, Union
 
 from tgtg_scanner.models import Config, Cron, Favorites, Item, Reservations
 from tgtg_scanner.models.reservations import Reservation
@@ -16,27 +16,22 @@ from tgtg_scanner.notifiers.webhook import WebHook
 
 log = logging.getLogger("tgtg")
 
-NOTIFIERS = [Apprise, Console, PushSafer, SMTP,
-             IFTTT, Ntfy, WebHook, Telegram, Script]
+NOTIFIERS: list[Type[Notifier]] = [Apprise, Console, PushSafer, SMTP, IFTTT, Ntfy, WebHook, Telegram, Script]
 
 
 class Notifiers:
-    def __init__(self, config: Config, reservations: Reservations,
-                 favorites: Favorites):
-        self._notifiers: List[Notifier] = [
-            NotifierCls(config, reservations, favorites)
-            for NotifierCls in NOTIFIERS]
+    def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
+        self._notifiers: list[Notifier] = [NotifierCls(config, reservations, favorites) for NotifierCls in NOTIFIERS]
         log.info("Activated notifiers:")
         if self.notifier_count == 0:
             log.warning("No notifiers configured!")
         for notifier in self._enabled_notifiers:
             log.info("- %s", notifier)
             if notifier.cron != Cron("* * * * *"):
-                log.info("  Schedule: %s",
-                         notifier.cron.get_description(config.locale))
+                log.info("  Schedule: %s", notifier.cron.get_description(config.locale))
 
     @property
-    def _enabled_notifiers(self) -> List[Notifier]:
+    def _enabled_notifiers(self) -> list[Notifier]:
         return [notifier for notifier in self._notifiers if notifier.enabled]
 
     @property

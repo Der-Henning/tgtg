@@ -14,8 +14,7 @@ import requests
 from packaging import version
 from requests.exceptions import RequestException
 
-from tgtg_scanner._version import (__author__, __description__, __url__,
-                                   __version__)
+from tgtg_scanner._version import __author__, __description__, __url__, __version__
 from tgtg_scanner.errors import ConfigurationError, TgtgAPIError
 from tgtg_scanner.models import Config
 from tgtg_scanner.scanner import Scanner
@@ -24,24 +23,25 @@ from tgtg_scanner.tgtg.tgtg_client import BASE_URL
 VERSION_URL = "https://api.github.com/repos/Der-Henning/tgtg/releases/latest"
 
 HEADER = (
-    "  ____  ___  ____  ___    ____   ___   __   __ _  __ _  ____  ____  ",  # noqa: W605,E501
-    " (_  _)/ __)(_  _)/ __)  / ___) / __) / _\ (  ( \(  ( \(  __)(  _ \ ",  # noqa: W605,E501
-    "   )( ( (_ \  )( ( (_ \  \___ \( (__ /    \/    //    / ) _)  )   / ",  # noqa: W605,E501
-    "  (__) \___/ (__) \___/  (____/ \___)\_/\_/\_)__)\_)__)(____)(__\_) ")  # noqa: W605,E501
+    "  ____  ___  ____  ___    ____   ___   __   __ _  __ _  ____  ____  ",  # noqa: W605
+    " (_  _)/ __)(_  _)/ __)  / ___) / __) / _\ (  ( \(  ( \(  __)(  _ \ ",  # noqa: W605
+    "   )( ( (_ \  )( ( (_ \  \___ \( (__ /    \/    //    / ) _)  )   / ",  # noqa: W605
+    "  (__) \___/ (__) \___/  (____/ \___)\_/\_/\_)__)\_)__)(____)(__\_) ",  # noqa: W605
+)
 
 
 # set to 1 to debug http headers
 http_client.HTTPConnection.debuglevel = 0
 
 SYS_PLATFORM = platform.system()
-IS_WINDOWS = SYS_PLATFORM.lower() in {'windows', 'cygwin'}
+IS_WINDOWS = SYS_PLATFORM.lower() in {"windows", "cygwin"}
 IS_EXECUTABLE = getattr(sys, "_MEIPASS", False)
 PROG_PATH = Path(sys.executable).parent if IS_EXECUTABLE else Path(os.getcwd())
-IS_DOCKER = os.environ.get("DOCKER", "False").lower() in {'true', '1', 't'}
+IS_DOCKER = os.environ.get("DOCKER", "False").lower() in {"true", "1", "t"}
 LOGS_PATH = os.environ.get("LOGS_PATH", PROG_PATH)
 
 
-def main() -> NoReturn:
+def main():
     """Wrapper for Scanner and Helper functions."""
     _register_signals()
 
@@ -49,66 +49,57 @@ def main() -> NoReturn:
     log_file = Path(LOGS_PATH, "scanner.log")
 
     parser = argparse.ArgumentParser(description=__description__)
+    parser.add_argument("-v", "--version", action="version", version=f"v{__version__}")
+    parser.add_argument("-d", "--debug", action="store_true", help="activate debugging mode")
     parser.add_argument(
-        "-v", "--version",
-        action="version",
-        version=f"v{__version__}")
-    parser.add_argument(
-        "-d", "--debug",
-        action="store_true",
-        help="activate debugging mode")
-    parser.add_argument(
-        "-c", "--config",
+        "-c",
+        "--config",
         metavar="config_file",
         type=Path,
         default=config_file,
-        help="path to config file (default: config.ini)")
+        help="path to config file (default: config.ini)",
+    )
     parser.add_argument(
-        "-l", "--log_file",
+        "-l",
+        "--log_file",
         metavar="log_file",
         type=Path,
         default=log_file,
-        help="path to log file (default: scanner.log)")
-    parser.add_argument(
-        "--tgtg-url",
-        default=BASE_URL,
-        help="TGTG API URL for testing")
+        help="path to log file (default: scanner.log)",
+    )
+    parser.add_argument("--tgtg-url", default=BASE_URL, help="TGTG API URL for testing")
     helper_group = parser.add_mutually_exclusive_group(required=False)
     helper_group.add_argument(
-        "-t", "--tokens",
+        "-t",
+        "--tokens",
         action="store_true",
-        help="display your current access tokens and exit",)
+        help="display your current access tokens and exit",
+    )
+    helper_group.add_argument("-f", "--favorites", action="store_true", help="display your favorites and exit")
     helper_group.add_argument(
-        "-f", "--favorites",
+        "-F",
+        "--favorite_ids",
         action="store_true",
-        help="display your favorites and exit")
+        help="display the item ids of your favorites and exit",
+    )
     helper_group.add_argument(
-        "-F", "--favorite_ids",
-        action="store_true",
-        help="display the item ids of your favorites and exit",)
-    helper_group.add_argument(
-        "-a", "--add",
+        "-a",
+        "--add",
         nargs="+",
         metavar="item_id",
-        help="add item ids to favorites and exit",)
+        help="add item ids to favorites and exit",
+    )
     helper_group.add_argument(
-        "-r", "--remove",
+        "-r",
+        "--remove",
         nargs="+",
         metavar="item_id",
-        help="remove item ids from favorites and exit",)
-    helper_group.add_argument(
-        "-R", "--remove_all",
-        action="store_true",
-        help="remove all favorites and exit")
+        help="remove item ids from favorites and exit",
+    )
+    helper_group.add_argument("-R", "--remove_all", action="store_true", help="remove all favorites and exit")
     json_group = parser.add_mutually_exclusive_group(required=False)
-    json_group.add_argument(
-        "-j", "--json",
-        action="store_true",
-        help="output as plain json")
-    json_group.add_argument(
-        "-J", "--json_pretty",
-        action="store_true",
-        help="output as pretty json")
+    json_group.add_argument("-j", "--json", action="store_true", help="output as plain json")
+    json_group.add_argument("-J", "--json_pretty", action="store_true", help="output as pretty json")
     args = parser.parse_args()
 
     # Disable logging for json output
@@ -125,28 +116,26 @@ def main() -> NoReturn:
 
     # Define stream formatter and handler
     stream_formatter = colorlog.ColoredFormatter(
-        fmt=("%(cyan)s%(asctime)s%(reset)s "
-             "%(log_color)s%(levelname)-8s%(reset)s "
-             "%(message)s"),
+        fmt=("%(cyan)s%(asctime)s%(reset)s " "%(log_color)s%(levelname)-8s%(reset)s " "%(message)s"),
         datefmt="%Y-%m-%d %H:%M:%S",
         log_colors={
             "DEBUG": "purple",
             "INFO": "green",
             "WARNING": "yellow",
             "ERROR": "red",
-            "CRITICAL": "red"})
+            "CRITICAL": "red",
+        },
+    )
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(stream_formatter)
     logging.root.addHandler(stream_handler)
 
     # Define file formatter and handler
-    file_handler = logging.FileHandler(
-        args.log_file, mode="w", encoding='utf-8')
+    file_handler = logging.FileHandler(args.log_file, mode="w", encoding="utf-8")
     file_formatter = logging.Formatter(
-        fmt=("[%(asctime)s][%(name)s]"
-             "[%(filename)s:%(funcName)s:%(lineno)d]"
-             "[%(levelname)s] %(message)s"),
-        datefmt="%Y-%m-%d %H:%M:%S")
+        fmt=("[%(asctime)s][%(name)s]" "[%(filename)s:%(funcName)s:%(lineno)d]" "[%(levelname)s] %(message)s"),
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
     file_handler.setFormatter(file_formatter)
     logging.root.addHandler(file_handler)
 
@@ -199,8 +188,7 @@ def main() -> NoReturn:
                 print("")
         elif args.favorite_ids:
             favorites = scanner.get_favorites()
-            item_ids = [fav.get("item", {}).get("item_id")
-                        for fav in favorites]
+            item_ids = [fav.get("item", {}).get("item_id") for fav in favorites]
             if args.json:
                 print(json.dumps(item_ids, sort_keys=True))
             elif args.json_pretty:
@@ -219,8 +207,7 @@ def main() -> NoReturn:
                 scanner.unset_favorite(item_id)
             print("done.")
         elif args.remove_all:
-            if query_yes_no("Remove all favorites from your account?",
-                            default='no'):
+            if query_yes_no("Remove all favorites from your account?", default="no"):
                 scanner.unset_all_favorites()
                 print("done.")
         else:
@@ -259,8 +246,7 @@ def _get_version_info() -> str:
     lastest_release = _get_new_version()
     if lastest_release is None:
         return __version__
-    return (f"{__version__} - Update available! "
-            f"See {lastest_release.get('html_url')}")
+    return f"{__version__} - Update available! " f"See {lastest_release.get('html_url')}"
 
 
 def _run_scanner(scanner: Scanner) -> NoReturn:
@@ -278,8 +264,7 @@ def _get_new_version() -> Union[dict, None]:
         res = requests.get(VERSION_URL, timeout=60)
         res.raise_for_status()
         lastest_release = res.json()
-        if version.parse(__version__) < version.parse(
-                lastest_release.get("tag_name")):
+        if version.parse(__version__) < version.parse(lastest_release.get("tag_name")):
             return lastest_release
     except (RequestException, version.InvalidVersion, ValueError) as err:
         log.warning("Failed getting latest version! - %s", err)
@@ -291,9 +276,7 @@ def _print_version_check() -> None:
     try:
         lastest_release = _get_new_version()
         if lastest_release is not None:
-            log.info(
-                "New Version %s available!", version.parse(
-                    lastest_release.get("tag_name")))
+            log.info("New Version %s available!", version.parse(lastest_release.get("tag_name")))
             log.info("Please visit %s", lastest_release.get("html_url"))
             log.info("")
     except (version.InvalidVersion, ValueError) as err:
@@ -325,7 +308,7 @@ def _register_signals() -> None:
 
 def _handle_exit_signal(signum: int, _frame: Any) -> None:
     log = logging.getLogger("tgtg")
-    log.debug('Received signal %d' % signum)
+    log.debug("Received signal %d" % signum)
     raise KeyboardInterrupt
 
 

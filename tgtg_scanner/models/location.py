@@ -14,6 +14,7 @@ class DistanceTime:
     """
     Dataclass for distance and time.
     """
+
     distance: float
     duration: float
     travel_mode: str
@@ -34,8 +35,7 @@ class Location:
         self.origin = origin
         if enabled:
             if not api_key or not origin:
-                raise LocationConfigurationError(
-                    "Location enabled but no API key or origin address given")
+                raise LocationConfigurationError("Location enabled but no API key or origin address given")
             try:
                 self.gmaps = googlemaps.Client(key=api_key)
             except ValueError as exc:
@@ -46,8 +46,7 @@ class Location:
         # cached DistanceTime object for each item_id+mode
         self.distancetime_dict: dict[str, DistanceTime] = {}
 
-    def calculate_distance_time(self, destination: str, travel_mode: str
-                                ) -> Union[DistanceTime, None]:
+    def calculate_distance_time(self, destination: str, travel_mode: str) -> Union[DistanceTime, None]:
         """
         Calculates the distance and time taken to travel from origin to
         destination using the given mode of transportation.
@@ -60,22 +59,21 @@ class Location:
         if not self._is_address_valid(destination):
             return None
 
-        key = f'{destination}_{travel_mode}'
+        key = f"{destination}_{travel_mode}"
 
         # use cached value if available
         if key in self.distancetime_dict:
             return self.distancetime_dict[key]
 
-        log.debug(f"Sending Google Maps API request: "
-                  f"{destination} using {travel_mode} mode")
+        log.debug(f"Sending Google Maps API request: " f"{destination} using {travel_mode} mode")
 
         # calculate distance and time
-        directions = self.gmaps.directions(self.origin, destination,
-                                           mode=travel_mode)
+        directions = self.gmaps.directions(self.origin, destination, mode=travel_mode)
         distance_time = DistanceTime(
             float(directions[0]["legs"][0]["distance"]["value"]),
             float(directions[0]["legs"][0]["duration"]["value"]),
-            travel_mode)
+            travel_mode,
+        )
 
         # cache value
         self.distancetime_dict[key] = distance_time

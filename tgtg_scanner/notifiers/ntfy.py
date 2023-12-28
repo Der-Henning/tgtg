@@ -6,14 +6,13 @@ from tgtg_scanner.errors import MaskConfigurationError, NtfyConfigurationError
 from tgtg_scanner.models import Config, Favorites, Item, Reservations
 from tgtg_scanner.notifiers.webhook import WebHook
 
-log = logging.getLogger('tgtg')
+log = logging.getLogger("tgtg")
 
 
 class Ntfy(WebHook):
     """Notifier for Ntfy"""
 
-    def __init__(self, config: Config, reservations: Reservations,
-                 favorites: Favorites):
+    def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
         super(WebHook, self).__init__(config, reservations, favorites)
         self.enabled = config.ntfy.get("enabled", False)
         self.server = config.ntfy.get("server", "https://ntfy.sh")
@@ -40,11 +39,9 @@ class Ntfy(WebHook):
             log.debug("Ntfy url: %s", self.url)
             if (self.username and self.password) is not None:
                 self.auth = HTTPBasicAuth(self.username, self.password)
-                log.debug("Using basic auth with user '%s' for Ntfy",
-                          self.username)
+                log.debug("Using basic auth with user '%s' for Ntfy", self.username)
             elif (self.username or self.password) is not None:
-                log.warning("Username or Password missing for Ntfy "
-                            "authentication, defaulting to no auth")
+                log.warning("Username or Password missing for Ntfy " "authentication, defaulting to no auth")
             try:
                 Item.check_mask(self.title)
                 Item.check_mask(self.message)
@@ -64,7 +61,7 @@ class Ntfy(WebHook):
             "X-Message": message,
             "X-Priority": self.priority,
             "X-Tags": tags,
-            "X-Click": click
+            "X-Click": click,
         }
         super()._send(item)
 

@@ -5,9 +5,13 @@ images:
 
 install:
 	poetry install
+	poetry run pre-commit install --install-hooks
+
+tgtg-server:
+	poetry run tgtg_server
 
 start:
-	poetry run scanner -d
+	poetry run scanner -d --tgtg-url http://localhost:8080
 
 executable:
 	rm -r ./build ||:
@@ -21,6 +25,3 @@ test:
 
 lint:
 	poetry run pre-commit run -a
-
-tgtg-server:
-	poetry run tgtg_server

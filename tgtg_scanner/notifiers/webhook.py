@@ -5,20 +5,18 @@ from typing import Union
 import requests
 from requests.auth import HTTPBasicAuth
 
-from tgtg_scanner.errors import (MaskConfigurationError,
-                                 WebHookConfigurationError)
+from tgtg_scanner.errors import MaskConfigurationError, WebHookConfigurationError
 from tgtg_scanner.models import Config, Favorites, Item, Reservations
 from tgtg_scanner.models.reservations import Reservation
 from tgtg_scanner.notifiers.base import Notifier
 
-log = logging.getLogger('tgtg')
+log = logging.getLogger("tgtg")
 
 
 class WebHook(Notifier):
     """Notifier for custom Webhooks"""
 
-    def __init__(self, config: Config, reservations: Reservations,
-                 favorites: Favorites):
+    def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
         super().__init__(config, reservations, favorites)
         self.enabled = config.webhook.get("enabled", False)
         self.method = config.webhook.get("method")
@@ -36,8 +34,7 @@ class WebHook(Notifier):
                 raise WebHookConfigurationError()
             if (self.username and self.password) is not None:
                 self.auth = HTTPBasicAuth(self.username, self.password)
-                log.debug("Using basic auth with user '%s' "
-                          "for webhook", self.username)
+                log.debug("Using basic auth with user '%s' " "for webhook", self.username)
             try:
                 Item.check_mask(self.body)
                 Item.check_mask(self.url)
@@ -57,19 +54,23 @@ class WebHook(Notifier):
                 body = item.unmask(self.body)
                 if isinstance(body, bytes):
                     pass
-                elif self.type and 'json' in self.type:
-                    body = json.dumps(json.loads(body.replace('\n', '\\n')))
+                elif self.type and "json" in self.type:
+                    body = json.dumps(json.loads(body.replace("\n", "\\n")))
                     log.debug("%s body: %s", self.name, body)
                 else:
-                    body = body.encode('utf-8')
+                    body = body.encode("utf-8")
                     log.debug("%s body: %s", self.name, body)
             log.debug("%s headers: %s", self.name, headers)
-            res = requests.request(method=self.method, url=url,
-                                   timeout=self.timeout, data=body,
-                                   headers=headers, auth=self.auth)
+            res = requests.request(
+                method=self.method,
+                url=url,
+                timeout=self.timeout,
+                data=body,
+                headers=headers,
+                auth=self.auth,
+            )
             if not res.ok:
-                log.error("%s Request failed with status code %s",
-                          self.name, res.status_code)
+                log.error("%s Request failed with status code %s", self.name, res.status_code)
                 log.debug("%s Response content: %s", self.name, res.text)
 
     def __repr__(self) -> str:

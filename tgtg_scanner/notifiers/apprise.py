@@ -3,13 +3,12 @@ from typing import Union
 
 import apprise
 
-from tgtg_scanner.errors import (AppriseConfigurationError,
-                                 MaskConfigurationError)
+from tgtg_scanner.errors import AppriseConfigurationError, MaskConfigurationError
 from tgtg_scanner.models import Config, Favorites, Item, Reservations
 from tgtg_scanner.models.reservations import Reservation
 from tgtg_scanner.notifiers.base import Notifier
 
-log = logging.getLogger('tgtg')
+log = logging.getLogger("tgtg")
 
 
 class Apprise(Notifier):
@@ -19,8 +18,7 @@ class Apprise(Notifier):
     https://github.com/caronc/apprise
     """
 
-    def __init__(self, config: Config, reservations: Reservations,
-                 favorites: Favorites):
+    def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
         super().__init__(config, reservations, favorites)
         self.enabled = config.apprise.get("enabled", False)
         self.title = config.apprise.get("title")

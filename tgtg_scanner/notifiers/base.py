@@ -7,19 +7,18 @@ from typing import Union
 from tgtg_scanner.models import Config, Cron, Favorites, Item, Reservations
 from tgtg_scanner.models.reservations import Reservation
 
-log = logging.getLogger('tgtg')
+log = logging.getLogger("tgtg")
 
 
 class Notifier(ABC):
     @abstractmethod
-    def __init__(self, config: Config, reservations: Reservations,
-                 favorites: Favorites):
+    def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
         self.enabled = False
         self.reservations = reservations
         self.favorites = favorites
         self.cron = Cron()
         self.thread = threading.Thread(target=self._run)
-        self.queue = Queue()
+        self.queue: Queue[Union[Item, Reservation, None]] = Queue()
 
     @property
     def name(self):

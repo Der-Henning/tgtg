@@ -14,8 +14,12 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
-from tgtg_scanner.errors import (TgtgAPIError, TGTGConfigurationError,
-                                 TgtgLoginError, TgtgPollingError)
+from tgtg_scanner.errors import (
+    TgtgAPIError,
+    TGTGConfigurationError,
+    TgtgLoginError,
+    TgtgPollingError,
+)
 
 log = logging.getLogger("tgtg")
 BASE_URL = "https://apptoogoodtogo.com/api/"
@@ -39,10 +43,7 @@ DEFAULT_MAX_POLLING_TRIES = 24  # 24 * POLLING_WAIT_TIME = 2 minutes
 DEFAULT_POLLING_WAIT_TIME = 5  # Seconds
 DEFAULT_APK_VERSION = "22.11.11"
 
-APK_RE_SCRIPT = re.compile(
-    r"AF_initDataCallback\({key:\s*'ds:5'.*?"
-    r"data:([\s\S]*?), sideChannel:.+<\/script"
-)
+APK_RE_SCRIPT = re.compile(r"AF_initDataCallback\({key:\s*'ds:5'.*?" r"data:([\s\S]*?), sideChannel:.+<\/script")
 
 
 class TgtgSession(requests.Session):
@@ -55,15 +56,17 @@ class TgtgSession(requests.Session):
         )
     )
 
-    def __init__(self,
-                 user_agent: Union[str, None] = None,
-                 language: str = "en-UK",
-                 timeout: Union[int, None] = None,
-                 proxies: Union[dict, None] = None,
-                 datadome_cookie: Union[str, None] = None,
-                 base_url: str = BASE_URL,
-                 *args,
-                 **kwargs) -> None:
+    def __init__(
+        self,
+        user_agent: Union[str, None] = None,
+        language: str = "en-UK",
+        timeout: Union[int, None] = None,
+        proxies: Union[dict, None] = None,
+        datadome_cookie: Union[str, None] = None,
+        base_url: str = BASE_URL,
+        *args,
+        **kwargs,
+    ) -> None:
         super().__init__(*args, **kwargs)
         self.mount("https://", self.http_adapter)
         self.mount("http://", self.http_adapter)
@@ -79,13 +82,11 @@ class TgtgSession(requests.Session):
         if proxies:
             self.proxies = proxies
         if datadome_cookie:
-            domain = urlparse(base_url).netloc.split(':')[0]
+            domain = urlparse(base_url).netloc.split(":")[0]
             domain = f".{'local' if domain == 'localhost' else domain}"
-            self.cookies.set("datadome", datadome_cookie,
-                             domain=domain, path="/", secure=True)
+            self.cookies.set("datadome", datadome_cookie, domain=domain, path="/", secure=True)
 
-    def post(self, *args, access_token: Union[str, None] = None, **kwargs
-             ) -> requests.Response:
+    def post(self, *args, access_token: Union[str, None] = None, **kwargs) -> requests.Response:
         headers = kwargs.get("headers")
         if headers is None and getattr(self, "headers"):
             kwargs["headers"] = getattr(self, "headers")
@@ -119,6 +120,9 @@ class TgtgClient:
         polling_wait_time=DEFAULT_POLLING_WAIT_TIME,
         device_type="ANDROID",
     ):
+        if url != BASE_URL:
+            log.warn("Using custom tgtg base url: %s", url)
+
         self.base_url = url
 
         self.email = email
@@ -152,12 +156,14 @@ class TgtgClient:
     def _create_session(self) -> TgtgSession:
         if not self.user_agent:
             self.user_agent = self._get_user_agent()
-        return TgtgSession(self.user_agent,
-                           self.language,
-                           self.timeout,
-                           self.proxies,
-                           self.datadome_cookie,
-                           self.base_url)
+        return TgtgSession(
+            self.user_agent,
+            self.language,
+            self.timeout,
+            self.proxies,
+            self.datadome_cookie,
+            self.base_url,
+        )
 
     def get_credentials(self) -> dict:
         """Returns current tgtg api credentials.
@@ -171,7 +177,7 @@ class TgtgClient:
             "access_token": self.access_token,
             "refresh_token": self.refresh_token,
             "user_id": self.user_id,
-            "datadome_cookie": self.datadome_cookie
+            "datadome_cookie": self.datadome_cookie,
         }
 
     def _post(self, path, **kwargs) -> requests.Response:
@@ -203,8 +209,7 @@ class TgtgClient:
                 self.datadome_cookie = None
                 self.session = self._create_session()
             elif self.captcha_error_count >= 10:
-                log.warning(
-                    "Too many captcha Errors! Sleeping for 10 minutes...")
+                log.warning("Too many captcha Errors! Sleeping for 10 minutes...")
                 time.sleep(10 * 60)
                 log.info("Retrying ...")
                 self.captcha_error_count = 0
@@ -232,14 +237,12 @@ class TgtgClient:
             str: APK Version string
         """
         response = requests.get(
-            "https://play.google.com/store/apps/"
-            "details?id=com.app.tgtg&hl=en&gl=US",
+            "https://play.google.com/store/apps/" "details?id=com.app.tgtg&hl=en&gl=US",
             timeout=30,
         )
         match = APK_RE_SCRIPT.search(response.text)
         if not match:
-            raise TgtgAPIError(
-                "Failed to get latest APK version from Google Play Store.")
+            raise TgtgAPIError("Failed to get latest APK version from Google Play Store.")
         data = json.loads(match.group(1))
         return data[1][2][140][0][0][0]
 
@@ -250,26 +253,17 @@ class TgtgClient:
     def _refresh_token(self) -> None:
         if (
             self.last_time_token_refreshed
-            and (datetime.now() - self.last_time_token_refreshed).seconds
-            <= self.access_token_lifetime
+            and (datetime.now() - self.last_time_token_refreshed).seconds <= self.access_token_lifetime
         ):
             return
-        response = self._post(
-            REFRESH_ENDPOINT,
-            json={"refresh_token": self.refresh_token}
-        )
+        response = self._post(REFRESH_ENDPOINT, json={"refresh_token": self.refresh_token})
         self.access_token = response.json().get("access_token")
         self.refresh_token = response.json().get("refresh_token")
         self.last_time_token_refreshed = datetime.now()
 
     def login(self) -> None:
-        if not (self.email or
-                self.access_token and
-                self.refresh_token and
-                self.user_id):
-            raise TGTGConfigurationError(
-                "You must provide at least email or access_token, "
-                "refresh_token and user_id")
+        if not (self.email or self.access_token and self.refresh_token and self.user_id):
+            raise TGTGConfigurationError("You must provide at least email or access_token, " "refresh_token and user_id")
         if self._already_logged:
             self._refresh_token()
         else:
@@ -279,13 +273,12 @@ class TgtgClient:
                 json={
                     "device_type": self.device_type,
                     "email": self.email,
-                }
+                },
             )
             first_login_response = response.json()
             if first_login_response["state"] == "TERMS":
                 raise TgtgPollingError(
-                    f"This email {self.email} is not linked to a tgtg "
-                    "account. Please signup with this email first."
+                    f"This email {self.email} is not linked to a tgtg " "account. Please signup with this email first."
                 )
             if first_login_response.get("state") == "WAIT":
                 self.start_polling(first_login_response.get("polling_id"))
@@ -300,7 +293,7 @@ class TgtgClient:
                     "device_type": self.device_type,
                     "email": self.email,
                     "request_polling_id": polling_id,
-                }
+                },
             )
             if response.status_code == HTTPStatus.ACCEPTED:
                 log.warning(
@@ -316,8 +309,7 @@ class TgtgClient:
                 self.access_token = login_response.get("access_token")
                 self.refresh_token = login_response.get("refresh_token")
                 self.last_time_token_refreshed = datetime.now()
-                self.user_id = login_response.get(
-                    "startup_data", {}).get("user", {}).get("user_id")
+                self.user_id = login_response.get("startup_data", {}).get("user", {}).get("user_id")
                 return
         raise TgtgPollingError("Max polling retries reached. Try again.")
 
@@ -366,7 +358,8 @@ class TgtgClient:
         self.login()
         response = self._post(
             f"{API_ITEM_ENDPOINT}/{item_id}",
-            json={"user_id": self.user_id, "origin": None})
+            json={"user_id": self.user_id, "origin": None},
+        )
         return response.json()
 
     def get_favorites(self) -> List[dict]:
@@ -379,11 +372,7 @@ class TgtgClient:
         page = 1
         page_size = 100
         while True:
-            new_items = self.get_items(
-                favorites_only=True,
-                page_size=page_size,
-                page=page
-            )
+            new_items = self.get_items(favorites_only=True, page_size=page_size, page=page)
             items += new_items
             if len(new_items) < page_size:
                 break
@@ -394,18 +383,17 @@ class TgtgClient:
         self.login()
         self._post(
             f"{API_ITEM_ENDPOINT}/{item_id}/setFavorite",
-            json={"is_favorite": is_favorite})
+            json={"is_favorite": is_favorite},
+        )
 
-    def create_order(self, item_id: str, item_count: int) -> dict:
+    def create_order(self, item_id: str, item_count: int) -> dict[str, str]:
         self.login()
-        response = self._post(
-            f"{CREATE_ORDER_ENDPOINT}/{item_id}",
-            json={"item_count": item_count})
+        response = self._post(f"{CREATE_ORDER_ENDPOINT}/{item_id}", json={"item_count": item_count})
         if response.json().get("state") != "SUCCESS":
             raise TgtgAPIError(response.status_code, response.content)
         return response.json().get("order", {})
 
-    def get_order_status(self, order_id: str) -> dict:
+    def get_order_status(self, order_id: str) -> dict[str, str]:
         self.login()
         response = self._post(ORDER_STATUS_ENDPOINT.format(order_id))
         return response.json()
@@ -413,8 +401,6 @@ class TgtgClient:
     def abort_order(self, order_id: str) -> None:
         """Use this when your order is not yet paid"""
         self.login()
-        response = self._post(
-            ABORT_ORDER_ENDPOINT.format(order_id),
-            json={"cancel_reason_id": 1})
+        response = self._post(ABORT_ORDER_ENDPOINT.format(order_id), json={"cancel_reason_id": 1})
         if response.json().get("state") != "SUCCESS":
             raise TgtgAPIError(response.status_code, response.content)

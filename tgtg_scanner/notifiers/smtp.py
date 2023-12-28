@@ -10,7 +10,7 @@ from tgtg_scanner.models import Config, Favorites, Item, Reservations
 from tgtg_scanner.models.reservations import Reservation
 from tgtg_scanner.notifiers.base import Notifier
 
-log = logging.getLogger('tgtg')
+log = logging.getLogger("tgtg")
 
 
 class SMTP(Notifier):
@@ -18,8 +18,7 @@ class SMTP(Notifier):
     Notifier for SMTP.
     """
 
-    def __init__(self, config: Config, reservations: Reservations,
-                 favorites: Favorites):
+    def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
         super().__init__(config, reservations, favorites)
         self.server = None
         self.debug = config.debug
@@ -35,9 +34,7 @@ class SMTP(Notifier):
         self.subject = config.smtp.get("subject")
         self.body = config.smtp.get("body")
         self.cron = config.smtp.get("cron")
-        if self.enabled and (not self.host or
-                             not self.port or
-                             not self.recipient):
+        if self.enabled and (not self.host or not self.port or not self.recipient):
             raise SMTPConfigurationError()
         if self.enabled:
             try:
@@ -82,11 +79,11 @@ class SMTP(Notifier):
 
     def _send_mail(self, subject: str, html: str) -> None:
         """Sends mail with html body"""
-        message = MIMEMultipart('alternative')
-        message['From'] = self.sender
-        message['To'] = ", ".join(self.recipient)
-        message['Subject'] = subject
-        message.attach(MIMEText(html, 'html'))
+        message = MIMEMultipart("alternative")
+        message["From"] = self.sender
+        message["To"] = ", ".join(self.recipient)
+        message["Subject"] = subject
+        message.attach(MIMEText(html, "html"))
         body = message.as_string()
         self._stay_connected()
         try:
@@ -98,10 +95,7 @@ class SMTP(Notifier):
     def _send(self, item: Union[Item, Reservation]) -> None:
         """Sends item information via Mail."""
         if isinstance(item, Item):
-            self._send_mail(
-                item.unmask(self.subject),
-                item.unmask(self.body)
-            )
+            self._send_mail(item.unmask(self.subject), item.unmask(self.body))
 
     def __repr__(self) -> str:
         return f"SMTP: {self.recipient}"

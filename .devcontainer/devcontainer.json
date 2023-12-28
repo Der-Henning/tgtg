@@ -22,7 +22,7 @@
 				"python.defaultInterpreterPath": "./.venv/bin/python",
 				"python.terminal.activateEnvironment": true,
 				"python.terminal.activateEnvInCurrentTerminal": true,
-				"editor.rulers": [79],
+				"editor.rulers": [130],
 				"python.testing.pytestArgs": [
 					"tests"
 				],

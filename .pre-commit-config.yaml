@@ -12,25 +12,23 @@ repos:
   - id: check-toml
   - id: check-added-large-files
 
-- repo: https://github.com/pre-commit/mirrors-autopep8
-  rev: v2.0.4
+- repo: https://github.com/ambv/black
+  rev: 23.12.1
   hooks:
-  - id: autopep8
-    args:
-    - --in-place
-    - --max-line-length=79
+  - id: black
+    args: [--line-length, '130', --target-version, py38]
 
 - repo: https://github.com/PyCQA/isort
   rev: 5.13.2
   hooks:
   - id: isort
+    args: [--profile, black]
 
 - repo: https://github.com/PyCQA/flake8
   rev: 6.1.0
   hooks:
   - id: flake8
-    args:
-    - --max-line-length=79
+    args: [--max-line-length, '130']
 
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
   rev: v2.12.0
@@ -53,3 +51,9 @@ repos:
   - id: poetry-check
   - id: poetry-lock
     args: [--no-update]
+
+# - repo: https://github.com/pre-commit/mirrors-mypy
+#   rev: v1.8.0
+#   hooks:
+#   - id: mypy
+#     additional_dependencies: [types-requests]

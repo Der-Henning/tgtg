@@ -10,7 +10,7 @@ from tgtg_scanner.models import Config, Cron
 from tgtg_scanner.models.config import DEFAULT_CONFIG
 
 SYS_PLATFORM = platform.system()
-IS_WINDOWS = SYS_PLATFORM.lower() in {'windows', 'cygwin'}
+IS_WINDOWS = SYS_PLATFORM.lower() in {"windows", "cygwin"}
 
 
 def test_default_ini_config():
@@ -35,7 +35,7 @@ def test_config_set():
         assert config.set("MAIN", "debug", True)
 
         config_parser = configparser.ConfigParser()
-        config_parser.read(temp_file.name, encoding='utf-8')
+        config_parser.read(temp_file.name, encoding="utf-8")
 
         assert config_parser.getboolean("MAIN", "debug")
 
@@ -44,13 +44,13 @@ def test_save_tokens_to_ini():
     with tempfile.NamedTemporaryFile(delete=not IS_WINDOWS) as temp_file:
         access_token = uuid4().hex
         refresh_token = uuid4().hex
-        user_id = str(randint(10**9, 10**10-1))
+        user_id = str(randint(10**9, 10**10 - 1))
         datadome = uuid4().hex
         config = Config(temp_file.name)
         config.save_tokens(access_token, refresh_token, user_id, datadome)
 
         config_parser = configparser.ConfigParser()
-        config_parser.read(temp_file.name, encoding='utf-8')
+        config_parser.read(temp_file.name, encoding="utf-8")
 
         assert config_parser.get("TGTG", "AccessToken") == access_token
         assert config_parser.get("TGTG", "RefreshToken") == refresh_token
@@ -86,9 +86,10 @@ def test_ini_get():
             'headers = {"Accept": "json"}\n'
             "cron = * * 1-5 * *\n"
             'body = {"content": "${{items_available}} panier(s) à '
-            '${{price}} € \\nÀ récupérer"}')
+            '${{price}} € \\nÀ récupérer"}'
+        )
 
-        temp_file.write(content.encode('utf-8'))
+        temp_file.write(content.encode("utf-8"))
         temp_file.seek(0)
         config = Config(temp_file.name)
 
@@ -97,9 +98,7 @@ def test_ini_get():
         assert config.webhook.get("timeout") == 42
         assert config.webhook.get("headers") == {"Accept": "json"}
         assert config.webhook.get("cron") == Cron("* * 1-5 * *")
-        assert config.webhook.get("body") == (
-            '{"content": "${{items_available}} panier(s) à ${{price}} € \n'
-            'À récupérer"}')
+        assert config.webhook.get("body") == ('{"content": "${{items_available}} panier(s) à ${{price}} € \n' 'À récupérer"}')
 
 
 def test_env_get(monkeypatch: pytest.MonkeyPatch):
@@ -108,8 +107,10 @@ def test_env_get(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("WEBHOOK_TIMEOUT", "42")
     monkeypatch.setenv("WEBHOOK_HEADERS", '{"Accept": "json"}')
     monkeypatch.setenv("WEBHOOK_CRON", "* * 1-5 * *")
-    monkeypatch.setenv("WEBHOOK_BODY", '{"content": "${{items_available}} '
-                       'panier(s) à ${{price}} € \\nÀ récupérer"}')
+    monkeypatch.setenv(
+        "WEBHOOK_BODY",
+        '{"content": "${{items_available}} ' 'panier(s) à ${{price}} € \\nÀ récupérer"}',
+    )
 
     config = Config()
 
@@ -118,6 +119,4 @@ def test_env_get(monkeypatch: pytest.MonkeyPatch):
     assert config.webhook.get("timeout") == 42
     assert config.webhook.get("headers") == {"Accept": "json"}
     assert config.webhook.get("cron") == Cron("* * 1-5 * *")
-    assert config.webhook.get("body") == ('{"content": "${{items_available}} '
-                                          'panier(s) à ${{price}} € \n'
-                                          'À récupérer"}')
+    assert config.webhook.get("body") == ('{"content": "${{items_available}} ' "panier(s) à ${{price}} € \n" 'À récupérer"}')

@@ -10,20 +10,20 @@ log = logging.getLogger("tgtg")
 
 
 @dataclass
-class AddFavoriteRequest():
+class AddFavoriteRequest:
     item_id: str
     item_display_name: str
     proceed: bool
 
 
 @dataclass
-class RemoveFavoriteRequest():
+class RemoveFavoriteRequest:
     item_id: str
     item_display_name: str
     proceed: bool
 
 
-class Favorites():
+class Favorites:
     def __init__(self, client: TgtgClient) -> None:
         self.client = client
 
@@ -35,9 +35,7 @@ class Favorites():
         Returns:
             bool: true, if the provided item ID is in the favorites
         """
-        return any(item for item
-                   in self.client.get_favorites()
-                   if Item(item).item_id == item_id)
+        return any(item for item in self.client.get_favorites() if Item(item).item_id == item_id)
 
     def get_item_by_id(self, item_id: str) -> Item:
         """Gets an item by the Item ID
