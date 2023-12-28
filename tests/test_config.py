@@ -82,8 +82,7 @@ def test_ini_get():
             "timeout = 42\n"
             'headers = {"Accept": "json"}\n'
             "cron = * * 1-5 * *\n"
-            'body = {"content": "${{items_available}} panier(s) à '
-            '${{price}} € \\nÀ récupérer"}'
+            'body = {"content": "${{items_available}} panier(s) à ${{price}} € \\nÀ récupérer"}'
         )
 
         temp_file.write(content.encode("utf-8"))
@@ -95,7 +94,7 @@ def test_ini_get():
         assert config.webhook.timeout == 42
         assert config.webhook.headers == {"Accept": "json"}
         assert config.webhook.cron == Cron("* * 1-5 * *")
-        assert config.webhook.body == ('{"content": "${{items_available}} panier(s) à ${{price}} € \n' 'À récupérer"}')
+        assert config.webhook.body == '{"content": "${{items_available}} panier(s) à ${{price}} € \nÀ récupérer"}'
 
 
 def test_env_get(monkeypatch: pytest.MonkeyPatch):
@@ -104,10 +103,7 @@ def test_env_get(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("WEBHOOK_TIMEOUT", "42")
     monkeypatch.setenv("WEBHOOK_HEADERS", '{"Accept": "json"}')
     monkeypatch.setenv("WEBHOOK_CRON", "* * 1-5 * *")
-    monkeypatch.setenv(
-        "WEBHOOK_BODY",
-        '{"content": "${{items_available}} ' 'panier(s) à ${{price}} € \\nÀ récupérer"}',
-    )
+    monkeypatch.setenv("WEBHOOK_BODY", '{"content": "${{items_available}} panier(s) à ${{price}} € \\nÀ récupérer"}')
 
     config = Config()
 
@@ -116,4 +112,4 @@ def test_env_get(monkeypatch: pytest.MonkeyPatch):
     assert config.webhook.timeout == 42
     assert config.webhook.headers == {"Accept": "json"}
     assert config.webhook.cron == Cron("* * 1-5 * *")
-    assert config.webhook.body == ('{"content": "${{items_available}} ' "panier(s) à ${{price}} € \n" 'À récupérer"}')
+    assert config.webhook.body == '{"content": "${{items_available}} panier(s) à ${{price}} € \nÀ récupérer"}'
