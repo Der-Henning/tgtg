@@ -23,7 +23,7 @@ class WebHook(Notifier):
         self.url: Union[str, None] = config.webhook.url
         self.body: Union[str, None] = config.webhook.body
         self.type: Union[str, None] = config.webhook.type
-        self.headers: dict[str, str | bytes] = config.webhook.headers
+        self.headers: dict[str, Union[str, bytes]] = config.webhook.headers
         self.auth = None
         self.username: Union[str, None] = config.webhook.username
         self.password: Union[str, None] = config.webhook.password

@@ -300,9 +300,9 @@ def _register_signals() -> None:
     if hasattr(signal, "SIGBREAK"):
         signal.signal(getattr(signal, "SIGBREAK"), _handle_exit_signal)
     if not IS_WINDOWS:
-        signal.signal(signal.SIGHUP, _handle_exit_signal)
+        signal.signal(signal.SIGHUP, _handle_exit_signal)  # type: ignore[attr-defined]
         # TODO: SIGQUIT is ideally meant to terminate with core dumps
-        signal.signal(signal.SIGQUIT, _handle_exit_signal)
+        signal.signal(signal.SIGQUIT, _handle_exit_signal)  # type: ignore[attr-defined]
 
 
 def _handle_exit_signal(signum: int, _frame: Any) -> None:
