@@ -35,7 +35,7 @@ FROM base as builder
 RUN apt-get install -y \
     libgeos-dev rustc cargo pkg-config \
     build-essential libssl-dev libffi-dev python3-dev \
-    openssl-dev musl-dev
+    musl-dev
 
 WORKDIR /build
 RUN pip install "poetry==${POETRY_VERSION}" poetry-plugin-bundle
