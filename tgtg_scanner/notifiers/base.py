@@ -66,6 +66,7 @@ class Notifier(ABC):
             log.debug("Stopping %s thread", self.name)
             self.queue.put(None)
             self.thread.join()
+            log.debug("%s thread stopped", self.name)
 
     @abstractmethod
     def __repr__(self) -> str:

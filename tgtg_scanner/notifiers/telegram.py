@@ -2,7 +2,7 @@ import asyncio
 import datetime
 import logging
 import random
-import threading
+from queue import Empty
 from time import sleep
 from typing import Union
 
@@ -48,9 +48,6 @@ class Telegram(Notifier):
         self.cron = config.telegram.cron
         self.mute: Union[datetime.datetime, None] = None
         self.retries = 0
-        self.event_loop: Union[asyncio.AbstractEventLoop, None] = None
-        self.polling_thread = threading.Thread(target=self._polling)
-        self.stop_signal = False
         if self.enabled:
             if not self.token or not self.body:
                 raise TelegramConfigurationError()
@@ -90,21 +87,12 @@ class Telegram(Notifier):
             CallbackQueryHandler(self._callback_query_handler),
         ]
 
-    def _polling(self):
-        log.debug("Telegram: Starting polling thread")
-        loop = asyncio.new_event_loop()
-        loop.run_until_complete(self._start_polling())
-        while not self.stop_signal:
-            loop.run_until_complete(asyncio.sleep(0.1))
-        loop.run_until_complete(self._stop_polling())
-        loop.close()
-        log.debug("Telegram: Stopped polling thread")
-
     async def _start_polling(self):
+        log.debug("Telegram: Starting polling")
         for handler in self._handlers:
             self.application.add_handler(handler)
         await self.application.initialize()
-        await self.application.updater.start_polling(allowed_updates=Update.ALL_TYPES, timeout=self.timeout)
+        await self.application.updater.start_polling(allowed_updates=Update.ALL_TYPES, timeout=self.timeout, poll_interval=0.1)
         await self.application.bot.set_my_commands(
             [
                 BotCommand("mute", "Deactivate Telegram Notifications for " "1 or x days"),
@@ -121,29 +109,33 @@ class Telegram(Notifier):
         )
         await self.application.start()
 
-    def start(self) -> None:
-        super().start()
-        self.event_loop = asyncio.new_event_loop()
-        if not self.chat_ids:
-            self.event_loop.run_until_complete(self._get_chat_ids())
-        if not self.disable_commands:
-            self.polling_thread.start()
-
     async def _stop_polling(self):
         log.debug("Telegram: stopping polling")
         await self.application.updater.stop()
         await self.application.stop()
         await self.application.shutdown()
 
-    def stop(self) -> None:
-        self.stop_signal = True
-        if self.polling_thread.is_alive():
-            self.polling_thread.join()
-        if self.event_loop is not None:
-            if self.event_loop.is_running():
-                self.event_loop.stop()
-            self.event_loop.close()
-        super().stop()
+    def _run(self) -> None:
+        event_loop = asyncio.new_event_loop()
+        if not self.chat_ids:
+            event_loop.run_until_complete(self._get_chat_ids())
+        if not self.disable_commands:
+            event_loop.run_until_complete(self._start_polling())
+        while True:
+            event_loop.run_until_complete(asyncio.sleep(0.1))
+            try:
+                item = self.queue.get(block=False)
+                if item is None:
+                    break
+                log.debug("Sending %s Notification", self.name)
+                event_loop.run_until_complete(self._send(item))
+            except Empty:
+                pass
+            except Exception as exc:
+                log.error("Failed sending %s: %s", self.name, exc)
+        if not self.disable_commands:
+            event_loop.run_until_complete(self._stop_polling())
+        event_loop.close()
 
     def _unmask(self, text: str, item: Item) -> str:
         for match in item._get_variables(text):
@@ -159,7 +151,7 @@ class Telegram(Notifier):
             return bytes(getattr(item, matches[0].group(1)))
         return None
 
-    def _send(self, item: Union[Item, Reservation]) -> None:
+    async def _send(self, item: Union[Item, Reservation]) -> None:  # type: ignore[override]
         """Send item information as Telegram message"""
         if self.mute and self.mute > datetime.datetime.now():
             return
@@ -173,9 +165,7 @@ class Telegram(Notifier):
                 image = self._unmask_image(self.image, item)
         elif isinstance(item, Reservation):
             message = escape_markdown(f"{item.display_name} is reserved for 5 minutes", version=2)
-        if self.event_loop is None:
-            self.event_loop = asyncio.new_event_loop()
-        self.event_loop.run_until_complete(self._send_message(message, image))
+        await self._send_message(message, image)
 
     async def _send_message(self, message: str, image: Union[bytes, None] = None) -> None:
         log.debug("%s message: %s", self.name, message)
