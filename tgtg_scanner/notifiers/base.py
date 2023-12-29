@@ -28,12 +28,14 @@ class Notifier(ABC):
     def _run(self) -> None:
         """Run notifier"""
         while True:
-            item = self.queue.get()
-            if item is None:
-                break
             try:
+                item = self.queue.get()
+                if item is None:
+                    break
                 log.debug("Sending %s Notification", self.name)
                 self._send(item)
+            except KeyboardInterrupt:
+                pass
             except Exception as exc:
                 log.error("Failed sending %s: %s", self.name, exc)
 

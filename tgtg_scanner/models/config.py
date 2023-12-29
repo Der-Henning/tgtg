@@ -149,7 +149,7 @@ class AppriseConfig(NotifierConfig):
         self._ini_get(parser, "APPRISE", "Body", "body")
 
     def _read_env(self):
-        self._env_get_boolean("APPRISE_ENABLED", "enabled")
+        self._env_get_boolean("APPRISE", "enabled")
         self._env_get_cron("APPRISE_CRON", "cron")
         self._env_get("APPRISE_URL", "url")
         self._env_get("APPRISE_TITLE", "title")
@@ -185,7 +185,7 @@ class TelegramConfig(NotifierConfig):
         self._ini_get(parser, "TELEGRAM", "Image", "image")
 
     def _read_env(self):
-        self._env_get_boolean("TELEGRAM_ENABLED", "enabled")
+        self._env_get_boolean("TELEGRAM", "enabled")
         self._env_get_cron("TELEGRAM_CRON", "cron")
         self._env_get("TELEGRAM_TOKEN", "token")
         self._env_get_list("TELEGRAM_CHAT_IDS", "chat_ids")
@@ -209,7 +209,7 @@ class PushSaferConfig(NotifierConfig):
         self._ini_get(parser, "PUSHSAFER", "DeviceID", "device_id")
 
     def _read_env(self):
-        self._env_get_boolean("PUSHSAFER_ENABLED", "enabled")
+        self._env_get_boolean("PUSHSAFER", "enabled")
         self._env_get_cron("PUSHSAFER_CRON", "cron")
         self._env_get("PUSHSAFER_KEY", "key")
         self._env_get("PUSHSAFER_DEVICE_ID", "device_id")
@@ -227,7 +227,7 @@ class ConsoleConfig(NotifierConfig):
         self._ini_get(parser, "CONSOLE", "Body", "body")
 
     def _read_env(self):
-        self._env_get_boolean("CONSOLE_ENABLED", "enabled")
+        self._env_get_boolean("CONSOLE", "enabled")
         self._env_get_cron("CONSOLE_CRON", "cron")
         self._env_get("CONSOLE_BODY", "body")
 
@@ -267,7 +267,7 @@ class SMTPConfig(NotifierConfig):
         self._ini_get(parser, "SMTP", "Body", "body")
 
     def _read_env(self):
-        self._env_get_boolean("SMTP_ENABLED", "enabled")
+        self._env_get_boolean("SMTP", "enabled")
         self._env_get_cron("SMTP_CRON", "cron")
         self._env_get("SMTP_HOST", "host")
         self._env_get_int("SMTP_PORT", "port")
@@ -304,7 +304,7 @@ class IFTTTConfig(NotifierConfig):
         self._ini_get_int(parser, "IFTTT", "Timeout", "timeout")
 
     def _read_env(self):
-        self._env_get_boolean("IFTTT_ENABLED", "enabled")
+        self._env_get_boolean("IFTTT", "enabled")
         self._env_get_cron("IFTTT_CRON", "cron")
         self._env_get("IFTTT_EVENT", "event")
         self._env_get("IFTTT_KEY", "key")
@@ -344,7 +344,7 @@ class NtfyConfig(NotifierConfig):
         self._ini_get_int(parser, "NTFY", "Timeout", "timeout")
 
     def _read_env(self):
-        self._env_get_boolean("NTFY_ENABLED", "enabled")
+        self._env_get_boolean("NTFY", "enabled")
         self._env_get_cron("NTFY_CRON", "cron")
         self._env_get("NTFY_SERVER", "server")
         self._env_get("NTFY_TOPIC", "topic")
@@ -385,7 +385,7 @@ class WebhookConfig(NotifierConfig):
         self._ini_get_int(parser, "WEBHOOK", "Timeout", "timeout")
 
     def _read_env(self):
-        self._env_get_boolean("WEBHOOK_ENABLED", "enabled")
+        self._env_get_boolean("WEBHOOK", "enabled")
         self._env_get_cron("WEBHOOK_CRON", "cron")
         self._env_get("WEBHOOK_URL", "url")
         self._env_get("WEBHOOK_METHOD", "method")
@@ -409,7 +409,7 @@ class ScriptConfig(NotifierConfig):
         self._ini_get(parser, "SCRIPT", "Command", "command")
 
     def _read_env(self):
-        self._env_get_boolean("SCRIPT_ENABLED", "enabled")
+        self._env_get_boolean("SCRIPT", "enabled")
         self._env_get_cron("SCRIPT_CRON", "cron")
         self._env_get("SCRIPT_COMMAND", "command")
 
@@ -477,7 +477,7 @@ class LocationConfig(BaseConfig):
         self._ini_get(parser, "LOCATION", "OriginAddress", "origin_address")
 
     def _read_env(self):
-        self._env_get_boolean("LOCATION_ENABLED", "enabled")
+        self._env_get_boolean("LOCATION", "enabled")
         self._env_get("LOCATION_GOOGLE_MAPS_API_KEY", "google_maps_api_key")
         if environ.get("LOCATION_ADDRESS", None):
             log.warning(

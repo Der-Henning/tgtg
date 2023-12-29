@@ -23,6 +23,5 @@ executable:
 	zip -j ./dist/scanner.zip ./dist/*
 
 images:
-	poetry export -f requirements.txt --output requirements.txt
 	docker build -f ./docker/Dockerfile -t tgtg-scanner:latest .
 	docker build -f ./docker/Dockerfile.alpine -t tgtg-scanner:latest-alpine .

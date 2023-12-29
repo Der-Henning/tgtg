@@ -9,10 +9,10 @@
 			// Update 'VARIANT' to pick a Python version: 3, 3.10, 3.9, 3.8, 3.7, 3.6
 			// Append -bullseye or -buster to pin to an OS version.
 			// Use -bullseye variants on local on arm64/Apple Silicon.
-			"VARIANT": "3.10",
+			"VARIANT": "3.11",
 			// Options
 			// "NODE_VERSION": "lts/*",
-			"POETRY_VERSION": "1.5.1"
+			"POETRY_VERSION": "1.7.1"
 		}
 	},
 	// Set *default* container specific settings.json values on container create.

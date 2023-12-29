@@ -2,8 +2,11 @@ version: '3.3'
 
 services:
   scanner:
-    image: derhenning/tgtg:latest-alpine         ## pre build image from docker hub
-    #image: tgtg-scanner:latest           ## locally build image
+    image: derhenning/tgtg:latest-alpine           ## pre build image from docker hub
+    # image: tgtg-scanner:latest                   ## locally build image
+    # build:                                       ## build image with compose
+    #   context: .
+    #   dockerfile: docker/Dockerfile.alpine
     environment:
     # Configuration via environment variables.
     # Basic example using Telegram notifications

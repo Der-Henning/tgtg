@@ -77,10 +77,10 @@ My preferred method for servers, NAS, and RapsberryPis is using the pre-build mu
 [Docker Hub](https://hub.docker.com/r/derhenning/tgtg).
 The images are built for Linux on `amd64`, `arm64`, `armv7`, `armv6`, and `i386`.
 
-1. Install Docker and docker-compose
+1. Install Docker
 2. Copy and edit `docker-compose.yml` as described in the
 [Wiki](https://github.com/Der-Henning/tgtg/wiki/Configuration)
-3. Run `docker-compose up -d`
+3. Run `docker compose up -d`
 
 The container automatically creates a volume mounting `\tokens`
 where the app saves the TGTG credentials after login.

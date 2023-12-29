@@ -11,6 +11,7 @@ from telegram.constants import ParseMode
 from telegram.error import BadRequest, NetworkError, TelegramError, TimedOut
 from telegram.ext import (
     Application,
+    ApplicationBuilder,
     CallbackContext,
     CallbackQueryHandler,
     CommandHandler,
@@ -64,7 +65,7 @@ class Telegram(Notifier):
                 raise TelegramConfigurationError()
             try:
                 Item.check_mask(self.body)
-                self.application = Application.builder().token(self.token).arbitrary_callback_data(True).build()
+                self.application = ApplicationBuilder().token(self.token).arbitrary_callback_data(True).build()
                 self.application.add_error_handler(self._error)
             except MaskConfigurationError as err:
                 raise TelegramConfigurationError(err.message) from err
