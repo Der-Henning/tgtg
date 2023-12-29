@@ -48,7 +48,7 @@ class Telegram(Notifier):
         self.cron = config.telegram.cron
         self.mute: Union[datetime.datetime, None] = None
         self.retries = 0
-        self.event_loop = asyncio.get_event_loop()
+        self.event_loop: Union[asyncio.AbstractEventLoop, None] = None
         self.polling_thread = threading.Thread(target=self._polling)
         self.stop_signal = False
         if self.enabled:
@@ -98,6 +98,7 @@ class Telegram(Notifier):
             loop.run_until_complete(asyncio.sleep(0.1))
         loop.run_until_complete(self._stop_polling())
         loop.close()
+        log.debug("Telegram: Stopped polling thread")
 
     async def _start_polling(self):
         for handler in self._handlers:
@@ -122,6 +123,7 @@ class Telegram(Notifier):
 
     def start(self) -> None:
         super().start()
+        self.event_loop = asyncio.new_event_loop()
         if not self.chat_ids:
             self.event_loop.run_until_complete(self._get_chat_ids())
         if not self.disable_commands:
@@ -137,9 +139,10 @@ class Telegram(Notifier):
         self.stop_signal = True
         if self.polling_thread.is_alive():
             self.polling_thread.join()
-        if self.event_loop.is_running():
-            self.event_loop.stop()
-        self.event_loop.close()
+        if self.event_loop is not None:
+            if self.event_loop.is_running():
+                self.event_loop.stop()
+            self.event_loop.close()
         super().stop()
 
     def _unmask(self, text: str, item: Item) -> str:
@@ -170,6 +173,8 @@ class Telegram(Notifier):
                 image = self._unmask_image(self.image, item)
         elif isinstance(item, Reservation):
             message = escape_markdown(f"{item.display_name} is reserved for 5 minutes", version=2)
+        if self.event_loop is None:
+            self.event_loop = asyncio.new_event_loop()
         self.event_loop.run_until_complete(self._send_message(message, image))
 
     async def _send_message(self, message: str, image: Union[bytes, None] = None) -> None:
