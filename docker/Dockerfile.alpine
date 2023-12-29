@@ -17,7 +17,7 @@ ENV GID=1000
 ENV PATH=/venv/bin:${PATH}
 
 RUN apk update && apk upgrade && \
-    apk add --update --no-cache shadow runuser geos-dev rust build-base openssl-dev libffi-dev python3-dev cargo pkgconf
+    apk add --update --no-cache shadow runuser
 
 RUN addgroup --gid ${GID} --system tgtg && \
     adduser --shell /bin/false \
@@ -34,7 +34,10 @@ VOLUME ${TGTG_TOKEN_PATH}
 
 FROM base as builder
 
-RUN apk add --no-cache gcc libffi-dev g++ musl-dev
+RUN apk add --update --no-cache \
+    build-base openssl-dev libffi-dev python3-dev \
+    geos-dev rust cargo pkgconf \
+    libressl-dev musl-dev
 
 WORKDIR /build
 RUN pip install "poetry==${POETRY_VERSION}" poetry-plugin-bundle
