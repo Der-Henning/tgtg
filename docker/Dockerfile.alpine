@@ -35,7 +35,7 @@ VOLUME ${TGTG_TOKEN_PATH}
 FROM base as builder
 
 RUN apk add --update --no-cache \
-    build-base openssl-dev libffi-dev python3-dev \
+    build-base libffi-dev python3-dev \
     geos-dev rust cargo pkgconf \
     libressl-dev musl-dev
 
