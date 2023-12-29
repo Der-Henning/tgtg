@@ -5,6 +5,7 @@ from unittest.mock import MagicMock
 
 import pytest
 import responses
+from pytest_mock.plugin import MockerFixture
 
 from tgtg_scanner.models import Config, Cron, Favorites, Item, Reservations
 from tgtg_scanner.notifiers.apprise import Apprise
@@ -12,6 +13,7 @@ from tgtg_scanner.notifiers.console import Console
 from tgtg_scanner.notifiers.ifttt import IFTTT
 from tgtg_scanner.notifiers.ntfy import Ntfy
 from tgtg_scanner.notifiers.script import Script
+from tgtg_scanner.notifiers.smtp import SMTP
 from tgtg_scanner.notifiers.webhook import WebHook
 
 SYS_PLATFORM = platform.system()
@@ -235,3 +237,39 @@ def test_script(
 
     encoding = "cp1252" if IS_WINDOWS else "utf-8"
     assert captured.out.decode(encoding).rstrip() == test_item.display_name
+
+
+def test_smtp(test_item: Item, reservations: Reservations, favorites: Favorites, mocker: MockerFixture):
+    mock_SMTP = mocker.MagicMock(name="tgtg_scanner.notifiers.smtp.smtplib.SMTP")
+    mocker.patch("tgtg_scanner.notifiers.smtp.smtplib.SMTP", new=mock_SMTP)
+    mock_SMTP.return_value.noop.return_value = (250, "OK")
+
+    config = Config()
+    config.smtp.enabled = True
+    config.smtp.cron = Cron()
+    config.smtp.host = "localhost"
+    config.smtp.port = 25
+    config.smtp.use_tls = False
+    config.smtp.use_ssl = False
+    config.smtp.sender = "user@example.com"
+    config.smtp.recipients = ["user@example.com"]
+    config.smtp.subject = "New Magic Bags"
+    config.smtp.body = "<b>Á ê</b> </br>" "Amount: ${{items_available}}"
+
+    smtp = SMTP(config, reservations, favorites)
+    smtp.start()
+    smtp.send(test_item)
+    smtp.stop()
+
+    assert mock_SMTP.call_count == 1
+    assert mock_SMTP.return_value.sendmail.call_count == 1
+    call_args = mock_SMTP.return_value.sendmail.call_args_list[0][0]
+    assert call_args[0] == "user@example.com"
+    assert call_args[1] == ["user@example.com"]
+    body = call_args[2].split("\n")
+    assert body[0].startswith("Content-Type: multipart/alternative;")
+    assert body[2] == "From: user@example.com"
+    assert body[3] == "To: user@example.com"
+    assert body[4] == "Subject: New Magic Bags"
+    assert body[7] == 'Content-Type: text/html; charset="utf-8"'
+    assert body[11] == f"<b>=C3=81 =C3=AA</b> </br>Amount: {test_item.items_available}"

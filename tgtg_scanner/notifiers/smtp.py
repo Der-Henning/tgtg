@@ -91,7 +91,7 @@ class SMTP(Notifier):
         message["From"] = self.sender
         message["To"] = ", ".join(self.recipients)
         message["Subject"] = subject
-        message.attach(MIMEText(html, "html"))
+        message.attach(MIMEText(html, "html", "utf-8"))
         body = message.as_string()
         self._stay_connected()
         try:
