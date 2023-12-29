@@ -20,6 +20,8 @@ NOTIFIERS: list[Type[Notifier]] = [Apprise, Console, PushSafer, SMTP, IFTTT, Ntf
 
 
 class Notifiers:
+    """Notifier Manager"""
+
     def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
         self._notifiers: list[Notifier] = [NotifierCls(config, reservations, favorites) for NotifierCls in NOTIFIERS]
         log.info("Activated notifiers:")

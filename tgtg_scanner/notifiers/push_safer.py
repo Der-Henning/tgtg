@@ -30,9 +30,7 @@ class PushSafer(Notifier):
             self.client = Client(self.key)
 
     def _send(self, item: Union[Item, Reservation]) -> None:
-        """
-        Sends item information to the Pushsafer endpoint.
-        """
+        """Sends item information to the Pushsafer endpoint"""
         if isinstance(item, Item):
             message = f"New Amount: {item.items_available}"
             self.client.send_message(message, item.display_name, self.device_id)

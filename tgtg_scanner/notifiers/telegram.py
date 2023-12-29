@@ -30,9 +30,7 @@ log = logging.getLogger("tgtg")
 
 
 class Telegram(Notifier):
-    """
-    Notifier for Telegram.
-    """
+    """Notifier for Telegram"""
 
     MAX_RETRIES = 10
 

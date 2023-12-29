@@ -11,6 +11,8 @@ log = logging.getLogger("tgtg")
 
 
 class Notifier(ABC):
+    """Base Notifier"""
+
     @abstractmethod
     def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
         self.enabled = False

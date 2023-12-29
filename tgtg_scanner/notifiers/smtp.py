@@ -14,9 +14,7 @@ log = logging.getLogger("tgtg")
 
 
 class SMTP(Notifier):
-    """
-    Notifier for SMTP.
-    """
+    """Notifier for SMTP"""
 
     def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
         super().__init__(config, reservations, favorites)

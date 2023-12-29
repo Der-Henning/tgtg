@@ -1,22 +1,16 @@
-FROM python:3.11-slim as base
+FROM python:3.11-slim
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
     PIP_NO_WARN_SCRIPT_LOCATION=0 \
-    PIP_DEFAULT_TIMEOUT=100 \
-    POETRY_VERSION=1.7.1 \
-    POETRY_INSTALLER_MAX_WORKERS=5 \
-    CARGO_NET_GIT_FETCH_WITH_CLI=true
+    PIP_ROOT_USER_ACTION=ignore
 ENV TGTG_TOKEN_PATH=/tokens
 ENV LOGS_PATH=/logs
 ENV DOCKER=true
 ENV UID=1000
 ENV GID=1000
-ENV PATH=/venv/bin:${PATH}
-
-RUN apt-get update && apt-get upgrade -y
 
 RUN addgroup --gid ${GID} tgtg && \
     adduser --shell /bin/false \
@@ -30,22 +24,12 @@ RUN chown tgtg:tgtg ${LOGS_PATH}
 RUN chown tgtg:tgtg ${TGTG_TOKEN_PATH}
 VOLUME ${TGTG_TOKEN_PATH}
 
-FROM base as builder
+RUN --mount=type=bind,target=/context \
+    pip install -r /context/requirements.txt && \
+    pip install /context
 
-RUN apt-get install -y \
-    libgeos-dev rustc cargo pkg-config \
-    build-essential libssl-dev libffi-dev python3-dev \
-    musl-dev
-
-WORKDIR /build
-RUN pip install "poetry==${POETRY_VERSION}" poetry-plugin-bundle
-RUN --mount=type=bind,target=. poetry bundle venv /venv
-
-FROM base as final
 COPY ./docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
-
-COPY --from=builder /venv /venv
 
 RUN python -m tgtg_scanner -v
 
