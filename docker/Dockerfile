@@ -31,7 +31,7 @@ VOLUME ${TGTG_TOKEN_PATH}
 
 FROM base as builder
 
-RUN apt-get install -y libgeos-dev rustc build-essential libssl-dev libffi-dev python3-dev cargo pkg-config
+RUN apt-get install -y build-essential libssl-dev libffi-dev python3-dev
 
 WORKDIR /build
 RUN pip install "poetry==${POETRY_VERSION}" poetry-plugin-bundle

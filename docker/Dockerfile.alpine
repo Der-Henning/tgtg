@@ -16,7 +16,7 @@ ENV GID=1000
 ENV PATH=/venv/bin:${PATH}
 
 RUN apk update && apk upgrade && \
-    apk add --update --no-cache shadow runuser geos-dev rust build-base openssl-dev libffi-dev python3-dev cargo pkgconf
+    apk add --update --no-cache shadow runuser build-base openssl-dev libffi-dev python3-dev
 
 RUN addgroup --gid ${GID} --system tgtg && \
     adduser --shell /bin/false \
