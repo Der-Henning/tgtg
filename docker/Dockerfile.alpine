@@ -6,7 +6,8 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
     PIP_NO_WARN_SCRIPT_LOCATION=0 \
     PIP_DEFAULT_TIMEOUT=100 \
-    POETRY_VERSION=1.7.1
+    POETRY_VERSION=1.7.1 \
+    POETRY_INSTALLER_MAX_WORKERS=5
 ENV TGTG_TOKEN_PATH=/tokens
 ENV LOGS_PATH=/logs
 ENV DOCKER=true
@@ -14,7 +15,9 @@ ENV UID=1000
 ENV GID=1000
 ENV PATH=/venv/bin:${PATH}
 
-RUN apk update && apk upgrade && apk add --no-cache shadow runuser
+RUN apk update && apk upgrade && \
+    apk add --no-cache shadow runuser && \
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 RUN addgroup --gid ${GID} --system tgtg && \
     adduser --shell /bin/false \
