@@ -7,8 +7,7 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_NO_WARN_SCRIPT_LOCATION=0 \
     PIP_DEFAULT_TIMEOUT=100 \
     POETRY_VERSION=1.7.1 \
-    POETRY_INSTALLER_MAX_WORKERS=5 \
-    CRYPTOGRAPHY_DONT_BUILD_RUST=1
+    POETRY_INSTALLER_MAX_WORKERS=5
 ENV TGTG_TOKEN_PATH=/tokens
 ENV LOGS_PATH=/logs
 ENV DOCKER=true
@@ -32,7 +31,7 @@ VOLUME ${TGTG_TOKEN_PATH}
 
 FROM base as builder
 
-RUN apt-get install -y build-essential libssl-dev libffi-dev python3-dev
+RUN apt-get install -y libgeos-dev rustc build-essential libssl-dev libffi-dev python3-dev cargo pkg-config
 
 WORKDIR /build
 RUN pip install "poetry==${POETRY_VERSION}" poetry-plugin-bundle
