@@ -31,8 +31,7 @@ VOLUME ${TGTG_TOKEN_PATH}
 
 FROM base as builder
 
-RUN apt-get install -y gcc libffi-dev g++ && \
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+RUN apt-get install -y build-essential libssl-dev libffi-dev python3-dev
 
 WORKDIR /build
 RUN pip install "poetry==${POETRY_VERSION}" poetry-plugin-bundle

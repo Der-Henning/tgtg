@@ -16,8 +16,7 @@ ENV GID=1000
 ENV PATH=/venv/bin:${PATH}
 
 RUN apk update && apk upgrade && \
-    apk add --no-cache shadow runuser && \
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+    apk add --update --no-cache shadow runuser build-base openssl-dev libffi-dev python3-dev
 
 RUN addgroup --gid ${GID} --system tgtg && \
     adduser --shell /bin/false \
