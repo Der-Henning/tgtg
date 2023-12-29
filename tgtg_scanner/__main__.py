@@ -36,7 +36,7 @@ SYS_PLATFORM = platform.system()
 IS_WINDOWS = SYS_PLATFORM.lower() in {"windows", "cygwin"}
 IS_EXECUTABLE = getattr(sys, "_MEIPASS", False)
 PROG_PATH = Path(sys.executable).parent if IS_EXECUTABLE else Path(os.getcwd())
-IS_DOCKER = os.environ.get("DOCKER", "False").lower() in {"true", "1", "t"}
+IS_DOCKER = os.environ.get("DOCKER", "False").lower() in {"true", "1", "t", "y", "yes"}
 LOGS_PATH = os.environ.get("LOGS_PATH", PROG_PATH)
 
 

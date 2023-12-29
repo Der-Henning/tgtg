@@ -44,48 +44,46 @@ class BaseConfig(ABC):
         return codecs.escape_decode(bytes(value, "utf-8"))[0].decode("utf-8")  # type: ignore[attr-defined]
 
     def _ini_get(self, parser: configparser.ConfigParser, section: str, key: str, attr: str):
-        if parser.has_option(section, key):
-            value = parser[section].get(key, None)
-            if value is not None:
-                setattr(self, attr, self._decode(value))
+        value = parser.get(section, key, fallback=None)
+        if value is not None:
+            setattr(self, attr, self._decode(value))
 
     def _ini_get_boolean(self, parser: configparser.ConfigParser, section: str, key: str, attr: str):
-        if parser.has_option(section, key):
-            try:
-                setattr(self, attr, parser[section].getboolean(key))
-            except ValueError as err:
-                raise ConfigurationError(f"Invalid boolean value for {section}.{key} - {err}") from err
+        try:
+            value = parser.getboolean(section, key, fallback=None)
+        except ValueError as err:
+            raise ConfigurationError(f"Invalid boolean value for {section}.{key} - {err}") from err
+        if value is not None:
+            setattr(self, attr, value)
 
     def _ini_get_int(self, parser: configparser.ConfigParser, section: str, key: str, attr: str):
-        if parser.has_option(section, key):
-            try:
-                setattr(self, attr, parser[section].getint(key))
-            except ValueError as err:
-                raise ConfigurationError(f"Invalid integer value for {section}.{key} - {err}") from err
+        try:
+            value = parser.getint(section, key, fallback=None)
+        except ValueError as err:
+            raise ConfigurationError(f"Invalid integer value for {section}.{key} - {err}") from err
+        if value is not None:
+            setattr(self, attr, value)
 
     def _ini_get_list(self, parser: configparser.ConfigParser, section: str, key: str, attr: str):
-        if parser.has_option(section, key):
-            value = parser[section].get(key, None)
-            if value is not None:
-                setattr(self, attr, [self._decode(val.strip()) for val in value.split(",")])
+        value = parser.get(section, key, fallback=None)
+        if value is not None:
+            setattr(self, attr, [self._decode(val.strip()) for val in value.split(",")])
 
     def _ini_get_dict(self, parser: configparser.ConfigParser, section: str, key: str, attr: str):
-        if parser.has_option(section, key):
-            value = parser[section].get(key, None)
-            if value is not None:
-                try:
-                    setattr(self, attr, json.loads(value))
-                except json.JSONDecodeError as err:
-                    raise ConfigurationError(f"Invalid JSON value for {section}.{key} - {err}") from err
+        value = parser.get(section, key, fallback=None)
+        if value is not None:
+            try:
+                setattr(self, attr, json.loads(value))
+            except json.JSONDecodeError as err:
+                raise ConfigurationError(f"Invalid JSON value for {section}.{key} - {err}") from err
 
     def _ini_get_cron(self, parser: configparser.ConfigParser, section: str, key: str, attr: str):
-        if parser.has_option(section, key):
-            value = parser[section].get(key, None)
-            if value is not None:
-                try:
-                    setattr(self, attr, Cron(value))
-                except ValueError as err:
-                    raise ConfigurationError(f"Invalid cron value for {section}.{key} - {err}") from err
+        value = parser.get(section, key, fallback=None)
+        if value is not None:
+            try:
+                setattr(self, attr, Cron(value))
+            except ValueError as err:
+                raise ConfigurationError(f"Invalid cron value for {section}.{key} - {err}") from err
 
     def _env_get(self, key: str, attr: str):
         value = environ.get(key, None)
@@ -526,7 +524,7 @@ class Config(BaseConfig):
                 raise ConfigurationError(f"Configuration file '{config_file.absolute()}' " "is not a file!")
             config_file = Path(self.file)
             parser = configparser.ConfigParser()
-            parser.read(config_file)
+            parser.read(config_file, encoding="utf-8")
             self._read_ini(parser)
             self.tgtg._read_ini(parser)
             self.location._read_ini(parser)
