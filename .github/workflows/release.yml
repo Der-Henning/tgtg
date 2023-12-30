@@ -108,7 +108,7 @@ jobs:
     - name: Upload archive
       uses: actions/upload-artifact@v3
       with:
-        name: releases
+        name: releases-${{github.sha}}
         path: ./${{ steps.filename.outputs.FILENAME }}
     - name: Add archive to release
       uses: softprops/action-gh-release@v1
