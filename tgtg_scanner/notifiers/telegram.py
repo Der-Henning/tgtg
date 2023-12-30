@@ -98,7 +98,7 @@ class Telegram(Notifier):
         await self.application.updater.start_polling(allowed_updates=Update.ALL_TYPES, timeout=self.timeout, poll_interval=0.1)
         await self.application.bot.set_my_commands(
             [
-                BotCommand("mute", "Deactivate Telegram Notifications for " "1 or x days"),
+                BotCommand("mute", "Deactivate Telegram Notifications for 1 or x days"),
                 BotCommand("unmute", "Reactivate Telegram Notifications"),
                 BotCommand("reserve", "Reserve the next available Magic Bag"),
                 BotCommand("reservations", "List and cancel Reservations"),
@@ -188,9 +188,7 @@ class Telegram(Notifier):
             except BadRequest as err:
                 err_message = err.message
                 if err_message.startswith("Can't parse entities:"):
-                    err_message += ". For details see https://github.com/"
-                    err_message += "Der-Henning/tgtg/wiki/Configuration"
-                    err_message += "#note-on-markdown-v2"
+                    err_message += ". For details see https://github.com/Der-Henning/tgtg/wiki/Configuration#note-on-markdown-v2"
                 log.error("Telegram Error: %s", err_message)
             except (NetworkError, TimedOut) as err:
                 log.warning("Telegram Error: %s", err)
@@ -208,7 +206,7 @@ class Telegram(Notifier):
         log.info("Deactivated Telegram Notifications for %s days", days)
         log.info("Reactivation at %s", self.mute)
         await update.message.reply_text(
-            f"Deactivated Telegram Notifications for {days} days.\n" f"Reactivating at {self.mute} or use /unmute."
+            f"Deactivated Telegram Notifications for {days} days.\nReactivating at {self.mute} or use /unmute."
         )
 
     async def _unmute(self, update: Update, _) -> None:
@@ -270,8 +268,8 @@ class Telegram(Notifier):
         if not context.args:
             await update.message.reply_text(
                 "Please supply item ids in one of the following ways: "
-                + "'/addfavorites 12345 23456 34567' or "
-                + "'/addfavorites 12345,23456,34567'"
+                "'/addfavorites 12345 23456 34567' or "
+                "'/addfavorites 12345,23456,34567'"
             )
             return
 
@@ -292,8 +290,8 @@ class Telegram(Notifier):
         if not context.args:
             await update.message.reply_text(
                 "Please supply item ids in one of the following ways: "
-                + "'/removefavorites 12345 23456 34567' or "
-                + "'/removefavorites 12345,23456,34567'"
+                "'/removefavorites 12345 23456 34567' or "
+                "'/removefavorites 12345,23456,34567'"
             )
             return
 
@@ -307,8 +305,8 @@ class Telegram(Notifier):
             )
         )
         self.favorites.remove_favorite(item_ids)
-        await update.message.reply_text("Removed the following item ids from favorites: " + f"{' '.join(item_ids)}")
-        log.debug("Removed the following item ids from favorites: " + '"%s"', item_ids)
+        await update.message.reply_text(f"Removed the following item ids from favorites: {' '.join(item_ids)}")
+        log.debug("Removed the following item ids from favorites: '%s'", item_ids)
 
     async def _url_handler(self, update: Update, context: CallbackContext) -> None:
         item_id = context.matches[0].group(1)
@@ -320,7 +318,7 @@ class Telegram(Notifier):
 
         if item_favorite:
             await update.message.reply_text(
-                f"{item.display_name} is in your favorites. " + "Do you want to remove it?",
+                f"{item.display_name} is in your favorites. Do you want to remove it?",
                 reply_markup=(
                     InlineKeyboardMarkup(
                         [
@@ -340,7 +338,7 @@ class Telegram(Notifier):
             )
         else:
             await update.message.reply_text(
-                f"{item.display_name} is not in your favorites. " + "Do you want to add it?",
+                f"{item.display_name} is not in your favorites. Do you want to add it?",
                 reply_markup=(
                     InlineKeyboardMarkup(
                         [
@@ -399,7 +397,7 @@ class Telegram(Notifier):
         On using the config.ini configuration the
         chat id will be stored in the config.ini.
         """
-        log.warning("You enabled the Telegram notifications " "without providing a chat id!")
+        log.warning("You enabled the Telegram notifications without providing a chat id!")
         code = random.randint(1111, 9999)
         log.warning("Send %s to the bot in your desired chat.", code)
         log.warning("Waiting for code ...")

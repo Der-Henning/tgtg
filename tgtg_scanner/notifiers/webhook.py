@@ -34,7 +34,7 @@ class WebHook(Notifier):
                 raise WebHookConfigurationError()
             if self.username is not None and self.password is not None:
                 self.auth = HTTPBasicAuth(self.username, self.password)
-                log.debug("Using basic auth with user '%s' " "for webhook", self.username)
+                log.debug("Using basic auth with user '%s' for webhook", self.username)
             try:
                 Item.check_mask(self.body)
                 Item.check_mask(self.url)

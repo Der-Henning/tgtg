@@ -20,7 +20,7 @@ class Cron:
         for cron in self.crons:
             _, _, _, _, dow = cron.split()
             if any(int(day) > 6 for day in dow.split("-") if day.isdigit()):
-                raise ValueError("Cron expression parsing error - " "day of week must be between 0 and 6 (Sunday=0)")
+                raise ValueError("Cron expression parsing error - day of week must be between 0 and 6 (Sunday=0)")
 
     @property
     def is_now(self) -> bool:

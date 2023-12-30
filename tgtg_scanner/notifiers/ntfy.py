@@ -43,7 +43,7 @@ class Ntfy(WebHook):
                 self.auth = HTTPBasicAuth(self.username, self.password)
                 log.debug("Using basic auth with user '%s' for Ntfy", self.username)
             elif (self.username or self.password) is not None:
-                log.warning("Username or Password missing for Ntfy " "authentication, defaulting to no auth")
+                log.warning("Username or Password missing for Ntfy authentication, defaulting to no auth")
             try:
                 Item.check_mask(self.title)
                 Item.check_mask(self.message)

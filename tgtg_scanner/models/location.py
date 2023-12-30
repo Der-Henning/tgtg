@@ -65,7 +65,7 @@ class Location:
         if key in self.distancetime_dict:
             return self.distancetime_dict[key]
 
-        log.debug(f"Sending Google Maps API request: " f"{destination} using {travel_mode} mode")
+        log.debug(f"Sending Google Maps API request: {destination} using {travel_mode} mode")
 
         # calculate distance and time
         directions = self.gmaps.directions(self.origin, destination, mode=travel_mode)

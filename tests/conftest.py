@@ -40,20 +40,20 @@ def tgtg_item():
             "show_sales_taxes": False,
             "cover_picture": {
                 "picture_id": "282115",
-                "current_url": "https://images.tgtg.ninja/standard_images" "/Chinese/korean-food-1699781_1280.jpg",
+                "current_url": "https://images.tgtg.ninja/standard_images/Chinese/korean-food-1699781_1280.jpg",
                 "is_automatically_created": False,
             },
             "logo_picture": {
                 "picture_id": "768433",
-                "current_url": "https://images.tgtg.ninja/store/e7fee96e-" "318a-4056-aaff-496794906be1.png",
+                "current_url": "https://images.tgtg.ninja/store/e7fee96e-318a-4056-aaff-496794906be1.png",
                 "is_automatically_created": False,
             },
             "name": "",
-            "description": "Rette eine Magic Bag mit leckerem " "indischen Essen.",
+            "description": "Rette eine Magic Bag mit leckerem indischen Essen.",
             "food_handling_instructions": "",
             "can_user_supply_packaging": False,
             "packaging_option": "BAG_ALLOWED",
-            "collection_info": "Wir befinden uns im 2. Obergeschoss " "in der Europapassage.",
+            "collection_info": "Wir befinden uns im 2. Obergeschoss in der Europapassage.",
             "diet_categories": [],
             "item_category": "MEAL",
             "buffet": False,
@@ -91,7 +91,7 @@ def tgtg_item():
             "store_location": {
                 "address": {
                     "country": {"iso_code": "DE", "name": "Germany"},
-                    "address_line": "Ballindamm 40, 20095 Hamburg, " "Deutschland",
+                    "address_line": "Ballindamm 40, 20095 Hamburg, Deutschland",
                     "city": "",
                     "postal_code": "",
                 },
@@ -99,7 +99,7 @@ def tgtg_item():
             },
             "logo_picture": {
                 "picture_id": "768433",
-                "current_url": "https://images.tgtg.ninja/store/e7fee96e-" "318a-4056-aaff-496794906be1.png",
+                "current_url": "https://images.tgtg.ninja/store/e7fee96e-318a-4056-aaff-496794906be1.png",
                 "is_automatically_created": False,
             },
             "store_time_zone": "Europe/Berlin",
@@ -109,7 +109,7 @@ def tgtg_item():
             "distance": 0.13365150729215916,
             "cover_picture": {
                 "picture_id": "282115",
-                "current_url": "https://images.tgtg.ninja/standard_images/" "Chinese/korean-food-1699781_1280.jpg",
+                "current_url": "https://images.tgtg.ninja/standard_images/Chinese/korean-food-1699781_1280.jpg",
                 "is_automatically_created": False,
             },
             "is_manufacturer": False,

@@ -74,7 +74,7 @@ class Item:
         self.currency = item.get("price_including_taxes", {}).get("code", "-")
         self.item_logo = item.get("logo_picture", {}).get(
             "current_url",
-            "https://tgtg-mkt-cms-prod.s3.eu-west-1.amazonaws.com/" "13512/TGTG_Icon_White_Cirle_1988x1988px_RGB.png",
+            "https://tgtg-mkt-cms-prod.s3.eu-west-1.amazonaws.com/13512/TGTG_Icon_White_Cirle_1988x1988px_RGB.png",
         )
         self.item_cover = item.get("cover_picture", {}).get(
             "current_url",

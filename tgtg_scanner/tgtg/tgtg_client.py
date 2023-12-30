@@ -43,7 +43,7 @@ DEFAULT_MAX_POLLING_TRIES = 24  # 24 * POLLING_WAIT_TIME = 2 minutes
 DEFAULT_POLLING_WAIT_TIME = 5  # Seconds
 DEFAULT_APK_VERSION = "22.11.11"
 
-APK_RE_SCRIPT = re.compile(r"AF_initDataCallback\({key:\s*'ds:5'.*?" r"data:([\s\S]*?), sideChannel:.+<\/script")
+APK_RE_SCRIPT = re.compile(r"AF_initDataCallback\({key:\s*'ds:5'.*?data:([\s\S]*?), sideChannel:.+<\/script")
 
 
 class TgtgSession(requests.Session):
@@ -237,7 +237,7 @@ class TgtgClient:
             str: APK Version string
         """
         response = requests.get(
-            "https://play.google.com/store/apps/" "details?id=com.app.tgtg&hl=en&gl=US",
+            "https://play.google.com/store/apps/details?id=com.app.tgtg&hl=en&gl=US",
             timeout=30,
         )
         match = APK_RE_SCRIPT.search(response.text)
@@ -263,7 +263,7 @@ class TgtgClient:
 
     def login(self) -> None:
         if not (self.email or self.access_token and self.refresh_token and self.user_id):
-            raise TGTGConfigurationError("You must provide at least email or access_token, " "refresh_token and user_id")
+            raise TGTGConfigurationError("You must provide at least email or access_token, refresh_token and user_id")
         if self._already_logged:
             self._refresh_token()
         else:
@@ -278,7 +278,7 @@ class TgtgClient:
             first_login_response = response.json()
             if first_login_response["state"] == "TERMS":
                 raise TgtgPollingError(
-                    f"This email {self.email} is not linked to a tgtg " "account. Please signup with this email first."
+                    f"This email {self.email} is not linked to a tgtg account. Please signup with this email first."
                 )
             if first_login_response.get("state") == "WAIT":
                 self.start_polling(first_login_response.get("polling_id"))
@@ -297,9 +297,7 @@ class TgtgClient:
             )
             if response.status_code == HTTPStatus.ACCEPTED:
                 log.warning(
-                    "Check your mailbox on PC to continue... "
-                    "(Mailbox on mobile won't work, "
-                    "if you have installed tgtg app.)"
+                    "Check your mailbox on PC to continue... (Mailbox on mobile won't work, if you have installed tgtg app.)"
                 )
                 time.sleep(self.polling_wait_time)
                 continue

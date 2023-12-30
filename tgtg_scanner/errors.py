@@ -25,8 +25,7 @@ class ConfigurationError(Error):
 class MaskConfigurationError(ConfigurationError):
     def __init__(self, variable):
         self.message = (
-            f"Unrecognized variable {variable}. For details see "
-            f"https://github.com/Der-Henning/tgtg/wiki/Configuration#variables"
+            f"Unrecognized variable {variable}. For details see https://github.com/Der-Henning/tgtg/wiki/Configuration#variables"
         )
         super().__init__(self.message)
 

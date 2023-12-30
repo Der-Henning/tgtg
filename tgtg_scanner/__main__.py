@@ -115,7 +115,7 @@ def main():
 
     # Define stream formatter and handler
     stream_formatter = colorlog.ColoredFormatter(
-        fmt=("%(cyan)s%(asctime)s%(reset)s " "%(log_color)s%(levelname)-8s%(reset)s " "%(message)s"),
+        fmt=("%(cyan)s%(asctime)s%(reset)s %(log_color)s%(levelname)-8s%(reset)s %(message)s"),
         datefmt="%Y-%m-%d %H:%M:%S",
         log_colors={
             "DEBUG": "purple",
@@ -132,7 +132,7 @@ def main():
     # Define file formatter and handler
     file_handler = logging.FileHandler(args.log_file, mode="w", encoding="utf-8")
     file_formatter = logging.Formatter(
-        fmt=("[%(asctime)s][%(name)s]" "[%(filename)s:%(funcName)s:%(lineno)d]" "[%(levelname)s] %(message)s"),
+        fmt=("[%(asctime)s][%(name)s][%(filename)s:%(funcName)s:%(lineno)d][%(levelname)s] %(message)s"),
         datefmt="%Y-%m-%d %H:%M:%S",
     )
     file_handler.setFormatter(file_formatter)
@@ -245,7 +245,7 @@ def _get_version_info() -> str:
     lastest_release = _get_new_version()
     if lastest_release is None:
         return __version__
-    return f"{__version__} - Update available! " f"See {lastest_release.get('html_url')}"
+    return f"{__version__} - Update available! See {lastest_release.get('html_url')}"
 
 
 def _run_scanner(scanner: Scanner) -> NoReturn:

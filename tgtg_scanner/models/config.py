@@ -26,6 +26,8 @@ CONFIG_FILE_HEADER = """## TGTG Scanner Configuration
 
 """
 
+DEPRECIATION_WARNING = "{} is deprecated and will be removed in a future release. Please use {} instead."
+
 
 @dataclass
 class BaseConfig(ABC):
@@ -139,7 +141,7 @@ class AppriseConfig(NotifierConfig):
 
     url: Union[str, None] = None
     title: str = "New Magic Bags"
-    body: str = "${{display_name}} - new amount: " "${{items_available}} - ${{link}}"
+    body: str = "${{display_name}} - new amount: ${{items_available}} - ${{link}}"
 
     def _read_ini(self, parser: configparser.ConfigParser):
         self._ini_get_boolean(parser, "APPRISE", "Enabled", "enabled")
@@ -174,9 +176,7 @@ class TelegramConfig(NotifierConfig):
         self._ini_get_cron(parser, "TELEGRAM", "Cron", "cron")
         self._ini_get(parser, "TELEGRAM", "Token", "token")
         if parser.has_option("TELEGRAM", "chat_ids"):
-            log.warning(
-                "[TELEGRAM] chat_ids is deprecated and will be removed in a future release. " "Please use ChatIDs instead."
-            )
+            log.warning(DEPRECIATION_WARNING.format("[TELEGRAM] chat_ids", "ChatIDs"))
         self._ini_get_list(parser, "TELEGRAM", "chat_ids", "chat_ids")  # legacy support
         self._ini_get_list(parser, "TELEGRAM", "ChatIDs", "chat_ids")
         self._ini_get_boolean(parser, "TELEGRAM", "DisableCommands", "disable_commands")
@@ -219,7 +219,7 @@ class PushSaferConfig(NotifierConfig):
 class ConsoleConfig(NotifierConfig):
     """Console Notifier configuration"""
 
-    body: str = "${{display_name}} - new amount: " "${{items_available}} - ${{link}}"
+    body: str = "${{display_name}} - new amount: ${{items_available}} - ${{link}}"
 
     def _read_ini(self, parser: configparser.ConfigParser):
         self._ini_get_boolean(parser, "CONSOLE", "Enabled", "enabled")
@@ -245,7 +245,7 @@ class SMTPConfig(NotifierConfig):
     sender: Union[str, None] = None
     recipients: list[str] = field(default_factory=list)
     subject: str = "New Magic Bags"
-    body: str = "<b>${{display_name}}</b> </br>" "New Amount: ${{items_available}}"
+    body: str = "<b>${{display_name}}</b> </br>New Amount: ${{items_available}}"
 
     def _read_ini(self, parser: configparser.ConfigParser):
         self._ini_get_boolean(parser, "SMTP", "Enabled", "enabled")
@@ -258,9 +258,7 @@ class SMTPConfig(NotifierConfig):
         self._ini_get_boolean(parser, "SMTP", "SSL", "use_ssl")
         self._ini_get(parser, "SMTP", "Sender", "sender")
         if parser.has_option("SMTP", "Recipient"):
-            log.warning(
-                "[SMTP] Recipient is deprecated and will be removed in a future release. " "Please use Recipients instead."
-            )
+            log.warning(DEPRECIATION_WARNING.format("[SMTP] Recipient", "Recipients"))
         self._ini_get_list(parser, "SMTP", "Recipient", "recipients")  # legacy support
         self._ini_get_list(parser, "SMTP", "Recipients", "recipients")
         self._ini_get(parser, "SMTP", "Subject", "subject")
@@ -277,9 +275,7 @@ class SMTPConfig(NotifierConfig):
         self._env_get_boolean("SMTP_SSL", "use_ssl")
         self._env_get("SMTP_SENDER", "sender")
         if environ.get("SMTP_RECIPIENT", None):
-            log.warning(
-                "SMTP_RECIPIENT is deprecated and will be removed in a future release. " "Please use SMTP_RECIPIENTS instead."
-            )
+            log.warning(DEPRECIATION_WARNING.format("SMTP_RECIPIENT", "SMTP_RECIPIENTS"))
         self._env_get_list("SMTP_RECIPIENT", "recipients")  # legacy support
         self._env_get_list("SMTP_RECIPIENTS", "recipients")
         self._env_get("SMTP_SUBJECT", "subject")
@@ -292,7 +288,7 @@ class IFTTTConfig(NotifierConfig):
 
     event: str = "tgtg_notification"
     key: Union[str, None] = None
-    body: str = '{"value1": "${{display_name}}", ' '"value2": ${{items_available}}, ' '"value3": "${{link}}"}'
+    body: str = '{"value1": "${{display_name}}", "value2": ${{items_available}}, "value3": "${{link}}"}'
     timeout: int = 60
 
     def _read_ini(self, parser: configparser.ConfigParser):
@@ -319,7 +315,7 @@ class NtfyConfig(NotifierConfig):
     server: str = "https://ntfy.sh"
     topic: Union[str, None] = None
     title: str = "New Magic Bags"
-    message: str = "${{display_name}} - New Amount: " "${{items_available}} - ${{link}}"
+    message: str = "${{display_name}} - New Amount: ${{items_available}} - ${{link}}"
     body: Union[str, None] = None
     priority: str = "default"
     tags: str = "shopping,tgtg"
@@ -463,16 +459,11 @@ class LocationConfig(BaseConfig):
     def _read_ini(self, parser: configparser.ConfigParser):
         self._ini_get_boolean(parser, "LOCATION", "Enabled", "enabled")
         if parser.has_option("LOCATION", "Google_Maps_API_Key"):
-            log.warning(
-                "[LOCATION] Google_Maps_API_Key is deprecated and will be removed in a future release. "
-                "Please use GoogleMapsAPIKey instead."
-            )
+            log.warning(DEPRECIATION_WARNING.format("[LOCATION] Google_Maps_API_Key", "GoogleMapsAPIKey"))
         self._ini_get(parser, "LOCATION", "Google_Maps_API_Key", "google_maps_api_key")  # legacy support
         self._ini_get(parser, "LOCATION", "GoogleMapsAPIKey", "google_maps_api_key")
         if parser.has_option("LOCATION", "Address"):
-            log.warning(
-                "[LOCATION] Address is deprecated and will be removed in a future release. " "Please use OriginAddress instead."
-            )
+            log.warning(DEPRECIATION_WARNING.format("[LOCATION] Address", "OriginAddress"))
         self._ini_get(parser, "LOCATION", "Address", "origin_address")  # legacy support
         self._ini_get(parser, "LOCATION", "OriginAddress", "origin_address")
 
@@ -480,10 +471,7 @@ class LocationConfig(BaseConfig):
         self._env_get_boolean("LOCATION", "enabled")
         self._env_get("LOCATION_GOOGLE_MAPS_API_KEY", "google_maps_api_key")
         if environ.get("LOCATION_ADDRESS", None):
-            log.warning(
-                "LOCATION_ADDRESS is deprecated and will be removed in a future release. "
-                "Please use LOCATION_ORIGIN_ADDRESS instead."
-            )
+            log.warning(DEPRECIATION_WARNING.format("LOCATION_ADDRESS", "LOCATION_ORIGIN_ADDRESS"))
         self._env_get("LOCATION_ADDRESS", "origin_address")  # legacy support
         self._env_get("LOCATION_ORIGIN_ADDRESS", "origin_address")
 
@@ -521,7 +509,7 @@ class Config(BaseConfig):
         if self.file:
             config_file = Path(self.file)
             if not config_file.is_file():
-                raise ConfigurationError(f"Configuration file '{config_file.absolute()}' " "is not a file!")
+                raise ConfigurationError(f"Configuration file '{config_file.absolute()}' is not a file!")
             config_file = Path(self.file)
             parser = configparser.ConfigParser()
             parser.read(config_file, encoding="utf-8")

@@ -44,7 +44,7 @@ class Notifier(ABC):
     def start(self) -> None:
         """Run notifier in thread"""
         if self.enabled:
-            log.debug("Starting %s thread", self.name)
+            log.debug("Starting %s Notifier thread", self.name)
             self.thread.start()
 
     def send(self, item: Union[Item, Reservation]) -> None:
@@ -52,7 +52,7 @@ class Notifier(ABC):
         if self.enabled and self.cron.is_now:
             self.queue.put(item)
             if not self.thread.is_alive():
-                log.debug("Thread %s is dead. Restarting", self.name)
+                log.debug("%s Notifier thread is dead. Restarting", self.name)
                 self.start()
 
     @abstractmethod
@@ -63,10 +63,10 @@ class Notifier(ABC):
     def stop(self) -> None:
         """Stop notifier"""
         if self.thread.is_alive():
-            log.debug("Stopping %s thread", self.name)
+            log.debug("Stopping %s Notifier thread", self.name)
             self.queue.put(None)
             self.thread.join()
-            log.debug("%s thread stopped", self.name)
+            log.debug("%s Notifier thread stopped", self.name)
 
     @abstractmethod
     def __repr__(self) -> str:

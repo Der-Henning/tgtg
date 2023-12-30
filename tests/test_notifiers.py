@@ -40,11 +40,8 @@ def test_webhook_json(test_item: Item, reservations: Reservations, favorites: Fa
     config.webhook.headers = {"Accept": "json"}
     config.webhook.cron = Cron()
     config.webhook.body = (
-        '{"content": "${{items_available}} panier(s) '
-        "disponible(s) à ${{price}} € \nÀ récupérer "
-        "${{pickupdate}}\n"
-        'https://toogoodtogo.com/item/${{item_id}}"'
-        ', "username": "${{display_name}}"}'
+        '{"content": "${{items_available}} panier(s) disponible(s) à ${{price}} € \nÀ récupérer ${{pickupdate}}'
+        '\nhttps://toogoodtogo.com/item/${{item_id}}", "username": "${{display_name}}"}'
     )
     responses.add(responses.POST, "https://api.example.com", status=200)
 
@@ -60,8 +57,7 @@ def test_webhook_json(test_item: Item, reservations: Reservations, favorites: Fa
     assert request.headers.get("Content-Type") == "application/json"
     assert body == {
         "content": (
-            f"{test_item.items_available} panier(s) disponible(s) à "
-            f"{test_item.price} € \nÀ récupérer {test_item.pickupdate}"
+            f"{test_item.items_available} panier(s) disponible(s) à {test_item.price} € \nÀ récupérer {test_item.pickupdate}"
             f"\nhttps://toogoodtogo.com/item/{test_item.item_id}"
         ),
         "username": f"{test_item.display_name}",
@@ -78,10 +74,8 @@ def test_webhook_text(test_item: Item, reservations: Reservations, favorites: Fa
     config.webhook.headers = {"Accept": "json"}
     config.webhook.cron = Cron()
     config.webhook.body = (
-        "${{items_available}} panier(s) "
-        "disponible(s) à ${{price}} € \nÀ récupérer "
-        "${{pickupdate}}\n"
-        "https://toogoodtogo.com/item/${{item_id}}"
+        "${{items_available}} panier(s) disponible(s) à ${{price}} € \n"
+        "À récupérer ${{pickupdate}}\nhttps://toogoodtogo.com/item/${{item_id}}"
     )
     responses.add(responses.POST, "https://api.example.com", status=200)
 
@@ -95,9 +89,8 @@ def test_webhook_text(test_item: Item, reservations: Reservations, favorites: Fa
     assert request.headers.get("Accept") == "json"
     assert request.headers.get("Content-Type") == "text/plain"
     assert request.body.decode("utf-8") == (
-        f"{test_item.items_available} panier(s) disponible(s) à "
-        f"{test_item.price} € \nÀ récupérer {test_item.pickupdate}"
-        f"\nhttps://toogoodtogo.com/item/{test_item.item_id}"
+        f"{test_item.items_available} panier(s) disponible(s) à {test_item.price} € \n"
+        f"À récupérer {test_item.pickupdate}\nhttps://toogoodtogo.com/item/{test_item.item_id}"
     )
 
 
@@ -109,14 +102,12 @@ def test_ifttt(test_item: Item, reservations: Reservations, favorites: Favorites
     config.ifttt.key = "secret_key"
     config.ifttt.cron = Cron()
     config.ifttt.body = (
-        '{"value1": "${{display_name}}", '
-        '"value2": ${{items_available}}, '
-        '"value3": "https://share.toogoodtogo.com/'
-        'item/${{item_id}}"}'
+        '{"value1": "${{display_name}}", "value2": ${{items_available}}, '
+        '"value3": "https://share.toogoodtogo.com/item/${{item_id}}"}'
     )
     responses.add(
         responses.POST,
-        f"https://maker.ifttt.com/trigger/" f"{config.ifttt.event}" f"/with/key/{config.ifttt.key}",
+        f"https://maker.ifttt.com/trigger/{config.ifttt.event}/with/key/{config.ifttt.key}",
         body="Congratulations! You've fired the tgtg_notification event",
         content_type="text/plain",
         status=200,
@@ -146,7 +137,7 @@ def test_ntfy(test_item: Item, reservations: Reservations, favorites: Favorites)
     config.ntfy.topic = "tgtg_test"
     config.ntfy.title = "New Items - ${{display_name}}"
     config.ntfy.cron = Cron()
-    config.ntfy.body = "${{display_name}} - New Amount: ${{items_available}} - " "https://share.toogoodtogo.com/item/${{item_id}}"
+    config.ntfy.body = "${{display_name}} - New Amount: ${{items_available}} - https://share.toogoodtogo.com/item/${{item_id}}"
     responses.add(
         responses.POST,
         f"{config.ntfy.server}/{config.ntfy.topic}",
@@ -162,8 +153,8 @@ def test_ntfy(test_item: Item, reservations: Reservations, favorites: Favorites)
 
     assert request.url == (f"{config.ntfy.server}/" f"{config.ntfy.topic}")
     assert request.headers.get("X-Message").decode("utf-8") == (
-        f"{test_item.display_name} - New Amount: {test_item.items_available} "
-        f"- https://share.toogoodtogo.com/item/{test_item.item_id}"
+        f"{test_item.display_name} - New Amount: {test_item.items_available} - "
+        f"https://share.toogoodtogo.com/item/{test_item.item_id}"
     )
     assert request.headers.get("X-Title").decode("utf-8") == (f"New Items - {test_item.display_name}")
 
@@ -175,9 +166,7 @@ def test_apprise(test_item: Item, reservations: Reservations, favorites: Favorit
     config.apprise.url = "ntfy://tgtg_test"
     config.apprise.title = "New Items - ${{display_name}}"
     config.apprise.cron = Cron()
-    config.apprise.body = (
-        "${{display_name}} - New Amount: ${{items_available}} - " "https://share.toogoodtogo.com/item/${{item_id}}"
-    )
+    config.apprise.body = "${{display_name}} - New Amount: ${{items_available}} - https://share.toogoodtogo.com/item/${{item_id}}"
     responses.add(responses.POST, "https://ntfy.sh/", status=200)
 
     apprise = Apprise(config, reservations, favorites)
@@ -191,8 +180,8 @@ def test_apprise(test_item: Item, reservations: Reservations, favorites: Favorit
     assert request.url == "https://ntfy.sh/"
     assert body.get("topic") == "tgtg_test"
     assert body.get("message") == (
-        f"{test_item.display_name} - New Amount: {test_item.items_available} "
-        f"- https://share.toogoodtogo.com/item/{test_item.item_id}"
+        f"{test_item.display_name} - New Amount: {test_item.items_available} - "
+        f"https://share.toogoodtogo.com/item/{test_item.item_id}"
     )
 
 
@@ -205,7 +194,7 @@ def test_console(
     config = Config()
     config.console.enabled = True
     config.console.cron = Cron()
-    config.console.body = "${{display_name}} - " "new amount: ${{items_available}}"
+    config.console.body = "${{display_name}} - new amount: ${{items_available}}"
 
     console = Console(config, reservations, favorites)
     console.start()
@@ -214,7 +203,7 @@ def test_console(
     captured = capsys.readouterr()
     console.stop()
 
-    assert captured.out.rstrip() == (f"{test_item.display_name} - " f"new amount: {test_item.items_available}")
+    assert captured.out.rstrip() == f"{test_item.display_name} - new amount: {test_item.items_available}"
 
 
 def test_script(
@@ -254,7 +243,7 @@ def test_smtp(test_item: Item, reservations: Reservations, favorites: Favorites,
     config.smtp.sender = "user@example.com"
     config.smtp.recipients = ["user@example.com"]
     config.smtp.subject = "New Magic Bags"
-    config.smtp.body = "<b>Á ê</b> </br>" "Amount: ${{items_available}}"
+    config.smtp.body = "<b>Á ê</b> </br>Amount: ${{items_available}}"
 
     smtp = SMTP(config, reservations, favorites)
     smtp.start()

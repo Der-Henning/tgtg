@@ -47,7 +47,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.send_response(response.status_code)
         self.send_header(
             "Set-Cookie",
-            f"datadome={response.cookies.get('datadome')}; " f"Domain=.local; Path=/",
+            f"datadome={response.cookies.get('datadome')}; Domain=.local; Path=/",
         )
         self.end_headers()
         self.wfile.write(response_data)
