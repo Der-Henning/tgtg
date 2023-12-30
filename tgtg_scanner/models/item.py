@@ -155,7 +155,7 @@ class Item:
             now = datetime.datetime.now()
             pfr = self._datetimeparse(self.pickup_interval_start)
             pto = self._datetimeparse(self.pickup_interval_end)
-            prange = f"{pfr.hour:02d}:{pfr.minute:02d} - " f"{pto.hour:02d}:{pto.minute:02d}"
+            prange = f"{pfr.hour:02d}:{pfr.minute:02d} - {pto.hour:02d}:{pto.minute:02d}"
             tommorow = now + datetime.timedelta(days=1)
             if now.date() == pfr.date():
                 return f"{humanize.naturalday(now)}, {prange}"

@@ -96,7 +96,7 @@ docker-compose up -d
 
 ### Install as package
 
-1. Install Git, Python>=3.9 and pip
+1. Install Git, Python>=3.10 and pip
 2. Run `pip install git+https://github.com/Der-Henning/tgtg`
 3. Create `config.ini` as described in the
 [Wiki](https://github.com/Der-Henning/tgtg/wiki/Configuration)
@@ -112,7 +112,7 @@ you may need to install `libffi-dev`.
 
 Method for advanced usage.
 
-1. Install Git, Python>=3.9 and poetry
+1. Install Git, Python>=3.10 and poetry
 2. Clone the repository `git clone https://github.com/Der-Henning/tgtg`
 3. Enter repository folder `cd tgtg`
 4. Run `poetry install --without test,build`
