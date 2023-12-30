@@ -2,6 +2,7 @@ import asyncio
 import datetime
 import logging
 import random
+import warnings
 from queue import Empty
 from time import sleep
 from typing import Union
@@ -19,6 +20,7 @@ from telegram.ext import (
     filters,
 )
 from telegram.helpers import escape_markdown
+from telegram.warnings import PTBUserWarning
 
 from tgtg_scanner.errors import MaskConfigurationError, TelegramConfigurationError
 from tgtg_scanner.models import Config, Favorites, Item, Reservations
@@ -60,6 +62,7 @@ class Telegram(Notifier):
                 raise TelegramConfigurationError()
             try:
                 Item.check_mask(self.body)
+                warnings.filterwarnings("ignore", category=PTBUserWarning, module="telegram")
                 self.application = ApplicationBuilder().token(self.token).arbitrary_callback_data(True).build()
                 self.application.add_error_handler(self._error)
             except MaskConfigurationError as err:
