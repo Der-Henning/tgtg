@@ -9,7 +9,13 @@ from typing import Union
 
 from telegram import BotCommand, InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
-from telegram.error import BadRequest, NetworkError, TelegramError, TimedOut
+from telegram.error import (
+    BadRequest,
+    InvalidToken,
+    NetworkError,
+    TelegramError,
+    TimedOut,
+)
 from telegram.ext import (
     Application,
     ApplicationBuilder,
@@ -60,13 +66,18 @@ class Telegram(Notifier):
                 "${{item_cover_bytes}}",
             ]:
                 raise TelegramConfigurationError()
+            # Suppress Telegram Warnings
+            warnings.filterwarnings("ignore", category=PTBUserWarning, module="telegram")
             try:
                 Item.check_mask(self.body)
-                warnings.filterwarnings("ignore", category=PTBUserWarning, module="telegram")
-                self.application = ApplicationBuilder().token(self.token).arbitrary_callback_data(True).build()
-                self.application.add_error_handler(self._error)
             except MaskConfigurationError as err:
                 raise TelegramConfigurationError(err.message) from err
+            try:
+                application = ApplicationBuilder().token(self.token).arbitrary_callback_data(True).build()
+                application.add_error_handler(self._error)
+                asyncio.run(application.bot.get_me())
+            except InvalidToken as err:
+                raise TelegramConfigurationError("Invalid Telegram Bot Token") from err
             except TelegramError as err:
                 raise TelegramConfigurationError(err.message) from err
 
@@ -118,27 +129,41 @@ class Telegram(Notifier):
         await self.application.stop()
         await self.application.shutdown()
 
-    def _run(self) -> None:
-        event_loop = asyncio.new_event_loop()
+    def start(self) -> None:
         if not self.chat_ids:
-            event_loop.run_until_complete(self._get_chat_ids())
-        if not self.disable_commands:
-            event_loop.run_until_complete(self._start_polling())
-        while True:
-            event_loop.run_until_complete(asyncio.sleep(0.1))
-            try:
-                item = self.queue.get(block=False)
-                if item is None:
-                    break
-                log.debug("Sending %s Notification", self.name)
-                event_loop.run_until_complete(self._send(item))
-            except Empty:
-                pass
-            except Exception as exc:
-                log.error("Failed sending %s: %s", self.name, exc)
-        if not self.disable_commands:
-            event_loop.run_until_complete(self._stop_polling())
-        event_loop.close()
+            asyncio.run(self._get_chat_ids())
+        super().start()
+
+    def _run(self) -> None:
+        async def _listen_for_items() -> None:
+            if not self.disable_commands:
+                try:
+                    await self._start_polling()
+                except Exception as exc:
+                    log.error("Telegram failed starting polling: %s", exc)
+                    return
+            while True:
+                try:
+                    item = self.queue.get(block=False)
+                    if item is None:
+                        break
+                    log.debug("Sending %s Notification", self.name)
+                    await self._send(item)
+                except Empty:
+                    pass
+                except Exception as exc:
+                    log.error("Failed sending %s: %s", self.name, exc)
+                finally:
+                    await asyncio.sleep(0.1)
+            if not self.disable_commands:
+                try:
+                    await self._stop_polling()
+                except Exception as exc:
+                    log.warning("Telegram failed stopping polling: %s", exc)
+
+        self.application = ApplicationBuilder().token(self.token).arbitrary_callback_data(True).build()
+        self.application.add_error_handler(self._error)
+        asyncio.run(_listen_for_items())
 
     def _unmask(self, text: str, item: Item) -> str:
         for match in item._get_variables(text):
@@ -389,7 +414,7 @@ class Telegram(Notifier):
 
     async def _error(self, update: Update, context: CallbackContext) -> None:
         """Log Errors caused by Updates."""
-        log.debug('Update "%s" caused error "%s"', update, context.error)
+        log.warning('Update "%s" caused error "%s"', update, context.error)
 
     async def _get_chat_ids(self) -> None:
         """Initializes an interaction with the user
@@ -401,8 +426,10 @@ class Telegram(Notifier):
         code = random.randint(1111, 9999)
         log.warning("Send %s to the bot in your desired chat.", code)
         log.warning("Waiting for code ...")
+        application = ApplicationBuilder().token(self.token).arbitrary_callback_data(True).build()
+        application.add_error_handler(self._error)
         while not self.chat_ids:
-            updates = await self.application.bot.get_updates(timeout=self.timeout)
+            updates = await application.bot.get_updates(timeout=self.timeout)
             for update in reversed(updates):
                 if update.message and update.message.text:
                     if update.message.text.isdecimal() and int(update.message.text) == code:
@@ -414,7 +441,7 @@ class Telegram(Notifier):
                         )
                         self.chat_ids = [str(update.message.chat_id)]
             sleep(1)
-        if self.config.set("TELEGRAM", "chat_ids", ",".join(self.chat_ids)):
+        if self.config.set("TELEGRAM", "ChatIDs", ",".join(self.chat_ids)):
             log.warning("Saved chat id in your config file")
         else:
             log.warning(

@@ -53,6 +53,7 @@ class Notifier(ABC):
             self.queue.put(item)
             if not self.thread.is_alive():
                 log.debug("%s Notifier thread is dead. Restarting", self.name)
+                self.thread = threading.Thread(target=self._run)
                 self.start()
 
     @abstractmethod

@@ -14,6 +14,7 @@ from tgtg_scanner.notifiers.ifttt import IFTTT
 from tgtg_scanner.notifiers.ntfy import Ntfy
 from tgtg_scanner.notifiers.script import Script
 from tgtg_scanner.notifiers.smtp import SMTP
+from tgtg_scanner.notifiers.telegram import Telegram
 from tgtg_scanner.notifiers.webhook import WebHook
 
 SYS_PLATFORM = platform.system()
@@ -262,3 +263,63 @@ def test_smtp(test_item: Item, reservations: Reservations, favorites: Favorites,
     assert body[4] == "Subject: New Magic Bags"
     assert body[7] == 'Content-Type: text/html; charset="utf-8"'
     assert body[11] == f"<b>=C3=81 =C3=AA</b> </br>Amount: {test_item.items_available}"
+
+
+@pytest.fixture
+def mocked_telegram(mocker: MockerFixture):
+    mocker.patch(
+        "telegram.Bot.get_me",
+        return_value=MagicMock(username="test_bot"),
+    )
+    mocker.patch(
+        "telegram.ext.Application.initialize",
+        return_value=None,
+    )
+    mocker.patch(
+        "telegram.ext.Updater.start_polling",
+        return_value=None,
+    )
+    mocker.patch(
+        "telegram.ext.ExtBot.set_my_commands",
+        return_value=True,
+    )
+    mocker.patch(
+        "telegram.ext.Application.start",
+        return_value=None,
+    )
+    mocker.patch(
+        "telegram.ext.Updater.stop",
+        return_value=None,
+    )
+    mocker.patch(
+        "telegram.ext.Application.stop",
+        return_value=None,
+    )
+    mocker.patch(
+        "telegram.ext.Application.shutdown",
+        return_value=None,
+    )
+    mocker.patch(
+        "telegram.Bot.send_message",
+        return_value=None,
+    )
+    return mocker
+
+
+def test_telegram(test_item: Item, reservations: Reservations, favorites: Favorites, mocked_telegram):
+    config = Config()
+    config.telegram.enabled = True
+    config.telegram.token = "1234567890:ABCDEF"
+    config.telegram.cron = Cron()
+    config.telegram.chat_ids = ["123456"]
+    config.telegram.disable_commands = False
+    config.telegram.body = "New Magic Bags: ${{items_available}}"
+    config.telegram.image = None
+
+    telegram = Telegram(config, reservations, favorites)
+    telegram.start()
+    telegram.send(test_item)
+    sleep(0.5)
+    assert telegram.thread.is_alive()
+    telegram.stop()
+    assert not telegram.thread.is_alive()
