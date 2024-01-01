@@ -24,7 +24,7 @@ packaging = "^23.1"
 progress = "^1.6"
 prometheus-client = "^0.19.0"
 pycron = "^3.0.0"
-python = ">=3.10,<3.13"
+python = ">=3.9,<3.13"
 python-pushsafer = "^1.1"
 python-telegram-bot = {extras = ["callback-data"], version = "^20.4"}
 requests = "^2.31.0"

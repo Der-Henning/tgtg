@@ -49,6 +49,9 @@ class Notifier(ABC):
 
     def send(self, item: Union[Item, Reservation]) -> None:
         """Send notification"""
+        if not isinstance(item, (Item, Reservation)):
+            log.error("Invalid item type: %s", type(item))
+            return
         if self.enabled and self.cron.is_now:
             self.queue.put(item)
             if not self.thread.is_alive():

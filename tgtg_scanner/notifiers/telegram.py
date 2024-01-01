@@ -73,6 +73,9 @@ class Telegram(Notifier):
             except MaskConfigurationError as err:
                 raise TelegramConfigurationError(err.message) from err
             try:
+                # Setting event loop explicitly for python 3.9 compatibility
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
                 application = ApplicationBuilder().token(self.token).arbitrary_callback_data(True).build()
                 application.add_error_handler(self._error)
                 asyncio.run(application.bot.get_me())
@@ -136,6 +139,11 @@ class Telegram(Notifier):
 
     def _run(self) -> None:
         async def _listen_for_items() -> None:
+            # Setting event loop explicitly for python 3.9 compatibility
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            self.application = ApplicationBuilder().token(self.token).arbitrary_callback_data(True).build()
+            self.application.add_error_handler(self._error)
             if not self.disable_commands:
                 try:
                     await self._start_polling()
@@ -161,8 +169,6 @@ class Telegram(Notifier):
                 except Exception as exc:
                     log.warning("Telegram failed stopping polling: %s", exc)
 
-        self.application = ApplicationBuilder().token(self.token).arbitrary_callback_data(True).build()
-        self.application.add_error_handler(self._error)
         asyncio.run(_listen_for_items())
 
     def _unmask(self, text: str, item: Item) -> str:
