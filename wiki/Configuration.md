@@ -98,8 +98,8 @@ You can combine multiple crons as semicolon separated list.
 | config.ini | environment | description | default | required if enabled | variables |
 |------------|-------------|-------------|---------|:-------------------:|:---------:|
 | Enabled | LOCATION | enable location service | `false` |
-| Google_Maps_API_Key | LOCATION_GOOGLE_MAPS_API_KEY | API key for google maps service |  | YES |
-| Address | LOCATION_ADDRESS | origin for distance calculation, e.g. your home address |  | YES |
+| GoogleMapsAPIKey | LOCATION_GOOGLE_MAPS_API_KEY | API key for google maps service |  | YES |
+| OriginAddress | LOCATION_ORIGIN_ADDRESS | origin for distance calculation, e.g. your home address |  | YES |
 
 ### [CONSOLE] / Console Notifier
 
@@ -121,7 +121,7 @@ You can combine multiple crons as semicolon separated list.
 | Username | SMTP_USERNAME | login username |
 | Password | SMTP_PASSWORD | login password |
 | Sender | SMTP_SENDER | email sender |
-| Recipient | SMTP_RECIPIENT | email recipient | | YES |
+| Recipients | SMTP_RECIPIENTS | email recipients | | YES |
 | Subject | SMTP_SUBJECT | email subject | `New Magic Bags` | | YES |
 | Body | SMTP_BODY | email html body | `<b>${{display_name}}</b> </br> New Amount: ${{items_available}}` | | YES |
 | Cron | SMTP_CRON | enable notification only on schedule | `* * * * *` |
@@ -152,9 +152,9 @@ You can combine multiple crons as semicolon separated list.
 |------------|-------------|-------------|---------|:-------------------:|:---------:|
 | Enabled | TELEGRAM | enable Telegram notifications | `false` |
 | Token | TELEGRAM_TOKEN | Telegram Bot token | | YES |
-| Chat_IDs | TELEGRAM_CHAT_IDS | comma-separated list of chat ids |
+| ChatIDs | TELEGRAM_CHAT_IDS | comma-separated list of chat ids |
 | Body | TELEGRAM_BODY | message body | `*${{display_name}}* \n*Available*: ${{items_available}}\n*Price*: ${{price}} ${{currency}}\n*Pickup*: ${{pickupdate}}` | | YES
-| disableCommands | TELEGRAM_DISABLE_COMMANDS | disable bot commands | `false` |
+| DisableCommands | TELEGRAM_DISABLE_COMMANDS | disable bot commands | `false` |
 | Timeout | TELEGRAM_TIMEOUT | timeout for telegram API requests | 60 |
 | Cron | TELEGRAM_CRON | enable notification only on schedule | `* * * * *` |
 

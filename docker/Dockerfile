@@ -1,27 +1,28 @@
-FROM python:3.10-slim
+FROM python:3.11-slim
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
-    PIP_NO_WARN_SCRIPT_LOCATION=0
+    PIP_NO_WARN_SCRIPT_LOCATION=0 \
+    PIP_ROOT_USER_ACTION=ignore
 ENV TGTG_TOKEN_PATH=/tokens
 ENV LOGS_PATH=/logs
 ENV DOCKER=true
 ENV UID=1000
 ENV GID=1000
 
-RUN addgroup --gid $GID tgtg && \
+RUN addgroup --gid ${GID} tgtg && \
     adduser --shell /bin/false \
             --disabled-password \
-            --uid $UID \
-            --gid $GID \
+            --uid ${UID} \
+            --gid ${GID} \
             tgtg
-RUN mkdir -p /logs
-RUN mkdir -p /tokens
-RUN chown tgtg:tgtg /tokens
-RUN chown tgtg:tgtg /logs
-VOLUME /tokens
+RUN mkdir -p ${LOGS_PATH}
+RUN mkdir -p ${TGTG_TOKEN_PATH}
+RUN chown tgtg:tgtg ${LOGS_PATH}
+RUN chown tgtg:tgtg ${TGTG_TOKEN_PATH}
+VOLUME ${TGTG_TOKEN_PATH}
 
 RUN --mount=type=bind,target=/context \
     pip install -r /context/requirements.txt && \

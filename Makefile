@@ -1,13 +1,27 @@
-images:
-	poetry export -f requirements.txt --output requirements.txt
-	docker build -f ./docker/Dockerfile -t tgtg-scanner:latest .
-	docker build -f ./docker/Dockerfile.alpine -t tgtg-scanner:latest-alpine .
+clean:
+	rm -rf .venv
+	rm -rf .pytest_cache
+	rm -rf .tox
+	rm -rf .mypy_cache
 
 install:
 	poetry install
+	poetry run pre-commit install --install-hooks
+
+server:
+	poetry run tgtg_server
 
 start:
-	poetry run scanner -d
+	poetry run scanner -d --base_url http://localhost:8080
+
+test:
+	poetry run pytest -v -m "not tgtg_api" --cov=tgtg_scanner
+
+lint:
+	poetry run pre-commit run -a
+
+tox:
+	tox
 
 executable:
 	rm -r ./build ||:
@@ -16,8 +30,6 @@ executable:
 	cp ./config.sample.ini ./dist/config.ini
 	zip -j ./dist/scanner.zip ./dist/*
 
-test:
-	poetry run pytest -v -m "not tgtg_api" --cov
-
-lint:
-	poetry run pre-commit run -a
+images:
+	docker build -f ./docker/Dockerfile -t tgtg-scanner:latest .
+	docker build -f ./docker/Dockerfile.alpine -t tgtg-scanner:latest-alpine .

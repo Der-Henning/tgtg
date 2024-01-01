@@ -5,8 +5,8 @@ on:
   - cron: 0 1 * * *
 
 env:
-  PYTHON_VERSION: '3.10'
-  POETRY_VERSION: 1.5.1
+  PYTHON_VERSION: '3.11'
+  POETRY_VERSION: 1.7.1
 
 jobs:
   test:
@@ -14,20 +14,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
+    - uses: ./.github/actions/setup-poetry-action
       with:
+        poetry-version: ${{ env.POETRY_VERSION }}
         python-version: ${{ env.PYTHON_VERSION }}
-    - name: Setup Poetry
-      run: |
-        pip install --upgrade pip setuptools wheel poetry==${{ env.POETRY_VERSION }}
-        poetry config virtualenvs.create true --local
-        poetry config virtualenvs.in-project true --local
-    - uses: actions/cache@v3
-      with:
-        path: ./.venv
-        key: venv-test-poetry-${{ env.POETRY_VERSION }}-python-${{ env.PYTHON_VERSION }}-${{ hashFiles('poetry.lock') }}-${{ runner.os }}
-    - name: Install dependencies
-      run: poetry install --without build
+        without: build
     - name: Run tests
       uses: nick-fields/retry@v2
       with:
