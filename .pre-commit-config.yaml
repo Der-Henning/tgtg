@@ -38,6 +38,8 @@ repos:
     exclude: poetry.lock
   - id: pretty-format-yaml
     args: [--autofix, --indent, '2']
+  - id: pretty-format-ini
+    args: [--autofix]
 
 - repo: https://github.com/igorshubovych/markdownlint-cli
   rev: v0.38.0

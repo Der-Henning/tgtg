@@ -1,3 +1,8 @@
+clean:
+	rm -rf .venv
+	rm -rf .pytest_cache
+	rm -rf .tox
+	rm -rf .mypy_cache
 
 install:
 	poetry install
@@ -14,6 +19,9 @@ test:
 
 lint:
 	poetry run pre-commit run -a
+
+tox:
+	tox
 
 executable:
 	rm -r ./build ||:
