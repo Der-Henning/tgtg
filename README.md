@@ -77,10 +77,10 @@ My preferred method for servers, NAS, and RapsberryPis is using the pre-build mu
 [Docker Hub](https://hub.docker.com/r/derhenning/tgtg).
 The images are built for Linux on `amd64`, `arm64`, `armv7`, `armv6`, and `i386`.
 
-1. Install Docker and docker-compose
+1. Install Docker
 2. Copy and edit `docker-compose.yml` as described in the
 [Wiki](https://github.com/Der-Henning/tgtg/wiki/Configuration)
-3. Run `docker-compose up -d`
+3. Run `docker compose up -d`
 
 The container automatically creates a volume mounting `\tokens`
 where the app saves the TGTG credentials after login.
@@ -158,7 +158,7 @@ or `python -m tgtg_scanner --help` displays the available commands.
 
 <!-- markdownlint-disable MD013 -->
 ```txt
-usage: scanner [-h] [-v] [-d] [-c config_file] [-l log_file] [-t | -f | -F | -a item_id [item_id ...] | -r item_id [item_id ...] | -R] [-j | -J]
+usage: scanner [-h] [-v] [-d] [-c config_file] [-l log_file] [-t | -f | -F | -a item_id [item_id ...] | -r item_id [item_id ...] | -R] [-j | -J] [--base_url BASE_URL]
 
 Notifications for Too Good To Go
 
@@ -180,6 +180,7 @@ options:
   -R, --remove_all      remove all favorites and exit
   -j, --json            output as plain json
   -J, --json_pretty     output as pretty json
+  --base_url BASE_URL   Overwrite TGTG API URL for testing
 ```
 <!-- markdownlint-enable MD013 -->
 
@@ -199,13 +200,13 @@ You can scrape the data with Prometheus to create and visualize historic data or
 Scrape config:
 
 ```xml
-  - job_name: 'TGTG'
-    scrape_interval: 1m
-    scheme: http
-    metrics_path: /
-    static_configs:
-    - targets:
-      - 'localhost:8000'
+- job_name: 'TGTG'
+  scrape_interval: 1m
+  scheme: http
+  metrics_path: /
+  static_configs:
+  - targets:
+    - 'localhost:8000'
 ```
 
 ## Development
@@ -218,17 +219,27 @@ development container including all required dependencies.
 Alternatively, install all required development environment dependencies, including linting, testing, and building by executing
 
 ```bash
-poetry install
+make install
+```
+
+For developement and testing it is sometimes usefull to trigger TGTG Magic Bag events.
+For this purpose you can run the TGTG dev API proxy server.
+The proxy redirects all requests to the official TGTG API server.
+The responses from the item endpoint are modified by randomizing the amount of available magic bags.
+
+```bash
+make server
 ```
 
 ### Makefile commands
 
-- `make images` builds docker images with tag `tgtg-scanner:latest` and `tgtg-scanner:latest-alpine`
-- `make install` installs development dependencies
-- `make start` is short for `poetry run scanner -d`
-- `make executable` creates a bundled executable in `/dist`
+- `make install` installs development dependencies and pre-commit hooks
+- `make server` starts TGTG dev API proxy server
+- `make start` runs the scanner with debugging and using the API proxy
 - `make test` runs unit tests
-- `make lint` run pre-commit hooks
+- `make lint` run pre-commit hooks including linting and code checks
+- `make executable` creates a bundled executable in `/dist`
+- `make images` builds docker images with tag `tgtg-scanner:latest` and `tgtg-scanner:latest-alpine`
 
 ### Creating new notifiers
 

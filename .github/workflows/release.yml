@@ -9,8 +9,8 @@ on:
   pull_request:
 
 env:
-  PYTHON_VERSION: '3.10'
-  POETRY_VERSION: 1.5.1
+  PYTHON_VERSION: '3.11'
+  POETRY_VERSION: 1.7.1
 
 jobs:
   docker-images:
@@ -33,13 +33,6 @@ jobs:
           context: ./
     steps:
     - uses: actions/checkout@v3
-    - uses: ./.github/actions/setup-poetry-action
-      with:
-        poetry-version: ${{ env.POETRY_VERSION }}
-        python-version: ${{ env.PYTHON_VERSION }}
-        install-dependencies: false
-    - name: Export requirements.txt
-      run: poetry export -f requirements.txt --output requirements.txt
     - uses: docker/metadata-action@v4
       id: meta
       with:
@@ -115,7 +108,7 @@ jobs:
     - name: Upload archive
       uses: actions/upload-artifact@v3
       with:
-        name: releases
+        name: releases-${{github.sha}}
         path: ./${{ steps.filename.outputs.FILENAME }}
     - name: Add archive to release
       uses: softprops/action-gh-release@v1

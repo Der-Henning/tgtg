@@ -4,7 +4,7 @@ from typing import Union
 
 import googlemaps
 
-from tgtg_scanner.models.errors import LocationConfigurationError
+from tgtg_scanner.errors import LocationConfigurationError
 
 log = logging.getLogger("tgtg")
 
@@ -14,8 +14,9 @@ class DistanceTime:
     """
     Dataclass for distance and time.
     """
-    distance: str
-    duration: str
+
+    distance: float
+    duration: float
     travel_mode: str
 
 
@@ -25,7 +26,7 @@ class Location:
     PUBLIC_TRANSPORT_MODE = "transit"
     BIKING_MODE = "bicycling"
 
-    def __init__(self, enabled: bool, api_key: str, origin: str):
+    def __init__(self, enabled: bool = False, api_key: Union[str, None] = None, origin: Union[str, None] = None) -> None:
         """
         Initializes Location class.
         First run flag important only for validating origin address.
@@ -33,21 +34,19 @@ class Location:
         self.enabled = enabled
         self.origin = origin
         if enabled:
-            if not api_key or not origin:
-                raise LocationConfigurationError(
-                    "Location enabled but no API key or origin address given")
+            if api_key is None or self.origin is None:
+                raise LocationConfigurationError("Location enabled but no API key or origin address given")
             try:
                 self.gmaps = googlemaps.Client(key=api_key)
-            except ValueError as exc:
+                if not self._is_address_valid(self.origin):
+                    raise LocationConfigurationError("Invalid origin address")
+            except (ValueError, googlemaps.exceptions.ApiError) as exc:
                 raise LocationConfigurationError(exc) from exc
-            if not self._is_address_valid(self.origin):
-                raise LocationConfigurationError("Invalid origin address")
 
         # cached DistanceTime object for each item_id+mode
         self.distancetime_dict: dict[str, DistanceTime] = {}
 
-    def calculate_distance_time(self, destination: str, travel_mode: str
-                                ) -> Union[DistanceTime, None]:
+    def calculate_distance_time(self, destination: str, travel_mode: str) -> Union[DistanceTime, None]:
         """
         Calculates the distance and time taken to travel from origin to
         destination using the given mode of transportation.
@@ -60,22 +59,21 @@ class Location:
         if not self._is_address_valid(destination):
             return None
 
-        key = f'{destination}_{travel_mode}'
+        key = f"{destination}_{travel_mode}"
 
         # use cached value if available
         if key in self.distancetime_dict:
             return self.distancetime_dict[key]
 
-        log.debug(f"Sending Google Maps API request: "
-                  f"{destination} using {travel_mode} mode")
+        log.debug(f"Sending Google Maps API request: {destination} using {travel_mode} mode")
 
         # calculate distance and time
-        directions = self.gmaps.directions(self.origin, destination,
-                                           mode=travel_mode)
+        directions = self.gmaps.directions(self.origin, destination, mode=travel_mode)
         distance_time = DistanceTime(
-            directions[0]["legs"][0]["distance"]["value"],
-            directions[0]["legs"][0]["duration"]["value"],
-            travel_mode)
+            float(directions[0]["legs"][0]["distance"]["value"]),
+            float(directions[0]["legs"][0]["duration"]["value"]),
+            travel_mode,
+        )
 
         # cache value
         self.distancetime_dict[key] = distance_time

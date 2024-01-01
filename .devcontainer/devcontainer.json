@@ -9,10 +9,10 @@
 			// Update 'VARIANT' to pick a Python version: 3, 3.10, 3.9, 3.8, 3.7, 3.6
 			// Append -bullseye or -buster to pin to an OS version.
 			// Use -bullseye variants on local on arm64/Apple Silicon.
-			"VARIANT": "3.10",
+			"VARIANT": "3.11",
 			// Options
 			// "NODE_VERSION": "lts/*",
-			"POETRY_VERSION": "1.5.1"
+			"POETRY_VERSION": "1.7.1"
 		}
 	},
 	// Set *default* container specific settings.json values on container create.
@@ -22,7 +22,7 @@
 				"python.defaultInterpreterPath": "./.venv/bin/python",
 				"python.terminal.activateEnvironment": true,
 				"python.terminal.activateEnvInCurrentTerminal": true,
-				"editor.rulers": [79],
+				"editor.rulers": [130],
 				"python.testing.pytestArgs": [
 					"tests"
 				],
@@ -32,6 +32,7 @@
 			// Add the IDs of extensions you want installed when the container is created.
 			"extensions": [
 				"ms-python.python",
+				"ms-toolsai.jupyter",
 				"GitHub.vscode-pull-request-github"
 			]
 		}
@@ -41,7 +42,7 @@
 		8000
 	],
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "poetry install && poetry run pre-commit install --install-hooks",
+	"postCreateCommand": "make clean && make install",
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "vscode",
 	"features": {

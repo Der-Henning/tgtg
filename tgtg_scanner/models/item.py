@@ -7,42 +7,61 @@ from typing import Any, Union
 import humanize
 import requests
 
-from tgtg_scanner.models.errors import MaskConfigurationError
+from tgtg_scanner.errors import MaskConfigurationError
 from tgtg_scanner.models.location import DistanceTime, Location
 
-ATTRS = ["item_id", "items_available", "display_name", "description",
-         "price", "currency", "pickupdate", "favorite", "rating",
-         "buffet", "item_category", "item_name", "packaging_option",
-         "pickup_location", "store_name", "item_logo", "item_cover",
-         "scanned_on", "item_logo_bytes", "item_cover_bytes", "link",
-         "distance_walking", "distance_driving", "distance_transit",
-         "distance_biking", "duration_walking", "duration_driving",
-         "duration_transit", "duration_biking"]
+ATTRS = [
+    "item_id",
+    "items_available",
+    "display_name",
+    "description",
+    "price",
+    "currency",
+    "pickupdate",
+    "favorite",
+    "rating",
+    "buffet",
+    "item_category",
+    "item_name",
+    "packaging_option",
+    "pickup_location",
+    "store_name",
+    "item_logo",
+    "item_cover",
+    "scanned_on",
+    "item_logo_bytes",
+    "item_cover_bytes",
+    "link",
+    "distance_walking",
+    "distance_driving",
+    "distance_transit",
+    "distance_biking",
+    "duration_walking",
+    "duration_driving",
+    "duration_transit",
+    "duration_biking",
+]
 
-log = logging.getLogger('tgtg')
+log = logging.getLogger("tgtg")
 
 
-class Item():
+class Item:
     """
     Takes the raw data from the TGTG API and
     returns well formated data for notifications.
     """
 
-    def __init__(self, data: dict, location: Location = None):
+    def __init__(self, data: dict, location: Union[Location, None] = None):
         self.items_available = data.get("items_available", 0)
         self.display_name = data.get("display_name", "-")
         self.favorite = "Yes" if data.get("favorite", False) else "No"
-        self.pickup_interval_start = data.get(
-            "pickup_interval", {}).get("start", None)
-        self.pickup_interval_end = data.get(
-            "pickup_interval", {}).get("end", None)
-        self.pickup_location = data.get("pickup_location", {}).get(
-            "address", {}).get("address_line", "-")
+        self.pickup_interval_start = data.get("pickup_interval", {}).get("start", None)
+        self.pickup_interval_end = data.get("pickup_interval", {}).get("end", None)
+        self.pickup_location = data.get("pickup_location", {}).get("address", {}).get("address_line", "-")
 
         item = data.get("item", {})
         self.item_id = item.get("item_id")
-        self.rating = item.get("average_overall_rating", {}).get(
-            "average_overall_rating", None)
+        self.rating = item.get("average_overall_rating", {}).get("average_overall_rating", None)
         self.rating = "-" if not self.rating else f"{self.rating:.1f}"
         self.packaging_option = item.get("packaging_option", "-")
         self.item_name = item.get("name", "-")
@@ -50,17 +69,17 @@ class Item():
         self.item_category = item.get("item_category", "-")
         self.description = item.get("description", "-")
         price_including_taxes = item.get("price_including_taxes", {})
-        self.price = (price_including_taxes.get("minor_units", 0) /
-                      10**price_including_taxes.get("decimals", 0))
+        self.price = price_including_taxes.get("minor_units", 0) / 10 ** price_including_taxes.get("decimals", 0)
         self.price = f"{self.price:.2f}"
         self.currency = item.get("price_including_taxes", {}).get("code", "-")
         self.item_logo = item.get("logo_picture", {}).get(
             "current_url",
-            "https://tgtg-mkt-cms-prod.s3.eu-west-1.amazonaws.com/"
-            "13512/TGTG_Icon_White_Cirle_1988x1988px_RGB.png")
+            "https://tgtg-mkt-cms-prod.s3.eu-west-1.amazonaws.com/13512/TGTG_Icon_White_Cirle_1988x1988px_RGB.png",
+        )
         self.item_cover = item.get("cover_picture", {}).get(
             "current_url",
-            "https://images.tgtg.ninja/standard_images/GENERAL/other1.jpg")
+            "https://images.tgtg.ninja/standard_images/GENERAL/other1.jpg",
+        )
 
         store = data.get("store", {})
         self.store_name = store.get("name", "-")
@@ -89,21 +108,19 @@ class Item():
                 raise MaskConfigurationError(match.group(0))
 
     @staticmethod
-    def get_image(url: str) -> bytes:
+    def get_image(url: str) -> Union[bytes, None]:
         response = requests.get(url)
         if not response.status_code == HTTPStatus.OK:
-            log.warning("Get Image Error: %s - %s",
-                        response.status_code,
-                        response.content)
+            log.warning("Get Image Error: %s - %s", response.status_code, response.content)
             return None
         return response.content
 
     @property
-    def item_logo_bytes(self) -> bytes:
+    def item_logo_bytes(self) -> Union[bytes, None]:
         return self.get_image(self.item_logo)
 
     @property
-    def item_cover_bytes(self) -> bytes:
+    def item_cover_bytes(self) -> Union[bytes, None]:
         return self.get_image(self.item_cover)
 
     @property
@@ -138,8 +155,7 @@ class Item():
             now = datetime.datetime.now()
             pfr = self._datetimeparse(self.pickup_interval_start)
             pto = self._datetimeparse(self.pickup_interval_end)
-            prange = (f"{pfr.hour:02d}:{pfr.minute:02d} - "
-                      f"{pto.hour:02d}:{pto.minute:02d}")
+            prange = f"{pfr.hour:02d}:{pfr.minute:02d} - {pto.hour:02d}:{pto.minute:02d}"
             tommorow = now + datetime.timedelta(days=1)
             if now.date() == pfr.date():
                 return f"{humanize.naturalday(now)}, {prange}"
@@ -148,26 +164,26 @@ class Item():
             return f"{pfr.day}/{pfr.month}, {prange}"
         return "-"
 
-    def _get_distance_time(self, travel_mode: str
-                           ) -> Union[DistanceTime, None]:
+    def _get_distance_time(self, travel_mode: str) -> Union[DistanceTime, None]:
         if self.location is None:
             return None
-        return self.location.calculate_distance_time(
-            self.pickup_location, travel_mode)
+        return self.location.calculate_distance_time(self.pickup_location, travel_mode)
 
     def _get_distance(self, travel_mode: str) -> str:
         distance_time = self._get_distance_time(travel_mode)
         if distance_time is None:
-            return 'n/a'
+            return "n/a"
         return f"{distance_time.distance / 1000:.1f} km"
 
     def _get_duration(self, travel_mode: str) -> str:
         distance_time = self._get_distance_time(travel_mode)
         if distance_time is None:
-            return 'n/a'
+            return "n/a"
         return humanize.precisedelta(
             datetime.timedelta(seconds=distance_time.duration),
-            minimum_unit="minutes", format="%0.0f")
+            minimum_unit="minutes",
+            format="%0.0f",
+        )
 
     def __getattribute__(self, __name: str) -> Any:
         try:
