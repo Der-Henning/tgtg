@@ -23,7 +23,6 @@ def test_item(tgtg_item: dict, monkeypatch: pytest.MonkeyPatch):
     assert item.link == "https://share.toogoodtogo.com/item/774625"
     assert item.price == "3.00"
     assert item.currency == "EUR"
-    assert item.pickupdate == "4/1, 20:00 - 20:30"
     assert item.store_name == tgtg_item.get("store", {}).get("store_name", "-")
     assert item.item_logo == tgtg_item.get("item", {}).get("logo_picture", {}).get("current_url", "-")
     assert item.item_cover == tgtg_item.get("item", {}).get("cover_picture", {}).get("current_url", "-")

@@ -100,7 +100,7 @@ def tgtg_item():
         "purchase_end": "2024-01-04T19:30:00Z",
         "sold_out_at": "2024-01-04T13:00:43Z",
         "store": {
-            "branch": "Hamburg \u2013 Europapassage 2.OG",
+            "branch": "Hamburg – Europapassage 2.OG",
             "cover_picture": {
                 "current_url": "https://images.tgtg.ninja/standard_images/Chinese/korean-food-1699781_1280.jpg",
                 "is_automatically_created": False,
