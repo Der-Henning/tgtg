@@ -68,10 +68,10 @@ class Item:
         self.buffet = "Yes" if item.get("buffet", False) else "No"
         self.item_category = item.get("item_category", "-")
         self.description = item.get("description", "-")
-        price_including_taxes = item.get("price_including_taxes", {})
-        self.price = price_including_taxes.get("minor_units", 0) / 10 ** price_including_taxes.get("decimals", 0)
-        self.price = f"{self.price:.2f}"
-        self.currency = item.get("price_including_taxes", {}).get("code", "-")
+        item_price = item.get("item_price", {})
+        price = item_price.get("minor_units", 0) / 10 ** item_price.get("decimals", 0)
+        self.price = f"{price:.2f}"
+        self.currency = item_price.get("code", "-")
         self.item_logo = item.get("logo_picture", {}).get(
             "current_url",
             "https://tgtg-mkt-cms-prod.s3.eu-west-1.amazonaws.com/13512/TGTG_Icon_White_Cirle_1988x1988px_RGB.png",
@@ -82,7 +82,7 @@ class Item:
         )
 
         store = data.get("store", {})
-        self.store_name = store.get("name", "-")
+        self.store_name = store.get("store_name", "-")
 
         self.scanned_on = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.location = location
