@@ -28,7 +28,7 @@ def test_item(tgtg_item: dict):
 @pytest.fixture
 def tgtg_item():
     return {
-        "display_name": "Chutney Indian Food - Hamburg \u2013 Europapassage 2.OG",
+        "display_name": "Chutney Indian Food - Hamburg – Europapassage 2.OG",
         "distance": 6025.8258209576325,
         "favorite": False,
         "in_sales_window": True,
@@ -58,7 +58,7 @@ def tgtg_item():
                 "is_automatically_created": False,
                 "picture_id": "282115",
             },
-            "description": "Rette eine \u00dcberraschungst\u00fcte mit leckerem indischen Essen.",
+            "description": "Rette eine Überraschungstüte mit leckerem indischen Essen.",
             "diet_categories": [],
             "favorite_count": 0,
             "food_handling_instructions": "",

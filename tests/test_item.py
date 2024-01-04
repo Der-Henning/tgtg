@@ -1,3 +1,5 @@
+import time
+
 import pytest
 
 from tgtg_scanner.models.item import Item
@@ -5,6 +7,7 @@ from tgtg_scanner.models.item import Item
 
 def test_item(tgtg_item: dict, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("TZ", "Europe/Berlin")
+    time.tzset()
     item = Item(tgtg_item)
     assert item.item_id == tgtg_item.get("item", {}).get("item_id")
     assert item.display_name == tgtg_item.get("display_name")
