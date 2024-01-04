@@ -27,6 +27,7 @@ class Ntfy(WebHook):
         self.click = config.ntfy.click
         self.username = config.ntfy.username
         self.password = config.ntfy.password
+        self.token = config.ntfy.token
         self.timeout = config.ntfy.timeout
         self.cron = config.ntfy.cron
         self.headers = dict()
@@ -42,8 +43,13 @@ class Ntfy(WebHook):
             if self.username is not None and self.password is not None:
                 self.auth = HTTPBasicAuth(self.username, self.password)
                 log.debug("Using basic auth with user '%s' for Ntfy", self.username)
-            elif (self.username or self.password) is not None:
-                log.warning("Username or Password missing for Ntfy authentication, defaulting to no auth")
+            elif self.token is not None:
+                self.headers = {
+                    "Authorization": "Bearer " + self.token,
+                }
+                log.debug("Using access token for Ntfy")
+            else:
+                log.warning("Username and Password or Access Token missing for Ntfy authentication, defaulting to no auth")
             try:
                 Item.check_mask(self.title)
                 Item.check_mask(self.message)
@@ -59,7 +65,7 @@ class Ntfy(WebHook):
             message = item.unmask(self.message).encode("utf-8")
             tags = item.unmask(self.tags).encode("utf-8")
             click = item.unmask(self.click).encode("utf-8")
-            self.headers = {
+            self.headers |= {
                 "X-Title": title,
                 "X-Message": message,
                 "X-Priority": self.priority,
