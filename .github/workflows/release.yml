@@ -5,7 +5,7 @@ on:
     branches:
     - main
     tags:
-    - v*
+    - ^v[0-9]+.[0-9]+.[0-9]+$
   pull_request:
 
 env:
@@ -59,6 +59,18 @@ jobs:
         push: ${{ github.event_name == 'push' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+    - uses: iamazeem/substitute-action@v1
+      env:
+        VERSION: ${{ steps.meta.outputs.version }}
+        MAJOR: ${{ steps.meta.outputs.major }}
+        MINIOR: ${{ steps.meta.outputs.minor }}
+      with:
+        variables: |
+          VERSION
+          MAJOR
+          MINOR
+        input-files: |
+          ./docker/DOCKER_README.md
     - uses: peter-evans/dockerhub-description@v3
       if: github.event_name == 'push'
       with:

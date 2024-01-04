@@ -12,7 +12,8 @@ class Metrics:
 
     def __init__(self, port: int = 8000):
         self.port = port
-        self.item_count = Gauge("tgtg_item_count", "Currently available bags", ["item_id", "display_name"])
+        self.item_count = Gauge("tgtg_item_count", "Currently available Magic Bags", ["item_id", "display_name"])
+        self.item_price = Gauge("tgtg_item_price", "Price for a Magic Bag", ["item_id", "display_name"])
         self.get_favorites_errors = Counter(
             "tgtg_get_favorites_errors",
             "Count of request errors fetching tgtg favorites",
