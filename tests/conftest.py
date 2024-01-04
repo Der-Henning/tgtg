@@ -28,7 +28,7 @@ def test_item(tgtg_item: dict):
 @pytest.fixture
 def tgtg_item():
     return {
-        "display_name": "Chutney Indian Food - Hamburg – Europapassage 2.OG",
+        "display_name": "Chutney Indian Food - Hamburg - Europapassage 2.OG",
         "distance": 6025.8258209576325,
         "favorite": False,
         "in_sales_window": True,
@@ -100,7 +100,7 @@ def tgtg_item():
         "purchase_end": "2024-01-04T19:30:00Z",
         "sold_out_at": "2024-01-04T13:00:43Z",
         "store": {
-            "branch": "Hamburg – Europapassage 2.OG",
+            "branch": "Hamburg - Europapassage 2.OG",
             "cover_picture": {
                 "current_url": "https://images.tgtg.ninja/standard_images/Chinese/korean-food-1699781_1280.jpg",
                 "is_automatically_created": False,
