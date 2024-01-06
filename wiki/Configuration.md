@@ -27,8 +27,9 @@ Variables with the `locale` property are affected by the `locale` option and ret
 | items_available | number of available items | `2` |
 | display_name | name of the item as in the APP | `Chutney Indian Food - Hamburg – Europapassage 2.OG` |
 | description | item description | `Rette eine Magic Bag mit leckerem indischen Essen.` |
-| price | item price including taxes | `3.20` |
-| currency |  | `EUR` |
+| price | item price | `3.20` |
+| value | item value | `9.60` |
+| currency | price/value currency | `EUR` |
 | pickupdate | formatted string | `tomorrow, 18:00 - 21:50` | YES |
 | favorite | is favorite | `YES` or `NO` |
 | rating | overall rating | `3.3` |

@@ -16,6 +16,7 @@ ATTRS = [
     "display_name",
     "description",
     "price",
+    "value",
     "currency",
     "pickupdate",
     "favorite",
@@ -69,8 +70,11 @@ class Item:
         self.item_category = item.get("item_category", "-")
         self.description = item.get("description", "-")
         item_price = item.get("item_price", {})
+        item_value = item.get("item_value", {})
         price = item_price.get("minor_units", 0) / 10 ** item_price.get("decimals", 0)
+        value = item_value.get("minor_units", 0) / 10 ** item_value.get("decimals", 0)
         self.price = f"{price:.2f}"
+        self.value = f"{value:.2f}"
         self.currency = item_price.get("code", "-")
         self.item_logo = item.get("logo_picture", {}).get(
             "current_url",
