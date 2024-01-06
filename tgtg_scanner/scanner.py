@@ -149,6 +149,10 @@ class Scanner:
                 self._send_messages(item)
                 self.metrics.send_notifications.labels(item.item_id, item.display_name).inc()
         self.metrics.item_count.labels(item.item_id, item.display_name).set(item.items_available)
+        try:
+            self.metrics.item_price.labels(item.item_id, item.display_name).set(float(item.price))
+        except ValueError:
+            pass
         self.state[item.item_id] = item
 
     def _send_messages(self, item: Item) -> None:

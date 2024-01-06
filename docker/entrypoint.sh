@@ -3,7 +3,6 @@ set -e
 
 echo "Updating UID and GID to ${UID}:${GID}"
 usermod -u ${UID} tgtg && groupmod -g ${GID} tgtg
-chown -R ${UID}:${GID} /tokens /logs
+chown -R ${UID}:${GID} ${TGTG_TOKEN_PATH} ${LOGS_PATH}
 
-echo "Starting tgtg"
 exec runuser -u tgtg -- "$@"
