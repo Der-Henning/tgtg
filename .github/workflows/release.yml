@@ -59,16 +59,23 @@ jobs:
         push: ${{ github.event_name == 'push' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+    - name: Extract Major and Minor Version
+      if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+      run: |
+        TAG_NAME=${GITHUB_REF#refs/tags/}
+        echo "Full Tag: $TAG_NAME"
+        MAJOR=$(echo $TAG_NAME | cut -d. -f1)
+        MINOR=$(echo $TAG_NAME | cut -d. -f1,2)
+        echo "FULL_VERSION=$TAG_NAME" >> $GITHUB_ENV
+        echo "MAJOR_VERSION=$MAJOR" >> $GITHUB_ENV
+        echo "MINOR_VERSION=$MINOR" >> $GITHUB_ENV
     - uses: iamazeem/substitute-action@v1
-      env:
-        VERSION: ${{ steps.meta.outputs.version }}
-        MAJOR: ${{ steps.meta.outputs.major }}
-        MINIOR: ${{ steps.meta.outputs.minor }}
+      if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
       with:
         variables: |
-          VERSION
-          MAJOR
-          MINOR
+          FULL_VERSION
+          MAJOR_VERSION
+          MINOR_VERSION
         input-files: |
           ./docker/DOCKER_README.md
     - uses: peter-evans/dockerhub-description@v3
