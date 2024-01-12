@@ -23,9 +23,7 @@
 				"python.terminal.activateEnvironment": true,
 				"python.terminal.activateEnvInCurrentTerminal": true,
 				"editor.rulers": [130],
-				"python.testing.pytestArgs": [
-					"tests"
-				],
+				"python.testing.pytestArgs": ["tests"],
 				"python.testing.unittestEnabled": false,
 				"python.testing.pytestEnabled": true
 			},
@@ -33,7 +31,8 @@
 			"extensions": [
 				"ms-python.python",
 				"ms-toolsai.jupyter",
-				"GitHub.vscode-pull-request-github"
+				"GitHub.vscode-pull-request-github",
+				"ms-azuretools.vscode-docker"
 			]
 		}
 	},

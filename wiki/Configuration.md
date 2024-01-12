@@ -192,6 +192,7 @@ For details on the service URL configuration see <https://github.com/caronc/appr
 | Click | NTFY_CLICK | URL to open on click | `${{link}}` | | YES |
 | Username | NTFY_USERNAME | auth username |
 | Password | NTFY_PASSWORD | auth password |
+| Token | NTFY_TOKEN | auth token, only used if username and password are empty |
 | Timeout | NTFY_TIMEOUT | timeout for Ntfy requests | 60 |
 | Cron | NTFY_CRON | enable notification only on schedule | `* * * * *` |
 
