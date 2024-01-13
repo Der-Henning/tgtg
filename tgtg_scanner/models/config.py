@@ -322,6 +322,7 @@ class NtfyConfig(NotifierConfig):
     click: str = "${{link}}"
     username: Union[str, None] = None
     password: Union[str, None] = None
+    token: Union[str, None] = None
     timeout: int = 60
 
     def _read_ini(self, parser: configparser.ConfigParser):
@@ -337,6 +338,7 @@ class NtfyConfig(NotifierConfig):
         self._ini_get(parser, "NTFY", "Click", "click")
         self._ini_get(parser, "NTFY", "Username", "username")
         self._ini_get(parser, "NTFY", "Password", "password")
+        self._ini_get(parser, "NTFY", "Token", "token")
         self._ini_get_int(parser, "NTFY", "Timeout", "timeout")
 
     def _read_env(self):
@@ -352,6 +354,7 @@ class NtfyConfig(NotifierConfig):
         self._env_get("NTFY_CLICK", "click")
         self._env_get("NTFY_USERNAME", "username")
         self._env_get("NTFY_PASSWORD", "password")
+        self._env_get("NTFY_TOKEN", "token")
         self._env_get_int("NTFY_TIMEOUT", "timeout")
 
 

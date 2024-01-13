@@ -133,7 +133,7 @@ class Telegram(Notifier):
         await self.application.shutdown()
 
     def start(self) -> None:
-        if not self.chat_ids:
+        if self.enabled and not self.chat_ids:
             asyncio.run(self._get_chat_ids())
         super().start()
 
