@@ -56,7 +56,7 @@ class SMTP(Notifier):
                     not isinstance(value, (list, str)) for value in item_recipients.values()
                 ):
                     raise SMTPConfigurationError("Recipients per Item is not a valid dictionary")
-                self.item_recipients = item_recipients
+                self.item_recipients = {k: v if isinstance(v, list) else [v] for k, v in ite,_recipients.items()}
             else:
                 self.item_recipients = {}
 
