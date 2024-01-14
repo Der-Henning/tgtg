@@ -135,9 +135,9 @@ idna==3.6 ; python_version >= "3.9" and python_version < "3.13" \
 importlib-metadata==7.0.1 ; python_version >= "3.9" and python_version < "3.10" \
     --hash=sha256:4805911c3a4ec7c3966410053e9ec6a1fecd629117df5adee56dfc9432a1081e \
     --hash=sha256:f238736bb06590ae52ac1fab06a3a9ef1d8dce2b7a35b5ab329371d6c8f5d2cc
-markdown==3.5.1 ; python_version >= "3.9" and python_version < "3.13" \
-    --hash=sha256:5874b47d4ee3f0b14d764324d2c94c03ea66bee56f2d929da9f2508d65e722dc \
-    --hash=sha256:b65d7beb248dc22f2e8a31fb706d93798093c308dc1aba295aedeb9d41a813bd
+markdown==3.5.2 ; python_version >= "3.9" and python_version < "3.13" \
+    --hash=sha256:d43323865d89fc0cb9b20c75fc8ad313af307cc087e84b657d9eec768eddeadd \
+    --hash=sha256:e1ac7b3dc550ee80e602e71c1d168002f062e49f1b11e26a36264dafd4df2ef8
 oauthlib==3.2.2 ; python_version >= "3.9" and python_version < "3.13" \
     --hash=sha256:8139f29aac13e25d502680e9e19963e83f16838d48a0d71c287fe40e7067fbca \
     --hash=sha256:9859c40929662bec5d64f34d01c99e093149682a3f38915dc0655d5a633dd918
