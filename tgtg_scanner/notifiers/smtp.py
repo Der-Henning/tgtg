@@ -46,6 +46,21 @@ class SMTP(Notifier):
                 self._connect()
             except Exception as exc:
                 raise SMTPConfigurationError(exc) from exc
+            if config.smtp.recipients_per_item is not None:
+                item_recipients = None
+                try:
+                    item_recipients = json.loads(config.smtp.recipients_per_item)
+                    if not isinstance(item_recipients, dict) or any(
+                        not isinstance(value, (list, str)) for value in item_recipients.values()
+                    ):
+                        raise SMTPConfigurationError()
+                # Catches both json.decoder.JSONDecodeError at json.loads()
+                # and SMTPConfigurationError during key-value validation of item-recipients pairs inside
+                except Exception:
+                    raise SMTPConfigurationError("Recipients per Item is not a valid dictionary")
+                self.item_recipients = item_recipients
+            else:
+                self.item_recipients = {}
 
     def __del__(self):
         """Closes SMTP connection when shutdown"""
@@ -90,36 +105,23 @@ class SMTP(Notifier):
         message = MIMEMultipart("alternative")
         message["From"] = self.sender
 
-        # Contains either the main recipient or recipient(s) that should be
-        # notified for the specific item
-        recipients = []
-        item = str(item_id)
+        # Contains either the main recipient(s) or recipient(s) that should be
+        # notified for the specific item. First, initalize with main recipient(s)
+        recipients = self.recipients
 
         # Determine recipient(s) based on item_id
-        if self.recipients_per_item:
-            try:
-                # If JSON is not valid or doesn't contain an address for the
-                # given item, the main recipient(s) will be notified
-                data = json.loads(self.recipients_per_item)
-
-                if isinstance(data, dict):
-                    if item in data:
-                        # Find addresses based on item to be notified
-                        for address in data[item]:
-                            recipients.append(address)
-                    else:
-                        recipients = self.recipients
+        if self.item_recipients:
+            item = str(item_id)
+            if item in self.item_recipients:
+                # Find addresses based on item to be notified
+                recipients = []
+                recipients_for_item = self.item_recipients[item]
+                if isinstance(recipients_for_item, list):
+                    for address in recipients_for_item:
+                        recipients.append(address)
                 else:
-                    recipients = self.recipients
-
-            except Exception as e:
-                log = logging.getLogger("tgtg")
-                log.warning(f"Error parsing recipients JSON ({e}). Falling back to main recipient.")
-
-                # Fallback to main recipient(s)
-                recipients = self.recipients
-        else:
-            recipients = self.recipients
+                    address = recipients_for_item
+                    recipients.append(address)
 
         message["To"] = ", ".join(recipients)
         message["Subject"] = subject
