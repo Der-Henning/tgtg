@@ -31,6 +31,7 @@ class SMTP(Notifier):
         self.sender = config.smtp.sender
         self.recipients = config.smtp.recipients
         self.recipients_per_item = config.smtp.recipients_per_item
+        self.item_recipients: dict[str, list[str]] = {}
         self.subject = config.smtp.subject
         self.body = config.smtp.body
         self.cron = config.smtp.cron
@@ -56,9 +57,7 @@ class SMTP(Notifier):
                     not isinstance(value, (list, str)) for value in item_recipients.values()
                 ):
                     raise SMTPConfigurationError("Recipients per Item is not a valid dictionary")
-                self.item_recipients = {k: v if isinstance(v, list) else [v] for k, v in ite,_recipients.items()}
-            else:
-                self.item_recipients = {}
+                self.item_recipients = {k: v if isinstance(v, list) else [v] for k, v in item_recipients.items()}
 
     def __del__(self):
         """Closes SMTP connection when shutdown"""
@@ -105,11 +104,7 @@ class SMTP(Notifier):
 
         # Contains either the main recipient(s) or recipient(s) that should be
         # notified for the specific item. First, initalize with main recipient(s)
-        recipients = self.recipients
-
-        # Determine recipient(s) based on item_id
-        if self.item_recipients:
-            recipients = self.item_recipients.get(str(item_id), self.recipients)
+        recipients = self.item_recipients.get(str(item_id), self.recipients)
 
         message["To"] = ", ".join(recipients)
         message["Subject"] = subject
