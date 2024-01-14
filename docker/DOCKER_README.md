@@ -11,8 +11,8 @@ Readme, source, and documentation on [https://github.com/Der-Henning/tgtg](https
 
 - [`edge`](https://github.com/Der-Henning/tgtg/blob/main/docker/Dockerfile)
 - [`edge-alpine`](https://github.com/Der-Henning/tgtg/blob/main/docker/Dockerfile.alpine)
-- [`${MAJOR_VERSION}`, `${MINIOR_VERSION}`, `${FULL_VERSION}`, `latest`](https://github.com/Der-Henning/tgtg/blob/${FULL_VERSION}/docker/Dockerfile)
-- [`${MAJOR_VERSION}-alpine`, `${MINIOR_VERSION}-alpine`, `${FULL_VERSION}-alpine`, `latest-alpine`](https://github.com/Der-Henning/tgtg/blob/${FULL_VERSION}/docker/Dockerfile.alpine)
+- [`${MAJOR_VERSION}`, `${MINOR_VERSION}`, `${FULL_VERSION}`, `latest`](https://github.com/Der-Henning/tgtg/blob/${FULL_VERSION}/docker/Dockerfile)
+- [`${MAJOR_VERSION}-alpine`, `${MINOR_VERSION}-alpine`, `${FULL_VERSION}-alpine`, `latest-alpine`](https://github.com/Der-Henning/tgtg/blob/${FULL_VERSION}/docker/Dockerfile.alpine)
 
 <!-- markdownlint-disable-next-line MD025 -->
 # Quick Start
