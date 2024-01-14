@@ -30,7 +30,6 @@ class SMTP(Notifier):
         self.password = config.smtp.password
         self.sender = config.smtp.sender
         self.recipients = config.smtp.recipients
-        self.recipients_per_item = config.smtp.recipients_per_item
         self.item_recipients: dict[str, list[str]] = {}
         self.subject = config.smtp.subject
         self.body = config.smtp.body
