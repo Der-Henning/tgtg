@@ -244,6 +244,7 @@ class SMTPConfig(NotifierConfig):
     use_ssl: bool = False
     sender: Union[str, None] = None
     recipients: list[str] = field(default_factory=list)
+    recipients_per_item: Union[str, None] = None
     subject: str = "New Magic Bags"
     body: str = "<b>${{display_name}}</b> </br>New Amount: ${{items_available}}"
 
@@ -261,6 +262,7 @@ class SMTPConfig(NotifierConfig):
             log.warning(DEPRECIATION_WARNING.format("[SMTP] Recipient", "Recipients"))
         self._ini_get_list(parser, "SMTP", "Recipient", "recipients")  # legacy support
         self._ini_get_list(parser, "SMTP", "Recipients", "recipients")
+        self._ini_get(parser, "SMTP", "RecipientsPerItem", "recipients_per_item")
         self._ini_get(parser, "SMTP", "Subject", "subject")
         self._ini_get(parser, "SMTP", "Body", "body")
 
@@ -278,6 +280,7 @@ class SMTPConfig(NotifierConfig):
             log.warning(DEPRECIATION_WARNING.format("SMTP_RECIPIENT", "SMTP_RECIPIENTS"))
         self._env_get_list("SMTP_RECIPIENT", "recipients")  # legacy support
         self._env_get_list("SMTP_RECIPIENTS", "recipients")
+        self._env_get("SMTP_RECIPIENTS_PER_ITEM", "recipients_per_item")
         self._env_get("SMTP_SUBJECT", "subject")
         self._env_get("SMTP_BODY", "body")
 
