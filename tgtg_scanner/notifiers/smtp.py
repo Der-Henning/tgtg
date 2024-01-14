@@ -109,17 +109,7 @@ class SMTP(Notifier):
 
         # Determine recipient(s) based on item_id
         if self.item_recipients:
-            item = str(item_id)
-            if item in self.item_recipients:
-                # Find addresses based on item to be notified
-                recipients = []
-                recipients_for_item = self.item_recipients[item]
-                if isinstance(recipients_for_item, list):
-                    for address in recipients_for_item:
-                        recipients.append(address)
-                else:
-                    address = recipients_for_item
-                    recipients.append(address)
+            recipients = self.item_recipients.get(str(item_id), self.recipients)
 
         message["To"] = ", ".join(recipients)
         message["Subject"] = subject
