@@ -50,13 +50,11 @@ class SMTP(Notifier):
                 item_recipients = None
                 try:
                     item_recipients = json.loads(config.smtp.recipients_per_item)
-                    if not isinstance(item_recipients, dict) or any(
-                        not isinstance(value, (list, str)) for value in item_recipients.values()
-                    ):
-                        raise SMTPConfigurationError()
-                # Catches both json.decoder.JSONDecodeError at json.loads()
-                # and SMTPConfigurationError during key-value validation of item-recipients pairs inside
-                except Exception:
+                except json.decoder.JSONDecodeError:
+                    raise SMTPConfigurationError("Recipients per Item is not a valid dictionary")
+                if not isinstance(item_recipients, dict) or any(
+                    not isinstance(value, (list, str)) for value in item_recipients.values()
+                ):
                     raise SMTPConfigurationError("Recipients per Item is not a valid dictionary")
                 self.item_recipients = item_recipients
             else:
