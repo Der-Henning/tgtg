@@ -37,7 +37,6 @@ ipykernel = "^6.25.1"
 notebook = "^7.0.6"
 
 [tool.poetry.group.test.dependencies]
-poetry-plugin-export = "^1.6.0"
 pre-commit = "^3.3.3"
 pytest = "^7.4.0"
 pytest-cov = "^4.1.0"
