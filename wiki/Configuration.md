@@ -123,6 +123,7 @@ You can combine multiple crons as semicolon separated list.
 | Password | SMTP_PASSWORD | login password |
 | Sender | SMTP_SENDER | email sender |
 | Recipients | SMTP_RECIPIENTS | email recipients | | YES |
+| RecipientsPerItem | SMTP_RECIPIENTS | email recipients per item as JSON | | |
 | Subject | SMTP_SUBJECT | email subject | `New Magic Bags` | | YES |
 | Body | SMTP_BODY | email html body | `<b>${{display_name}}</b> </br> New Amount: ${{items_available}}` | | YES |
 | Cron | SMTP_CRON | enable notification only on schedule | `* * * * *` |
