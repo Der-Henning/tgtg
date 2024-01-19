@@ -32,10 +32,6 @@ requests = "^2.31.0"
 [tool.poetry.group.build.dependencies]
 pyinstaller = "^6.3.0"
 
-[tool.poetry.group.dev.dependencies]
-ipykernel = "^6.25.1"
-notebook = "^7.0.6"
-
 [tool.poetry.group.test.dependencies]
 pre-commit = "^3.3.3"
 pytest = "^7.4.0"
