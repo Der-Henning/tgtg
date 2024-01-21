@@ -209,22 +209,22 @@ class PushSaferConfig(NotifierConfig):
         self._ini_get(parser, "PUSHSAFER", "DeviceID", "device_id")
 
     def _read_env(self):
-        self._env_get_boolean("PUSHSAFER", "enabled")
-        self._env_get_boolean("PUSH_SAFER", "enabled")
         if environ.get("PUSH_SAFER", None):
             log.warning(DEPRECIATION_WARNING.format("PUSH_SAFER", "PUSHSAFER"))
-        self._env_get_cron("PUSHSAFER_CRON", "cron")
-        self._env_get_cron("PUSH_SAFER_CRON", "cron")
+        self._env_get_boolean("PUSH_SAFER", "enabled")
+        self._env_get_boolean("PUSHSAFER", "enabled")
         if environ.get("PUSH_SAFER", None):
             log.warning(DEPRECIATION_WARNING.format("PUSH_SAFER_CRON", "PUSHSAFER_CRON"))
-        self._env_get("PUSHSAFER_KEY", "key")
-        self._env_get("PUSH_SAFER_KEY", "key")
+        self._env_get_cron("PUSH_SAFER_CRON", "cron")
+        self._env_get_cron("PUSHSAFER_CRON", "cron")
         if environ.get("PUSH_SAFER", None):
             log.warning(DEPRECIATION_WARNING.format("PUSH_SAFER_KEY", "PUSHSAFER_KEY"))
-        self._env_get("PUSHSAFER_DEVICE_ID", "device_id")
-        self._env_get("PUSH_SAFER_DEVICE_ID", "device_id")
+        self._env_get("PUSH_SAFER_KEY", "key")
+        self._env_get("PUSHSAFER_KEY", "key")
         if environ.get("PUSH_SAFER", None):
             log.warning(DEPRECIATION_WARNING.format("PUSH_SAFER_DEVICE_ID", "PUSHSAFER_DEVICE_ID"))
+        self._env_get("PUSH_SAFER_DEVICE_ID", "device_id")
+        self._env_get("PUSHSAFER_DEVICE_ID", "device_id")
 
 
 @dataclass
