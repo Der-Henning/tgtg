@@ -132,10 +132,10 @@ You can combine multiple crons as semicolon separated list.
 
 | config.ini | environment | description | default | required if enabled | variables |
 |------------|-------------|-------------|---------|:-------------------:|:---------:|
-| Enabled | PUSH_SAFER | enable Pushsafer notifications | `false` |
-| Key | PUSH_SAFER_KEY | Pushsafer API key | | YES |
-| DeviceID | PUSH_SAFER_DEVICE_ID | Pushsafer device ID | | YES |
-| Cron | PUSH_SAFER_CRON | enable notification only on schedule | `* * * * *` |
+| Enabled | PUSHSAFER | enable Pushsafer notifications | `false` |
+| Key | PUSHSAFER_KEY | Pushsafer API key | | YES |
+| DeviceID | PUSHSAFER_DEVICE_ID | Pushsafer device ID | | YES |
+| Cron | PUSHSAFER_CRON | enable notification only on schedule | `* * * * *` |
 
 ### [IFTTT] / IFTTT Notifier
 
