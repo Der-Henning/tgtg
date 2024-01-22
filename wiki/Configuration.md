@@ -123,6 +123,7 @@ You can combine multiple crons as semicolon separated list.
 | Password | SMTP_PASSWORD | login password |
 | Sender | SMTP_SENDER | email sender |
 | Recipients | SMTP_RECIPIENTS | email recipients | | YES |
+| RecipientsPerItem | SMTP_RECIPIENTS_PER_ITEM | email recipients per item as JSON `{"ItemId_1": ["mail@example.com", ...], ...}` | | |
 | Subject | SMTP_SUBJECT | email subject | `New Magic Bags` | | YES |
 | Body | SMTP_BODY | email html body | `<b>${{display_name}}</b> </br> New Amount: ${{items_available}}` | | YES |
 | Cron | SMTP_CRON | enable notification only on schedule | `* * * * *` |
@@ -131,10 +132,10 @@ You can combine multiple crons as semicolon separated list.
 
 | config.ini | environment | description | default | required if enabled | variables |
 |------------|-------------|-------------|---------|:-------------------:|:---------:|
-| Enabled | PUSH_SAFER | enable Pushsafer notifications | `false` |
-| Key | PUSH_SAFER_KEY | Pushsafer API key | | YES |
-| DeviceID | PUSH_SAFER_DEVICE_ID | Pushsafer device ID | | YES |
-| Cron | PUSH_SAFER_CRON | enable notification only on schedule | `* * * * *` |
+| Enabled | PUSHSAFER | enable Pushsafer notifications | `false` |
+| Key | PUSHSAFER_KEY | Pushsafer API key | | YES |
+| DeviceID | PUSHSAFER_DEVICE_ID | Pushsafer device ID | | YES |
+| Cron | PUSHSAFER_CRON | enable notification only on schedule | `* * * * *` |
 
 ### [IFTTT] / IFTTT Notifier
 

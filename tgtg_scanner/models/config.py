@@ -26,7 +26,7 @@ CONFIG_FILE_HEADER = """## TGTG Scanner Configuration
 
 """
 
-DEPRECIATION_WARNING = "{} is deprecated and will be removed in a future release. Please use {} instead."
+DEPRECATION_NOTICE = "{} is deprecated and will be removed in a future release. Please use {} instead."
 
 
 @dataclass
@@ -176,7 +176,7 @@ class TelegramConfig(NotifierConfig):
         self._ini_get_cron(parser, "TELEGRAM", "Cron", "cron")
         self._ini_get(parser, "TELEGRAM", "Token", "token")
         if parser.has_option("TELEGRAM", "chat_ids"):
-            log.warning(DEPRECIATION_WARNING.format("[TELEGRAM] chat_ids", "ChatIDs"))
+            log.warning(DEPRECATION_NOTICE.format("[TELEGRAM] chat_ids", "ChatIDs"))
         self._ini_get_list(parser, "TELEGRAM", "chat_ids", "chat_ids")  # legacy support
         self._ini_get_list(parser, "TELEGRAM", "ChatIDs", "chat_ids")
         self._ini_get_boolean(parser, "TELEGRAM", "DisableCommands", "disable_commands")
@@ -209,9 +209,21 @@ class PushSaferConfig(NotifierConfig):
         self._ini_get(parser, "PUSHSAFER", "DeviceID", "device_id")
 
     def _read_env(self):
+        if environ.get("PUSH_SAFER", None):
+            log.warning(DEPRECATION_NOTICE.format("PUSH_SAFER", "PUSHSAFER"))
+        self._env_get_boolean("PUSH_SAFER", "enabled")
         self._env_get_boolean("PUSHSAFER", "enabled")
+        if environ.get("PUSH_SAFER_CRON", None):
+            log.warning(DEPRECATION_NOTICE.format("PUSH_SAFER_CRON", "PUSHSAFER_CRON"))
+        self._env_get_cron("PUSH_SAFER_CRON", "cron")
         self._env_get_cron("PUSHSAFER_CRON", "cron")
+        if environ.get("PUSH_SAFER_KEY", None):
+            log.warning(DEPRECATION_NOTICE.format("PUSH_SAFER_KEY", "PUSHSAFER_KEY"))
+        self._env_get("PUSH_SAFER_KEY", "key")
         self._env_get("PUSHSAFER_KEY", "key")
+        if environ.get("PUSH_SAFER_DEVICE_ID", None):
+            log.warning(DEPRECATION_NOTICE.format("PUSH_SAFER_DEVICE_ID", "PUSHSAFER_DEVICE_ID"))
+        self._env_get("PUSH_SAFER_DEVICE_ID", "device_id")
         self._env_get("PUSHSAFER_DEVICE_ID", "device_id")
 
 
@@ -244,6 +256,7 @@ class SMTPConfig(NotifierConfig):
     use_ssl: bool = False
     sender: Union[str, None] = None
     recipients: list[str] = field(default_factory=list)
+    recipients_per_item: Union[str, None] = None
     subject: str = "New Magic Bags"
     body: str = "<b>${{display_name}}</b> </br>New Amount: ${{items_available}}"
 
@@ -258,9 +271,10 @@ class SMTPConfig(NotifierConfig):
         self._ini_get_boolean(parser, "SMTP", "SSL", "use_ssl")
         self._ini_get(parser, "SMTP", "Sender", "sender")
         if parser.has_option("SMTP", "Recipient"):
-            log.warning(DEPRECIATION_WARNING.format("[SMTP] Recipient", "Recipients"))
+            log.warning(DEPRECATION_NOTICE.format("[SMTP] Recipient", "Recipients"))
         self._ini_get_list(parser, "SMTP", "Recipient", "recipients")  # legacy support
         self._ini_get_list(parser, "SMTP", "Recipients", "recipients")
+        self._ini_get(parser, "SMTP", "RecipientsPerItem", "recipients_per_item")
         self._ini_get(parser, "SMTP", "Subject", "subject")
         self._ini_get(parser, "SMTP", "Body", "body")
 
@@ -275,9 +289,10 @@ class SMTPConfig(NotifierConfig):
         self._env_get_boolean("SMTP_SSL", "use_ssl")
         self._env_get("SMTP_SENDER", "sender")
         if environ.get("SMTP_RECIPIENT", None):
-            log.warning(DEPRECIATION_WARNING.format("SMTP_RECIPIENT", "SMTP_RECIPIENTS"))
+            log.warning(DEPRECATION_NOTICE.format("SMTP_RECIPIENT", "SMTP_RECIPIENTS"))
         self._env_get_list("SMTP_RECIPIENT", "recipients")  # legacy support
         self._env_get_list("SMTP_RECIPIENTS", "recipients")
+        self._env_get("SMTP_RECIPIENTS_PER_ITEM", "recipients_per_item")
         self._env_get("SMTP_SUBJECT", "subject")
         self._env_get("SMTP_BODY", "body")
 
@@ -462,11 +477,11 @@ class LocationConfig(BaseConfig):
     def _read_ini(self, parser: configparser.ConfigParser):
         self._ini_get_boolean(parser, "LOCATION", "Enabled", "enabled")
         if parser.has_option("LOCATION", "Google_Maps_API_Key"):
-            log.warning(DEPRECIATION_WARNING.format("[LOCATION] Google_Maps_API_Key", "GoogleMapsAPIKey"))
+            log.warning(DEPRECATION_NOTICE.format("[LOCATION] Google_Maps_API_Key", "GoogleMapsAPIKey"))
         self._ini_get(parser, "LOCATION", "Google_Maps_API_Key", "google_maps_api_key")  # legacy support
         self._ini_get(parser, "LOCATION", "GoogleMapsAPIKey", "google_maps_api_key")
         if parser.has_option("LOCATION", "Address"):
-            log.warning(DEPRECIATION_WARNING.format("[LOCATION] Address", "OriginAddress"))
+            log.warning(DEPRECATION_NOTICE.format("[LOCATION] Address", "OriginAddress"))
         self._ini_get(parser, "LOCATION", "Address", "origin_address")  # legacy support
         self._ini_get(parser, "LOCATION", "OriginAddress", "origin_address")
 
@@ -474,7 +489,7 @@ class LocationConfig(BaseConfig):
         self._env_get_boolean("LOCATION", "enabled")
         self._env_get("LOCATION_GOOGLE_MAPS_API_KEY", "google_maps_api_key")
         if environ.get("LOCATION_ADDRESS", None):
-            log.warning(DEPRECIATION_WARNING.format("LOCATION_ADDRESS", "LOCATION_ORIGIN_ADDRESS"))
+            log.warning(DEPRECATION_NOTICE.format("LOCATION_ADDRESS", "LOCATION_ORIGIN_ADDRESS"))
         self._env_get("LOCATION_ADDRESS", "origin_address")  # legacy support
         self._env_get("LOCATION_ORIGIN_ADDRESS", "origin_address")
 

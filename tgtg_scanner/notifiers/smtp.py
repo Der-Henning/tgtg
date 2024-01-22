@@ -1,3 +1,4 @@
+import json
 import logging
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -29,6 +30,7 @@ class SMTP(Notifier):
         self.password = config.smtp.password
         self.sender = config.smtp.sender
         self.recipients = config.smtp.recipients
+        self.item_recipients: dict[str, list[str]] = {}
         self.subject = config.smtp.subject
         self.body = config.smtp.body
         self.cron = config.smtp.cron
@@ -44,6 +46,17 @@ class SMTP(Notifier):
                 self._connect()
             except Exception as exc:
                 raise SMTPConfigurationError(exc) from exc
+            if config.smtp.recipients_per_item is not None:
+                item_recipients = None
+                try:
+                    item_recipients = json.loads(config.smtp.recipients_per_item)
+                except json.decoder.JSONDecodeError:
+                    raise SMTPConfigurationError("Recipients per Item is not a valid dictionary")
+                if not isinstance(item_recipients, dict) or any(
+                    not isinstance(value, (list, str)) for value in item_recipients.values()
+                ):
+                    raise SMTPConfigurationError("Recipients per Item is not a valid dictionary")
+                self.item_recipients = {k: v if isinstance(v, list) else [v] for k, v in item_recipients.items()}
 
     def __del__(self):
         """Closes SMTP connection when shutdown"""
@@ -79,7 +92,7 @@ class SMTP(Notifier):
         if status != 250:
             self._connect()
 
-    def _send_mail(self, subject: str, html: str) -> None:
+    def _send_mail(self, subject: str, html: str, item_id: int) -> None:
         """Sends mail with html body"""
         if self.server is None:
             self._connect()
@@ -87,21 +100,26 @@ class SMTP(Notifier):
             raise SMTPConfigurationError()
         message = MIMEMultipart("alternative")
         message["From"] = self.sender
-        message["To"] = ", ".join(self.recipients)
+
+        # Contains either the main recipient(s) or recipient(s) that should be
+        # notified for the specific item. First, initalize with main recipient(s)
+        recipients = self.item_recipients.get(str(item_id), self.recipients)
+
+        message["To"] = ", ".join(recipients)
         message["Subject"] = subject
         message.attach(MIMEText(html, "html", "utf-8"))
         body = message.as_string()
         self._stay_connected()
         try:
-            self.server.sendmail(self.sender, self.recipients, body)
+            self.server.sendmail(self.sender, recipients, body)
         except SMTPException:
             self._connect()
-            self.server.sendmail(self.sender, self.recipients, body)
+            self.server.sendmail(self.sender, recipients, body)
 
     def _send(self, item: Union[Item, Reservation]) -> None:
         """Sends item information via Mail."""
         if isinstance(item, Item):
-            self._send_mail(item.unmask(self.subject), item.unmask(self.body))
+            self._send_mail(item.unmask(self.subject), item.unmask(self.body), item.item_id)
 
     def __repr__(self) -> str:
         return f"SMTP: {self.recipients}"
