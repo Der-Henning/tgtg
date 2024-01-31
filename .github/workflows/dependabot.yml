@@ -33,3 +33,4 @@ jobs:
       with:
         commit_message: Update requirements.txt
         branch: ${{ github.head_ref }}
+        token: ${{ secrets.REPO_ACCESS_TOKEN }}
