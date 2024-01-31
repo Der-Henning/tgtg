@@ -22,6 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.REPO_ACCESS_TOKEN }}
     - uses: ./.github/actions/setup-poetry-action
       with:
         poetry-version: ${{ env.POETRY_VERSION }}
@@ -33,4 +35,3 @@ jobs:
       with:
         commit_message: Update requirements.txt
         branch: ${{ github.head_ref }}
-        token: ${{ secrets.REPO_ACCESS_TOKEN }}
