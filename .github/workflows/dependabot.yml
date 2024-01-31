@@ -17,7 +17,10 @@ jobs:
     name: Update requirements.txt
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+      with:
+        # Fetch the last 2 commits instead of just 1. (Fetching just 1 commit would overwrite the whole history)
+        fetch-depth: 2
     - uses: ./.github/actions/setup-poetry-action
       with:
         poetry-version: ${{ env.POETRY_VERSION }}
@@ -25,7 +28,15 @@ jobs:
         install-dependencies: false
     - name: Run poetry export
       run: poetry export -f requirements.txt --output requirements.txt --without-hashes
+    - name: Get last commit message
+      id: last-commit
+      run: |
+        echo "message=$(git log -1 --pretty=%s)" >> $GITHUB_OUTPUT
+        echo "author=$(git log -1 --pretty=\"%an <%ae>\")" >> $GITHUB_OUTPUT
     - uses: stefanzweifel/git-auto-commit-action@v5
-      with:
-        commit_message: Update requirements.txt
-        branch: ${{ github.head_ref }}
+  with:
+    commit_author: ${{ steps.last-commit.outputs.author }}
+    commit_message: ${{ steps.last-commit.outputs.message }}
+    commit_options: --amend --no-edit
+    push_options: --force
+    skip_fetch: true
