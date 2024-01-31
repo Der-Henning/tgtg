@@ -33,7 +33,7 @@ jobs:
           context: ./
     steps:
     - uses: actions/checkout@v4
-    - uses: docker/metadata-action@v4
+    - uses: docker/metadata-action@v5
       id: meta
       with:
         images: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}
