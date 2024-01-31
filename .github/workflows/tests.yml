@@ -16,13 +16,13 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python: ['3.9', '3.10', '3.11', '3.12']
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ./.github/actions/setup-poetry-action
       with:
         poetry-version: ${{ env.POETRY_VERSION }}
         python-version: ${{ matrix.python }}
         without: build
-    - uses: actions/cache@v3
+    - uses: actions/cache@v4
       with:
         path: ~/.cache/pre-commit
         key: pre-commit-python-${{ matrix.python }}-${{ hashFiles('poetry.lock', '.pre-commit-config.yaml') }}-${{ runner.os }}
@@ -30,4 +30,4 @@ jobs:
       run: poetry run pre-commit run -a
     - name: Run tests
       run: poetry run pytest -v -m "not tgtg_api" --cov=tgtg_scanner --cov-report=xml
-    - uses: codecov/codecov-action@v3
+    - uses: codecov/codecov-action@v4

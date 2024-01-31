@@ -32,7 +32,7 @@ jobs:
           file: ./docker/Dockerfile.alpine
           context: ./
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: docker/metadata-action@v4
       id: meta
       with:
@@ -49,10 +49,10 @@ jobs:
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-    - uses: docker/setup-qemu-action@v2
-    - uses: docker/setup-buildx-action@v2
+    - uses: docker/setup-qemu-action@v3
+    - uses: docker/setup-buildx-action@v3
       id: buildx
-    - uses: docker/build-push-action@v3
+    - uses: docker/build-push-action@v5
       with:
         context: ${{ matrix.context }}
         file: ${{ matrix.file }}
@@ -79,7 +79,7 @@ jobs:
           MINOR_VERSION
         input-files: |
           ./docker/DOCKER_README.md
-    - uses: peter-evans/dockerhub-description@v3
+    - uses: peter-evans/dockerhub-description@v4
       if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
@@ -102,7 +102,7 @@ jobs:
         - os: macos-latest
           tag: macos
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ./.github/actions/setup-poetry-action
       with:
         poetry-version: ${{ env.POETRY_VERSION }}
@@ -126,7 +126,7 @@ jobs:
       if: matrix.tag == 'win'
       run: Compress-Archive ./dist/* ./${{ steps.filename.outputs.FILENAME }}
     - name: Upload archive
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: releases-${{github.sha}}
         path: ./${{ steps.filename.outputs.FILENAME }}
