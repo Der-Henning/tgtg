@@ -1,0 +1,31 @@
+name: Dependabot Actions
+
+on:
+  push:
+    branches:
+    - dependabot/pip/**
+  pull_request:
+    branches:
+    - dependabot/pip/**
+
+env:
+  PYTHON_VERSION: '3.11'
+  POETRY_VERSION: 1.7.1
+
+jobs:
+  run:
+    name: Update requirements.txt
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ./.github/actions/setup-poetry-action
+      with:
+        poetry-version: ${{ env.POETRY_VERSION }}
+        python-version: ${{ env.PYTHON_VERSION }}
+        install-dependencies: false
+    - name: Run poetry export
+      run: poetry export -f requirements.txt --output requirements.txt --without-hashes
+    - uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: Update requirements.txt
+        branch: ${{ github.head_ref }}
