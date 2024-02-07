@@ -24,6 +24,7 @@ from tgtg_scanner.errors import (
 log = logging.getLogger("tgtg")
 BASE_URL = "https://apptoogoodtogo.com/api/"
 API_ITEM_ENDPOINT = "item/v8/"
+FAVORITE_ITEM_ENDPOINT = "user/favorite/v1/{}/update"
 AUTH_BY_EMAIL_ENDPOINT = "auth/v3/authByEmail"
 AUTH_POLLING_ENDPOINT = "auth/v3/authByRequestPollingId"
 SIGNUP_BY_EMAIL_ENDPOINT = "auth/v3/signUpByEmail"
@@ -380,7 +381,7 @@ class TgtgClient:
     def set_favorite(self, item_id: str, is_favorite: bool) -> None:
         self.login()
         self._post(
-            f"{API_ITEM_ENDPOINT}/{item_id}/setFavorite",
+            FAVORITE_ITEM_ENDPOINT.format(item_id),
             json={"is_favorite": is_favorite},
         )
 

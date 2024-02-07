@@ -2,13 +2,19 @@ import json
 import pathlib
 import re
 from os import environ
+from urllib.parse import urljoin
 
 import pytest
 import responses
 from pytest_mock.plugin import MockerFixture
 
 from tgtg_scanner.models import Config
-from tgtg_scanner.tgtg.tgtg_client import USER_AGENTS, TgtgClient
+from tgtg_scanner.tgtg.tgtg_client import (
+    BASE_URL,
+    FAVORITE_ITEM_ENDPOINT,
+    USER_AGENTS,
+    TgtgClient,
+)
 
 
 def test_get_latest_apk_version():
@@ -159,7 +165,7 @@ def test_tgtg_set_favorite(mocker: MockerFixture):
     item_id = "12345"
     responses.add(
         responses.POST,
-        f"https://apptoogoodtogo.com/api/item/v8/{item_id}/setFavorite",
+        urljoin(BASE_URL, FAVORITE_ITEM_ENDPOINT.format(item_id)),
         json.dumps({"is_favorite": True}),
         status=200,
     )
