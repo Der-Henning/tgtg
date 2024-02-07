@@ -20,7 +20,7 @@ inputs:
 runs:
   using: composite
   steps:
-  - uses: actions/setup-python@v4
+  - uses: actions/setup-python@v5
     with:
       python-version: ${{ inputs.python-version }}
   - if: ${{ inputs.poetry-version != 'latest' }}
@@ -35,12 +35,12 @@ runs:
       poetry config virtualenvs.create true
       poetry config virtualenvs.in-project true
       poetry config installer.max-workers 1
-  - uses: actions/cache@v3
+  - uses: actions/cache@v4
     if: inputs.without != '' && inputs.install-dependencies
     with:
       path: ./.venv
       key: venv-without-${{ inputs.without }}-poetry-${{ inputs.poetry-version }}-python-${{ inputs.python-version }}-${{ hashFiles('poetry.lock') }}-${{ runner.os }}
-  - uses: actions/cache@v3
+  - uses: actions/cache@v4
     if: inputs.without == '' && inputs.install-dependencies
     with:
       path: ./.venv

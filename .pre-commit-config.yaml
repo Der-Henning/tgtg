@@ -54,7 +54,7 @@ repos:
   - id: poetry-lock
     args: [--no-update]
   - id: poetry-export
-    args: [-f, requirements.txt, -o, requirements.txt]
+    args: [-f, requirements.txt, -o, requirements.txt, --without-hashes]
 
 - repo: https://github.com/pre-commit/mirrors-mypy
   rev: v1.8.0
