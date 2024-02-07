@@ -1,1 +1,1 @@
-worker: python src/main.py
+worker: python -m tgtg_scanner
