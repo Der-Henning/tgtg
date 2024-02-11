@@ -1,8 +1,5 @@
 clean:
-	rm -rf .venv
-	rm -rf .pytest_cache
-	rm -rf .tox
-	rm -rf .mypy_cache
+	rm -rf .venv .pytest_cache .tox .mypy_cache dist build
 
 install:
 	poetry install
@@ -24,8 +21,7 @@ tox:
 	tox
 
 executable:
-	rm -r ./build ||:
-	rm -r ./dist ||:
+	rm -rf ./build ./dist
 	poetry run pyinstaller ./scanner.spec
 	cp ./config.sample.ini ./dist/config.ini
 	zip -j ./dist/scanner.zip ./dist/*
