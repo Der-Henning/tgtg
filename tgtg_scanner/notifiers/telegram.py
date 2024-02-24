@@ -169,6 +169,7 @@ class Telegram(Notifier):
                 except Exception as exc:
                     log.warning("Telegram failed stopping polling: %s", exc)
 
+        self.config.set_locale()
         asyncio.run(_listen_for_items())
 
     def _unmask(self, text: str, item: Item) -> str:

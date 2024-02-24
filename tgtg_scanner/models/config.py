@@ -563,8 +563,12 @@ class Config(BaseConfig):
 
         self.token_path = environ.get("TGTG_TOKEN_PATH", None)
         self._load_tokens()
+        self.set_locale()
+
+    def set_locale(self) -> None:
         if self.locale and not self.locale.startswith("en"):
             try:
+                log.debug("Activating locale %s", self.locale)
                 humanize.i18n.activate(self.locale)
             except FileNotFoundError as err:
                 raise ConfigurationError(f"Invalid locale '{self.locale}' - {err}") from err
