@@ -34,10 +34,10 @@ http_client.HTTPConnection.debuglevel = 0
 
 SYS_PLATFORM = platform.system()
 IS_WINDOWS = SYS_PLATFORM.lower() in {"windows", "cygwin"}
-IS_EXECUTABLE = getattr(sys, "_MEIPASS", False)
+IS_EXECUTABLE = getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS")
 PROG_PATH = Path(sys.executable).parent if IS_EXECUTABLE else Path(os.getcwd())
 IS_DOCKER = os.environ.get("DOCKER", "False").lower() in {"true", "1", "t", "y", "yes"}
-LOGS_PATH = os.environ.get("LOGS_PATH", PROG_PATH)
+LOGS_PATH = Path(os.environ.get("LOGS_PATH", PROG_PATH))
 
 
 def main():
@@ -130,6 +130,7 @@ def main():
     logging.root.addHandler(stream_handler)
 
     # Define file formatter and handler
+    args.log_file.parent.mkdir(parents=True, exist_ok=True)
     file_handler = logging.FileHandler(args.log_file, mode="w", encoding="utf-8")
     file_formatter = logging.Formatter(
         fmt=("[%(asctime)s][%(name)s][%(filename)s:%(funcName)s:%(lineno)d][%(levelname)s] %(message)s"),

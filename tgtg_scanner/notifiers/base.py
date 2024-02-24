@@ -15,6 +15,7 @@ class Notifier(ABC):
 
     @abstractmethod
     def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
+        self.config = config
         self.enabled = False
         self.reservations = reservations
         self.favorites = favorites
@@ -29,6 +30,7 @@ class Notifier(ABC):
 
     def _run(self) -> None:
         """Run notifier"""
+        self.config.set_locale()
         while True:
             try:
                 item = self.queue.get()

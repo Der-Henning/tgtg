@@ -18,7 +18,7 @@ env:
 
 jobs:
   run:
-    name: Update requirements.txt
+    name: Update requirements.txt and lock file
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -29,8 +29,10 @@ jobs:
         poetry-version: ${{ env.POETRY_VERSION }}
         python-version: ${{ env.PYTHON_VERSION }}
         install-dependencies: false
-    - name: Run poetry export
-      run: poetry export -f requirements.txt --output requirements.txt --without-hashes
+    - name: Update dependencies
+      run: |
+        poetry lock --no-update
+        poetry export -f requirements.txt --output requirements.txt --without-hashes
     - uses: stefanzweifel/git-auto-commit-action@v5
       with:
         commit_message: Update requirements.txt
