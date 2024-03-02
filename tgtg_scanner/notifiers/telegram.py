@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 import asyncio
 import datetime
 import logging
 import random
 import warnings
+from functools import wraps
 from queue import Empty
 from time import sleep
 from typing import Union
@@ -35,6 +38,20 @@ from tgtg_scanner.models.reservations import Order, Reservation
 from tgtg_scanner.notifiers.base import Notifier
 
 log = logging.getLogger("tgtg")
+
+
+def _private(func):
+    @wraps(func)
+    async def wrapper(self: Telegram, update: Update, context: CallbackContext) -> None:
+        if not self._is_my_chat(update):
+            log.warning(
+                f"Unauthorized access to {func.__name__} from chat id {update.message.chat.id} "
+                f"and user id {update.message.from_user.id}"
+            )
+            return
+        return await func(self, update, context)
+
+    return wrapper
 
 
 class Telegram(Notifier):
@@ -97,6 +114,7 @@ class Telegram(Notifier):
             CommandHandler("listfavoriteids", self._list_favorite_ids),
             CommandHandler("addfavorites", self._add_favorites),
             CommandHandler("removefavorites", self._remove_favorites),
+            CommandHandler("getid", self._get_id),
             MessageHandler(
                 filters.Regex(r"^https:\/\/share\.toogoodtogo\.com\/item\/(\d+)\/?"),
                 self._url_handler,
@@ -122,6 +140,7 @@ class Telegram(Notifier):
                 BotCommand("listfavoriteids", "List all item ids from favorites"),
                 BotCommand("addfavorites", "Add item ids to favorites"),
                 BotCommand("removefavorites", "Remove Item ids from favorites"),
+                BotCommand("getid", "Get your chat id"),
             ]
         )
         await self.application.start()
@@ -134,7 +153,7 @@ class Telegram(Notifier):
 
     def start(self) -> None:
         if self.enabled and not self.chat_ids:
-            asyncio.run(self._get_chat_ids())
+            asyncio.run(self._get_chat_id())
         super().start()
 
     def _run(self) -> None:
@@ -231,6 +250,13 @@ class Telegram(Notifier):
             except TelegramError as err:
                 log.error("Telegram Error: %s", err)
 
+    def _is_my_chat(self, update: Update) -> bool:
+        return str(update.message.chat.id) in self.chat_ids
+
+    async def _get_id(self, update: Update, _) -> None:
+        await update.message.reply_text(f"Current chat id: {update.message.chat.id}")
+
+    @_private
     async def _mute(self, update: Update, context: CallbackContext) -> None:
         """Deactivates Telegram Notifications for x days"""
         days = int(context.args[0]) if context.args and context.args[0].isnumeric() else 1
@@ -241,12 +267,14 @@ class Telegram(Notifier):
             f"Deactivated Telegram Notifications for {days} days.\nReactivating at {self.mute} or use /unmute."
         )
 
+    @_private
     async def _unmute(self, update: Update, _) -> None:
         """Reactivate Telegram Notifications"""
         self.mute = None
         log.info("Reactivated Telegram Notifications")
         await update.message.reply_text("Reactivated Telegram Notifications")
 
+    @_private
     async def _reserve_item_menu(self, update: Update, _) -> None:
         favorites = self.favorites.get_favorites()
         buttons = [
@@ -255,6 +283,7 @@ class Telegram(Notifier):
         reply_markup = InlineKeyboardMarkup(buttons)
         await update.message.reply_text("Select a Bag to reserve", reply_markup=reply_markup)
 
+    @_private
     async def _cancel_reservations_menu(self, update: Update, _) -> None:
         buttons = [
             [InlineKeyboardButton(reservation.display_name, callback_data=reservation)]
@@ -266,6 +295,7 @@ class Telegram(Notifier):
         reply_markup = InlineKeyboardMarkup(buttons)
         await update.message.reply_text("Active Reservations. Select to cancel.", reply_markup=reply_markup)
 
+    @_private
     async def _cancel_orders_menu(self, update: Update, _) -> None:
         self.reservations.update_active_orders()
         buttons = [
@@ -277,11 +307,13 @@ class Telegram(Notifier):
         reply_markup = InlineKeyboardMarkup(buttons)
         await update.message.reply_text("Active Orders. Select to cancel.", reply_markup=reply_markup)
 
+    @_private
     async def _cancel_all_orders(self, update: Update, _) -> None:
         self.reservations.cancel_all_orders()
         await update.message.reply_text("Cancelled all active Orders")
         log.debug("Cancelled all active Orders")
 
+    @_private
     async def _list_favorites(self, update: Update, _) -> None:
         favorites = self.favorites.get_favorites()
         if not favorites:
@@ -289,6 +321,7 @@ class Telegram(Notifier):
         else:
             await update.message.reply_text("\n".join([f"• {item.item_id} - {item.display_name}" for item in favorites]))
 
+    @_private
     async def _list_favorite_ids(self, update: Update, _) -> None:
         favorites = self.favorites.get_favorites()
         if not favorites:
@@ -296,6 +329,7 @@ class Telegram(Notifier):
         else:
             await update.message.reply_text(" ".join([item.item_id for item in favorites]))
 
+    @_private
     async def _add_favorites(self, update: Update, context: CallbackContext) -> None:
         if not context.args:
             await update.message.reply_text(
@@ -318,6 +352,7 @@ class Telegram(Notifier):
         await update.message.reply_text(f"Added the following item ids to favorites: {' '.join(item_ids)}")
         log.debug('Added the following item ids to favorites: "%s"', item_ids)
 
+    @_private
     async def _remove_favorites(self, update: Update, context: CallbackContext) -> None:
         if not context.args:
             await update.message.reply_text(
@@ -340,6 +375,7 @@ class Telegram(Notifier):
         await update.message.reply_text(f"Removed the following item ids from favorites: {' '.join(item_ids)}")
         log.debug("Removed the following item ids from favorites: '%s'", item_ids)
 
+    @_private
     async def _url_handler(self, update: Update, context: CallbackContext) -> None:
         item_id = context.matches[0].group(1)
         item_favorite = self.favorites.is_item_favorite(item_id)
@@ -389,6 +425,7 @@ class Telegram(Notifier):
                 ),
             )
 
+    @_private
     async def _callback_query_handler(self, update: Update, _) -> None:
         data = update.callback_query.data
         if isinstance(data, Item):
@@ -423,7 +460,7 @@ class Telegram(Notifier):
         """Log Errors caused by Updates."""
         log.warning('Update "%s" caused error "%s"', update, context.error)
 
-    async def _get_chat_ids(self) -> None:
+    async def _get_chat_id(self) -> None:
         """Initializes an interaction with the user
         to obtain the telegram chat id. \n
         On using the config.ini configuration the
