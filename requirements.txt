@@ -1,5 +1,5 @@
 anyio==4.3.0 ; python_version >= "3.9" and python_version < "3.13"
-apprise==1.7.2 ; python_version >= "3.9" and python_version < "3.13"
+apprise==1.7.3 ; python_version >= "3.9" and python_version < "3.13"
 cachetools==5.3.3 ; python_version >= "3.9" and python_version < "3.13"
 certifi==2024.2.2 ; python_version >= "3.9" and python_version < "3.13"
 charset-normalizer==3.3.2 ; python_version >= "3.9" and python_version < "3.13"
