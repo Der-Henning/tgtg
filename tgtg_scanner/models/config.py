@@ -254,6 +254,7 @@ class SMTPConfig(NotifierConfig):
     password: Union[str, None] = None
     use_tls: bool = False
     use_ssl: bool = False
+    timeout: int = 60
     sender: Union[str, None] = None
     recipients: list[str] = field(default_factory=list)
     recipients_per_item: Union[str, None] = None
@@ -269,6 +270,7 @@ class SMTPConfig(NotifierConfig):
         self._ini_get(parser, "SMTP", "Password", "password")
         self._ini_get_boolean(parser, "SMTP", "TLS", "use_tls")
         self._ini_get_boolean(parser, "SMTP", "SSL", "use_ssl")
+        self._ini_get_int(parser, "SMTP", "Timeout", "timeout")
         self._ini_get(parser, "SMTP", "Sender", "sender")
         if parser.has_option("SMTP", "Recipient"):
             log.warning(DEPRECATION_NOTICE.format("[SMTP] Recipient", "Recipients"))
@@ -287,6 +289,7 @@ class SMTPConfig(NotifierConfig):
         self._env_get("SMTP_PASSWORD", "password")
         self._env_get_boolean("SMTP_TLS", "use_tls")
         self._env_get_boolean("SMTP_SSL", "use_ssl")
+        self._env_get_int("SMTP_TIMEOUT", "timeout")
         self._env_get("SMTP_SENDER", "sender")
         if environ.get("SMTP_RECIPIENT", None):
             log.warning(DEPRECATION_NOTICE.format("SMTP_RECIPIENT", "SMTP_RECIPIENTS"))
