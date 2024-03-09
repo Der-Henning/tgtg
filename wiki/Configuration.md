@@ -119,6 +119,7 @@ You can combine multiple crons as semicolon separated list.
 | Port | SMTP_PORT | SMTP server port | `587` | | |
 | TLS | SMTP_TLS | enable TLS | `true`| | |
 | SSL | SMTP_SSL | enable SSL | `false` | | |
+| Timeout | SMTP_TIMEOUT | set timeout in seconds | 60 | | |
 | Username | SMTP_USERNAME | login username | | | |
 | Password | SMTP_PASSWORD | login password | | | |
 | Sender | SMTP_SENDER | email sender | | | |
