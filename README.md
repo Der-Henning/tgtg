@@ -245,7 +245,7 @@ make server
 
 Feel free to create and contribute new notifiers for other services and endpoints.
 You can use an existing notifier as a template or build upon the webhook notifier.
-E.g. see the [ifttt notifier](https://github.com/Der-Henning/tgtg/blob/main/src/notifiers/ifttt.py).
+E.g. see the [ifttt notifier](https://github.com/Der-Henning/tgtg/blob/main/tgtg_scanner/notifiers/ifttt.py).
 
 ---
 If you want to support me, feel free to buy me a coffee.
