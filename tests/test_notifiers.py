@@ -10,6 +10,7 @@ from pytest_mock.plugin import MockerFixture
 from tgtg_scanner.models import Config, Cron, Favorites, Item, Reservations
 from tgtg_scanner.notifiers.apprise import Apprise
 from tgtg_scanner.notifiers.console import Console
+from tgtg_scanner.notifiers.discord import Discord
 from tgtg_scanner.notifiers.ifttt import IFTTT
 from tgtg_scanner.notifiers.ntfy import Ntfy
 from tgtg_scanner.notifiers.script import Script
@@ -323,3 +324,18 @@ def test_telegram(test_item: Item, reservations: Reservations, favorites: Favori
     assert telegram.thread.is_alive()
     telegram.stop()
     assert not telegram.thread.is_alive()
+
+
+def test_discord(test_item: Item, reservations: Reservations, favorites: Favorites):
+    config = Config()
+    config.discord.enabled = True
+    config.discord.channel = 123456789012345678
+    config.discord.token = "ABCDEFGHIJKLMNOPQRSTUVWXYZ.123456.ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKL"
+
+    discord = Discord(config, reservations, favorites)
+    discord.start()
+    discord.send(test_item)
+    sleep(5)
+    discord.bot.dispatch("close")
+    discord.stop()
+    assert discord.bot_id and discord.channel_id and discord.server_id

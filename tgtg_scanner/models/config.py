@@ -432,6 +432,38 @@ class ScriptConfig(NotifierConfig):
 
 
 @dataclass
+class DiscordConfig(NotifierConfig):
+    """Discord configuration"""
+
+    enabled: bool = False
+    prefix: Union[str, None] = "!"
+    token: Union[str, None] = None
+    channel: int = 0
+    body: str = (
+        "*${{display_name}}*\n*Available*: ${{items_available}}\n*Price*: ${{price}} ${{currency}}\n*Pickup*: ${{pickupdate}}"
+    )
+    disable_commands: bool = False
+
+    def _read_ini(self, parser: configparser.ConfigParser):
+        self._ini_get_boolean(parser, "DISCORD", "Enabled", "enabled")
+        self._ini_get(parser, "DISCORD", "Prefix", "prefix")
+        self._ini_get(parser, "DISCORD", "Token", "token")
+        self._ini_get_int(parser, "DISCORD", "Channel", "channel")
+        self._ini_get(parser, "DISCORD", "Body", "body")
+        self._ini_get_boolean(parser, "DISCORD", "DisableCommands", "disable_commands")
+        self._ini_get_cron(parser, "DISCORD", "Cron", "cron")
+
+    def _read_env(self):
+        self._env_get_boolean("DISCORD", "enabled")
+        self._env_get("DISCORD_PREFIX", "prefix")
+        self._env_get("DISCORD_TOKEN", "token")
+        self._env_get_int("DISCORD_CHANNEL", "channel")
+        self._env_get("DISCORD_BODY", "body")
+        self._env_get_boolean("DISCORD_DISABLE_COMMANDS", "disable_commands")
+        self._env_get_cron("DISCORD_CRON", "cron")
+
+
+@dataclass
 class TgtgConfig(BaseConfig):
     """Tgtg configuration"""
 
@@ -525,6 +557,7 @@ class Config(BaseConfig):
     ntfy: NtfyConfig = field(default_factory=NtfyConfig)
     webhook: WebhookConfig = field(default_factory=WebhookConfig)
     script: ScriptConfig = field(default_factory=ScriptConfig)
+    discord: DiscordConfig = field(default_factory=DiscordConfig)
 
     def __post_init__(self):
         if self.file:
@@ -546,6 +579,7 @@ class Config(BaseConfig):
             self.ntfy._read_ini(parser)
             self.webhook._read_ini(parser)
             self.script._read_ini(parser)
+            self.discord._read_ini(parser)
 
             log.info("Loaded config from %s", config_file.absolute())
         else:
@@ -561,6 +595,7 @@ class Config(BaseConfig):
             self.ntfy._read_env()
             self.webhook._read_env()
             self.script._read_env()
+            self.discord._read_env()
 
             log.info("Loaded config from environment variables")
 
