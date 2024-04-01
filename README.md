@@ -222,7 +222,7 @@ Alternatively, install all required development environment dependencies, includ
 make install
 ```
 
-For developement and testing it is sometimes usefull to trigger TGTG Magic Bag events.
+For developement and testing it is sometimes useful to trigger TGTG Magic Bag events.
 For this purpose you can run the TGTG dev API proxy server.
 The proxy redirects all requests to the official TGTG API server.
 The responses from the item endpoint are modified by randomizing the amount of available magic bags.
