@@ -39,7 +39,6 @@ class Discord(Notifier):
                 Item.check_mask(self.body)
             except MaskConfigurationError as exc:
                 raise DiscordConfigurationError(exc.message) from exc
-
             try:
                 # Setting event loop explicitly for python 3.9 compatibility
                 loop = asyncio.new_event_loop()
@@ -88,7 +87,10 @@ class Discord(Notifier):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         self.config.set_locale()
-        asyncio.run(_start_bot())
+        try:
+            asyncio.run(_start_bot())
+        except discord.errors.LoginFailure as err:
+            raise DiscordConfigurationError("Invalid Discord Bot Token") from err
 
     def _setup_events(self):
         @self.bot.event
