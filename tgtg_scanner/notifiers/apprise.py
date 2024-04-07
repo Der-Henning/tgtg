@@ -21,13 +21,13 @@ class Apprise(Notifier):
     def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
         super().__init__(config, reservations, favorites)
         self.enabled = config.apprise.enabled
-        self.title = config.apprise.title
-        self.body = config.apprise.body
-        self.url = config.apprise.url
-        self.cron = config.apprise.cron
         if self.enabled:
-            if self.url is None or self.body is None or self.title is None:
+            if not (config.apprise.url and config.apprise.body and config.apprise.title):
                 raise AppriseConfigurationError()
+            self.title = config.apprise.title
+            self.body = config.apprise.body
+            self.url = config.apprise.url
+            self.cron = config.apprise.cron
             try:
                 Item.check_mask(self.title)
                 Item.check_mask(self.body)
@@ -38,8 +38,6 @@ class Apprise(Notifier):
     def _send(self, item: Union[Item, Reservation]) -> None:
         """Sends item information via configured Apprise URL"""
         if isinstance(item, Item):
-            if self.url is None or self.body is None or self.title is None:
-                raise AppriseConfigurationError()
             url = item.unmask(self.url)
             title = item.unmask(self.title)
             body = item.unmask(self.body)
