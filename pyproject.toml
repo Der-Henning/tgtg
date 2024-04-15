@@ -30,7 +30,7 @@ python-telegram-bot = {extras = ["callback-data"], version = "^21.0.1"}
 requests = "^2.31.0"
 
 [tool.poetry.group.build.dependencies]
-pyinstaller = "^6.3.0"
+pyinstaller = "^6.6.0"
 
 [tool.poetry.group.test.dependencies]
 pre-commit = "^3.3.3"
