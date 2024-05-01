@@ -56,14 +56,14 @@ class Location:
             log.debug("Location service disabled")
             return None
 
-        if not self._is_address_valid(destination):
-            return None
-
         key = f"{destination}_{travel_mode}"
 
         # use cached value if available
         if key in self.distancetime_dict:
             return self.distancetime_dict[key]
+
+        if not self._is_address_valid(destination):
+            return None
 
         log.debug(f"Sending Google Maps API request: {destination} using {travel_mode} mode")
 
