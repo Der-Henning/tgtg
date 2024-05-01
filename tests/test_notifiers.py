@@ -348,6 +348,10 @@ def mocked_discord(mocker: MockerFixture):
         "discord.ext.commands.Bot.dispatch",
         return_value=None,
     )
+    mocker.patch(
+        "discord.ext.commands.Bot.http.connector.close",
+        return_value=None,
+    )
     return mocker
 
 
