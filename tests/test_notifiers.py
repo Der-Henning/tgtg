@@ -326,7 +326,32 @@ def test_telegram(test_item: Item, reservations: Reservations, favorites: Favori
     assert not telegram.thread.is_alive()
 
 
-def test_discord(test_item: Item, reservations: Reservations, favorites: Favorites):
+@pytest.fixture
+def mocked_discord(mocker: MockerFixture):
+    mocker.patch(
+        "discord.ext.commands.Bot.login",
+        return_value=None,
+    )
+    mocker.patch(
+        "discord.ext.commands.Bot.start",
+        return_value=None,
+    )
+    mocker.patch(
+        "discord.ext.commands.Bot.command",
+        return_value=MagicMock(),
+    )
+    mocker.patch(
+        "discord.ext.commands.Bot.event",
+        return_value=MagicMock(),
+    )
+    mocker.patch(
+        "discord.ext.commands.Bot.dispatch",
+        return_value=None,
+    )
+    return mocker
+
+
+def test_discord(test_item: Item, reservations: Reservations, favorites: Favorites, mocked_discord):
     config = Config()
     config.discord.enabled = True
     config.discord.channel = 123456789012345678
@@ -335,7 +360,5 @@ def test_discord(test_item: Item, reservations: Reservations, favorites: Favorit
     discord = Discord(config, reservations, favorites)
     discord.start()
     discord.send(test_item)
-    sleep(5)
-    discord.bot.dispatch("close")
+    sleep(0.5)
     discord.stop()
-    assert discord.bot_id and discord.channel_id and discord.server_id

@@ -14,6 +14,8 @@ from tgtg_scanner.notifiers.base import Notifier
 
 log = logging.getLogger("tgtg")
 
+discord.VoiceClient.warn_nacl = False
+
 
 class Discord(Notifier):
     """Notifier for Discord"""
@@ -39,11 +41,13 @@ class Discord(Notifier):
                 Item.check_mask(self.body)
             except MaskConfigurationError as exc:
                 raise DiscordConfigurationError(exc.message) from exc
+            self.bot = commands.Bot(command_prefix=self.prefix, intents=discord.Intents.all())
             try:
                 # Setting event loop explicitly for python 3.9 compatibility
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
-                self.bot = commands.Bot(command_prefix=self.prefix, intents=discord.Intents.all())
+                asyncio.run(self.bot.login(self.token))
+                asyncio.run(self.bot.close())
             except MaskConfigurationError as exc:
                 raise DiscordConfigurationError(exc.message) from exc
 
@@ -74,23 +78,18 @@ class Discord(Notifier):
             log.error("Failed sending %s: %s", self.name, exc)
 
     def _run(self):
-        async def _start_bot() -> None:
-            await self.bot.start(self.token)
-
+        self.config.set_locale()
+        # Setting event loop explicitly for python 3.9 compatibility
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        self.bot = commands.Bot(command_prefix=self.prefix, intents=discord.Intents.all())
         # Events include methods for post-init, shutting down, and notification sending
         self._setup_events()
         if not self.disable_commands:
             # Commands are handled separately, in case commands are not enabled
             self._setup_commands()
-
-        # Setting event loop explicitly for python 3.9 compatibility
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        self.config.set_locale()
-        try:
-            asyncio.run(_start_bot())
-        except discord.errors.LoginFailure as err:
-            raise DiscordConfigurationError("Invalid Discord Bot Token") from err
+        asyncio.run(self.bot.start(self.token))
+        self.bot.http.connector.close()
 
     def _setup_events(self):
         @self.bot.event
