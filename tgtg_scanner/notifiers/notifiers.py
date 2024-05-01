@@ -6,6 +6,7 @@ from tgtg_scanner.models.reservations import Reservation
 from tgtg_scanner.notifiers.apprise import Apprise
 from tgtg_scanner.notifiers.base import Notifier
 from tgtg_scanner.notifiers.console import Console
+from tgtg_scanner.notifiers.discord import Discord
 from tgtg_scanner.notifiers.ifttt import IFTTT
 from tgtg_scanner.notifiers.ntfy import Ntfy
 from tgtg_scanner.notifiers.push_safer import PushSafer
@@ -16,7 +17,7 @@ from tgtg_scanner.notifiers.webhook import WebHook
 
 log = logging.getLogger("tgtg")
 
-NOTIFIERS: list[Type[Notifier]] = [Apprise, Console, PushSafer, SMTP, IFTTT, Ntfy, WebHook, Telegram, Script]
+NOTIFIERS: list[Type[Notifier]] = [Apprise, Console, PushSafer, SMTP, IFTTT, Ntfy, WebHook, Telegram, Script, Discord]
 
 
 class Notifiers:

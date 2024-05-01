@@ -1,4 +1,5 @@
 import argparse
+import datetime
 import http.client as http_client
 import json
 import logging
@@ -289,7 +290,8 @@ def _print_welcome_message() -> None:
         log.info(line)
     log.info("")
     log.info("Version %s", __version__)
-    log.info("©2022, %s", __author__)
+    today = datetime.date.today()
+    log.info("©%s, %s", today.year, __author__)
     log.info("For documentation and support please visit %s", __url__)
     log.info("")
 

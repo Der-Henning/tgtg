@@ -94,3 +94,9 @@ class LocationConfigurationError(ConfigurationError):
     def __init__(self, message="Invalid Location configuration"):
         self.message = message
         super().__init__(self.message)
+
+
+class DiscordConfigurationError(ConfigurationError):
+    def __init__(self, message="Invalid Discord configuration"):
+        self.message = message
+        super().__init__(self.message)

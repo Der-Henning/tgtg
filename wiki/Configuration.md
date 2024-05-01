@@ -212,3 +212,23 @@ For details on the service URL configuration see <https://github.com/caronc/appr
 | Password | WEBHOOK_PASSWORD | basic authentication password | | | |
 | Timeout | WEBHOOK_TIMEOUT | request timeout | `60` | | |
 | Cron | WEBHOOK_CRON | enable notification only on schedule | `* * * * *` | | |
+
+### [DISCORD] / Discord Notifier
+
+| config.ini | environment | description | default | required if enabled | variables |
+|------------|-------------|-------------|---------|:-------------------:|:---------:|
+| Enabled | DISCORD | enable Discord notifications | `false` | | |
+| Prefix | DISCORD_PREFIX | Prefix, that bot should react to | `!` | | |
+| Token | DISCORD_TOKEN | auth token | | YES | |
+| Channel | DISCORD_CHANNEL | enable Discord notifications | | | |
+| Body | DISCORD_BODY | Notification body | `*${{display_name}}*\n*Available*: ${{items_available}}\n*Price*: ${{price}} ${{currency}}\n*Pickup*: ${{pickupdate}}` | | YES |
+| DisableCommands | DISCORD_DISABLE_COMMANDS | disable bot commands | `false` | | |
+| Cron | DISCORD_CRON | enable notification only on schedule | `* * * * *` | | |
+
+#### Setting up a Discord Bot
+
+Register an application and associated bot user for use with TGTG scanner at <https://discord.com/developers/applications>.
+For details on how to set up see
+<https://realpython.com/how-to-make-a-discord-bot-python/#how-to-make-a-discord-bot-in-the-developer-portal>.
+The bot will send notifications to a specific channel. To obtain the channel ID, see
+<https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID>.

@@ -222,7 +222,7 @@ Alternatively, install all required development environment dependencies, includ
 make install
 ```
 
-For developement and testing it is sometimes usefull to trigger TGTG Magic Bag events.
+For developement and testing it is sometimes useful to trigger TGTG Magic Bag events.
 For this purpose you can run the TGTG dev API proxy server.
 The proxy redirects all requests to the official TGTG API server.
 The responses from the item endpoint are modified by randomizing the amount of available magic bags.
@@ -245,7 +245,7 @@ make server
 
 Feel free to create and contribute new notifiers for other services and endpoints.
 You can use an existing notifier as a template or build upon the webhook notifier.
-E.g. see the [ifttt notifier](https://github.com/Der-Henning/tgtg/blob/main/src/notifiers/ifttt.py).
+E.g. see the [ifttt notifier](https://github.com/Der-Henning/tgtg/blob/main/tgtg_scanner/notifiers/ifttt.py).
 
 ---
 If you want to support me, feel free to buy me a coffee.
