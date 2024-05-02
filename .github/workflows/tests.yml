@@ -4,7 +4,7 @@ on:
   pull_request:
 
 env:
-  POETRY_VERSION: 1.7.1
+  POETRY_VERSION: 1.8.2
 
 jobs:
   tests:
