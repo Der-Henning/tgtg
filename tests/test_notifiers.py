@@ -349,7 +349,7 @@ def mocked_discord(mocker: MockerFixture):
         return_value=None,
     )
     mocker.patch(
-        "discord.ext.commands.Bot.http.connector.close",
+        "aiohttp.BaseConnector.close",
         return_value=None,
     )
     return mocker
