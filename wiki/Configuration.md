@@ -158,6 +158,7 @@ You can combine multiple crons as semicolon separated list.
 | ChatIDs | TELEGRAM_CHAT_IDS | comma-separated list of chat ids | | | |
 | Body | TELEGRAM_BODY | message body | `*${{display_name}}* \n*Available*: ${{items_available}}\n*Price*: ${{price}} ${{currency}}\n*Pickup*: ${{pickupdate}}` | | YES |
 | DisableCommands | TELEGRAM_DISABLE_COMMANDS | disable bot commands | `false` | | |
+| OnlyReservations | TELEGRAM_ONLY_RESERVATIONS | only send notifications for reservations | `false` | | |
 | Timeout | TELEGRAM_TIMEOUT | timeout for telegram API requests | 60 | | |
 | Cron | TELEGRAM_CRON | enable notification only on schedule | `* * * * *` | | |
 

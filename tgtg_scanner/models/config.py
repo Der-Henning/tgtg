@@ -165,6 +165,7 @@ class TelegramConfig(NotifierConfig):
     token: Union[str, None] = None
     chat_ids: list[str] = field(default_factory=list)
     disable_commands: bool = False
+    only_reservations: bool = False
     timeout: int = 60
     body: str = (
         "*${{display_name}}*\n*Available*: ${{items_available}}\n*Price*: ${{price}} ${{currency}}\n*Pickup*: ${{pickupdate}}"
@@ -180,6 +181,7 @@ class TelegramConfig(NotifierConfig):
         self._ini_get_list(parser, "TELEGRAM", "chat_ids", "chat_ids")  # legacy support
         self._ini_get_list(parser, "TELEGRAM", "ChatIDs", "chat_ids")
         self._ini_get_boolean(parser, "TELEGRAM", "DisableCommands", "disable_commands")
+        self._ini_get_boolean(parser, "TELEGRAM", "OnlyReservations", "only_reservations")
         self._ini_get_int(parser, "TELEGRAM", "Timeout", "timeout")
         self._ini_get(parser, "TELEGRAM", "Body", "body")
         self._ini_get(parser, "TELEGRAM", "Image", "image")
@@ -190,6 +192,7 @@ class TelegramConfig(NotifierConfig):
         self._env_get("TELEGRAM_TOKEN", "token")
         self._env_get_list("TELEGRAM_CHAT_IDS", "chat_ids")
         self._env_get_boolean("TELEGRAM_DISABLE_COMMANDS", "disable_commands")
+        self._env_get_boolean("TELEGRAM_ONLY_RESERVATIONS", "only_reservations")
         self._env_get_int("TELEGRAM_TIMEOUT", "timeout")
         self._env_get("TELEGRAM_BODY", "body")
         self._env_get("TELEGRAM_IMAGE", "image")
