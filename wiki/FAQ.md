@@ -61,3 +61,13 @@ For each time you click on the item, an additional magic bag will be added.
 Click to cancel the reservation for the next available bag.
 + \orders: Lists all triggered and active reservations. Click to cancel the reservation.
 + \cancelall: Cancel all active reservations.
+
+## 5. Docker compose files
+
+Using Docker compose or Portainer special characters (`$`, `{}`, ...) in environment variables need to be escaped.
+
+Working example `TELEGRAM_BODY` using variables:
+
+```yaml
+- 'TELEGRAM_BODY=*$${{display_name}}*\n*Pickup*: $${{pickupdate}}\n*Order*: $${{link}}'
+```
