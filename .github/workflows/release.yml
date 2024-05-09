@@ -114,7 +114,7 @@ jobs:
         cp ./config.sample.ini ./dist/config.ini
         cp ./README.md ./dist/README.md
         cp ./LICENSE ./dist/LICENSE
-        ./dist/scanner -v
+        ./dist/scanner/scanner -v
     - name: Make filename for archive
       id: filename
       shell: bash
