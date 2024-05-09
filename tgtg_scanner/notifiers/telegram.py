@@ -425,7 +425,6 @@ class Telegram(Notifier):
                 ),
             )
 
-    @_private
     async def _callback_query_handler(self, update: Update, _) -> None:
         data = update.callback_query.data
         if isinstance(data, Item):
