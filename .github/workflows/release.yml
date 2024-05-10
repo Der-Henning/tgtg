@@ -111,9 +111,9 @@ jobs:
     - name: Run PyInstaller
       run: |
         poetry run pyinstaller scanner.spec
-        cp ./config.sample.ini ./dist/config.ini
-        cp ./README.md ./dist/README.md
-        cp ./LICENSE ./dist/LICENSE
+        cp ./config.sample.ini ./dist/scanner/config.ini
+        cp ./README.md ./dist/scanner/README.md
+        cp ./LICENSE ./dist/scanner/LICENSE
         ./dist/scanner/scanner -v
     - name: Make filename for archive
       id: filename
