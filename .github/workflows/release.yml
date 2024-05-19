@@ -119,7 +119,7 @@ jobs:
     - name: Run PyInstaller (win)
       if: matrix.tag == 'win'
       run: |
-        poetry run pyinstaller scanner.spec
+        poetry run pyinstaller scanner_win.spec
         cp ./config.sample.ini ./dist/scanner/config.ini
         cp ./README.md ./dist/scanner/README.md
         cp ./LICENSE ./dist/scanner/LICENSE
