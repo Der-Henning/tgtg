@@ -108,7 +108,16 @@ jobs:
         poetry-version: ${{ env.POETRY_VERSION }}
         python-version: ${{ env.PYTHON_VERSION }}
         without: test
-    - name: Run PyInstaller
+    - name: Run PyInstaller (linux/macos)
+      if: matrix.tag == 'linux' || matrix.tag == 'macos'
+      run: |
+        poetry run pyinstaller scanner.spec
+        cp ./config.sample.ini ./dist/config.ini
+        cp ./README.md ./dist/README.md
+        cp ./LICENSE ./dist/LICENSE
+        ./dist/scanner -v
+    - name: Run PyInstaller (win)
+      if: matrix.tag == 'win'
       run: |
         poetry run pyinstaller scanner.spec
         cp ./config.sample.ini ./dist/scanner/config.ini
@@ -121,7 +130,7 @@ jobs:
       run: echo "FILENAME=scanner-${{ github.ref_name }}-${{ matrix.tag }}.zip" | sed -r 's,/,-,g' >> $GITHUB_OUTPUT
     - name: Zip files (linux/macos)
       if: matrix.tag == 'linux' || matrix.tag == 'macos'
-      run: cd ./dist/scanner; zip -r ../../${{ steps.filename.outputs.FILENAME }} *
+      run: zip -j ./${{ steps.filename.outputs.FILENAME }} ./dist/*
     - name: Zip files (win)
       if: matrix.tag == 'win'
       run: Compress-Archive ./dist/scanner/* ./${{ steps.filename.outputs.FILENAME }}
