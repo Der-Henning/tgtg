@@ -165,6 +165,7 @@ class TelegramConfig(NotifierConfig):
     token: Union[str, None] = None
     chat_ids: list[str] = field(default_factory=list)
     disable_commands: bool = False
+    only_reservations: bool = False
     timeout: int = 60
     body: str = (
         "*${{display_name}}*\n*Available*: ${{items_available}}\n*Price*: ${{price}} ${{currency}}\n*Pickup*: ${{pickupdate}}"
@@ -180,6 +181,7 @@ class TelegramConfig(NotifierConfig):
         self._ini_get_list(parser, "TELEGRAM", "chat_ids", "chat_ids")  # legacy support
         self._ini_get_list(parser, "TELEGRAM", "ChatIDs", "chat_ids")
         self._ini_get_boolean(parser, "TELEGRAM", "DisableCommands", "disable_commands")
+        self._ini_get_boolean(parser, "TELEGRAM", "OnlyReservations", "only_reservations")
         self._ini_get_int(parser, "TELEGRAM", "Timeout", "timeout")
         self._ini_get(parser, "TELEGRAM", "Body", "body")
         self._ini_get(parser, "TELEGRAM", "Image", "image")
@@ -190,6 +192,7 @@ class TelegramConfig(NotifierConfig):
         self._env_get("TELEGRAM_TOKEN", "token")
         self._env_get_list("TELEGRAM_CHAT_IDS", "chat_ids")
         self._env_get_boolean("TELEGRAM_DISABLE_COMMANDS", "disable_commands")
+        self._env_get_boolean("TELEGRAM_ONLY_RESERVATIONS", "only_reservations")
         self._env_get_int("TELEGRAM_TIMEOUT", "timeout")
         self._env_get("TELEGRAM_BODY", "body")
         self._env_get("TELEGRAM_IMAGE", "image")
@@ -254,6 +257,7 @@ class SMTPConfig(NotifierConfig):
     password: Union[str, None] = None
     use_tls: bool = False
     use_ssl: bool = False
+    timeout: int = 60
     sender: Union[str, None] = None
     recipients: list[str] = field(default_factory=list)
     recipients_per_item: Union[str, None] = None
@@ -269,6 +273,7 @@ class SMTPConfig(NotifierConfig):
         self._ini_get(parser, "SMTP", "Password", "password")
         self._ini_get_boolean(parser, "SMTP", "TLS", "use_tls")
         self._ini_get_boolean(parser, "SMTP", "SSL", "use_ssl")
+        self._ini_get_int(parser, "SMTP", "Timeout", "timeout")
         self._ini_get(parser, "SMTP", "Sender", "sender")
         if parser.has_option("SMTP", "Recipient"):
             log.warning(DEPRECATION_NOTICE.format("[SMTP] Recipient", "Recipients"))
@@ -287,6 +292,7 @@ class SMTPConfig(NotifierConfig):
         self._env_get("SMTP_PASSWORD", "password")
         self._env_get_boolean("SMTP_TLS", "use_tls")
         self._env_get_boolean("SMTP_SSL", "use_ssl")
+        self._env_get_int("SMTP_TIMEOUT", "timeout")
         self._env_get("SMTP_SENDER", "sender")
         if environ.get("SMTP_RECIPIENT", None):
             log.warning(DEPRECATION_NOTICE.format("SMTP_RECIPIENT", "SMTP_RECIPIENTS"))
@@ -429,6 +435,38 @@ class ScriptConfig(NotifierConfig):
 
 
 @dataclass
+class DiscordConfig(NotifierConfig):
+    """Discord configuration"""
+
+    enabled: bool = False
+    prefix: Union[str, None] = "!"
+    token: Union[str, None] = None
+    channel: int = 0
+    body: str = (
+        "*${{display_name}}*\n*Available*: ${{items_available}}\n*Price*: ${{price}} ${{currency}}\n*Pickup*: ${{pickupdate}}"
+    )
+    disable_commands: bool = False
+
+    def _read_ini(self, parser: configparser.ConfigParser):
+        self._ini_get_boolean(parser, "DISCORD", "Enabled", "enabled")
+        self._ini_get(parser, "DISCORD", "Prefix", "prefix")
+        self._ini_get(parser, "DISCORD", "Token", "token")
+        self._ini_get_int(parser, "DISCORD", "Channel", "channel")
+        self._ini_get(parser, "DISCORD", "Body", "body")
+        self._ini_get_boolean(parser, "DISCORD", "DisableCommands", "disable_commands")
+        self._ini_get_cron(parser, "DISCORD", "Cron", "cron")
+
+    def _read_env(self):
+        self._env_get_boolean("DISCORD", "enabled")
+        self._env_get("DISCORD_PREFIX", "prefix")
+        self._env_get("DISCORD_TOKEN", "token")
+        self._env_get_int("DISCORD_CHANNEL", "channel")
+        self._env_get("DISCORD_BODY", "body")
+        self._env_get_boolean("DISCORD_DISABLE_COMMANDS", "disable_commands")
+        self._env_get_cron("DISCORD_CRON", "cron")
+
+
+@dataclass
 class TgtgConfig(BaseConfig):
     """Tgtg configuration"""
 
@@ -522,6 +560,7 @@ class Config(BaseConfig):
     ntfy: NtfyConfig = field(default_factory=NtfyConfig)
     webhook: WebhookConfig = field(default_factory=WebhookConfig)
     script: ScriptConfig = field(default_factory=ScriptConfig)
+    discord: DiscordConfig = field(default_factory=DiscordConfig)
 
     def __post_init__(self):
         if self.file:
@@ -543,6 +582,7 @@ class Config(BaseConfig):
             self.ntfy._read_ini(parser)
             self.webhook._read_ini(parser)
             self.script._read_ini(parser)
+            self.discord._read_ini(parser)
 
             log.info("Loaded config from %s", config_file.absolute())
         else:
@@ -558,6 +598,7 @@ class Config(BaseConfig):
             self.ntfy._read_env()
             self.webhook._read_env()
             self.script._read_env()
+            self.discord._read_env()
 
             log.info("Loaded config from environment variables")
 

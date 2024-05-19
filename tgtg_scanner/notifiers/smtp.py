@@ -26,6 +26,7 @@ class SMTP(Notifier):
         self.port = config.smtp.port
         self.use_tls = config.smtp.use_tls
         self.use_ssl = config.smtp.use_ssl
+        self.timeout = config.smtp.timeout
         self.username = config.smtp.username
         self.password = config.smtp.password
         self.sender = config.smtp.sender
@@ -71,9 +72,9 @@ class SMTP(Notifier):
         if self.host is None or self.port is None:
             raise SMTPConfigurationError()
         if self.use_ssl:
-            self.server = smtplib.SMTP_SSL(self.host, self.port)
+            self.server = smtplib.SMTP_SSL(self.host, self.port, timeout=self.timeout)
         else:
-            self.server = smtplib.SMTP(self.host, self.port)
+            self.server = smtplib.SMTP(self.host, self.port, timeout=self.timeout)
         self.server.set_debuglevel(self.debug)
         if self.use_tls:
             self.server.starttls()

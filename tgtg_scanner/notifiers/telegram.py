@@ -70,6 +70,7 @@ class Telegram(Notifier):
         self.chat_ids = config.telegram.chat_ids
         self.timeout = config.telegram.timeout
         self.disable_commands = config.telegram.disable_commands
+        self.only_reservations = config.telegram.only_reservations
         self.cron = config.telegram.cron
         self.mute: Union[datetime.datetime, None] = None
         self.retries = 0
@@ -163,6 +164,7 @@ class Telegram(Notifier):
             asyncio.set_event_loop(loop)
             self.application = ApplicationBuilder().token(self.token).arbitrary_callback_data(True).build()
             self.application.add_error_handler(self._error)
+            await self.application.bot.set_my_commands([])
             if not self.disable_commands:
                 try:
                     await self._start_polling()
@@ -206,19 +208,23 @@ class Telegram(Notifier):
         return None
 
     async def _send(self, item: Union[Item, Reservation]) -> None:  # type: ignore[override]
-        """Send item information as Telegram message"""
-        if self.mute and self.mute > datetime.datetime.now():
-            return
-        if self.mute:
+        """Send item information as Telegram message.
+
+        Reservation notifications are always send.
+        Disable Item notification with mute or only_reservations config.
+        """
+        if self.mute and self.mute < datetime.datetime.now():
             log.info("Reactivated Telegram Notifications")
             self.mute = None
         image = None
-        if isinstance(item, Item):
+        if isinstance(item, Item) and not self.only_reservations and not self.mute:
             message = self._unmask(self.body, item)
             if self.image:
                 image = self._unmask_image(self.image, item)
         elif isinstance(item, Reservation):
             message = escape_markdown(f"{item.display_name} is reserved for 5 minutes", version=2)
+        else:
+            return
         await self._send_message(message, image)
 
     async def _send_message(self, message: str, image: Union[bytes, None] = None) -> None:
@@ -425,7 +431,6 @@ class Telegram(Notifier):
                 ),
             )
 
-    @_private
     async def _callback_query_handler(self, update: Update, _) -> None:
         data = update.callback_query.data
         if isinstance(data, Item):

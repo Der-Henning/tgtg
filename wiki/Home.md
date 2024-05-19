@@ -14,6 +14,7 @@
     2. [How do I setup the tgtg-scanner in the Synology DSM Docker app?](FAQ.md#2-how-do-i-setup-the-tgtg-scanner-in-the-synology-dsm-docker-app)
     3. [How do I create a Telegram Bot?](FAQ.md#3-how-do-i-create-a-telegram-bot)
     4. [How does the reservation feature work?](FAQ.md#4-how-does-the-reservation-feature-work)
+    5. [Docker compose files](FAQ.md#5-docker-compose-files)
 
 4. [Examples](Examples.md)
     1. [Webhook Openhab example](Examples.md#webhook-openhab-example)

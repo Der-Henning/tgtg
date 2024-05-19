@@ -10,7 +10,7 @@ on:
 
 env:
   PYTHON_VERSION: '3.11'
-  POETRY_VERSION: 1.7.1
+  POETRY_VERSION: 1.8.2
 
 jobs:
   docker-images:
@@ -108,13 +108,22 @@ jobs:
         poetry-version: ${{ env.POETRY_VERSION }}
         python-version: ${{ env.PYTHON_VERSION }}
         without: test
-    - name: Run PyInstaller
+    - name: Run PyInstaller (linux/macos)
+      if: matrix.tag == 'linux' || matrix.tag == 'macos'
       run: |
         poetry run pyinstaller scanner.spec
         cp ./config.sample.ini ./dist/config.ini
         cp ./README.md ./dist/README.md
         cp ./LICENSE ./dist/LICENSE
         ./dist/scanner -v
+    - name: Run PyInstaller (win)
+      if: matrix.tag == 'win'
+      run: |
+        poetry run pyinstaller scanner_win.spec
+        cp ./config.sample.ini ./dist/scanner/config.ini
+        cp ./README.md ./dist/scanner/README.md
+        cp ./LICENSE ./dist/scanner/LICENSE
+        ./dist/scanner/scanner -v
     - name: Make filename for archive
       id: filename
       shell: bash
@@ -124,7 +133,7 @@ jobs:
       run: zip -j ./${{ steps.filename.outputs.FILENAME }} ./dist/*
     - name: Zip files (win)
       if: matrix.tag == 'win'
-      run: Compress-Archive ./dist/* ./${{ steps.filename.outputs.FILENAME }}
+      run: Compress-Archive ./dist/scanner/* ./${{ steps.filename.outputs.FILENAME }}
     - name: Upload archive
       uses: actions/upload-artifact@v4
       with:

@@ -10,6 +10,7 @@ from pytest_mock.plugin import MockerFixture
 from tgtg_scanner.models import Config, Cron, Favorites, Item, Reservations
 from tgtg_scanner.notifiers.apprise import Apprise
 from tgtg_scanner.notifiers.console import Console
+from tgtg_scanner.notifiers.discord import Discord
 from tgtg_scanner.notifiers.ifttt import IFTTT
 from tgtg_scanner.notifiers.ntfy import Ntfy
 from tgtg_scanner.notifiers.script import Script
@@ -323,3 +324,45 @@ def test_telegram(test_item: Item, reservations: Reservations, favorites: Favori
     assert telegram.thread.is_alive()
     telegram.stop()
     assert not telegram.thread.is_alive()
+
+
+@pytest.fixture
+def mocked_discord(mocker: MockerFixture):
+    mocker.patch(
+        "discord.ext.commands.Bot.login",
+        return_value=None,
+    )
+    mocker.patch(
+        "discord.ext.commands.Bot.start",
+        return_value=None,
+    )
+    mocker.patch(
+        "discord.ext.commands.Bot.command",
+        return_value=MagicMock(),
+    )
+    mocker.patch(
+        "discord.ext.commands.Bot.event",
+        return_value=MagicMock(),
+    )
+    mocker.patch(
+        "discord.ext.commands.Bot.dispatch",
+        return_value=None,
+    )
+    mocker.patch(
+        "aiohttp.BaseConnector.close",
+        return_value=None,
+    )
+    return mocker
+
+
+def test_discord(test_item: Item, reservations: Reservations, favorites: Favorites, mocked_discord):
+    config = Config()
+    config.discord.enabled = True
+    config.discord.channel = 123456789012345678
+    config.discord.token = "ABCDEFGHIJKLMNOPQRSTUVWXYZ.123456.ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKL"
+
+    discord = Discord(config, reservations, favorites)
+    discord.start()
+    discord.send(test_item)
+    sleep(0.5)
+    discord.stop()
