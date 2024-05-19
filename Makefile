@@ -23,8 +23,8 @@ tox:
 executable:
 	rm -rf ./build ./dist
 	poetry run pyinstaller ./scanner.spec
-	cp ./config.sample.ini ./dist/scanner/config.ini
-	cd ./dist/scanner; zip -r ../scanner.zip *
+	cp ./config.sample.ini ./dist/config.ini
+	zip -j ./dist/scanner.zip ./dist/*
 
 images:
 	docker build -f ./docker/Dockerfile -t tgtg-scanner:latest .
