@@ -1136,13 +1136,13 @@ requests = ">=1.0"
 
 [[package]]
 name = "python-telegram-bot"
-version = "21.1.1"
+version = "21.2"
 description = "We have made you a wrapper you can't refuse"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "python-telegram-bot-21.1.1.tar.gz", hash = "sha256:5fd21710902270f5946c6a484918227b361b8119e1dadae6b3dd7fcee3b1a74e"},
-    {file = "python_telegram_bot-21.1.1-py3-none-any.whl", hash = "sha256:dded93d733585a37b382fd5e088faffc37c3ae6d2bd4052d105d9a40f8a0152a"},
+    {file = "python-telegram-bot-21.2.tar.gz", hash = "sha256:2ebb462a98f502727d108c00bb50c513a68ddaf9545298c42f13996a9acf8354"},
+    {file = "python_telegram_bot-21.2-py3-none-any.whl", hash = "sha256:af0f45d61521126de98f5bdc8a75a9df8b93d0c35d18b018181ca7648a38b017"},
 ]
 
 [package.dependencies]
@@ -1496,4 +1496,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.13"
-content-hash = "e6c340d6adb2b09274368f0c5a10f24414fdfa3c649bf8055c45ac728f14aa26"
+content-hash = "2e00bc077307e1af053844f20bfc890d7645b482f5d9c9ca6c69d33f9adce0e8"
