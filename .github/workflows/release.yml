@@ -99,7 +99,7 @@ jobs:
           tag: linux
         - os: windows-latest
           tag: win
-        - os: macos-14-large
+        - os: [macos-latest, x64]
           tag: macos
     steps:
     - uses: actions/checkout@v4
