@@ -5,7 +5,7 @@ apprise==1.8.0 ; python_version >= "3.9" and python_version < "3.13"
 async-timeout==4.0.3 ; python_version >= "3.9" and python_version < "3.11"
 attrs==23.2.0 ; python_version >= "3.9" and python_version < "3.13"
 cachetools==5.3.3 ; python_version >= "3.9" and python_version < "3.13"
-certifi==2024.2.2 ; python_version >= "3.9" and python_version < "3.13"
+certifi==2024.7.4 ; python_version >= "3.9" and python_version < "3.13"
 charset-normalizer==3.3.2 ; python_version >= "3.9" and python_version < "3.13"
 click==8.1.7 ; python_version >= "3.9" and python_version < "3.13"
 colorama==0.4.6 ; python_version >= "3.9" and python_version < "3.13" and (sys_platform == "win32" or platform_system == "Windows")
