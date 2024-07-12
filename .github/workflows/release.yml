@@ -140,7 +140,7 @@ jobs:
         name: releases-${{ matrix.tag }}-${{ github.sha }}
         path: ./${{ steps.filename.outputs.FILENAME }}
     - name: Add archive to release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       if: github.ref_type == 'tag'
       with:
         files: ./${{ steps.filename.outputs.FILENAME }}
