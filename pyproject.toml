@@ -12,7 +12,7 @@ name = "tgtg-scanner"
 packages = [{include = "tgtg_scanner"}]
 readme = "README.md"
 repository = "https://github.com/Der-Henning/tgtg"
-version = "1.21.1"
+version = "1.21.2"
 
 [tool.poetry.dependencies]
 apprise = "^1.4.0"
