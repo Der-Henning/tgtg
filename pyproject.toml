@@ -16,6 +16,7 @@ version = "1.21.2"
 
 [tool.poetry.dependencies]
 apprise = "^1.4.0"
+babel = "^2.16.0"
 colorlog = "^6.7.0"
 cron-descriptor = "^1.4.0"
 discord = "^2.3.2"

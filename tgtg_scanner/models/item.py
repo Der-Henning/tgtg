@@ -4,10 +4,12 @@ import re
 from http import HTTPStatus
 from typing import Any, Union
 
+import babel.numbers
 import humanize
 import requests
 
 from tgtg_scanner.errors import MaskConfigurationError
+from tgtg_scanner.models import Config
 from tgtg_scanner.models.location import DistanceTime, Location
 
 ATTRS = [
@@ -17,10 +19,13 @@ ATTRS = [
     "description",
     "price",
     "value",
+    "price_localized",
+    "value_localized",
     "currency",
     "pickupdate",
     "favorite",
     "rating",
+    "rating_localized",
     "buffet",
     "item_category",
     "item_name",
@@ -52,7 +57,7 @@ class Item:
     returns well formated data for notifications.
     """
 
-    def __init__(self, data: dict, location: Union[Location, None] = None):
+    def __init__(self, data: dict, config: Union[Config, None] = None, location: Union[Location, None] = None):
         self.items_available = data.get("items_available", 0)
         self.display_name = data.get("display_name", "-")
         self.favorite = "Yes" if data.get("favorite", False) else "No"
@@ -90,6 +95,20 @@ class Item:
 
         self.scanned_on = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.location = location
+
+        # Localize attributes, first init with decoded values
+        self.price_localized = self.price
+        self.rating_localized = self.rating
+        self.value_localized = self.value
+        if config:
+            try:
+                self.rating_localized = babel.numbers.format_decimal(self.rating, locale=config.locale)
+
+                if self.currency != "-":
+                    self.price_localized = babel.numbers.format_currency(self.price, self.currency, locale=config.locale)
+                    self.value_localized = babel.numbers.format_currency(self.value, self.currency, locale=config.locale)
+            except babel.numbers.NumberFormatError:
+                pass
 
     @staticmethod
     def _datetimeparse(datestr: str) -> datetime.datetime:
