@@ -71,7 +71,7 @@ You can combine multiple crons as semicolon separated list.
 | ScheduleCron | SCHEDULE_CRON | run only on schedule | `* * * * *` |
 | ItemIDs | ITEM_IDS | **Depreciated!** comma-separated list of additional (none favorite) items to scan | |
 | Metrics | METRICS | enable Prometheus metrics HTTP server | `false` |
-| MetricsPort | METRICS_PORTS | port for metrics server | `8000` |
+| MetricsPort | METRICS_PORT | port for metrics server | `8000` |
 | DisableTests | DISABLE_TESTS | disable test notifications on startup | `false` |
 | Quiet | QUIET | minimal console output | `false` |
 | Locale | LOCALE | localization | `en_US` |
