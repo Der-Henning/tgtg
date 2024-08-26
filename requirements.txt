@@ -10,7 +10,7 @@ charset-normalizer==3.3.2 ; python_version >= "3.9" and python_version < "3.13"
 click==8.1.7 ; python_version >= "3.9" and python_version < "3.13"
 colorama==0.4.6 ; python_version >= "3.9" and python_version < "3.13" and (sys_platform == "win32" or platform_system == "Windows")
 colorlog==6.8.2 ; python_version >= "3.9" and python_version < "3.13"
-cron-descriptor==1.4.3 ; python_version >= "3.9" and python_version < "3.13"
+cron-descriptor==1.4.5 ; python_version >= "3.9" and python_version < "3.13"
 discord-py==2.4.0 ; python_version >= "3.9" and python_version < "3.13"
 discord==2.3.2 ; python_version >= "3.9" and python_version < "3.13"
 exceptiongroup==1.2.1 ; python_version >= "3.9" and python_version < "3.11"
