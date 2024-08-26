@@ -17,7 +17,7 @@ version = "1.21.2"
 [tool.poetry.dependencies]
 apprise = "^1.4.0"
 colorlog = "^6.7.0"
-cron-descriptor = "^1.4.0"
+cron-descriptor = "^1.4.5"
 discord = "^2.3.2"
 googlemaps = "^4.10.0"
 humanize = "^4.7.0"
