@@ -12,7 +12,7 @@ name = "tgtg-scanner"
 packages = [{include = "tgtg_scanner"}]
 readme = "README.md"
 repository = "https://github.com/Der-Henning/tgtg"
-version = "1.21.2"
+version = "1.22.0"
 
 [tool.poetry.dependencies]
 apprise = "^1.4.0"
@@ -24,7 +24,7 @@ googlemaps = "^4.10.0"
 humanize = "^4.7.0"
 packaging = "^24.0"
 progress = "^1.6"
-prometheus-client = "^0.20.0"
+prometheus-client = "^0.21.0"
 pycron = "^3.0.0"
 python = ">=3.9,<3.13"
 python-pushsafer = "^1.1"

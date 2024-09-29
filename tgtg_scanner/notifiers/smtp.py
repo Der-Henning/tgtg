@@ -94,7 +94,7 @@ class SMTP(Notifier):
         if status != 250:
             self._connect()
 
-    def _send_mail(self, subject: str, html: str, item_id: int) -> None:
+    def _send_mail(self, subject: str, html: str, item_id: str) -> None:
         """Sends mail with html body"""
         if self.server is None:
             self._connect()
@@ -105,7 +105,7 @@ class SMTP(Notifier):
 
         # Contains either the main recipient(s) or recipient(s) that should be
         # notified for the specific item. First, initalize with main recipient(s)
-        recipients = self.item_recipients.get(str(item_id), self.recipients)
+        recipients = self.item_recipients.get(item_id, self.recipients)
 
         message["To"] = ", ".join(recipients)
         message["Subject"] = subject
