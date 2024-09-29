@@ -4,6 +4,7 @@ import re
 from http import HTTPStatus
 from typing import Any, Union
 
+import babel.numbers
 import humanize
 import requests
 
@@ -52,44 +53,64 @@ class Item:
     returns well formated data for notifications.
     """
 
-    def __init__(self, data: dict, location: Union[Location, None] = None):
-        self.items_available = data.get("items_available", 0)
-        self.display_name = data.get("display_name", "-")
-        self.favorite = "Yes" if data.get("favorite", False) else "No"
-        self.pickup_interval_start = data.get("pickup_interval", {}).get("start", None)
-        self.pickup_interval_end = data.get("pickup_interval", {}).get("end", None)
-        self.pickup_location = data.get("pickup_location", {}).get("address", {}).get("address_line", "-")
+    def __init__(self, data: dict, location: Union[Location, None] = None, locale: str = "en_US"):
+        self.items_available: int = data.get("items_available", 0)
+        self.display_name: str = data.get("display_name", "-")
+        self.favorite: str = "Yes" if data.get("favorite", False) else "No"
+        self.pickup_interval_start: Union[str, None] = data.get("pickup_interval", {}).get("start", None)
+        self.pickup_interval_end: Union[str, None] = data.get("pickup_interval", {}).get("end", None)
+        self.pickup_location: str = data.get("pickup_location", {}).get("address", {}).get("address_line", "-")
 
-        item = data.get("item", {})
-        self.item_id = item.get("item_id")
-        self.rating = item.get("average_overall_rating", {}).get("average_overall_rating", None)
-        self.rating = "-" if not self.rating else f"{self.rating:.1f}"
-        self.packaging_option = item.get("packaging_option", "-")
-        self.item_name = item.get("name", "-")
-        self.buffet = "Yes" if item.get("buffet", False) else "No"
-        self.item_category = item.get("item_category", "-")
-        self.description = item.get("description", "-")
-        item_price = item.get("item_price", {})
-        item_value = item.get("item_value", {})
-        price = item_price.get("minor_units", 0) / 10 ** item_price.get("decimals", 0)
-        value = item_value.get("minor_units", 0) / 10 ** item_value.get("decimals", 0)
-        self.price = f"{price:.2f}"
-        self.value = f"{value:.2f}"
-        self.currency = item_price.get("code", "-")
-        self.item_logo = item.get("logo_picture", {}).get(
+        item: dict = data.get("item", {})
+        self.item_id: str = item.get("item_id", None)
+        self._rating: Union[float, None] = item.get("average_overall_rating", {}).get("average_overall_rating", None)
+        self.packaging_option: str = item.get("packaging_option", "-")
+        self.item_name: str = item.get("name", "-")
+        self.buffet: str = "Yes" if item.get("buffet", False) else "No"
+        self.item_category: str = item.get("item_category", "-")
+        self.description: str = item.get("description", "-")
+        item_price: dict = item.get("item_price", {})
+        item_value: dict = item.get("item_value", {})
+        self._price: float = item_price.get("minor_units", 0) / 10 ** item_price.get("decimals", 0)
+        self._value: float = item_value.get("minor_units", 0) / 10 ** item_value.get("decimals", 0)
+        self.currency: str = item_price.get("code", "-")
+        self.item_logo: str = item.get("logo_picture", {}).get(
             "current_url",
             "https://tgtg-mkt-cms-prod.s3.eu-west-1.amazonaws.com/13512/TGTG_Icon_White_Cirle_1988x1988px_RGB.png",
         )
-        self.item_cover = item.get("cover_picture", {}).get(
+        self.item_cover: str = item.get("cover_picture", {}).get(
             "current_url",
             "https://images.tgtg.ninja/standard_images/GENERAL/other1.jpg",
         )
 
-        store = data.get("store", {})
-        self.store_name = store.get("store_name", "-")
+        store: dict = data.get("store", {})
+        self.store_name: str = store.get("store_name", "-")
 
-        self.scanned_on = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.scanned_on: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.location = location
+        self.locale = locale
+
+    @property
+    def rating(self) -> str:
+        if self._rating is None:
+            return "-"
+        return self._format_decimal(round(self._rating, 1))
+
+    @property
+    def price(self) -> str:
+        return self._format_currency(self._price)
+
+    @property
+    def value(self) -> str:
+        return self._format_currency(self._value)
+
+    def _format_decimal(self, number: float) -> str:
+        return babel.numbers.format_decimal(number, locale=self.locale)
+
+    def _format_currency(self, number: float) -> str:
+        if self.currency == "-":
+            return self._format_decimal(number)
+        return babel.numbers.format_currency(number, self.currency, locale=self.locale)
 
     @staticmethod
     def _datetimeparse(datestr: str) -> datetime.datetime:
@@ -155,18 +176,18 @@ class Item:
         """
         Returns a well formated string, providing the pickup time range
         """
-        if self.pickup_interval_start and self.pickup_interval_end:
-            now = datetime.datetime.now()
-            pfr = self._datetimeparse(self.pickup_interval_start)
-            pto = self._datetimeparse(self.pickup_interval_end)
-            prange = f"{pfr.hour:02d}:{pfr.minute:02d} - {pto.hour:02d}:{pto.minute:02d}"
-            tommorow = now + datetime.timedelta(days=1)
-            if now.date() == pfr.date():
-                return f"{humanize.naturalday(now)}, {prange}"
-            if (pfr.date() - now.date()).days == 1:
-                return f"{humanize.naturalday(tommorow)}, {prange}"
-            return f"{pfr.day}/{pfr.month}, {prange}"
-        return "-"
+        if self.pickup_interval_start is None or self.pickup_interval_end is None:
+            return "-"
+        now = datetime.datetime.now()
+        pfr = self._datetimeparse(self.pickup_interval_start)
+        pto = self._datetimeparse(self.pickup_interval_end)
+        prange = f"{pfr.hour:02d}:{pfr.minute:02d} - {pto.hour:02d}:{pto.minute:02d}"
+        tommorow = now + datetime.timedelta(days=1)
+        if now.date() == pfr.date():
+            return f"{humanize.naturalday(now)}, {prange}"
+        if (pfr.date() - now.date()).days == 1:
+            return f"{humanize.naturalday(tommorow)}, {prange}"
+        return f"{pfr.day}/{pfr.month}, {prange}"
 
     def _get_distance_time(self, travel_mode: str) -> Union[DistanceTime, None]:
         if self.location is None:

@@ -40,7 +40,7 @@ class Metrics:
         """
         try:
             self.item_count.labels(item.item_id, item.display_name).set(item.items_available)
-            self.item_price.labels(item.item_id, item.display_name).set(float(item.price))
-            self.item_value.labels(item.item_id, item.display_name).set(float(item.value))
+            self.item_price.labels(item.item_id, item.display_name).set(item._price)
+            self.item_value.labels(item.item_id, item.display_name).set(item._value)
         except ValueError as err:
             log.warning("Error updating metrics: %s", err)
