@@ -3,6 +3,7 @@ import logging
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.utils import formatdate
 from smtplib import SMTPException, SMTPServerDisconnected
 from typing import Union
 
@@ -108,6 +109,7 @@ class SMTP(Notifier):
 
         message["To"] = ", ".join(recipients)
         message["Subject"] = subject
+        message["Date"] = formatdate(localtime=True)
         message.attach(MIMEText(html, "html", "utf-8"))
         body = message.as_string()
         self._stay_connected()

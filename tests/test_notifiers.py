@@ -262,8 +262,8 @@ def test_smtp(test_item: Item, reservations: Reservations, favorites: Favorites,
     assert body[2] == "From: user@example.com"
     assert body[3] == "To: user@example.com"
     assert body[4] == "Subject: New Magic Bags"
-    assert body[7] == 'Content-Type: text/html; charset="utf-8"'
-    assert body[11] == f"<b>=C3=81 =C3=AA</b> </br>Amount: {test_item.items_available}"
+    assert body[8] == 'Content-Type: text/html; charset="utf-8"'
+    assert body[12] == f"<b>=C3=81 =C3=AA</b> </br>Amount: {test_item.items_available}"
 
 
 @pytest.fixture
