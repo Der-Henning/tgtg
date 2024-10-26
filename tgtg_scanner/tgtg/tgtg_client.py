@@ -34,6 +34,7 @@ INACTIVE_ORDER_ENDPOINT = "order/v7/inactive"
 CREATE_ORDER_ENDPOINT = "order/v7/create/"
 ABORT_ORDER_ENDPOINT = "order/v7/{}/abort"
 ORDER_STATUS_ENDPOINT = "order/v7/{}/status"
+MANUFACTURERITEM_ENDPOINT = "manufactureritem/v2/"
 USER_AGENTS = [
     "TGTG/{} Dalvik/2.1.0 (Linux; U; Android 9; Nexus 5 Build/M4B30Z)",
     "TGTG/{} Dalvik/2.1.0 (Linux; U; Android 10; SM-G935F Build/NRD90M)",
@@ -42,7 +43,7 @@ USER_AGENTS = [
 DEFAULT_ACCESS_TOKEN_LIFETIME = 3600 * 4  # 4 hours
 DEFAULT_MAX_POLLING_TRIES = 24  # 24 * POLLING_WAIT_TIME = 2 minutes
 DEFAULT_POLLING_WAIT_TIME = 5  # Seconds
-DEFAULT_APK_VERSION = "22.11.11"
+DEFAULT_APK_VERSION = "24.10.1"
 
 APK_RE_SCRIPT = re.compile(r"AF_initDataCallback\({key:\s*'ds:5'.*?data:([\s\S]*?), sideChannel:.+<\/script")
 
@@ -403,3 +404,26 @@ class TgtgClient:
         response = self._post(ABORT_ORDER_ENDPOINT.format(order_id), json={"cancel_reason_id": 1})
         if response.json().get("state") != "SUCCESS":
             raise TgtgAPIError(response.status_code, response.content)
+
+    def get_manufactureritems(self) -> dict:
+        self.login()
+        response = self._post(
+            MANUFACTURERITEM_ENDPOINT,
+            json={
+                "action_types_accepted": ["QUERY"],
+                "display_types_accepted": ["LIST", "FILL"],
+                "element_types_accepted": [
+                    "ITEM",
+                    "HIGHLIGHTED_ITEM",
+                    "MANUFACTURER_STORY_CARD",
+                    "DUO_ITEMS",
+                    "DUO_ITEMS_V2",
+                    "TEXT",
+                    "PARCEL_TEXT",
+                    "NPS",
+                    "SMALL_CARDS_CAROUSEL",
+                    "ITEM_CARDS_CAROUSEL",
+                ],
+            },
+        )
+        return response.json()
