@@ -157,11 +157,11 @@ class Scanner:
 
         # Update item data keys based on the mapping
         for key, value in item_data.items():
-            new_key = mapping.get(key, key) 
-            modified_item_data[new_key] = value 
+            new_key = mapping.get(key, key)
+            modified_item_data[new_key] = value
 
         # Flattening the original data and integrating the modified item data
-        flattened_data = {**raw_delivery_item}  
+        flattened_data = {**raw_delivery_item}
         flattened_data.update(modified_item_data)
 
         return Item(flattened_data, self.location, self.config.locale)
