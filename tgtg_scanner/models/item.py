@@ -86,6 +86,9 @@ class Item:
         store: dict = data.get("store", {})
         self.store_name: str = store.get("store_name", "-")
 
+        self.manufacturer_properties: dict = data.get("manufacturer_properties", {})
+        self.tags: list = data.get("tags", [])
+
         self.scanned_on: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.location = location
         self.locale = locale
@@ -221,3 +224,16 @@ class Item:
                 if _type == "duration":
                     return self._get_duration(_mode)
             raise
+
+    @classmethod
+    def delivery_item_conversion(cls):
+        """
+        Returns a mapping of "DeliveryItem" keys to Item keys.
+        """
+        return {
+            "subtitle": "description",
+            "item_type": "item_category",
+            "name": "display_name",
+            "available_stock": "items_available",
+            "cover_picture": "item_cover",
+        }
