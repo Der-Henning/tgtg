@@ -53,6 +53,7 @@ class Scanner:
         self.item_ids = set(self.config.item_ids)
         self.cron = self.config.schedule_cron
         self.state: Dict[str, Item] = {}
+        self.delivery_state: Dict[str, Item] = {}
         self.notifiers: Union[Notifiers, None] = None
         self.location: Union[Location, None] = None
         self.tgtg_client = TgtgClient(
@@ -124,6 +125,8 @@ class Scanner:
         if len(self.state) == 0:
             log.warning("No items in observation! Did you add any favorites?")
 
+        self._check_delivery_items()
+
         self.config.save_tokens(
             self.tgtg_client.access_token,
             self.tgtg_client.refresh_token,
@@ -145,6 +148,41 @@ class Scanner:
             return []
         return [Item(item, self.location, self.config.locale) for item in items]
 
+    def convert_raw_delivery_item(self, raw_delivery_item: dict, mapping: dict) -> Item:
+        """Converts a raw delivery item to an Item object using a mapping dictionary."""
+        item_data = raw_delivery_item.get("item", {})
+
+        # Create a new dictionary to hold the modified item data
+        modified_item_data = {}
+
+        # Update item data keys based on the mapping
+        for key, value in item_data.items():
+            new_key = mapping.get(key, key) 
+            modified_item_data[new_key] = value 
+
+        # Flattening the original data and integrating the modified item data
+        flattened_data = {**raw_delivery_item}  
+        flattened_data.update(modified_item_data)
+
+        return Item(flattened_data, self.location, self.config.locale)
+
+    def get_delivery_items(self) -> List[Item]:
+        """Returns delivery items available in the delivery panel.
+
+        Returns:
+            List: List of delivery items, still available in the delivery panel (not Out of stock)
+        """
+        raw_delivery_items = self.tgtg_client.get_raw_delivery_items()
+
+        delivery_items = [
+            self.convert_raw_delivery_item(raw_delivery_item, Item.delivery_item_conversion())
+            for raw_delivery_item in raw_delivery_items
+        ]
+
+        in_stock_delivery_items = [item for item in delivery_items if item.items_available > 0]
+
+        return in_stock_delivery_items
+
     def _check_item(self, item: Item) -> None:
         """
         Checks if the available item amount raised from zero to something
@@ -160,6 +198,28 @@ class Scanner:
                 self.metrics.send_notifications.labels(item.item_id, item.display_name).inc()
         self.metrics.update(item)
         self.state[item.item_id] = item
+
+    def _check_delivery_items(self) -> None:
+        """
+        Check for new delivery items and send notifications if new items are available
+        """
+        # 1. Retrieve the current delivery items data available on TGTG
+        delivery_items: list[Item] = self.get_delivery_items()
+        delivery_items_ids: list[str] = [item.item_id for item in delivery_items]
+
+        # 2. Compare the delivery items with the current state
+        for item in delivery_items:
+            item_id = item.item_id
+            if item_id not in self.delivery_state:
+                # New item, send notification
+                self._send_messages(item)
+                self.metrics.send_notifications.labels(item_id, item.display_name).inc()
+                self.delivery_state[item_id] = item
+
+        # 3. Remove items that are no longer available - out of stock
+        for item_id in list(self.delivery_state.keys()):
+            if item_id not in delivery_items_ids:
+                self.delivery_state.pop(item_id)
 
     def _send_messages(self, item: Item) -> None:
         """
