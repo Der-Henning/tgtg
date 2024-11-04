@@ -34,6 +34,7 @@ INACTIVE_ORDER_ENDPOINT = "order/v7/inactive"
 CREATE_ORDER_ENDPOINT = "order/v7/create/"
 ABORT_ORDER_ENDPOINT = "order/v7/{}/abort"
 ORDER_STATUS_ENDPOINT = "order/v7/{}/status"
+MANUFACTURERITEM_ENDPOINT = "manufactureritem/v2/"
 USER_AGENTS = [
     "TGTG/{} Dalvik/2.1.0 (Linux; U; Android 9; Nexus 5 Build/M4B30Z)",
     "TGTG/{} Dalvik/2.1.0 (Linux; U; Android 10; SM-G935F Build/NRD90M)",
@@ -403,3 +404,46 @@ class TgtgClient:
         response = self._post(ABORT_ORDER_ENDPOINT.format(order_id), json={"cancel_reason_id": 1})
         if response.json().get("state") != "SUCCESS":
             raise TgtgAPIError(response.status_code, response.content)
+
+    def _extract_delivery_items(self, delivery_items_response_data: dict) -> List[dict]:
+        """
+        Extracts all items from the delivery items response data.
+
+        Args:
+            delivery_items_response_data (dict): The response data from the TGTG API.
+
+        Returns:
+            List[dict]: List of all items in the response.
+        """
+        all_delivery_items = []
+        for group in delivery_items_response_data.get("groups", []):
+            all_delivery_items.extend(group.get("elements", []))
+
+        return [item for item in all_delivery_items]
+
+    def get_raw_delivery_items(self):
+        """Returns all raw items in delivery from the TGTG API
+
+        Returns:
+            List: List of raw items
+        """
+        # Commented element types have not been tested yet.
+        response = self._post(
+            MANUFACTURERITEM_ENDPOINT,
+            json={
+                "action_types_accepted": ["QUERY"],
+                "display_types_accepted": ["LIST"],
+                "element_types_accepted": [
+                    "ITEM",  # All items/products in delivery
+                    "HIGHLIGHTED_ITEM",  # Item with a special highlight on the top of the delivery pannel
+                    # "DUO_ITEMS",
+                    # "DUO_ITEMS_V2",
+                    # "TEXT",
+                    # "PARCEL_TEXT",
+                    # "NPS",
+                ],
+            },
+        )
+
+        items_data = self._extract_delivery_items(response.json())
+        return items_data
