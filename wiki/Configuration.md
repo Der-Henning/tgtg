@@ -73,6 +73,7 @@ You can combine multiple crons as semicolon separated list.
 | Metrics | METRICS | enable Prometheus metrics HTTP server | `false` |
 | MetricsPort | METRICS_PORT | port for metrics server | `8000` |
 | DisableTests | DISABLE_TESTS | disable test notifications on startup | `false` |
+| DisableDeliveryItems | DISABLE_DELIVERY_ITEMS | disable notifications for delivery items | `true` |
 | Quiet | QUIET | minimal console output | `false` |
 | Locale | LOCALE | localization | `en_US` |
 | Activity | ACTIVITY | show running indicator (always disabled in docker) | `true` |

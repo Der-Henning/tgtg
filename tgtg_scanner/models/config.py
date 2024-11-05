@@ -545,6 +545,7 @@ class Config(BaseConfig):
     metrics: bool = False
     metrics_port: int = 8000
     disable_tests: bool = False
+    disable_delivery_items: bool = True
     quiet: bool = False
     docker: bool = False
     activity: bool = True
@@ -623,6 +624,7 @@ class Config(BaseConfig):
         self._ini_get_boolean(parser, "MAIN", "Metrics", "metrics")
         self._ini_get_int(parser, "MAIN", "MetricsPort", "metrics_port")
         self._ini_get_boolean(parser, "MAIN", "DisableTests", "disable_tests")
+        self._ini_get_boolean(parser, "MAIN", "DisableDeliveryItems", "disable_delivery_items")
         self._ini_get_boolean(parser, "MAIN", "Quiet", "quiet")
         self._ini_get_boolean(parser, "MAIN", "Docker", "docker")
         self._ini_get_boolean(parser, "MAIN", "Activity", "activity")
@@ -636,6 +638,7 @@ class Config(BaseConfig):
         self._env_get_boolean("METRICS", "metrics")
         self._env_get_int("METRICS_PORT", "metrics_port")
         self._env_get_boolean("DISABLE_TESTS", "disable_tests")
+        self._env_get_boolean("DISABLE_DELIVERY_ITEMS", "DisableDeliveryItems")
         self._env_get_boolean("QUIET", "quiet")
         self._env_get_boolean("DOCKER", "docker")
         self._env_get_boolean("ACTIVITY", "activity")
