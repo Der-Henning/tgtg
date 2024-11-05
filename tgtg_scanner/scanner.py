@@ -125,7 +125,8 @@ class Scanner:
         if len(self.state) == 0:
             log.warning("No items in observation! Did you add any favorites?")
 
-        self._check_delivery_items()
+        if not self.config.disable_delivery_items:
+            self._check_delivery_items()
 
         self.config.save_tokens(
             self.tgtg_client.access_token,
@@ -221,19 +222,26 @@ class Scanner:
             if item_id not in delivery_items_ids:
                 self.delivery_state.pop(item_id)
 
-    def _send_messages(self, item: Item) -> None:
+    def _send_messages(self, item: Item, is_delivery_item: bool = False) -> None:
         """
         Send notifications for Item
         """
         if self.notifiers is None:
             raise RuntimeError("Notifiers not initialized!")
 
-        log.info(
-            "Sending notifications for %s - %s bags available",
-            item.display_name,
-            item.items_available,
-        )
-        self.notifiers.send(item)
+        if not is_delivery_item:          
+            log.info(
+                "MAGIC BAGS: Sending notifications for %s - %s bags available",
+                item.display_name,
+                item.items_available,
+            )
+        else:
+            log.info(
+                "DELIVERY ITEM: Sending notifications for %s - %s bags available",
+                item.display_name,
+                item.items_available,
+            )
+        self.notifiers.send(item, is_delivery_item)
 
     def run(self) -> NoReturn:
         """
