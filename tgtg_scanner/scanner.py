@@ -222,26 +222,19 @@ class Scanner:
             if item_id not in delivery_items_ids:
                 self.delivery_state.pop(item_id)
 
-    def _send_messages(self, item: Item, is_delivery_item: bool = False) -> None:
+    def _send_messages(self, item: Item) -> None:
         """
         Send notifications for Item
         """
         if self.notifiers is None:
             raise RuntimeError("Notifiers not initialized!")
 
-        if not is_delivery_item:          
-            log.info(
-                "MAGIC BAGS: Sending notifications for %s - %s bags available",
-                item.display_name,
-                item.items_available,
-            )
-        else:
-            log.info(
-                "DELIVERY ITEM: Sending notifications for %s - %s bags available",
-                item.display_name,
-                item.items_available,
-            )
-        self.notifiers.send(item, is_delivery_item)
+        log.info(
+            "Sending notifications for %s - %s bags available",
+            item.display_name,
+            item.items_available,
+        )
+        self.notifiers.send(item)
 
     def run(self) -> NoReturn:
         """
