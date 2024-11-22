@@ -173,7 +173,6 @@ def main():
                 print("Email:          ", credentials.get("email"))
                 print("Access Token:   ", credentials.get("access_token"))
                 print("Refresh Token:  ", credentials.get("refresh_token"))
-                print("User ID:        ", credentials.get("user_id"))
                 print("Datadome Cookie:", credentials.get("datadome_cookie"))
                 print("")
         elif args.favorites:

@@ -53,7 +53,6 @@ def test_tgtg_login_with_mail(mocker: MockerFixture):
         "access_token": "new_access_token",
         "access_token_ttl_seconds": 172800,
         "refresh_token": "new_refresh_token",
-        "startup_data": {"user": {"user_id": "123456789"}},
     }
     responses.add(
         responses.POST,
@@ -75,8 +74,6 @@ def test_tgtg_login_with_mail(mocker: MockerFixture):
     client.login()
     assert client.access_token == poll_response_data.get("access_token")
     assert client.refresh_token == poll_response_data.get("refresh_token")
-    user_id = poll_response_data.get("startup_data", {}).get("user", {}).get("user_id")  # type: ignore[attr-defined]
-    assert client.user_id == user_id
     assert json.loads(responses.calls[1].request.body) == {
         "device_type": client.device_type,
         "email": client.email,
@@ -94,7 +91,6 @@ def test_tgtg_login_with_token(mocker: MockerFixture):
         email="test@example.com",
         access_token="old_access_token",
         refresh_token="old_refresh_token",
-        user_id="old_user_id",
     )
     response_data = {
         "access_token": "new_access_token",
@@ -129,7 +125,6 @@ def test_tgtg_get_items(mocker: MockerFixture, tgtg_item: dict):
         email="test@example.com",
         access_token="access_token",
         refresh_token="refresh_token",
-        user_id="user_id",
     )
     response = client.get_items(favorites_only=True)
     assert response == [tgtg_item]
@@ -153,7 +148,6 @@ def test_tgtg_get_item(mocker: MockerFixture, tgtg_item: dict):
         email="test@example.com",
         access_token="access_token",
         refresh_token="refresh_token",
-        user_id="user_id",
     )
     response = client.get_item(item_id)
     assert response == tgtg_item
@@ -177,7 +171,6 @@ def test_tgtg_set_favorite(mocker: MockerFixture):
         email="test@example.com",
         access_token="access_token",
         refresh_token="refresh_token",
-        user_id="user_id",
     )
     client.set_favorite(item_id, True)
     assert json.loads(responses.calls[0].request.body) == {"is_favorite": True}
@@ -200,7 +193,6 @@ def test_tgtg_api(item_properties: dict):
         polling_wait_time=config.tgtg.polling_wait_time,
         access_token=config.tgtg.access_token,
         refresh_token=config.tgtg.refresh_token,
-        user_id=config.tgtg.user_id,
         datadome_cookie=config.tgtg.datadome,
     )
 
@@ -211,7 +203,6 @@ def test_tgtg_api(item_properties: dict):
         with open(env_file, "a", encoding="utf-8") as file:
             file.write(f"TGTG_ACCESS_TOKEN={credentials['access_token']}\n")
             file.write(f"TGTG_REFRESH_TOKEN={credentials['refresh_token']}\n")
-            file.write(f"TGTG_USER_ID={credentials['user_id']}\n")
             file.write(f"TGTG_COOKIE={credentials['datadome_cookie']}\n")
 
     # Tests

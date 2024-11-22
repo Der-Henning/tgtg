@@ -87,7 +87,6 @@ You can combine multiple crons as semicolon separated list.
 | Username | TGTG_USERNAME | email connected to your TGTG Account |  | YES |
 | AccessToken | TGTG_ACCESS_TOKEN | TGTG API access token | | |
 | RefreshToken | TGTG_REFRESH_TOKEN | TGTG API refresh token | | |
-| UserId | TGTG_USER_ID | TGTG API user ID | | |
 | Datadome | TGTG_DATADOME | TGTG API datadome protection cookie | | |
 | Timeout | TGTG_TIMEOUT | timeout for API requests | `60` | |
 | AccessTokenLifetime | TGTG_ACCESS_TOKEN_LIFETIME | access token lifetime in seconds | `14400` | |

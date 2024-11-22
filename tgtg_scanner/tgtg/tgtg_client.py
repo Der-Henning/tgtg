@@ -111,7 +111,6 @@ class TgtgClient:
         email=None,
         access_token=None,
         refresh_token=None,
-        user_id=None,
         datadome_cookie=None,
         user_agent=None,
         language="en-GB",
@@ -130,7 +129,6 @@ class TgtgClient:
         self.email = email
         self.access_token = access_token
         self.refresh_token = refresh_token
-        self.user_id = user_id
         self.datadome_cookie = datadome_cookie
 
         self.last_time_token_refreshed = None
@@ -178,7 +176,6 @@ class TgtgClient:
             "email": self.email,
             "access_token": self.access_token,
             "refresh_token": self.refresh_token,
-            "user_id": self.user_id,
             "datadome_cookie": self.datadome_cookie,
         }
 
@@ -250,7 +247,7 @@ class TgtgClient:
 
     @property
     def _already_logged(self) -> bool:
-        return bool(self.access_token and self.refresh_token and self.user_id)
+        return bool(self.access_token and self.refresh_token)
 
     def _refresh_token(self) -> None:
         if (
@@ -264,8 +261,8 @@ class TgtgClient:
         self.last_time_token_refreshed = datetime.now()
 
     def login(self) -> None:
-        if not (self.email or self.access_token and self.refresh_token and self.user_id):
-            raise TGTGConfigurationError("You must provide at least email or access_token, refresh_token and user_id")
+        if not (self.email or self.access_token and self.refresh_token):
+            raise TGTGConfigurationError("You must provide at least email or access_token and refresh_token")
         if self._already_logged:
             self._refresh_token()
         else:
@@ -309,7 +306,6 @@ class TgtgClient:
                 self.access_token = login_response.get("access_token")
                 self.refresh_token = login_response.get("refresh_token")
                 self.last_time_token_refreshed = datetime.now()
-                self.user_id = login_response.get("startup_data", {}).get("user", {}).get("user_id")
                 return
         raise TgtgPollingError("Max polling retries reached. Try again.")
 
@@ -335,7 +331,6 @@ class TgtgClient:
         self.login()
         # fields are sorted like in the app
         data = {
-            "user_id": self.user_id,
             "origin": {"latitude": latitude, "longitude": longitude},
             "radius": radius,
             "page_size": page_size,
@@ -358,7 +353,7 @@ class TgtgClient:
         self.login()
         response = self._post(
             f"{API_ITEM_ENDPOINT}/{item_id}",
-            json={"user_id": self.user_id, "origin": None},
+            json={"origin": None},
         )
         return response.json()
 
