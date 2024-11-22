@@ -12,7 +12,7 @@ name = "tgtg-scanner"
 packages = [{include = "tgtg_scanner"}]
 readme = "README.md"
 repository = "https://github.com/Der-Henning/tgtg"
-version = "1.22.0"
+version = "1.22.1"
 
 [tool.poetry.dependencies]
 apprise = "^1.4.0"
@@ -35,9 +35,9 @@ requests = "^2.31.0"
 pyinstaller = "^6.3.0"
 
 [tool.poetry.group.test.dependencies]
-pre-commit = "^3.3.3"
+pre-commit = "^4.0.1"
 pytest = "^8.0.0"
-pytest-cov = "^5.0.0"
+pytest-cov = "^6.0.0"
 pytest-mock = "^3.11.1"
 responses = "^0.25.0"
 

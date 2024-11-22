@@ -25,15 +25,16 @@ log = logging.getLogger("tgtg")
 BASE_URL = "https://apptoogoodtogo.com/api/"
 API_ITEM_ENDPOINT = "item/v8/"
 FAVORITE_ITEM_ENDPOINT = "user/favorite/v1/{}/update"
-AUTH_BY_EMAIL_ENDPOINT = "auth/v3/authByEmail"
-AUTH_POLLING_ENDPOINT = "auth/v3/authByRequestPollingId"
-SIGNUP_BY_EMAIL_ENDPOINT = "auth/v3/signUpByEmail"
-REFRESH_ENDPOINT = "auth/v3/token/refresh"
+AUTH_BY_EMAIL_ENDPOINT = "auth/v4/authByEmail"
+AUTH_POLLING_ENDPOINT = "auth/v4/authByRequestPollingId"
+SIGNUP_BY_EMAIL_ENDPOINT = "auth/v4/signUpByEmail"
+REFRESH_ENDPOINT = "auth/v4/token/refresh"
 ACTIVE_ORDER_ENDPOINT = "order/v7/active"
 INACTIVE_ORDER_ENDPOINT = "order/v7/inactive"
 CREATE_ORDER_ENDPOINT = "order/v7/create/"
 ABORT_ORDER_ENDPOINT = "order/v7/{}/abort"
 ORDER_STATUS_ENDPOINT = "order/v7/{}/status"
+MANUFACTURERITEM_ENDPOINT = "manufactureritem/v2/"
 USER_AGENTS = [
     "TGTG/{} Dalvik/2.1.0 (Linux; U; Android 9; Nexus 5 Build/M4B30Z)",
     "TGTG/{} Dalvik/2.1.0 (Linux; U; Android 10; SM-G935F Build/NRD90M)",
@@ -42,7 +43,7 @@ USER_AGENTS = [
 DEFAULT_ACCESS_TOKEN_LIFETIME = 3600 * 4  # 4 hours
 DEFAULT_MAX_POLLING_TRIES = 24  # 24 * POLLING_WAIT_TIME = 2 minutes
 DEFAULT_POLLING_WAIT_TIME = 5  # Seconds
-DEFAULT_APK_VERSION = "22.11.11"
+DEFAULT_APK_VERSION = "24.10.1"
 
 APK_RE_SCRIPT = re.compile(r"AF_initDataCallback\({key:\s*'ds:5'.*?data:([\s\S]*?), sideChannel:.+<\/script")
 
@@ -110,7 +111,6 @@ class TgtgClient:
         email=None,
         access_token=None,
         refresh_token=None,
-        user_id=None,
         datadome_cookie=None,
         user_agent=None,
         language="en-GB",
@@ -129,7 +129,6 @@ class TgtgClient:
         self.email = email
         self.access_token = access_token
         self.refresh_token = refresh_token
-        self.user_id = user_id
         self.datadome_cookie = datadome_cookie
 
         self.last_time_token_refreshed = None
@@ -177,7 +176,6 @@ class TgtgClient:
             "email": self.email,
             "access_token": self.access_token,
             "refresh_token": self.refresh_token,
-            "user_id": self.user_id,
             "datadome_cookie": self.datadome_cookie,
         }
 
@@ -249,7 +247,7 @@ class TgtgClient:
 
     @property
     def _already_logged(self) -> bool:
-        return bool(self.access_token and self.refresh_token and self.user_id)
+        return bool(self.access_token and self.refresh_token)
 
     def _refresh_token(self) -> None:
         if (
@@ -263,8 +261,8 @@ class TgtgClient:
         self.last_time_token_refreshed = datetime.now()
 
     def login(self) -> None:
-        if not (self.email or self.access_token and self.refresh_token and self.user_id):
-            raise TGTGConfigurationError("You must provide at least email or access_token, refresh_token and user_id")
+        if not (self.email or self.access_token and self.refresh_token):
+            raise TGTGConfigurationError("You must provide at least email or access_token and refresh_token")
         if self._already_logged:
             self._refresh_token()
         else:
@@ -308,7 +306,6 @@ class TgtgClient:
                 self.access_token = login_response.get("access_token")
                 self.refresh_token = login_response.get("refresh_token")
                 self.last_time_token_refreshed = datetime.now()
-                self.user_id = login_response.get("startup_data", {}).get("user", {}).get("user_id")
                 return
         raise TgtgPollingError("Max polling retries reached. Try again.")
 
@@ -334,7 +331,6 @@ class TgtgClient:
         self.login()
         # fields are sorted like in the app
         data = {
-            "user_id": self.user_id,
             "origin": {"latitude": latitude, "longitude": longitude},
             "radius": radius,
             "page_size": page_size,
@@ -357,7 +353,7 @@ class TgtgClient:
         self.login()
         response = self._post(
             f"{API_ITEM_ENDPOINT}/{item_id}",
-            json={"user_id": self.user_id, "origin": None},
+            json={"origin": None},
         )
         return response.json()
 
@@ -403,3 +399,26 @@ class TgtgClient:
         response = self._post(ABORT_ORDER_ENDPOINT.format(order_id), json={"cancel_reason_id": 1})
         if response.json().get("state") != "SUCCESS":
             raise TgtgAPIError(response.status_code, response.content)
+
+    def get_manufactureritems(self) -> dict:
+        self.login()
+        response = self._post(
+            MANUFACTURERITEM_ENDPOINT,
+            json={
+                "action_types_accepted": ["QUERY"],
+                "display_types_accepted": ["LIST", "FILL"],
+                "element_types_accepted": [
+                    "ITEM",
+                    "HIGHLIGHTED_ITEM",
+                    "MANUFACTURER_STORY_CARD",
+                    "DUO_ITEMS",
+                    "DUO_ITEMS_V2",
+                    "TEXT",
+                    "PARCEL_TEXT",
+                    "NPS",
+                    "SMALL_CARDS_CAROUSEL",
+                    "ITEM_CARDS_CAROUSEL",
+                ],
+            },
+        )
+        return response.json()

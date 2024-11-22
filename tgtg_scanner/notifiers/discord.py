@@ -69,7 +69,6 @@ class Discord(Notifier):
             item = self.queue.get(block=False)
             if item is None:
                 self.bot.dispatch("close")
-                await self.bot.close()
                 return
             log.debug("Sending %s Notification", self.name)
             await self._send(item)
@@ -89,7 +88,11 @@ class Discord(Notifier):
         if not self.disable_commands:
             # Commands are handled separately, in case commands are not enabled
             self._setup_commands()
-        asyncio.run(self.bot.start(self.token))
+        asyncio.run(self._start_bot())
+
+    async def _start_bot(self):
+        async with self.bot:
+            await self.bot.start(self.token)
 
     def _setup_events(self):
         @self.bot.event
