@@ -10,8 +10,12 @@ from pytest_mock.plugin import MockerFixture
 
 from tgtg_scanner.models import Config
 from tgtg_scanner.tgtg.tgtg_client import (
+    API_ITEM_ENDPOINT,
+    AUTH_BY_EMAIL_ENDPOINT,
+    AUTH_POLLING_ENDPOINT,
     BASE_URL,
     FAVORITE_ITEM_ENDPOINT,
+    REFRESH_ENDPOINT,
     USER_AGENTS,
     TgtgClient,
 )
@@ -53,18 +57,18 @@ def test_tgtg_login_with_mail(mocker: MockerFixture):
     }
     responses.add(
         responses.POST,
-        "https://apptoogoodtogo.com/api/auth/v3/authByEmail",
+        urljoin(BASE_URL, AUTH_BY_EMAIL_ENDPOINT),
         json.dumps(auth_response_data),
         status=200,
     )
     responses.add(
         responses.POST,
-        "https://apptoogoodtogo.com/api/auth/v3/authByRequestPollingId",
+        urljoin(BASE_URL, AUTH_POLLING_ENDPOINT),
         status=202,
     )
     responses.add(
         responses.POST,
-        "https://apptoogoodtogo.com/api/auth/v3/authByRequestPollingId",
+        urljoin(BASE_URL, AUTH_POLLING_ENDPOINT),
         json.dumps(poll_response_data),
         status=200,
     )
@@ -99,7 +103,7 @@ def test_tgtg_login_with_token(mocker: MockerFixture):
     }
     responses.add(
         responses.POST,
-        "https://apptoogoodtogo.com/api/auth/v3/token/refresh",
+        urljoin(BASE_URL, REFRESH_ENDPOINT),
         json.dumps(response_data),
         status=200,
     )
@@ -117,7 +121,7 @@ def test_tgtg_get_items(mocker: MockerFixture, tgtg_item: dict):
     mocker.patch("tgtg_scanner.tgtg.tgtg_client.TgtgClient.login", return_value=None)
     responses.add(
         responses.POST,
-        "https://apptoogoodtogo.com/api/item/v8/",
+        urljoin(BASE_URL, API_ITEM_ENDPOINT),
         json.dumps({"items": [tgtg_item]}),
         status=200,
     )
@@ -141,7 +145,7 @@ def test_tgtg_get_item(mocker: MockerFixture, tgtg_item: dict):
     item_id = tgtg_item.get("item", {}).get("item_id")
     responses.add(
         responses.POST,
-        f"https://apptoogoodtogo.com/api/item/v8/{item_id}",
+        urljoin(BASE_URL, API_ITEM_ENDPOINT + item_id),
         json.dumps(tgtg_item),
         status=200,
     )
