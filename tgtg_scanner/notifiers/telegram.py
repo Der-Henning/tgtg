@@ -222,7 +222,7 @@ class Telegram(Notifier):
             if self.image:
                 image = self._unmask_image(self.image, item)
         elif isinstance(item, Reservation):
-            message = escape_markdown(f"{item.display_name} is reserved for 5 minutes" if item.amount == 1 else f"{item.display_name} ({item.amount} bags) are reserved for 5 minutes", version=2)
+            message = escape_markdown(f"{item.display_name} ({item.amount} bags) are reserved for 5 minutes" if item.amount > 1 else f"{item.display_name} is reserved for 5 minutes", version=2)
         else:
             return
         await self._send_message(message, image)
