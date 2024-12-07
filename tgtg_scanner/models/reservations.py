@@ -65,6 +65,7 @@ class Reservations:
                         self.reservation_query.remove(reservation)
                     callback(reservation)
                 except Exception as exc:
+                    reservation.amount += remaining_amount
                     log.warning("Order failed: %s", exc)
 
     def update_active_orders(self) -> None:
