@@ -222,7 +222,7 @@ class Telegram(Notifier):
             if self.image:
                 image = self._unmask_image(self.image, item)
         elif isinstance(item, Reservation):
-            message = escape_markdown(f"{item.display_name} is reserved for 5 minutes", version=2)
+            message = escape_markdown(f"{item.display_name} ({item.amount} bags) are reserved for 5 minutes" if item.amount > 1 else f"{item.display_name} is reserved for 5 minutes", version=2)
         else:
             return
         await self._send_message(message, image)
@@ -292,7 +292,7 @@ class Telegram(Notifier):
     @_private
     async def _cancel_reservations_menu(self, update: Update, _) -> None:
         buttons = [
-            [InlineKeyboardButton(reservation.display_name, callback_data=reservation)]
+            [InlineKeyboardButton(f"{reservation.display_name} ({reservation.amount} bags)" if reservation.amount > 1 else reservation.display_name, callback_data=reservation)]
             for reservation in self.reservations.reservation_query
         ]
         if len(buttons) == 0:
@@ -305,7 +305,8 @@ class Telegram(Notifier):
     async def _cancel_orders_menu(self, update: Update, _) -> None:
         self.reservations.update_active_orders()
         buttons = [
-            [InlineKeyboardButton(order.display_name, callback_data=order)] for order in self.reservations.active_orders.values()
+            [InlineKeyboardButton(f"{order.display_name} ({order.amount} bags)" if order.amount > 1 else order.display_name, callback_data=order)]
+            for order in self.reservations.active_orders.values()
         ]
         if len(buttons) == 0:
             await update.message.reply_text("No active Orders")
@@ -439,7 +440,7 @@ class Telegram(Notifier):
             log.debug('Added "%s" to reservation queue', data.display_name)
         if isinstance(data, Reservation):
             self.reservations.reservation_query.remove(data)
-            await update.callback_query.answer(f"Removed {data.display_name} form reservation queue")
+            await update.callback_query.answer(f"Removed {data.display_name} from reservation queue")
             log.debug('Removed "%s" from reservation queue', data.display_name)
         if isinstance(data, Order):
             self.reservations.cancel_order(data.id)
