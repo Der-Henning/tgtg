@@ -58,6 +58,7 @@ class Telegram(Notifier):
     """Notifier for Telegram"""
 
     MAX_RETRIES = 10
+    MAX_BUTTON_TEXT_LENGTH = 50
 
     def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
         super().__init__(config, reservations, favorites)
@@ -222,7 +223,14 @@ class Telegram(Notifier):
             if self.image:
                 image = self._unmask_image(self.image, item)
         elif isinstance(item, Reservation):
-            message = escape_markdown(f"{item.display_name} ({item.amount} bags) are reserved for 5 minutes" if item.amount > 1 else f"{item.display_name} is reserved for 5 minutes", version=2)
+            message = escape_markdown(
+                (
+                    f"{item.display_name} ({item.amount} bags) are reserved for 5 minutes"
+                    if item.amount > 1
+                    else f"{item.display_name} is reserved for 5 minutes"
+                ),
+                version=2,
+            )
         else:
             return
         await self._send_message(message, image)
@@ -284,7 +292,12 @@ class Telegram(Notifier):
     async def _reserve_item_menu(self, update: Update, _) -> None:
         favorites = self.favorites.get_favorites()
         buttons = [
-            [InlineKeyboardButton(f"{item.display_name}: {item.items_available}", callback_data=item)] for item in favorites
+            [
+                InlineKeyboardButton(
+                    Telegram._shorten_with_ellipsis(f"{item.display_name}: {item.items_available}"), callback_data=item
+                )
+            ]
+            for item in favorites
         ]
         reply_markup = InlineKeyboardMarkup(buttons)
         await update.message.reply_text("Select a Bag to reserve", reply_markup=reply_markup)
@@ -292,7 +305,16 @@ class Telegram(Notifier):
     @_private
     async def _cancel_reservations_menu(self, update: Update, _) -> None:
         buttons = [
-            [InlineKeyboardButton(f"{reservation.display_name} ({reservation.amount} bags)" if reservation.amount > 1 else reservation.display_name, callback_data=reservation)]
+            [
+                InlineKeyboardButton(
+                    Telegram._shorten_with_ellipsis(
+                        f"{reservation.display_name} ({reservation.amount} bags)"
+                        if reservation.amount > 1
+                        else reservation.display_name
+                    ),
+                    callback_data=reservation,
+                )
+            ]
             for reservation in self.reservations.reservation_query
         ]
         if len(buttons) == 0:
@@ -305,7 +327,14 @@ class Telegram(Notifier):
     async def _cancel_orders_menu(self, update: Update, _) -> None:
         self.reservations.update_active_orders()
         buttons = [
-            [InlineKeyboardButton(f"{order.display_name} ({order.amount} bags)" if order.amount > 1 else order.display_name, callback_data=order)]
+            [
+                InlineKeyboardButton(
+                    Telegram._shorten_with_ellipsis(
+                        f"{order.display_name} ({order.amount} bags)" if order.amount > 1 else order.display_name
+                    ),
+                    callback_data=order,
+                )
+            ]
             for order in self.reservations.active_orders.values()
         ]
         if len(buttons) == 0:
@@ -501,3 +530,7 @@ class Telegram(Notifier):
 
     def __repr__(self) -> str:
         return f"Telegram: {self.chat_ids}"
+
+    @staticmethod
+    def _shorten_with_ellipsis(text: str, length: int = MAX_BUTTON_TEXT_LENGTH) -> str:
+        return text if len(text) <= length else text[: (length - 3) // 2] + "..." + text[-(length - 3) // 2 :]
