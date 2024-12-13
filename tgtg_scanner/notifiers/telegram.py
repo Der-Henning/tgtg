@@ -136,20 +136,20 @@ class Telegram(Notifier):
         await self.application.bot.set_my_commands([])
         await self.application.bot.set_my_commands(
             [
-                BotCommand("mute", "Deactivate Telegram Notifications for 1 or x days"),
+                BotCommand("mute", "Deactivate Telegram Notifications for 1 or X days"),
                 BotCommand("unmute", "Reactivate Telegram Notifications"),
                 BotCommand("reserve", "Reserve the next available Magic Bag"),
                 BotCommand("reserveall", "Create Reservations for all Favorites"),
-                BotCommand("reservations", "List and cancel Reservations"),
+                BotCommand("reservations", "List and cancel active Reservations"),
                 BotCommand("orders", "List and cancel active Orders"),
                 BotCommand("cancelallreservations", "Cancel all active Reservations"),
                 BotCommand("cancelallorders", "Cancel all active Orders"),
                 BotCommand("cancelall", "Cancel all active Reservations and Orders"),
-                BotCommand("listfavorites", "List all favorites"),
-                BotCommand("listfavoriteids", "List all item ids from favorites"),
-                BotCommand("addfavorites", "Add item ids to favorites"),
-                BotCommand("removefavorites", "Remove Item ids from favorites"),
-                BotCommand("getid", "Get your chat id"),
+                BotCommand("listfavorites", "List all Favorites"),
+                BotCommand("listfavoriteids", "List all Item IDs from Favorites"),
+                BotCommand("addfavorites", "Add Item IDs to Favorites"),
+                BotCommand("removefavorites", "Remove Item IDs from Favorites"),
+                BotCommand("getid", "Get your Chat ID"),
             ]
         )
         await self.application.start()
@@ -275,7 +275,7 @@ class Telegram(Notifier):
         return str(update.message.chat.id) in self.chat_ids
 
     async def _get_id(self, update: Update, _) -> None:
-        await update.message.reply_text(f"Current chat id: {update.message.chat.id}")
+        await update.message.reply_text(f"Current Chat ID: {update.message.chat.id}")
 
     @_private
     async def _mute(self, update: Update, context: CallbackContext) -> None:
@@ -285,7 +285,7 @@ class Telegram(Notifier):
         log.info("Deactivated Telegram Notifications for %s days", days)
         log.info("Reactivation at %s", self.mute)
         await update.message.reply_text(
-            f"Deactivated Telegram Notifications for {days} days.\nReactivating at {self.mute} or use /unmute."
+            f"Deactivated Telegram Notifications for {days} days.\nReactivating at {self.mute} or use /unmute"
         )
 
     @_private
@@ -380,7 +380,7 @@ class Telegram(Notifier):
     async def _list_favorites(self, update: Update, _) -> None:
         favorites = self.favorites.get_favorites()
         if not favorites:
-            await update.message.reply_text("You currently don't have any favorites.")
+            await update.message.reply_text("You currently don't have any Favorites")
         else:
             await update.message.reply_text("\n".join([f"• {item.item_id} - {item.display_name}" for item in favorites]))
 
@@ -388,7 +388,7 @@ class Telegram(Notifier):
     async def _list_favorite_ids(self, update: Update, _) -> None:
         favorites = self.favorites.get_favorites()
         if not favorites:
-            await update.message.reply_text("You currently don't have any favorites.")
+            await update.message.reply_text("You currently don't have any Favorites")
         else:
             await update.message.reply_text(" ".join([item.item_id for item in favorites]))
 
@@ -396,7 +396,7 @@ class Telegram(Notifier):
     async def _add_favorites(self, update: Update, context: CallbackContext) -> None:
         if not context.args:
             await update.message.reply_text(
-                "Please supply item ids in one of the following ways: "
+                "Please supply Item IDs in one of the following ways: "
                 "'/addfavorites 12345 23456 34567' or "
                 "'/addfavorites 12345,23456,34567'"
             )
@@ -412,14 +412,14 @@ class Telegram(Notifier):
             )
         )
         self.favorites.add_favorites(item_ids)
-        await update.message.reply_text(f"Added the following item ids to favorites: {' '.join(item_ids)}")
+        await update.message.reply_text(f"Added the following Item IDs to Favorites: {' '.join(item_ids)}")
         log.debug('Added the following item ids to favorites: "%s"', item_ids)
 
     @_private
     async def _remove_favorites(self, update: Update, context: CallbackContext) -> None:
         if not context.args:
             await update.message.reply_text(
-                "Please supply item ids in one of the following ways: "
+                "Please supply Item IDs in one of the following ways: "
                 "'/removefavorites 12345 23456 34567' or "
                 "'/removefavorites 12345,23456,34567'"
             )
@@ -435,8 +435,8 @@ class Telegram(Notifier):
             )
         )
         self.favorites.remove_favorite(item_ids)
-        await update.message.reply_text(f"Removed the following item ids from favorites: {' '.join(item_ids)}")
-        log.debug("Removed the following item ids from favorites: '%s'", item_ids)
+        await update.message.reply_text(f"Removed the following Item IDs from Favorites: {' '.join(item_ids)}")
+        log.debug("Removed the following Item IDs from Favorites: '%s'", item_ids)
 
     @_private
     async def _url_handler(self, update: Update, context: CallbackContext) -> None:
@@ -449,7 +449,7 @@ class Telegram(Notifier):
 
         if item_favorite:
             await update.message.reply_text(
-                f"{item.display_name} is in your favorites. Do you want to remove it?",
+                f"{item.display_name} is in your Favorites. Do you want to remove it?",
                 reply_markup=(
                     InlineKeyboardMarkup(
                         [
@@ -469,7 +469,7 @@ class Telegram(Notifier):
             )
         else:
             await update.message.reply_text(
-                f"{item.display_name} is not in your favorites. Do you want to add it?",
+                f"{item.display_name} is not in your Favorites. Do you want to add it?",
                 reply_markup=(
                     InlineKeyboardMarkup(
                         [
@@ -492,11 +492,11 @@ class Telegram(Notifier):
         data = update.callback_query.data
         if isinstance(data, Item):
             self.reservations.reserve(data.item_id, data.display_name)
-            await update.callback_query.answer(f"Added {data.display_name} to reservation queue")
+            await update.callback_query.answer(f"Added {data.display_name} to Reservation queue")
             log.debug('Added "%s" to reservation queue', data.display_name)
         if isinstance(data, Reservation):
             self.reservations.reservation_query.remove(data)
-            await update.callback_query.answer(f"Removed {data.display_name} from reservation queue")
+            await update.callback_query.answer(f"Removed {data.display_name} from Reservation queue")
             log.debug('Removed "%s" from reservation queue', data.display_name)
         if isinstance(data, Order):
             self.reservations.cancel_order(data.id)
@@ -505,7 +505,7 @@ class Telegram(Notifier):
         if isinstance(data, AddFavoriteRequest):
             if data.proceed:
                 self.favorites.add_favorites([data.item_id])
-                await update.callback_query.edit_message_text(f"Added {data.item_display_name} to favorites")
+                await update.callback_query.edit_message_text(f"Added {data.item_display_name} to Favorites")
                 log.debug('Added "%s" to favorites', data.item_display_name)
                 log.debug('Removed "%s" from favorites', data.item_display_name)
             else:
@@ -513,7 +513,7 @@ class Telegram(Notifier):
         if isinstance(data, RemoveFavoriteRequest):
             if data.proceed:
                 self.favorites.remove_favorite([data.item_id])
-                await update.callback_query.edit_message_text(f"Removed {data.item_display_name} from favorites")
+                await update.callback_query.edit_message_text(f"Removed {data.item_display_name} from Favorites")
                 log.debug('Removed "%s" from favorites', data.item_display_name)
             else:
                 await update.callback_query.delete_message()
