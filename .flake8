@@ -1,2 +1,2 @@
 [flake8]
-ignore = E203
+extend-ignore = E203
