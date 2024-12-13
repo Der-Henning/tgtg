@@ -111,6 +111,7 @@ class Telegram(Notifier):
             CommandHandler("reserve", self._reserve_item_menu),
             CommandHandler("reservations", self._cancel_reservations_menu),
             CommandHandler("orders", self._cancel_orders_menu),
+            CommandHandler("cancelallreservations", self._cancel_all_reservations),
             CommandHandler("cancelallorders", self._cancel_all_orders),
             CommandHandler("listfavorites", self._list_favorites),
             CommandHandler("listfavoriteids", self._list_favorite_ids),
@@ -138,6 +139,7 @@ class Telegram(Notifier):
                 BotCommand("reserve", "Reserve the next available Magic Bag"),
                 BotCommand("reservations", "List and cancel Reservations"),
                 BotCommand("orders", "List and cancel active Orders"),
+                BotCommand("cancelallreservations", "Cancel all active Reservations"),
                 BotCommand("cancelallorders", "Cancel all active Orders"),
                 BotCommand("listfavorites", "List all favorites"),
                 BotCommand("listfavoriteids", "List all item ids from favorites"),
@@ -343,6 +345,12 @@ class Telegram(Notifier):
             return
         reply_markup = InlineKeyboardMarkup(buttons)
         await update.message.reply_text("Active Orders. Select to cancel.", reply_markup=reply_markup)
+
+    @_private
+    async def _cancel_all_reservations(self, update: Update, _) -> None:
+        self.reservations.cancel_all_reservations()
+        await update.message.reply_text("Cancelled all active Reservations")
+        log.debug("Cancelled all active Reservations")
 
     @_private
     async def _cancel_all_orders(self, update: Update, _) -> None:
