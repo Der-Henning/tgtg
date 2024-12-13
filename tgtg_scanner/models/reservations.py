@@ -79,6 +79,10 @@ class Reservations:
         """Cancel an order"""
         self.client.abort_order(order_id)
 
+    def cancel_all_reservations(self) -> None:
+        """Cancel all active reservations"""
+        self.reservation_query.clear()
+
     def cancel_all_orders(self) -> None:
         """Cancel all active orders"""
         for order_id in list(self.active_orders):
