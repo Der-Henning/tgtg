@@ -130,6 +130,7 @@ class Telegram(Notifier):
             self.application.add_handler(handler)
         await self.application.initialize()
         await self.application.updater.start_polling(allowed_updates=Update.ALL_TYPES, timeout=self.timeout, poll_interval=0.1)
+        await self.application.bot.set_my_commands([])
         await self.application.bot.set_my_commands(
             [
                 BotCommand("mute", "Deactivate Telegram Notifications for 1 or x days"),
