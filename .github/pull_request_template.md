@@ -10,3 +10,4 @@
 * [ ] Have you added an explanation of what your changes do and why you'd like to include them?
 * [ ] Have you written new tests for your changes, as applicable?
 * [ ] Have you successfully ran manual tests with your changes locally?
+* [ ] Have you updated the documentation for your changes, as applicabble?
