@@ -43,24 +43,34 @@ For more information about the @BotFather please refer to the official documenta
 
 ## 4. How does the reservation feature work?
 
-Currently, the reservation feature only works with the telegram bot included in the telegram notifier.
-At the moment the bot cannot buy a magic bag.
-It can only reserve a magic bag and hold it for up to 5 minutes.
-After this time or when you cancel the reservation the bag will be available again.
+Currently, the reservation feature only works with the Telegram bot included in the Telegram notifier.  
+At the moment the bot cannot buy a Magic Bag.  
+It can only reserve a Magic Bag and hold it for up to 5 minutes.  
+After this time or when you cancel the reservation the bag will be available again.  
 
-To buy the magic bag you have to cancel the reservation with the telegram bot,
-which makes the item available again.
-Now you can click and buy it in the official TGTG app.
+To buy the Magic Bag you have to cancel the reservation with the Telegram bot, which makes the item available again.  
+Now you can click and buy it in the official Too Good To Go app.
 
-The bot implements the following commands.
+The bot implements the following commands:
++ `/reserve`: Lists all your favorite Magic Bags and currently available amount. Click on an item to reserve it as soon as it becomes available. To reserve several Magic Bags from the same store at once click several times on the same item. For each time you click on the item, an additional Magic Bag will be added.
++ `/reserveall`: Creates reservations for all your favorite Magic Bags at once. The same as clicking manually on each item in the `/reserve` menu. If such a reservation already exists, an additional Magic Bag will be added to it.
++ `/reservations`: Lists all active reservations in your queue. Click on a reservation to cancel it with all Magic Bags included.
++ `/orders`: Lists all currently active orders that are active for up to 5 minutes. Click on an order to cancel it and release the item to buy it in the official Too Good To Go app.
++ `/cancelallreservations`: Cancels all reservations created in the `/reserve` or `/reserveall` menus. The same as clicking manually on each reservation in the `/reservations` menu.
++ `/cancelallorders`: Cancels all active orders visible in the `/orders` menu. The same as clicking on each order in the `/orders` menu.
++ `/cancelall`: Cancels all reservations and active orders. The same as doing `/cancelallreservations` and `/cancelallorders` at once.
 
-+ \reserve: Lists all your favorite magic bags.
-Clicking on each of the items will trigger a reservation for one bag as soon as it is available.
-For each time you click on the item, an additional magic bag will be added.
-+ \reservations: Lists all magic bags you activated with \reserve that have not yet been triggered.
-Click to cancel the reservation for the next available bag.
-+ \orders: Lists all triggered and active reservations. Click to cancel the reservation.
-+ \cancelall: Cancel all active reservations.
+When bags become available, it will reserve as many bags as you have in your queue in one order.  
+If there are fewer available bags than you have in your queue it will reserve all available bags and the reservation will remain active with the remaining bags that haven't been reserved yet.  
+If the order fails (e.g. sold out), the reservation amount will remain the same.
+
+**Important!**  
+Certain stores may have a maximum limit on bags per customer.  
+Please ensure that the desired quantity for reservation from this store is allowed first.  
+Otherwise, your reservation will keep failing with this log message (until canceled or reserved in smaller chunks):
+```
+WARNING  Order failed: (200, b'{"state":"OVER_USER_WINDOW_LIMIT"}')
+```
 
 ## 5. Docker compose files
 
