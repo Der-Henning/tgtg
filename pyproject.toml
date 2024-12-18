@@ -15,7 +15,7 @@ repository = "https://github.com/Der-Henning/tgtg"
 version = "1.22.0"
 
 [tool.poetry.dependencies]
-apprise = "^1.4.0"
+apprise = "^1.9.1"
 babel = "^2.16.0"
 colorlog = "^6.7.0"
 cron-descriptor = "^1.4.0"
