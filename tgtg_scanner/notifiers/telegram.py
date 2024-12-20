@@ -534,4 +534,4 @@ class Telegram(Notifier):
     @staticmethod
     def _shorten_with_ellipsis(text: str, length: int = MAX_BUTTON_TEXT_LENGTH) -> str:
         """Shorten text to length and add ellipsis in the middle"""
-        return text if len(text) <= length else text[: (length - 3) // 2] + "..." + text[-(length - 3) // 2 :]
+        return text if len(text) <= length else text[: (length - 3) // 2] + "..." + text[-(length - 3) // 2 :]  # noqa: E203
