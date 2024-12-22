@@ -58,6 +58,7 @@ class Telegram(Notifier):
     """Notifier for Telegram"""
 
     MAX_RETRIES = 10
+    MAX_BUTTON_TEXT_LENGTH = 50
 
     def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
         super().__init__(config, reservations, favorites)
@@ -108,9 +109,12 @@ class Telegram(Notifier):
             CommandHandler("mute", self._mute),
             CommandHandler("unmute", self._unmute),
             CommandHandler("reserve", self._reserve_item_menu),
+            CommandHandler("reserveall", self._reserve_all_items),
             CommandHandler("reservations", self._cancel_reservations_menu),
             CommandHandler("orders", self._cancel_orders_menu),
-            CommandHandler("cancelall", self._cancel_all_orders),
+            CommandHandler("cancelallreservations", self._cancel_all_reservations),
+            CommandHandler("cancelallorders", self._cancel_all_orders),
+            CommandHandler("cancelall", self._cancel_all),
             CommandHandler("listfavorites", self._list_favorites),
             CommandHandler("listfavoriteids", self._list_favorite_ids),
             CommandHandler("addfavorites", self._add_favorites),
@@ -131,17 +135,20 @@ class Telegram(Notifier):
         await self.application.updater.start_polling(allowed_updates=Update.ALL_TYPES, timeout=self.timeout, poll_interval=0.1)
         await self.application.bot.set_my_commands(
             [
-                BotCommand("mute", "Deactivate Telegram Notifications for 1 or x days"),
+                BotCommand("mute", "Deactivate Telegram Notifications for 1 or X days"),
                 BotCommand("unmute", "Reactivate Telegram Notifications"),
                 BotCommand("reserve", "Reserve the next available Magic Bag"),
-                BotCommand("reservations", "List and cancel Reservations"),
+                BotCommand("reserveall", "Create Reservations for all Favorites"),
+                BotCommand("reservations", "List and cancel active Reservations"),
                 BotCommand("orders", "List and cancel active Orders"),
-                BotCommand("cancelall", "Cancels all active orders"),
-                BotCommand("listfavorites", "List all favorites"),
-                BotCommand("listfavoriteids", "List all item ids from favorites"),
-                BotCommand("addfavorites", "Add item ids to favorites"),
-                BotCommand("removefavorites", "Remove Item ids from favorites"),
-                BotCommand("getid", "Get your chat id"),
+                BotCommand("cancelallreservations", "Cancel all active Reservations"),
+                BotCommand("cancelallorders", "Cancel all active Orders"),
+                BotCommand("cancelall", "Cancel all active Reservations and Orders"),
+                BotCommand("listfavorites", "List all Favorites"),
+                BotCommand("listfavoriteids", "List all Item IDs from Favorites"),
+                BotCommand("addfavorites", "Add Item IDs to Favorites"),
+                BotCommand("removefavorites", "Remove Item IDs from Favorites"),
+                BotCommand("getid", "Get your Chat ID"),
             ]
         )
         await self.application.start()
@@ -222,7 +229,14 @@ class Telegram(Notifier):
             if self.image:
                 image = self._unmask_image(self.image, item)
         elif isinstance(item, Reservation):
-            message = escape_markdown(f"{item.display_name} is reserved for 5 minutes", version=2)
+            message = escape_markdown(
+                (
+                    f"{item.display_name} ({item.amount} bags) are reserved for 5 minutes"
+                    if item.amount > 1
+                    else f"{item.display_name} is reserved for 5 minutes"
+                ),
+                version=2,
+            )
         else:
             return
         await self._send_message(message, image)
@@ -260,7 +274,7 @@ class Telegram(Notifier):
         return str(update.message.chat.id) in self.chat_ids
 
     async def _get_id(self, update: Update, _) -> None:
-        await update.message.reply_text(f"Current chat id: {update.message.chat.id}")
+        await update.message.reply_text(f"Current Chat ID: {update.message.chat.id}")
 
     @_private
     async def _mute(self, update: Update, context: CallbackContext) -> None:
@@ -270,7 +284,7 @@ class Telegram(Notifier):
         log.info("Deactivated Telegram Notifications for %s days", days)
         log.info("Reactivation at %s", self.mute)
         await update.message.reply_text(
-            f"Deactivated Telegram Notifications for {days} days.\nReactivating at {self.mute} or use /unmute."
+            f"Deactivated Telegram Notifications for {days} days.\nReactivating at {self.mute} or use /unmute"
         )
 
     @_private
@@ -284,15 +298,36 @@ class Telegram(Notifier):
     async def _reserve_item_menu(self, update: Update, _) -> None:
         favorites = self.favorites.get_favorites()
         buttons = [
-            [InlineKeyboardButton(f"{item.display_name}: {item.items_available}", callback_data=item)] for item in favorites
+            [
+                InlineKeyboardButton(
+                    Telegram._shorten_with_ellipsis(f"{item.display_name}: {item.items_available}"), callback_data=item
+                )
+            ]
+            for item in favorites
         ]
         reply_markup = InlineKeyboardMarkup(buttons)
         await update.message.reply_text("Select a Bag to reserve", reply_markup=reply_markup)
 
     @_private
+    async def _reserve_all_items(self, update: Update, _) -> None:
+        favorites = self.favorites.get_favorites()
+        for item in favorites:
+            self.reservations.reserve(item.item_id, item.display_name)
+        await update.message.reply_text("Created Reservations for all Favorites")
+
+    @_private
     async def _cancel_reservations_menu(self, update: Update, _) -> None:
         buttons = [
-            [InlineKeyboardButton(reservation.display_name, callback_data=reservation)]
+            [
+                InlineKeyboardButton(
+                    Telegram._shorten_with_ellipsis(
+                        f"{reservation.display_name} ({reservation.amount} bags)"
+                        if reservation.amount > 1
+                        else reservation.display_name
+                    ),
+                    callback_data=reservation,
+                )
+            ]
             for reservation in self.reservations.reservation_query
         ]
         if len(buttons) == 0:
@@ -305,7 +340,15 @@ class Telegram(Notifier):
     async def _cancel_orders_menu(self, update: Update, _) -> None:
         self.reservations.update_active_orders()
         buttons = [
-            [InlineKeyboardButton(order.display_name, callback_data=order)] for order in self.reservations.active_orders.values()
+            [
+                InlineKeyboardButton(
+                    Telegram._shorten_with_ellipsis(
+                        f"{order.display_name} ({order.amount} bags)" if order.amount > 1 else order.display_name
+                    ),
+                    callback_data=order,
+                )
+            ]
+            for order in self.reservations.active_orders.values()
         ]
         if len(buttons) == 0:
             await update.message.reply_text("No active Orders")
@@ -314,16 +357,29 @@ class Telegram(Notifier):
         await update.message.reply_text("Active Orders. Select to cancel.", reply_markup=reply_markup)
 
     @_private
+    async def _cancel_all_reservations(self, update: Update, _) -> None:
+        self.reservations.cancel_all_reservations()
+        await update.message.reply_text("Cancelled all active Reservations")
+        log.debug("Cancelled all active Reservations")
+
+    @_private
     async def _cancel_all_orders(self, update: Update, _) -> None:
         self.reservations.cancel_all_orders()
         await update.message.reply_text("Cancelled all active Orders")
         log.debug("Cancelled all active Orders")
 
     @_private
+    async def _cancel_all(self, update: Update, _) -> None:
+        self.reservations.cancel_all_reservations()
+        self.reservations.cancel_all_orders()
+        await update.message.reply_text("Cancelled all active Reservations and Orders")
+        log.debug("Cancelled all active Reservations and Orders")
+
+    @_private
     async def _list_favorites(self, update: Update, _) -> None:
         favorites = self.favorites.get_favorites()
         if not favorites:
-            await update.message.reply_text("You currently don't have any favorites.")
+            await update.message.reply_text("You currently don't have any Favorites")
         else:
             await update.message.reply_text("\n".join([f"• {item.item_id} - {item.display_name}" for item in favorites]))
 
@@ -331,7 +387,7 @@ class Telegram(Notifier):
     async def _list_favorite_ids(self, update: Update, _) -> None:
         favorites = self.favorites.get_favorites()
         if not favorites:
-            await update.message.reply_text("You currently don't have any favorites.")
+            await update.message.reply_text("You currently don't have any Favorites")
         else:
             await update.message.reply_text(" ".join([item.item_id for item in favorites]))
 
@@ -339,7 +395,7 @@ class Telegram(Notifier):
     async def _add_favorites(self, update: Update, context: CallbackContext) -> None:
         if not context.args:
             await update.message.reply_text(
-                "Please supply item ids in one of the following ways: "
+                "Please supply Item IDs in one of the following ways: "
                 "'/addfavorites 12345 23456 34567' or "
                 "'/addfavorites 12345,23456,34567'"
             )
@@ -355,14 +411,14 @@ class Telegram(Notifier):
             )
         )
         self.favorites.add_favorites(item_ids)
-        await update.message.reply_text(f"Added the following item ids to favorites: {' '.join(item_ids)}")
+        await update.message.reply_text(f"Added the following Item IDs to Favorites: {' '.join(item_ids)}")
         log.debug('Added the following item ids to favorites: "%s"', item_ids)
 
     @_private
     async def _remove_favorites(self, update: Update, context: CallbackContext) -> None:
         if not context.args:
             await update.message.reply_text(
-                "Please supply item ids in one of the following ways: "
+                "Please supply Item IDs in one of the following ways: "
                 "'/removefavorites 12345 23456 34567' or "
                 "'/removefavorites 12345,23456,34567'"
             )
@@ -378,8 +434,8 @@ class Telegram(Notifier):
             )
         )
         self.favorites.remove_favorite(item_ids)
-        await update.message.reply_text(f"Removed the following item ids from favorites: {' '.join(item_ids)}")
-        log.debug("Removed the following item ids from favorites: '%s'", item_ids)
+        await update.message.reply_text(f"Removed the following Item IDs from Favorites: {' '.join(item_ids)}")
+        log.debug("Removed the following Item IDs from Favorites: '%s'", item_ids)
 
     @_private
     async def _url_handler(self, update: Update, context: CallbackContext) -> None:
@@ -392,7 +448,7 @@ class Telegram(Notifier):
 
         if item_favorite:
             await update.message.reply_text(
-                f"{item.display_name} is in your favorites. Do you want to remove it?",
+                f"{item.display_name} is in your Favorites. Do you want to remove it?",
                 reply_markup=(
                     InlineKeyboardMarkup(
                         [
@@ -412,7 +468,7 @@ class Telegram(Notifier):
             )
         else:
             await update.message.reply_text(
-                f"{item.display_name} is not in your favorites. Do you want to add it?",
+                f"{item.display_name} is not in your Favorites. Do you want to add it?",
                 reply_markup=(
                     InlineKeyboardMarkup(
                         [
@@ -435,11 +491,11 @@ class Telegram(Notifier):
         data = update.callback_query.data
         if isinstance(data, Item):
             self.reservations.reserve(data.item_id, data.display_name)
-            await update.callback_query.answer(f"Added {data.display_name} to reservation queue")
+            await update.callback_query.answer(f"Added {data.display_name} to Reservation queue")
             log.debug('Added "%s" to reservation queue', data.display_name)
         if isinstance(data, Reservation):
             self.reservations.reservation_query.remove(data)
-            await update.callback_query.answer(f"Removed {data.display_name} form reservation queue")
+            await update.callback_query.answer(f"Removed {data.display_name} from Reservation queue")
             log.debug('Removed "%s" from reservation queue', data.display_name)
         if isinstance(data, Order):
             self.reservations.cancel_order(data.id)
@@ -448,7 +504,7 @@ class Telegram(Notifier):
         if isinstance(data, AddFavoriteRequest):
             if data.proceed:
                 self.favorites.add_favorites([data.item_id])
-                await update.callback_query.edit_message_text(f"Added {data.item_display_name} to favorites")
+                await update.callback_query.edit_message_text(f"Added {data.item_display_name} to Favorites")
                 log.debug('Added "%s" to favorites', data.item_display_name)
                 log.debug('Removed "%s" from favorites', data.item_display_name)
             else:
@@ -456,7 +512,7 @@ class Telegram(Notifier):
         if isinstance(data, RemoveFavoriteRequest):
             if data.proceed:
                 self.favorites.remove_favorite([data.item_id])
-                await update.callback_query.edit_message_text(f"Removed {data.item_display_name} from favorites")
+                await update.callback_query.edit_message_text(f"Removed {data.item_display_name} from Favorites")
                 log.debug('Removed "%s" from favorites', data.item_display_name)
             else:
                 await update.callback_query.delete_message()
@@ -500,3 +556,12 @@ class Telegram(Notifier):
 
     def __repr__(self) -> str:
         return f"Telegram: {self.chat_ids}"
+
+    @staticmethod
+    def _shorten_with_ellipsis(text: str, length: int = MAX_BUTTON_TEXT_LENGTH) -> str:
+        """Shorten text to length and add ellipsis in the middle"""
+        if len(text) <= length:
+            return text
+        else:
+            slice_size = (length - 3) // 2
+            return text[:slice_size] + "..." + text[-slice_size:]
