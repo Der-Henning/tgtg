@@ -4,7 +4,7 @@ inputs:
   poetry-version:
     required: false
     type: string
-    default: latest
+    default: 2.1.1
   python-version:
     required: false
     type: string

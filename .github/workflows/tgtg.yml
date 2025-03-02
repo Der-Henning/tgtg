@@ -4,10 +4,6 @@ on:
   schedule:
   - cron: 0 1 * * *
 
-env:
-  PYTHON_VERSION: '3.11'
-  POETRY_VERSION: 1.8.2
-
 jobs:
   test:
     name: Run Test
@@ -16,8 +12,6 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ./.github/actions/setup-poetry-action
       with:
-        poetry-version: ${{ env.POETRY_VERSION }}
-        python-version: ${{ env.PYTHON_VERSION }}
         without: build
     - name: Run tests
       uses: nick-fields/retry@v2

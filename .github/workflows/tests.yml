@@ -3,9 +3,6 @@ name: Tests
 on:
   pull_request:
 
-env:
-  POETRY_VERSION: 1.8.2
-
 jobs:
   tests:
     name: Run Tests
@@ -19,7 +16,6 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ./.github/actions/setup-poetry-action
       with:
-        poetry-version: ${{ env.POETRY_VERSION }}
         python-version: ${{ matrix.python }}
         without: build
     - uses: actions/cache@v4
