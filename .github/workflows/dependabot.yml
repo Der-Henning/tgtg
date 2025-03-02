@@ -12,10 +12,6 @@ on:
     branches:
     - dependabot/pip/**
 
-env:
-  PYTHON_VERSION: '3.11'
-  POETRY_VERSION: 1.8.2
-
 jobs:
   run:
     name: Update requirements.txt and lock file
@@ -26,8 +22,6 @@ jobs:
         token: ${{ secrets.REPO_ACCESS_TOKEN }}
     - uses: ./.github/actions/setup-poetry-action
       with:
-        poetry-version: ${{ env.POETRY_VERSION }}
-        python-version: ${{ env.PYTHON_VERSION }}
         install-dependencies: false
     - name: Update dependencies
       run: |
