@@ -13,19 +13,19 @@ repos:
   - id: check-added-large-files
 
 - repo: https://github.com/ambv/black
-  rev: 24.10.0
+  rev: 25.1.0
   hooks:
   - id: black
     args: [--line-length, '130', --target-version, py38]
 
 - repo: https://github.com/PyCQA/isort
-  rev: 5.13.2
+  rev: 6.0.1
   hooks:
   - id: isort
     args: [--profile, black]
 
 - repo: https://github.com/PyCQA/flake8
-  rev: 7.1.1
+  rev: 7.1.2
   hooks:
   - id: flake8
     args: [--max-line-length, '130']
@@ -42,22 +42,24 @@ repos:
     args: [--autofix]
 
 - repo: https://github.com/igorshubovych/markdownlint-cli
-  rev: v0.42.0
+  rev: v0.44.0
   hooks:
   - id: markdownlint
     args: [--fix]
 
 - repo: https://github.com/python-poetry/poetry
-  rev: 1.8.3
+  rev: 2.1.1
   hooks:
   - id: poetry-check
-  - id: poetry-lock
-    args: [--no-update]
+
+- repo: https://github.com/python-poetry/poetry-plugin-export
+  rev: 1.9.0
+  hooks:
   - id: poetry-export
-    args: [-f, requirements.txt, -o, requirements.txt, --without-hashes]
+    args: [--no-cache, -f, requirements.txt, -o, requirements.txt, --without-hashes]
 
 - repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v1.13.0
+  rev: v1.15.0
   hooks:
   - id: mypy
     additional_dependencies: [types-requests]
