@@ -8,7 +8,7 @@ import time
 from datetime import datetime
 from http import HTTPStatus
 from typing import List, Union
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin, urlsplit
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -85,7 +85,7 @@ class TgtgSession(requests.Session):
         if proxies:
             self.proxies = proxies
         if datadome_cookie:
-            domain = urlparse(base_url).netloc.split(":")[0]
+            domain = urlsplit(base_url).hostname
             domain = f".{'local' if domain == 'localhost' else domain}"
             self.cookies.set("datadome", datadome_cookie, domain=domain, path="/", secure=True)
 
