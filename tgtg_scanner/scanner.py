@@ -63,7 +63,6 @@ class Scanner:
             polling_wait_time=self.config.tgtg.polling_wait_time,
             access_token=self.config.tgtg.access_token,
             refresh_token=self.config.tgtg.refresh_token,
-            user_id=self.config.tgtg.user_id,
             datadome_cookie=self.config.tgtg.datadome,
             base_url=self.config.tgtg.base_url,
         )
@@ -127,7 +126,6 @@ class Scanner:
         self.config.save_tokens(
             self.tgtg_client.access_token,
             self.tgtg_client.refresh_token,
-            self.tgtg_client.user_id,
             self.tgtg_client.datadome_cookie,
         )
 
@@ -184,7 +182,6 @@ class Scanner:
         self.config.save_tokens(
             self.tgtg_client.access_token,
             self.tgtg_client.refresh_token,
-            self.tgtg_client.user_id,
             self.tgtg_client.datadome_cookie,
         )
         # activate location service

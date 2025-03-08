@@ -1,7 +1,6 @@
 import configparser
 import platform
 import tempfile
-from random import randint
 from uuid import uuid4
 
 import pytest
@@ -41,17 +40,15 @@ def test_save_tokens_to_ini():
     with tempfile.NamedTemporaryFile(delete=not IS_WINDOWS) as temp_file:
         access_token = uuid4().hex
         refresh_token = uuid4().hex
-        user_id = str(randint(10**9, 10**10 - 1))
         datadome = uuid4().hex
         config = Config(temp_file.name)
-        config.save_tokens(access_token, refresh_token, user_id, datadome)
+        config.save_tokens(access_token, refresh_token, datadome)
 
         config_parser = configparser.ConfigParser()
         config_parser.read(temp_file.name, encoding="utf-8")
 
         assert config_parser.get("TGTG", "AccessToken") == access_token
         assert config_parser.get("TGTG", "RefreshToken") == refresh_token
-        assert config_parser.get("TGTG", "UserId") == user_id
         assert config_parser.get("TGTG", "Datadome") == datadome
 
 
@@ -60,15 +57,13 @@ def test_token_path(monkeypatch: pytest.MonkeyPatch):
         monkeypatch.setenv("TGTG_TOKEN_PATH", temp_dir)
         access_token = uuid4().hex
         refresh_token = uuid4().hex
-        user_id = uuid4().hex
         datadome = uuid4().hex
         config = Config()
-        config.save_tokens(access_token, refresh_token, user_id, datadome)
+        config.save_tokens(access_token, refresh_token, datadome)
         config._load_tokens()
 
         assert config.tgtg.access_token == access_token
         assert config.tgtg.refresh_token == refresh_token
-        assert config.tgtg.user_id == user_id
         assert config.tgtg.datadome == datadome
 
 
