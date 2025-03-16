@@ -12,7 +12,7 @@ name = "tgtg-scanner"
 packages = [{include = "tgtg_scanner"}]
 readme = "README.md"
 repository = "https://github.com/ihor-chaban/tgtg-scanner"
-version = "1.22.2"
+version = "1.0.0+ihor-chaban.1.22.2"
 
 [tool.poetry.dependencies]
 apprise = "^1.4.0"
