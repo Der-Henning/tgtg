@@ -259,7 +259,7 @@ class Telegram(Notifier):
             except BadRequest as err:
                 err_message = err.message
                 if err_message.startswith("Can't parse entities:"):
-                    err_message += ". For details see https://github.com/Der-Henning/tgtg/wiki/Configuration#note-on-markdown-v2"
+                    err_message += ". For details see https://github.com/ihor-chaban/tgtg-scanner/wiki/Configuration#note-on-markdown-v2"
                 log.error("Telegram Error: %s", err_message)
             except (NetworkError, TimedOut) as err:
                 log.warning("Telegram Error: %s", err)

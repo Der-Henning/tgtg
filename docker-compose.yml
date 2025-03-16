@@ -2,7 +2,7 @@ version: '3.3'
 
 services:
   scanner:
-    image: derhenning/tgtg:latest-alpine           ## pre build image from docker hub
+    image: ihor-chaban/tgtg-scanner:latest-alpine  ## pre build image from docker hub
     # image: tgtg-scanner:latest                   ## locally build image
     # build:                                       ## build image with compose
     #   context: .
@@ -10,7 +10,7 @@ services:
     environment:
     # Configuration via environment variables.
     # Basic example using Telegram notifications
-    # For more options and details visit https://github.com/Der-Henning/tgtg/wiki/Configuration
+    # For more options and details visit https://github.com/ihor-chaban/tgtg-scanner/wiki/Configuration
 
     - TGTG_USERNAME=
     - SLEEP_TIME=60

@@ -1,6 +1,6 @@
 # Quick reference
 
-Readme, source, and documentation on [https://github.com/Der-Henning/tgtg](https://github.com/Der-Henning/tgtg).
+Readme, source, and documentation on [https://github.com/ihor-chaban/tgtg-scanner](https://github.com/ihor-chaban/tgtg-scanner).
 
 <!-- markdownlint-disable-next-line MD025 -->
 # Supported Tags and respective `Dockerfile` links
@@ -9,10 +9,10 @@ Readme, source, and documentation on [https://github.com/Der-Henning/tgtg](https
  The `edge` images contain the latest commits to the main branch.
  The `alpine` images are based on the alpine Linux distribution and are significantly smaller.
 
-- [`edge`](https://github.com/Der-Henning/tgtg/blob/main/docker/Dockerfile)
-- [`edge-alpine`](https://github.com/Der-Henning/tgtg/blob/main/docker/Dockerfile.alpine)
-- [`${MAJOR_VERSION}`, `${MINOR_VERSION}`, `${FULL_VERSION}`, `latest`](https://github.com/Der-Henning/tgtg/blob/${FULL_VERSION}/docker/Dockerfile)
-- [`${MAJOR_VERSION}-alpine`, `${MINOR_VERSION}-alpine`, `${FULL_VERSION}-alpine`, `latest-alpine`](https://github.com/Der-Henning/tgtg/blob/${FULL_VERSION}/docker/Dockerfile.alpine)
+- [`edge`](https://github.com/ihor-chaban/tgtg-scanner/blob/main/docker/Dockerfile)
+- [`edge-alpine`](https://github.com/ihor-chaban/tgtg-scanner/blob/main/docker/Dockerfile.alpine)
+- [`${MAJOR_VERSION}`, `${MINOR_VERSION}`, `${FULL_VERSION}`, `latest`](https://github.com/ihor-chaban/tgtg-scanner/blob/${FULL_VERSION}/docker/Dockerfile)
+- [`${MAJOR_VERSION}-alpine`, `${MINOR_VERSION}-alpine`, `${FULL_VERSION}-alpine`, `latest-alpine`](https://github.com/ihor-chaban/tgtg-scanner/blob/${FULL_VERSION}/docker/Dockerfile.alpine)
 
 <!-- markdownlint-disable-next-line MD025 -->
 # Quick Start
@@ -21,14 +21,14 @@ Readme, source, and documentation on [https://github.com/Der-Henning/tgtg](https
 
 Basic example using Telegram notifications.
 
-For more options and details visit <https://github.com/Der-Henning/tgtg/wiki/Configuration>.
+For more options and details visit <https://github.com/ihor-chaban/tgtg-scanner/wiki/Configuration>.
 
 ````xml
 version: '3.3'
 
 services:
   scanner:
-    image: derhenning/tgtg:latest-alpine
+    image: ihor-chaban/tgtg-scanner:latest-alpine
 
     environment:
     - TGTG_USERNAME=

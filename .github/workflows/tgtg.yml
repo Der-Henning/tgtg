@@ -41,25 +41,25 @@ jobs:
         TGTG_REFRESH_TOKEN: ${{ secrets.TGTG_REFRESH_TOKEN }}
         TGTG_USER_ID: ${{ secrets.TGTG_USER_ID }}
         TGTG_COOKIE: ${{ secrets.TGTG_COOKIE }}
-    - uses: Der-Henning/actions-set-secret@v2.1.0
+    - uses: ihor-chaban/actions-set-secret@v2.1.0
       with:
         name: TGTG_ACCESS_TOKEN
         value: ${{ env.TGTG_ACCESS_TOKEN }}
         repository: ${{ github.repository }}
         token: ${{ secrets.REPO_ACCESS_TOKEN }}
-    - uses: Der-Henning/actions-set-secret@v2.1.0
+    - uses: ihor-chaban/actions-set-secret@v2.1.0
       with:
         name: TGTG_REFRESH_TOKEN
         value: ${{ env.TGTG_REFRESH_TOKEN }}
         repository: ${{ github.repository }}
         token: ${{ secrets.REPO_ACCESS_TOKEN }}
-    - uses: Der-Henning/actions-set-secret@v2.1.0
+    - uses: ihor-chaban/actions-set-secret@v2.1.0
       with:
         name: TGTG_USER_ID
         value: ${{ env.TGTG_USER_ID }}
         repository: ${{ github.repository }}
         token: ${{ secrets.REPO_ACCESS_TOKEN }}
-    - uses: Der-Henning/actions-set-secret@v2.1.0
+    - uses: ihor-chaban/actions-set-secret@v2.1.0
       with:
         name: TGTG_COOKIE
         value: ${{ env.TGTG_COOKIE }}

@@ -1,10 +1,10 @@
 # TGTG Scanner
 
-[![Tests](https://github.com/Der-Henning/tgtg/actions/workflows/tests.yml/badge.svg)](https://github.com/Der-Henning/tgtg/actions/workflows/tests.yml)
+[![Tests](https://github.com/ihor-chaban/tgtg-scanner/actions/workflows/tests.yml/badge.svg)](https://github.com/ihor-chaban/tgtg-scanner/actions/workflows/tests.yml)
 [![codecov](https://codecov.io/github/Der-Henning/tgtg/branch/main/graph/badge.svg?token=POHW9USW7C)](https://codecov.io/github/Der-Henning/tgtg)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/der-henning/tgtg/release.yml)](https://github.com/Der-Henning/tgtg/actions/workflows/release.yml)
-[![GitHub release](https://img.shields.io/github/release/Der-Henning/tgtg?include_prereleases=&sort=semver&color=blue)](https://github.com/Der-Henning/tgtg/releases/)
-[![Docker Pulls](https://img.shields.io/docker/pulls/derhenning/tgtg)](https://hub.docker.com/r/derhenning/tgtg)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/ihor-chaban/tgtg/release.yml)](https://github.com/ihor-chaban/tgtg-scanner/actions/workflows/release.yml)
+[![GitHub release](https://img.shields.io/github/release/ihor-chaban/tgtg-scanner?include_prereleases=&sort=semver&color=blue)](https://github.com/ihor-chaban/tgtg-scanner/releases/)
+[![Docker Pulls](https://img.shields.io/docker/pulls/ihor-chaban/tgtg-scanner)](https://hub.docker.com/r/gorus5/tgtg-scanner)
 
 TGTG Scanner observes your favorite TGTG Magic Bags for newly available items and notifies you
 via mail, IFTTT, Ntfy, Telegram, PushSafer, Apprise or any other WebHook.
@@ -18,7 +18,7 @@ OpenHab, Prometheus, and other automation, notification, and visualization servi
 This software is provided as is without warranty of any kind.
 If you have problems, find bugs, or have suggestions for improvement
 feel free to create an issue or contribute to the project.
-Before creating an issue please refer to the [FAQ](https://github.com/Der-Henning/tgtg/wiki/FAQ).
+Before creating an issue please refer to the [FAQ](https://github.com/ihor-chaban/tgtg-scanner/wiki/FAQ).
 
 ## Disclaimer
 
@@ -36,7 +36,7 @@ and may even delete your account.
 ## Error 403
 
 If you see the Error 403 in your logs please refer to the
-[FAQ](https://github.com/Der-Henning/tgtg/wiki/FAQ#1-i-am-getting-error-403-all-the-time).
+[FAQ](https://github.com/ihor-chaban/tgtg-scanner/wiki/FAQ#1-i-am-getting-error-403-all-the-time).
 
 ## Installation
 
@@ -47,7 +47,7 @@ You can also try to use a virtual cloud server.
 If you have any problems or questions feel free to create an issue.
 
 For configuration options please refer to the projects wiki:
-[Configuration](https://github.com/Der-Henning/tgtg/wiki/Configuration)
+[Configuration](https://github.com/ihor-chaban/tgtg-scanner/wiki/Configuration)
 
 You have the following three options to install the scanner, ascending in complexity:
 
@@ -59,9 +59,9 @@ The binaries are built for latest Ubuntu, MacOS, and Windows running on an `x64`
 If you are using another architecture like `arm` (e.g. RaspberryPi, Synology, etc.)
 you have to run from source, compile the binary yourself or use the docker images.
 
-1. Download latest [Releases](https://github.com/Der-Henning/tgtg/releases) for your OS
+1. Download latest [Releases](https://github.com/ihor-chaban/tgtg-scanner/releases) for your OS
 2. Unzip the archive
-3. Edit `config.ini` as described in the [Wiki](https://github.com/Der-Henning/tgtg/wiki/Configuration)
+3. Edit `config.ini` as described in the [Wiki](https://github.com/ihor-chaban/tgtg-scanner/wiki/Configuration)
 4. Run the scanner
 
 You can run the scanner manually if you need it, add it to your startup or create a system service.
@@ -74,12 +74,12 @@ you have to confirm the displayed dialog.
 ### Run with Docker
 
 My preferred method for servers, NAS, and RapsberryPis is using the pre-build multi-arch Linux images available via
-[Docker Hub](https://hub.docker.com/r/derhenning/tgtg).
+[Docker Hub](https://hub.docker.com/r/gorus5/tgtg-scanner).
 The images are built for Linux on `amd64`, `arm64`, `armv7`, `armv6`, and `i386`.
 
 1. Install Docker
 2. Copy and edit `docker-compose.yml` as described in the
-[Wiki](https://github.com/Der-Henning/tgtg/wiki/Configuration)
+[Wiki](https://github.com/ihor-chaban/tgtg-scanner/wiki/Configuration)
 3. Run `docker compose up -d`
 
 The container automatically creates a volume mounting `\tokens`
@@ -97,13 +97,13 @@ docker-compose up -d
 ### Install as package
 
 1. Install Git, Python>=3.9 and pip
-2. Run `pip install git+https://github.com/Der-Henning/tgtg`
+2. Run `pip install git+https://github.com/ihor-chaban/tgtg-scanner`
 3. Create `config.ini` as described in the
-[Wiki](https://github.com/Der-Henning/tgtg/wiki/Configuration)
+[Wiki](https://github.com/ihor-chaban/tgtg-scanner/wiki/Configuration)
 4. Start scanner with `python -m tgtg_scanner`
 
 To update to the latest release run
-`pip install --upgrade git+https://github.com/Der-Henning/tgtg`.
+`pip install --upgrade git+https://github.com/ihor-chaban/tgtg-scanner`.
 
 If you receive the `ModuleNotFoundError: No module named '_ctypes'`
 you may need to install `libffi-dev`.
@@ -113,12 +113,12 @@ you may need to install `libffi-dev`.
 Method for advanced usage.
 
 1. Install Git, Python>=3.9 and poetry
-2. Clone the repository `git clone https://github.com/Der-Henning/tgtg`
+2. Clone the repository `git clone https://github.com/ihor-chaban/tgtg-scanner`
 3. Enter repository folder `cd tgtg`
 4. Run `poetry install --without test,build`
 5. Create config file `cp config.sample.ini config.ini`
 6. Modify `config.ini` as described in the
-[Wiki](https://github.com/Der-Henning/tgtg/wiki/Configuration)
+[Wiki](https://github.com/ihor-chaban/tgtg-scanner/wiki/Configuration)
 7. Run `poetry run scanner`
 
 Alternatively, you can use environment variables as described in the wiki.
@@ -245,12 +245,4 @@ make server
 
 Feel free to create and contribute new notifiers for other services and endpoints.
 You can use an existing notifier as a template or build upon the webhook notifier.
-E.g. see the [ifttt notifier](https://github.com/Der-Henning/tgtg/blob/main/tgtg_scanner/notifiers/ifttt.py).
-
----
-If you want to support me, feel free to buy me a coffee.
-
-<!-- markdownlint-disable MD033 -->
-<a href="https://www.buymeacoffee.com/henning" target="_blank">
-<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" width="200">
-</a>
+E.g. see the [ifttt notifier](https://github.com/ihor-chaban/tgtg-scanner/blob/main/tgtg_scanner/notifiers/ifttt.py).

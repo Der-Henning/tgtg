@@ -3,15 +3,15 @@ build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core>=1.0.0"]
 
 [tool.poetry]
-authors = ["Henning Merklinger <henning.merklinger@gmail.com>"]
+authors = ["Ihor Chaban <igor.chaban.1995@gmail.com>"]
 description = "Notifications for Too Good To Go"
-documentation = "https://github.com/Der-Henning/tgtg/wiki"
+documentation = "https://github.com/ihor-chaban/tgtg-scanner/wiki"
 keywords = ["tgtg", "toogoodtogo", "notifications"]
 license = "GPL-3.0-or-later"
 name = "tgtg-scanner"
 packages = [{include = "tgtg_scanner"}]
 readme = "README.md"
-repository = "https://github.com/Der-Henning/tgtg"
+repository = "https://github.com/ihor-chaban/tgtg-scanner"
 version = "1.22.2"
 
 [tool.poetry.dependencies]

@@ -22,7 +22,7 @@ CONFIG_FILE_HEADER = """## TGTG Scanner Configuration
 ## --------------------------
 ## This is the configuration file for the TGTG Scanner.
 ## You can find more information about the configuration on the project page:
-## https://github.com/Der-Henning/tgtg/wiki/Configuration
+## https://github.com/ihor-chaban/tgtg-scanner/wiki/Configuration
 
 """
 

@@ -20,7 +20,7 @@ from tgtg_scanner.errors import ConfigurationError, TgtgAPIError
 from tgtg_scanner.models import Config
 from tgtg_scanner.scanner import Scanner
 
-VERSION_URL = "https://api.github.com/repos/Der-Henning/tgtg/releases/latest"
+VERSION_URL = "https://api.github.com/repos/ihor-chaban/tgtg-scanner/releases/latest"
 
 HEADER = (
     r"  ____  ___  ____  ___    ____   ___   __   __ _  __ _  ____  ____  ",
