@@ -33,9 +33,8 @@ class PushSafer(Notifier):
         """Sends item information to the Pushsafer endpoint"""
         if isinstance(item, Item):
             message = f"New Amount: {item.items_available}"
-            if self.device_ids:
-                device_str = ",".join(self.device_ids)
-                self.client.send_message(message, item.display_name, device_str)
+            for device_id in self.device_ids:
+                self.client.send_message(message, item.display_name, device_id)
 
     def __repr__(self) -> str:
         return f"PushSafer: {self.key}"
