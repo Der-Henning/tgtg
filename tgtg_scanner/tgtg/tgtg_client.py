@@ -5,6 +5,7 @@ import logging
 import random
 import re
 import time
+import uuid
 from datetime import datetime
 from http import HTTPStatus
 from typing import List, Union
@@ -59,6 +60,8 @@ class TgtgSession(requests.Session):
         )
     )
 
+    correlation_id = str(uuid.uuid4())
+
     def __init__(
         self,
         user_agent: Union[str, None] = None,
@@ -78,6 +81,7 @@ class TgtgSession(requests.Session):
             "accept": "application/json",
             "content-type": "application/json; charset=utf-8",
             "Accept-Encoding": "gzip",
+            "x-correlation-id": self.correlation_id,
         }
         if user_agent:
             self.headers["user-agent"] = user_agent
