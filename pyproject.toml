@@ -39,7 +39,7 @@ repository = "https://github.com/Der-Henning/tgtg"
 [tool.poetry]
 packages = [{include = "tgtg_scanner"}]
 requires-poetry = '>=2.0.0,<3.0.0'
-version = "1.22.2"
+version = "1.23.0"
 
 [tool.poetry.group.build.dependencies]
 pyinstaller = "^6.3.0"
