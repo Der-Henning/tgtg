@@ -12,12 +12,12 @@ dependencies = [
   'discord (>=2.3.2,<3.0.0)',
   'googlemaps (>=4.10.0,<5.0.0)',
   'humanize (>=4.7.0,<5.0.0)',
-  'packaging (>=24.0,<25.0)',
+  'packaging (>=25.0,<26.0)',
   'progress (>=1.6,<2.0)',
   'prometheus-client (>=0.21.0,<0.22.0)',
   'pycron (>=3.0.0,<4.0.0)',
   'python-pushsafer (>=1.1,<2.0)',
-  'python-telegram-bot[callback-data] (>=21.0.1,<22.0.0)',
+  'python-telegram-bot[callback-data] (>=22.0.0,<23.0.0)',
   'requests (>=2.31.0,<3.0.0)'
 ]
 description = "Notifications for Too Good To Go"
