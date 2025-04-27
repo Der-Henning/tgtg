@@ -5,10 +5,11 @@ import logging
 import random
 import re
 import time
+import uuid
 from datetime import datetime
 from http import HTTPStatus
 from typing import List, Union
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin, urlsplit
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -59,6 +60,8 @@ class TgtgSession(requests.Session):
         )
     )
 
+    correlation_id = str(uuid.uuid4())
+
     def __init__(
         self,
         user_agent: Union[str, None] = None,
@@ -78,6 +81,7 @@ class TgtgSession(requests.Session):
             "accept": "application/json",
             "content-type": "application/json; charset=utf-8",
             "Accept-Encoding": "gzip",
+            "x-correlation-id": self.correlation_id,
         }
         if user_agent:
             self.headers["user-agent"] = user_agent
@@ -85,7 +89,7 @@ class TgtgSession(requests.Session):
         if proxies:
             self.proxies = proxies
         if datadome_cookie:
-            domain = urlparse(base_url).netloc.split(":")[0]
+            domain = urlsplit(base_url).hostname
             domain = f".{'local' if domain == 'localhost' else domain}"
             self.cookies.set("datadome", datadome_cookie, domain=domain, path="/", secure=True)
 

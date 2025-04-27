@@ -12,7 +12,7 @@
 			"VARIANT": "3.11",
 			// Options
 			// "NODE_VERSION": "lts/*",
-			"POETRY_VERSION": "1.8.3"
+			"POETRY_VERSION": "2.1.2"
 		}
 	},
 	// Set *default* container specific settings.json values on container create.

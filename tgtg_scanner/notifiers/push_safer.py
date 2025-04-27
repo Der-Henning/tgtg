@@ -22,10 +22,10 @@ class PushSafer(Notifier):
         super().__init__(config, reservations, favorites)
         self.enabled = config.pushsafer.enabled
         self.key = config.pushsafer.key
-        self.device_id = config.pushsafer.device_id
+        self.device_ids = config.pushsafer.device_ids
         self.cron = config.pushsafer.cron
         if self.enabled:
-            if self.key is None or self.device_id is None:
+            if self.key is None or len(self.device_ids) == 0:
                 raise PushSaferConfigurationError()
             self.client = Client(self.key)
 
@@ -33,7 +33,8 @@ class PushSafer(Notifier):
         """Sends item information to the Pushsafer endpoint"""
         if isinstance(item, Item):
             message = f"New Amount: {item.items_available}"
-            self.client.send_message(message, item.display_name, self.device_id)
+            for device_id in self.device_ids:
+                self.client.send_message(message, item.display_name, device_id)
 
     def __repr__(self) -> str:
         return f"PushSafer: {self.key}"

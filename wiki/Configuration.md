@@ -134,7 +134,7 @@ You can combine multiple crons as semicolon separated list.
 |------------|-------------|-------------|---------|:-------------------:|:---------:|
 | Enabled | PUSHSAFER | enable Pushsafer notifications | `false` | | |
 | Key | PUSHSAFER_KEY | Pushsafer API key | | YES | |
-| DeviceID | PUSHSAFER_DEVICE_ID | Pushsafer device ID | | YES | |
+| DeviceIDs | PUSHSAFER_DEVICE_IDS | Pushsafer device IDs, comma seperated list for multiple IDs | | YES | |
 | Cron | PUSHSAFER_CRON | enable notification only on schedule | `* * * * *` | | |
 
 ### [IFTTT] / IFTTT Notifier

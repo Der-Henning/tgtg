@@ -182,11 +182,11 @@ class Item:
         pfr = self._datetimeparse(self.pickup_interval_start)
         pto = self._datetimeparse(self.pickup_interval_end)
         prange = f"{pfr.hour:02d}:{pfr.minute:02d} - {pto.hour:02d}:{pto.minute:02d}"
-        tommorow = now + datetime.timedelta(days=1)
+        tommorrow = now + datetime.timedelta(days=1)
         if now.date() == pfr.date():
             return f"{humanize.naturalday(now)}, {prange}"
         if (pfr.date() - now.date()).days == 1:
-            return f"{humanize.naturalday(tommorow)}, {prange}"
+            return f"{humanize.naturalday(tommorrow)}, {prange}"
         return f"{pfr.day}/{pfr.month}, {prange}"
 
     def _get_distance_time(self, travel_mode: str) -> Union[DistanceTime, None]:
