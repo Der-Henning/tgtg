@@ -213,25 +213,15 @@ class PushSaferConfig(NotifierConfig):
         self._ini_get_boolean(parser, "PUSHSAFER", "Enabled", "enabled")
         self._ini_get_cron(parser, "PUSHSAFER", "Cron", "cron")
         self._ini_get(parser, "PUSHSAFER", "Key", "key")
-        self._ini_get_list(parser, "PUSHSAFER", "DeviceID", "device_ids")
+        self._ini_get_list(parser, "PUSHSAFER", "DeviceID", "device_ids")  # Legacy support
+        self._ini_get_list(parser, "PUSHSAFER", "DeviceIDs", "device_ids")
 
     def _read_env(self):
-        if environ.get("PUSH_SAFER", None):
-            log.warning(DEPRECATION_NOTICE.format("PUSH_SAFER", "PUSHSAFER"))
-        self._env_get_boolean("PUSH_SAFER", "enabled")
         self._env_get_boolean("PUSHSAFER", "enabled")
-        if environ.get("PUSH_SAFER_CRON", None):
-            log.warning(DEPRECATION_NOTICE.format("PUSH_SAFER_CRON", "PUSHSAFER_CRON"))
-        self._env_get_cron("PUSH_SAFER_CRON", "cron")
         self._env_get_cron("PUSHSAFER_CRON", "cron")
-        if environ.get("PUSH_SAFER_KEY", None):
-            log.warning(DEPRECATION_NOTICE.format("PUSH_SAFER_KEY", "PUSHSAFER_KEY"))
-        self._env_get("PUSH_SAFER_KEY", "key")
         self._env_get("PUSHSAFER_KEY", "key")
-        if environ.get("PUSH_SAFER_DEVICE_ID", None):
-            log.warning(DEPRECATION_NOTICE.format("PUSH_SAFER_DEVICE_ID", "PUSHSAFER_DEVICE_ID"))
-        self._env_get_list("PUSH_SAFER_DEVICE_ID", "device_ids")
         self._env_get_list("PUSHSAFER_DEVICE_ID", "device_ids")
+        self._env_get_list("PUSHSAFER_DEVICE_IDS", "device_ids")
 
 
 @dataclass

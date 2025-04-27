@@ -25,7 +25,7 @@ class PushSafer(Notifier):
         self.device_ids = config.pushsafer.device_ids
         self.cron = config.pushsafer.cron
         if self.enabled:
-            if self.key is None or self.device_ids is None:
+            if self.key is None or len(self.device_ids) == 0:
                 raise PushSaferConfigurationError()
             self.client = Client(self.key)
 
