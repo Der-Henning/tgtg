@@ -1,7 +1,7 @@
 import json
 import pathlib
 import re
-from os import environ
+from os import getenv
 from urllib.parse import urljoin
 
 import pytest
@@ -183,7 +183,7 @@ def test_tgtg_api(item_properties: dict):
     else:
         config = Config()
 
-    env_file = environ.get("GITHUB_ENV", None)
+    env_file = getenv("GITHUB_ENV")
 
     client = TgtgClient(
         email=config.tgtg.username,
