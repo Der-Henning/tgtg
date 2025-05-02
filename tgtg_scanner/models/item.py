@@ -57,13 +57,13 @@ class Item:
         self.items_available: int = data.get("items_available", 0)
         self.display_name: str = data.get("display_name", "-")
         self.favorite: str = "Yes" if data.get("favorite", False) else "No"
-        self.pickup_interval_start: Union[str, None] = data.get("pickup_interval", {}).get("start", None)
-        self.pickup_interval_end: Union[str, None] = data.get("pickup_interval", {}).get("end", None)
+        self.pickup_interval_start: Union[str, None] = data.get("pickup_interval", {}).get("start")
+        self.pickup_interval_end: Union[str, None] = data.get("pickup_interval", {}).get("end")
         self.pickup_location: str = data.get("pickup_location", {}).get("address", {}).get("address_line", "-")
 
         item: dict = data.get("item", {})
-        self.item_id: str = item.get("item_id", None)
-        self._rating: Union[float, None] = item.get("average_overall_rating", {}).get("average_overall_rating", None)
+        self.item_id: str = item.get("item_id")  # type: ignore[assignment]
+        self._rating: Union[float, None] = item.get("average_overall_rating", {}).get("average_overall_rating")
         self.packaging_option: str = item.get("packaging_option", "-")
         self.item_name: str = item.get("name", "-")
         self.buffet: str = "Yes" if item.get("buffet", False) else "No"
