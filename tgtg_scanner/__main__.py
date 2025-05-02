@@ -243,13 +243,6 @@ def _get_config_file() -> Union[Path, None]:
     return None
 
 
-def _get_version_info() -> str:
-    lastest_release = _get_new_version()
-    if lastest_release is None:
-        return __version__
-    return f"{__version__} - Update available! See {lastest_release.get('html_url')}"
-
-
 def _run_scanner(scanner: Scanner) -> NoReturn:
     _print_welcome_message()
     _print_version_check()
