@@ -32,7 +32,7 @@ class Metrics:
         Start the metrics http server.
         """
         start_http_server(self.port)
-        log.info("Metrics server startet on port %s", self.port)
+        log.info("Metrics server started on port %s", self.port)
 
     def update(self, item: Item) -> None:
         """
