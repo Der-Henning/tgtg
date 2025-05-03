@@ -1,4 +1,4 @@
-# copied and modified from https://github.com/ahivert/tgtg-python
+# Copied and modified from https://github.com/ahivert/tgtg-python
 
 import json
 import logging
@@ -94,10 +94,9 @@ class TgtgSession(requests.Session):
             self.cookies.set("datadome", datadome_cookie, domain=domain, path="/", secure=True)
 
     def post(self, *args, access_token: Union[str, None] = None, **kwargs) -> requests.Response:
-        headers = kwargs.get("headers")
-        if headers is None and self.headers:
+        if "headers" not in kwargs:
             kwargs["headers"] = self.headers
-        if "headers" in kwargs and access_token:
+        if access_token:
             kwargs["headers"]["authorization"] = f"Bearer {access_token}"
         return super().post(*args, **kwargs)
 

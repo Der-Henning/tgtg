@@ -12,9 +12,9 @@ log = logging.getLogger("tgtg")
 
 
 class Apprise(Notifier):
-    r"""Notifier for Apprise. \n
-    For more information on Apprise visit\n
-    https://github.com/caronc/apprise.
+    """Notifier for Apprise.
+
+    For more information on Apprise visit https://github.com/caronc/apprise.
     """
 
     def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):

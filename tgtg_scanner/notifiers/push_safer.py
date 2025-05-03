@@ -12,9 +12,9 @@ log = logging.getLogger("tgtg")
 
 
 class PushSafer(Notifier):
-    r"""Notifier for PushSafer\n
-    For more information visit:\n
-    https://www.pushsafer.com/.
+    """Notifier for PushSafer
+
+    For more information visit https://www.pushsafer.com/.
     """
 
     def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
