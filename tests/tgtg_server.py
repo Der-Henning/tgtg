@@ -16,8 +16,8 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-type", "text/html; charset=utf-8")
         self.end_headers()
-        self.wfile.write("<h1>TGTG API test server</h1>".encode("utf-8"))
-        self.wfile.write(f"GET request for {self.path}".encode("utf-8"))
+        self.wfile.write(b"<h1>TGTG API test server</h1>")
+        self.wfile.write(f"GET request for {self.path}".encode())
 
     def do_POST(self):
         content_length = int(self.headers["Content-Length"])

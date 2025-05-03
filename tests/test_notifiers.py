@@ -153,7 +153,7 @@ def test_ntfy(test_item: Item, reservations: Reservations, favorites: Favorites)
 
     request = responses.calls[0].request
 
-    assert request.url == (f"{config.ntfy.server}/" f"{config.ntfy.topic}")
+    assert request.url == (f"{config.ntfy.server}/{config.ntfy.topic}")
     assert request.headers.get("X-Message").decode("utf-8") == (
         f"{test_item.display_name} - New Amount: {test_item.items_available} - "
         f"https://share.toogoodtogo.com/item/{test_item.item_id}"
@@ -230,7 +230,12 @@ def test_script(
     assert captured.out.decode(encoding).rstrip() == test_item.display_name
 
 
-def test_smtp(test_item: Item, reservations: Reservations, favorites: Favorites, mocker: MockerFixture):
+def test_smtp(
+    test_item: Item,
+    reservations: Reservations,
+    favorites: Favorites,
+    mocker: MockerFixture,
+):
     mock_SMTP = mocker.MagicMock(name="tgtg_scanner.notifiers.smtp.smtplib.SMTP")
     mocker.patch("tgtg_scanner.notifiers.smtp.smtplib.SMTP", new=mock_SMTP)
     mock_SMTP.return_value.noop.return_value = (250, "OK")

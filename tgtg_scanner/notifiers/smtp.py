@@ -16,7 +16,7 @@ log = logging.getLogger("tgtg")
 
 
 class SMTP(Notifier):
-    """Notifier for SMTP"""
+    """Notifier for SMTP."""
 
     def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
         super().__init__(config, reservations, favorites)
@@ -52,8 +52,8 @@ class SMTP(Notifier):
                 item_recipients = None
                 try:
                     item_recipients = json.loads(config.smtp.recipients_per_item)
-                except json.decoder.JSONDecodeError:
-                    raise SMTPConfigurationError("Recipients per Item is not a valid dictionary")
+                except json.decoder.JSONDecodeError as err:
+                    raise SMTPConfigurationError("Recipients per Item is not a valid dictionary") from err
                 if not isinstance(item_recipients, dict) or any(
                     not isinstance(value, (list, str)) for value in item_recipients.values()
                 ):
@@ -61,7 +61,7 @@ class SMTP(Notifier):
                 self.item_recipients = {k: v if isinstance(v, list) else [v] for k, v in item_recipients.items()}
 
     def __del__(self):
-        """Closes SMTP connection when shutdown"""
+        """Closes SMTP connection when shutdown."""
         if self.server:
             try:
                 self.server.quit()
@@ -69,7 +69,7 @@ class SMTP(Notifier):
                 log.warning(exc)
 
     def _connect(self) -> None:
-        """Connect to SMTP Server"""
+        """Connect to SMTP Server."""
         if self.host is None or self.port is None:
             raise SMTPConfigurationError()
         if self.use_ssl:
@@ -84,7 +84,7 @@ class SMTP(Notifier):
             self.server.login(self.username, self.password)
 
     def _stay_connected(self) -> None:
-        """Refresh server connection if connection is lost"""
+        """Refresh server connection if connection is lost."""
         status = -1
         if self.server is not None:
             try:
@@ -95,7 +95,7 @@ class SMTP(Notifier):
             self._connect()
 
     def _send_mail(self, subject: str, html: str, item_id: str) -> None:
-        """Sends mail with html body"""
+        """Sends mail with html body."""
         if self.server is None:
             self._connect()
         if self.sender is None or self.recipients is None or self.server is None:

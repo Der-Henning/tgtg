@@ -55,3 +55,9 @@ responses = "^0.25.0"
 markers = [
   "tgtg_api: test directly calls the tgtg API (deselect with '-m \"not tgtg_api\"')"
 ]
+
+[tool.ruff]
+line-length = 130
+
+[tool.ruff.lint]
+select = ["E", "F", "B", "I", "UP"]

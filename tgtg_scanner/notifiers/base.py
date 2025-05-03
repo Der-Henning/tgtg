@@ -11,7 +11,7 @@ log = logging.getLogger("tgtg")
 
 
 class Notifier(ABC):
-    """Base Notifier"""
+    """Base Notifier."""
 
     @abstractmethod
     def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
@@ -25,11 +25,11 @@ class Notifier(ABC):
 
     @property
     def name(self):
-        """Get notifier name"""
+        """Get notifier name."""
         return self.__class__.__name__
 
     def _run(self) -> None:
-        """Run notifier"""
+        """Run notifier."""
         self.config.set_locale()
         while True:
             try:
@@ -44,13 +44,13 @@ class Notifier(ABC):
                 log.error("Failed sending %s: %s", self.name, exc)
 
     def start(self) -> None:
-        """Run notifier in thread"""
+        """Run notifier in thread."""
         if self.enabled:
             log.debug("Starting %s Notifier thread", self.name)
             self.thread.start()
 
     def send(self, item: Union[Item, Reservation]) -> None:
-        """Send notification"""
+        """Send notification."""
         if not isinstance(item, (Item, Reservation)):
             log.error("Invalid item type: %s", type(item))
             return
@@ -63,11 +63,10 @@ class Notifier(ABC):
 
     @abstractmethod
     def _send(self, item: Union[Item, Reservation]) -> None:
-        """Send Item information"""
-        pass
+        """Send Item information."""
 
     def stop(self) -> None:
-        """Stop notifier"""
+        """Stop notifier."""
         if self.thread.is_alive():
             log.debug("Stopping %s Notifier thread", self.name)
             self.queue.put(None)

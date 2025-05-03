@@ -12,10 +12,9 @@ log = logging.getLogger("tgtg")
 
 
 class PushSafer(Notifier):
-    """
-    Notifier for PushSafer\n
+    r"""Notifier for PushSafer\n
     For more information visit:\n
-    https://www.pushsafer.com/
+    https://www.pushsafer.com/.
     """
 
     def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
@@ -30,7 +29,7 @@ class PushSafer(Notifier):
             self.client = Client(self.key)
 
     def _send(self, item: Union[Item, Reservation]) -> None:
-        """Sends item information to the Pushsafer endpoint"""
+        """Sends item information to the Pushsafer endpoint."""
         if isinstance(item, Item):
             message = f"New Amount: {item.items_available}"
             for device_id in self.device_ids:

@@ -14,7 +14,7 @@ log = logging.getLogger("tgtg")
 
 
 class WebHook(Notifier):
-    """Notifier for custom Webhooks"""
+    """Notifier for custom Webhooks."""
 
     def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
         super().__init__(config, reservations, favorites)
@@ -42,7 +42,7 @@ class WebHook(Notifier):
                 raise WebHookConfigurationError(exc.message) from exc
 
     def _send(self, item: Union[Item, Reservation]) -> None:
-        """Sends item information via configured Webhook endpoint"""
+        """Sends item information via configured Webhook endpoint."""
         if isinstance(item, Item):
             if self.url is None:
                 raise WebHookConfigurationError()

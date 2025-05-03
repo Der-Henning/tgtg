@@ -12,10 +12,9 @@ log = logging.getLogger("tgtg")
 
 
 class Apprise(Notifier):
-    """
-    Notifier for Apprise. \n
+    r"""Notifier for Apprise. \n
     For more information on Apprise visit\n
-    https://github.com/caronc/apprise
+    https://github.com/caronc/apprise.
     """
 
     def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
@@ -36,7 +35,7 @@ class Apprise(Notifier):
                 raise AppriseConfigurationError(exc.message) from exc
 
     def _send(self, item: Union[Item, Reservation]) -> None:
-        """Sends item information via configured Apprise URL"""
+        """Sends item information via configured Apprise URL."""
         if isinstance(item, Item):
             if self.url is None or self.body is None or self.title is None:
                 raise AppriseConfigurationError()
