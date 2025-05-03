@@ -7,7 +7,7 @@ async-timeout==5.0.1 ; python_version >= "3.9" and python_version < "3.11"
 attrs==25.3.0 ; python_version >= "3.9" and python_version < "3.13"
 babel==2.17.0 ; python_version >= "3.9" and python_version < "3.13"
 cachetools==5.5.2 ; python_version >= "3.9" and python_version < "3.13"
-certifi==2025.1.31 ; python_version >= "3.9" and python_version < "3.13"
+certifi==2025.4.26 ; python_version >= "3.9" and python_version < "3.13"
 charset-normalizer==3.4.1 ; python_version >= "3.9" and python_version < "3.13"
 click==8.1.8 ; python_version >= "3.9" and python_version < "3.13"
 colorama==0.4.6 ; python_version >= "3.9" and python_version < "3.13" and (platform_system == "Windows" or sys_platform == "win32")
