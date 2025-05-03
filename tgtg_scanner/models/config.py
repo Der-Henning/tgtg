@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from os import getenv
 from pathlib import Path
-from typing import IO, Any
+from typing import IO, Any, Union
 
 import humanize
 
@@ -139,7 +139,7 @@ class NotifierConfig(BaseConfig):
 class AppriseConfig(NotifierConfig):
     """Apprise Notifier configuration."""
 
-    url: str | None = None
+    url: Union[str, None] = None
     title: str = "New Magic Bags"
     body: str = "${{display_name}} - new amount: ${{items_available}} - ${{link}}"
 
@@ -162,7 +162,7 @@ class AppriseConfig(NotifierConfig):
 class TelegramConfig(NotifierConfig):
     """Telegram Notifier configuration."""
 
-    token: str | None = None
+    token: Union[str, None] = None
     chat_ids: list[str] = field(default_factory=list)
     disable_commands: bool = False
     only_reservations: bool = False
@@ -170,7 +170,7 @@ class TelegramConfig(NotifierConfig):
     body: str = (
         "*${{display_name}}*\n*Available*: ${{items_available}}\n*Price*: ${{price}} ${{currency}}\n*Pickup*: ${{pickupdate}}"
     )
-    image: str | None = None
+    image: Union[str, None] = None
 
     def _read_ini(self, parser: configparser.ConfigParser):
         self._ini_get_boolean(parser, "TELEGRAM", "Enabled", "enabled")
@@ -202,7 +202,7 @@ class TelegramConfig(NotifierConfig):
 class PushSaferConfig(NotifierConfig):
     """PushSafer Notifier configuration."""
 
-    key: str | None = None
+    key: Union[str, None] = None
     device_ids: list[str] = field(default_factory=list)
 
     @property
@@ -245,16 +245,16 @@ class ConsoleConfig(NotifierConfig):
 class SMTPConfig(NotifierConfig):
     """SMTP Notifier configuration."""
 
-    host: str | None = None
-    port: int | None = None
-    username: str | None = None
-    password: str | None = None
+    host: Union[str, None] = None
+    port: Union[int, None] = None
+    username: Union[str, None] = None
+    password: Union[str, None] = None
     use_tls: bool = False
     use_ssl: bool = False
     timeout: int = 60
-    sender: str | None = None
+    sender: Union[str, None] = None
     recipients: list[str] = field(default_factory=list)
-    recipients_per_item: str | None = None
+    recipients_per_item: Union[str, None] = None
     subject: str = "New Magic Bags"
     body: str = "<b>${{display_name}}</b> </br>New Amount: ${{items_available}}"
 
@@ -302,7 +302,7 @@ class IFTTTConfig(NotifierConfig):
     """IFTTT Notifier configuration."""
 
     event: str = "tgtg_notification"
-    key: str | None = None
+    key: Union[str, None] = None
     body: str = '{"value1": "${{display_name}}", "value2": ${{items_available}}, "value3": "${{link}}"}'
     timeout: int = 60
 
@@ -328,16 +328,16 @@ class NtfyConfig(NotifierConfig):
     """Ntfy Notifier configuration."""
 
     server: str = "https://ntfy.sh"
-    topic: str | None = None
+    topic: Union[str, None] = None
     title: str = "New Magic Bags"
     message: str = "${{display_name}} - New Amount: ${{items_available}} - ${{link}}"
-    body: str | None = None
+    body: Union[str, None] = None
     priority: str = "default"
     tags: str = "shopping,tgtg"
     click: str = "${{link}}"
-    username: str | None = None
-    password: str | None = None
-    token: str | None = None
+    username: Union[str, None] = None
+    password: Union[str, None] = None
+    token: Union[str, None] = None
     timeout: int = 60
 
     def _read_ini(self, parser: configparser.ConfigParser):
@@ -377,14 +377,14 @@ class NtfyConfig(NotifierConfig):
 class WebhookConfig(NotifierConfig):
     """Webhook Notifier configuration."""
 
-    url: str | None = None
+    url: Union[str, None] = None
     method: str = "POST"
     headers: dict[str, str | bytes] = field(default_factory=dict)
     body: str = ""
     type: str = "text/plain"
     timeout: int = 60
-    username: str | None = None
-    password: str | None = None
+    username: Union[str, None] = None
+    password: Union[str, None] = None
 
     def _read_ini(self, parser: configparser.ConfigParser):
         self._ini_get_boolean(parser, "WEBHOOK", "Enabled", "enabled")
@@ -415,7 +415,7 @@ class WebhookConfig(NotifierConfig):
 class ScriptConfig(NotifierConfig):
     """Script Notifier configuration."""
 
-    command: str | None = None
+    command: Union[str, None] = None
 
     def _read_ini(self, parser: configparser.ConfigParser):
         self._ini_get_boolean(parser, "SCRIPT", "Enabled", "enabled")
@@ -433,8 +433,8 @@ class DiscordConfig(NotifierConfig):
     """Discord configuration."""
 
     enabled: bool = False
-    prefix: str | None = "!"
-    token: str | None = None
+    prefix: Union[str, None] = "!"
+    token: Union[str, None] = None
     channel: int = 0
     body: str = (
         "*${{display_name}}*\n*Available*: ${{items_available}}\n*Price*: ${{price}} ${{currency}}\n*Pickup*: ${{pickupdate}}"
@@ -464,10 +464,10 @@ class DiscordConfig(NotifierConfig):
 class TgtgConfig(BaseConfig):
     """Tgtg configuration."""
 
-    username: str | None = None
-    access_token: str | None = None
-    refresh_token: str | None = None
-    datadome: str | None = None
+    username: Union[str, None] = None
+    access_token: Union[str, None] = None
+    refresh_token: Union[str, None] = None
+    datadome: Union[str, None] = None
     timeout: int = 60
     access_token_lifetime: int = 14400
     max_polling_tries: int = 24
@@ -500,8 +500,8 @@ class LocationConfig(BaseConfig):
     """Location configuration."""
 
     enabled: bool = False
-    google_maps_api_key: str | None = None
-    origin_address: str | None = None
+    google_maps_api_key: Union[str, None] = None
+    origin_address: Union[str, None] = None
 
     def _read_ini(self, parser: configparser.ConfigParser):
         self._ini_get_boolean(parser, "LOCATION", "Enabled", "enabled")
@@ -527,7 +527,7 @@ class LocationConfig(BaseConfig):
 class Config(BaseConfig):
     """Main configuration."""
 
-    file: str | None = None
+    file: Union[str, None] = None
     item_ids: list[str] = field(default_factory=list)
     sleep_time: int = 60
     schedule_cron: Cron = field(default_factory=Cron)
@@ -541,7 +541,7 @@ class Config(BaseConfig):
     activity: bool = True
     tgtg: TgtgConfig = field(default_factory=TgtgConfig)
     location: LocationConfig = field(default_factory=LocationConfig)
-    token_path: str | None = None
+    token_path: Union[str, None] = None
     apprise: AppriseConfig = field(default_factory=AppriseConfig)
     telegram: TelegramConfig = field(default_factory=TelegramConfig)
     pushsafer: PushSaferConfig = field(default_factory=PushSaferConfig)

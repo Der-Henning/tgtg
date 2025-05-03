@@ -57,7 +57,7 @@ class TgtgSession(requests.Session):
             status_forcelist=[429, 500, 502, 503, 504],
             allowed_methods=["GET", "POST"],
             backoff_factor=1,
-        ),
+        )
     )
 
     correlation_id = str(uuid.uuid4())
@@ -268,7 +268,7 @@ class TgtgClient:
         self.last_time_token_refreshed = datetime.now()
 
     def login(self) -> None:
-        if not (self.email or (self.access_token and self.refresh_token)):
+        if not (self.email or self.access_token and self.refresh_token):
             raise TGTGConfigurationError("You must provide at least email or access_token and refresh_token")
         if self._already_logged:
             self._refresh_token()
@@ -284,7 +284,7 @@ class TgtgClient:
             first_login_response = response.json()
             if first_login_response["state"] == "TERMS":
                 raise TgtgPollingError(
-                    f"This email {self.email} is not linked to a tgtg account. Please signup with this email first.",
+                    f"This email {self.email} is not linked to a tgtg account. Please signup with this email first."
                 )
             if first_login_response.get("state") == "WAIT":
                 self.start_polling(first_login_response.get("polling_id"))
@@ -303,7 +303,7 @@ class TgtgClient:
             )
             if response.status_code == HTTPStatus.ACCEPTED:
                 log.warning(
-                    "Check your mailbox on PC to continue... (Mailbox on mobile won't work, if you have installed tgtg app.)",
+                    "Check your mailbox on PC to continue... (Mailbox on mobile won't work, if you have installed tgtg app.)"
                 )
                 time.sleep(self.polling_wait_time)
                 continue

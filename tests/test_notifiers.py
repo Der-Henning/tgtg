@@ -230,12 +230,7 @@ def test_script(
     assert captured.out.decode(encoding).rstrip() == test_item.display_name
 
 
-def test_smtp(
-    test_item: Item,
-    reservations: Reservations,
-    favorites: Favorites,
-    mocker: MockerFixture,
-):
+def test_smtp(test_item: Item, reservations: Reservations, favorites: Favorites, mocker: MockerFixture):
     mock_SMTP = mocker.MagicMock(name="tgtg_scanner.notifiers.smtp.smtplib.SMTP")
     mocker.patch("tgtg_scanner.notifiers.smtp.smtplib.SMTP", new=mock_SMTP)
     mock_SMTP.return_value.noop.return_value = (250, "OK")

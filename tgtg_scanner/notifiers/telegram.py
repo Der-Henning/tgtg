@@ -8,6 +8,7 @@ import warnings
 from functools import wraps
 from queue import Empty
 from time import sleep
+from typing import Union
 
 from telegram import BotCommand, InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
@@ -45,9 +46,9 @@ def _private(func):
         if not self._is_my_chat(update):
             log.warning(
                 f"Unauthorized access to {func.__name__} from chat id {update.message.chat.id} "
-                f"and user id {update.message.from_user.id}",
+                f"and user id {update.message.from_user.id}"
             )
-            return None
+            return
         return await func(self, update, context)
 
     return wrapper
@@ -71,7 +72,7 @@ class Telegram(Notifier):
         self.disable_commands = config.telegram.disable_commands
         self.only_reservations = config.telegram.only_reservations
         self.cron = config.telegram.cron
-        self.mute: datetime.datetime | None = None
+        self.mute: Union[datetime.datetime, None] = None
         self.retries = 0
         if self.enabled:
             if not self.token or not self.body:
@@ -141,7 +142,7 @@ class Telegram(Notifier):
                 BotCommand("addfavorites", "Add item ids to favorites"),
                 BotCommand("removefavorites", "Remove Item ids from favorites"),
                 BotCommand("getid", "Get your chat id"),
-            ],
+            ]
         )
         await self.application.start()
 
@@ -200,13 +201,13 @@ class Telegram(Notifier):
                 text = text.replace(match.group(0), val)
         return text
 
-    def _unmask_image(self, text: str, item: Item) -> bytes | None:
+    def _unmask_image(self, text: str, item: Item) -> Union[bytes, None]:
         if text in ["${{item_logo_bytes}}", "${{item_cover_bytes}}"]:
             matches = item._get_variables(text)
             return bytes(getattr(item, matches[0].group(1)))
         return None
 
-    async def _send(self, item: Item | Reservation) -> None:  # type: ignore[override]
+    async def _send(self, item: Union[Item, Reservation]) -> None:  # type: ignore[override]
         """Send item information as Telegram message.
 
         Reservation notifications are always send.
@@ -226,7 +227,7 @@ class Telegram(Notifier):
             return
         await self._send_message(message, image)
 
-    async def _send_message(self, message: str, image: bytes | None = None) -> None:
+    async def _send_message(self, message: str, image: Union[bytes, None] = None) -> None:
         log.debug("%s message: %s", self.name, message)
         fmt = ParseMode.MARKDOWN_V2
         for chat_id in self.chat_ids:
@@ -269,7 +270,7 @@ class Telegram(Notifier):
         log.info("Deactivated Telegram Notifications for %s days", days)
         log.info("Reactivation at %s", self.mute)
         await update.message.reply_text(
-            f"Deactivated Telegram Notifications for {days} days.\nReactivating at {self.mute} or use /unmute.",
+            f"Deactivated Telegram Notifications for {days} days.\nReactivating at {self.mute} or use /unmute."
         )
 
     @_private
@@ -340,7 +341,7 @@ class Telegram(Notifier):
             await update.message.reply_text(
                 "Please supply item ids in one of the following ways: "
                 "'/addfavorites 12345 23456 34567' or "
-                "'/addfavorites 12345,23456,34567'",
+                "'/addfavorites 12345,23456,34567'"
             )
             return
 
@@ -351,7 +352,7 @@ class Telegram(Notifier):
                     str.strip,
                     [split_args for arg in context.args for split_args in arg.split(",")],
                 ),
-            ),
+            )
         )
         self.favorites.add_favorites(item_ids)
         await update.message.reply_text(f"Added the following item ids to favorites: {' '.join(item_ids)}")
@@ -363,7 +364,7 @@ class Telegram(Notifier):
             await update.message.reply_text(
                 "Please supply item ids in one of the following ways: "
                 "'/removefavorites 12345 23456 34567' or "
-                "'/removefavorites 12345,23456,34567'",
+                "'/removefavorites 12345,23456,34567'"
             )
             return
 
@@ -374,7 +375,7 @@ class Telegram(Notifier):
                     str.strip,
                     [split_args for arg in context.args for split_args in arg.split(",")],
                 ),
-            ),
+            )
         )
         self.favorites.remove_favorite(item_ids)
         await update.message.reply_text(f"Removed the following item ids from favorites: {' '.join(item_ids)}")
@@ -404,8 +405,8 @@ class Telegram(Notifier):
                                     "No",
                                     callback_data=RemoveFavoriteRequest(item_id, item.display_name, False),
                                 ),
-                            ],
-                        ],
+                            ]
+                        ]
                     )
                 ),
             )
@@ -424,8 +425,8 @@ class Telegram(Notifier):
                                     "No",
                                     callback_data=AddFavoriteRequest(item_id, item.display_name, False),
                                 ),
-                            ],
-                        ],
+                            ]
+                        ]
                     )
                 ),
             )
