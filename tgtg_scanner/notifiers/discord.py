@@ -18,7 +18,7 @@ discord.VoiceClient.warn_nacl = False
 
 
 class Discord(Notifier):
-    """Notifier for Discord"""
+    """Notifier for Discord."""
 
     def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
         super().__init__(config, reservations, favorites)
@@ -52,7 +52,7 @@ class Discord(Notifier):
                 raise DiscordConfigurationError(exc.message) from exc
 
     async def _send(self, item: Union[Item, Reservation]) -> None:  # type: ignore[override]
-        """Sends item information using Discord bot"""
+        """Sends item information using Discord bot."""
         if self.mute and self.mute > datetime.datetime.now():
             return
         if self.mute:
@@ -64,7 +64,7 @@ class Discord(Notifier):
 
     @tasks.loop(seconds=1)
     async def _listen_for_items(self):
-        """Method for polling notifications every second"""
+        """Method for polling notifications every second."""
         try:
             item = self.queue.get(block=False)
             if item is None:
@@ -97,7 +97,7 @@ class Discord(Notifier):
     def _setup_events(self):
         @self.bot.event
         async def on_ready():
-            """Callback after successful login (only explicitly used in test_notifiers.py)"""
+            """Callback after successful login (only explicitly used in test_notifiers.py)."""
             self.bot_id = self.bot.user.id
             self.channel_id = self.channel
             self.server_id = self.bot.guilds[0].id if len(self.bot.guilds) > 0 else 0
@@ -105,38 +105,38 @@ class Discord(Notifier):
 
         @self.bot.event
         async def on_send_notification(message):
-            """Callback for item notification"""
+            """Callback for item notification."""
             channel = self.bot.get_channel(self.channel) or await self.bot.fetch_channel(self.channel)
             if channel:
                 await channel.send(message)
 
         @self.bot.event
         async def on_close():
-            """Logout from Discord (only explicitly used in test_notifiers.py)"""
+            """Logout from Discord (only explicitly used in test_notifiers.py)."""
             await self.bot.close()
 
     def _setup_commands(self):
         @self.bot.command(name="mute")
         async def _mute(ctx, *args):
-            """Deactivates Discord Notifications for x days"""
+            """Deactivates Discord Notifications for x days."""
             days = int(args[0]) if len(args) > 0 and args[0].isnumeric() else 1
             self.mute = datetime.datetime.now() + datetime.timedelta(days=days)
             log.info("Deactivated Discord Notifications for %s day(s)", days)
             log.info("Reactivation at %s", self.mute)
             await ctx.send(
-                f"Deactivated Discord notifications for {days} days.\nReactivating at {self.mute} or use `{self.prefix}unmute`."
+                f"Deactivated Discord notifications for {days} days.\nReactivating at {self.mute} or use `{self.prefix}unmute`.",
             )
 
         @self.bot.command(name="unmute")
         async def _unmute(ctx):
-            """Reactivate Discord notifications"""
+            """Reactivate Discord notifications."""
             self.mute = None
             log.info("Reactivated Discord notifications")
             await ctx.send("Reactivated Discord notifications")
 
         @self.bot.command(name="listfavorites")
         async def _list_favorites(ctx):
-            """List favorites using display name"""
+            """List favorites using display name."""
             favorites = self.favorites.get_favorites()
             if not favorites:
                 await ctx.send("You currently don't have any favorites.")
@@ -145,7 +145,7 @@ class Discord(Notifier):
 
         @self.bot.command(name="listfavoriteids")
         async def _list_favorite_ids(ctx):
-            """List favorites using id"""
+            """List favorites using id."""
             favorites = self.favorites.get_favorites()
             if not favorites:
                 await ctx.send("You currently don't have any favorites.")
@@ -154,7 +154,7 @@ class Discord(Notifier):
 
         @self.bot.command(name="addfavorites")
         async def _add_favorites(ctx, *args):
-            """Add favorite(s)"""
+            """Add favorite(s)."""
             item_ids = list(
                 filter(
                     lambda x: x.isdigit() and int(x) != 0,
@@ -162,13 +162,13 @@ class Discord(Notifier):
                         str.strip,
                         [split_args for arg in args for split_args in arg.split(",")],
                     ),
-                )
+                ),
             )
             if not item_ids:
                 await ctx.channel.send(
                     "Please supply item ids in one of the following ways: "
                     f"'{self.prefix}addfavorites 12345 23456 34567' or "
-                    f"'{self.prefix}addfavorites 12345,23456,34567'"
+                    f"'{self.prefix}addfavorites 12345,23456,34567'",
                 )
                 return
 
@@ -178,7 +178,7 @@ class Discord(Notifier):
 
         @self.bot.command(name="removefavorites")
         async def _remove_favorites(ctx, *args):
-            """Remove favorite(s)"""
+            """Remove favorite(s)."""
             item_ids = list(
                 filter(
                     lambda x: x.isdigit() and int(x) != 0,
@@ -186,13 +186,13 @@ class Discord(Notifier):
                         str.strip,
                         [split_args for arg in args for split_args in arg.split(",")],
                     ),
-                )
+                ),
             )
             if not item_ids:
                 await ctx.channel.send(
                     "Please supply item ids in one of the following ways: "
                     f"'{self.prefix}removefavorites 12345 23456 34567' or "
-                    f"'{self.prefix}removefavorites 12345,23456,34567'"
+                    f"'{self.prefix}removefavorites 12345,23456,34567'",
                 )
                 return
 
@@ -202,12 +202,12 @@ class Discord(Notifier):
 
         @self.bot.command(name="gettoken")
         async def _get_token(ctx):
-            """Display token used to login (without needing to manually check in config.ini)"""
+            """Display token used to login (without needing to manually check in config.ini)."""
             await ctx.send(f"Token in use: {self.token}")
 
         @self.bot.command(name="getinfo")
         async def _get_info(ctx):
-            """Display basic info about connection"""
+            """Display basic info about connection."""
             bot_id = ctx.me.id
             bot_name = ctx.me.display_name
             bot_mention = ctx.me.mention

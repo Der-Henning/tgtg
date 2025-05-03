@@ -1,4 +1,4 @@
-# copied and modified from https://github.com/ahivert/tgtg-python
+# Copied and modified from https://github.com/ahivert/tgtg-python
 
 import json
 import logging
@@ -8,7 +8,7 @@ import time
 import uuid
 from datetime import datetime
 from http import HTTPStatus
-from typing import List, Union
+from typing import Union
 from urllib.parse import urljoin, urlsplit
 
 import requests
@@ -94,10 +94,9 @@ class TgtgSession(requests.Session):
             self.cookies.set("datadome", datadome_cookie, domain=domain, path="/", secure=True)
 
     def post(self, *args, access_token: Union[str, None] = None, **kwargs) -> requests.Response:
-        headers = kwargs.get("headers")
-        if headers is None and getattr(self, "headers"):
-            kwargs["headers"] = getattr(self, "headers")
-        if "headers" in kwargs and access_token:
+        if "headers" not in kwargs:
+            kwargs["headers"] = self.headers
+        if access_token:
             kwargs["headers"]["authorization"] = f"Bearer {access_token}"
         return super().post(*args, **kwargs)
 
@@ -127,7 +126,7 @@ class TgtgClient:
         device_type="ANDROID",
     ):
         if base_url != BASE_URL:
-            log.warn("Using custom tgtg base url: %s", base_url)
+            log.warning("Using custom tgtg base url: %s", base_url)
 
         self.base_url = base_url
 
@@ -175,6 +174,7 @@ class TgtgClient:
 
         Returns:
             dict: Dictionary containing access token, refresh token and user id
+
         """
         self.login()
         return {
@@ -239,6 +239,7 @@ class TgtgClient:
 
         Returns:
             str: APK Version string
+
         """
         response = requests.get(
             "https://play.google.com/store/apps/details?id=com.app.tgtg&hl=en&gl=US",
@@ -332,7 +333,7 @@ class TgtgClient:
         with_stock_only=False,
         hidden_only=False,
         we_care_only=False,
-    ) -> List[dict]:
+    ) -> list[dict]:
         self.login()
         # fields are sorted like in the app
         data = {
@@ -362,11 +363,12 @@ class TgtgClient:
         )
         return response.json()
 
-    def get_favorites(self) -> List[dict]:
-        """Returns favorites of the current tgtg account
+    def get_favorites(self) -> list[dict]:
+        """Returns favorites of the current tgtg account.
 
         Returns:
             List: List of items
+
         """
         items = []
         page = 1
@@ -399,7 +401,7 @@ class TgtgClient:
         return response.json()
 
     def abort_order(self, order_id: str) -> None:
-        """Use this when your order is not yet paid"""
+        """Use this when your order is not yet paid."""
         self.login()
         response = self._post(ABORT_ORDER_ENDPOINT.format(order_id), json={"cancel_reason_id": 1})
         if response.json().get("state") != "SUCCESS":

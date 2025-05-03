@@ -31,7 +31,7 @@ DEPRECATION_NOTICE = "{} is deprecated and will be removed in a future release. 
 
 @dataclass
 class BaseConfig(ABC):
-    """Base configuration"""
+    """Base configuration."""
 
     @abstractmethod
     def _read_ini(self, parser: configparser.ConfigParser):
@@ -129,7 +129,7 @@ class BaseConfig(ABC):
 
 @dataclass
 class NotifierConfig(BaseConfig):
-    """Base Notifier configuration"""
+    """Base Notifier configuration."""
 
     enabled: bool = False
     cron: Cron = field(default_factory=Cron)
@@ -137,7 +137,7 @@ class NotifierConfig(BaseConfig):
 
 @dataclass
 class AppriseConfig(NotifierConfig):
-    """Apprise Notifier configuration"""
+    """Apprise Notifier configuration."""
 
     url: Union[str, None] = None
     title: str = "New Magic Bags"
@@ -160,7 +160,7 @@ class AppriseConfig(NotifierConfig):
 
 @dataclass
 class TelegramConfig(NotifierConfig):
-    """Telegram Notifier configuration"""
+    """Telegram Notifier configuration."""
 
     token: Union[str, None] = None
     chat_ids: list[str] = field(default_factory=list)
@@ -200,7 +200,7 @@ class TelegramConfig(NotifierConfig):
 
 @dataclass
 class PushSaferConfig(NotifierConfig):
-    """PushSafer Notifier configuration"""
+    """PushSafer Notifier configuration."""
 
     key: Union[str, None] = None
     device_ids: list[str] = field(default_factory=list)
@@ -226,7 +226,7 @@ class PushSaferConfig(NotifierConfig):
 
 @dataclass
 class ConsoleConfig(NotifierConfig):
-    """Console Notifier configuration"""
+    """Console Notifier configuration."""
 
     body: str = "${{display_name}} - new amount: ${{items_available}} - ${{link}}"
 
@@ -243,7 +243,7 @@ class ConsoleConfig(NotifierConfig):
 
 @dataclass
 class SMTPConfig(NotifierConfig):
-    """SMTP Notifier configuration"""
+    """SMTP Notifier configuration."""
 
     host: Union[str, None] = None
     port: Union[int, None] = None
@@ -299,7 +299,7 @@ class SMTPConfig(NotifierConfig):
 
 @dataclass
 class IFTTTConfig(NotifierConfig):
-    """IFTTT Notifier configuration"""
+    """IFTTT Notifier configuration."""
 
     event: str = "tgtg_notification"
     key: Union[str, None] = None
@@ -325,7 +325,7 @@ class IFTTTConfig(NotifierConfig):
 
 @dataclass
 class NtfyConfig(NotifierConfig):
-    """Ntfy Notifier configuration"""
+    """Ntfy Notifier configuration."""
 
     server: str = "https://ntfy.sh"
     topic: Union[str, None] = None
@@ -375,7 +375,7 @@ class NtfyConfig(NotifierConfig):
 
 @dataclass
 class WebhookConfig(NotifierConfig):
-    """Webhook Notifier configuration"""
+    """Webhook Notifier configuration."""
 
     url: Union[str, None] = None
     method: str = "POST"
@@ -413,7 +413,7 @@ class WebhookConfig(NotifierConfig):
 
 @dataclass
 class ScriptConfig(NotifierConfig):
-    """Script Notifier configuration"""
+    """Script Notifier configuration."""
 
     command: Union[str, None] = None
 
@@ -430,7 +430,7 @@ class ScriptConfig(NotifierConfig):
 
 @dataclass
 class DiscordConfig(NotifierConfig):
-    """Discord configuration"""
+    """Discord configuration."""
 
     enabled: bool = False
     prefix: Union[str, None] = "!"
@@ -462,7 +462,7 @@ class DiscordConfig(NotifierConfig):
 
 @dataclass
 class TgtgConfig(BaseConfig):
-    """Tgtg configuration"""
+    """Tgtg configuration."""
 
     username: Union[str, None] = None
     access_token: Union[str, None] = None
@@ -497,7 +497,7 @@ class TgtgConfig(BaseConfig):
 
 @dataclass
 class LocationConfig(BaseConfig):
-    """Location configuration"""
+    """Location configuration."""
 
     enabled: bool = False
     google_maps_api_key: Union[str, None] = None
@@ -525,7 +525,7 @@ class LocationConfig(BaseConfig):
 
 @dataclass
 class Config(BaseConfig):
-    """Main configuration"""
+    """Main configuration."""
 
     file: Union[str, None] = None
     item_ids: list[str] = field(default_factory=list)
@@ -637,9 +637,7 @@ class Config(BaseConfig):
         return open(Path(self.token_path, file), mode, encoding="utf-8")
 
     def _load_tokens(self) -> None:
-        """
-        Reads tokens from token files
-        """
+        """Reads tokens from token files."""
         if self.token_path is not None:
             try:
                 with self._open("accessToken", "r") as file:
@@ -650,12 +648,11 @@ class Config(BaseConfig):
                     self.tgtg.datadome = file.read()
             except FileNotFoundError:
                 log.warning("No token files in token path.")
-            except EnvironmentError as err:
+            except OSError as err:
                 log.error("Error loading Tokens - %s", err)
 
     def save_tokens(self, access_token: str, refresh_token: str, datadome: str) -> None:
-        """
-        Saves TGTG Access Tokens to config.ini
+        """Saves TGTG Access Tokens to config.ini
         if provided or as files to token_path.
         """
         if self.file is not None:
@@ -672,7 +669,7 @@ class Config(BaseConfig):
                 with open(config_file, "w", encoding="utf-8") as configfile:
                     configfile.write(CONFIG_FILE_HEADER)
                     config.write(configfile)
-            except EnvironmentError as err:
+            except OSError as err:
                 log.error("error saving credentials to config.ini! - %s", err)
         if self.token_path is not None:
             try:
@@ -682,13 +679,11 @@ class Config(BaseConfig):
                     file.write(refresh_token)
                 with self._open("datadome", "w") as file:
                     file.write(datadome)
-            except EnvironmentError as err:
+            except OSError as err:
                 log.error("error saving credentials! - %s", err)
 
     def set(self, section: str, option: str, value: str) -> bool:
-        """
-        Sets an option in config.ini if provided.
-        """
+        """Sets an option in config.ini if provided."""
         if self.file is not None:
             try:
                 config = configparser.ConfigParser()
@@ -700,6 +695,6 @@ class Config(BaseConfig):
                 with open(self.file, "w", encoding="utf-8") as configfile:
                     config.write(configfile)
                 return True
-            except EnvironmentError as err:
+            except OSError as err:
                 log.error("error writing config.ini! - %s", err)
         return False

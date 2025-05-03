@@ -12,7 +12,7 @@ log = logging.getLogger("tgtg")
 
 
 class Ntfy(WebHook):
-    """Notifier for Ntfy"""
+    """Notifier for Ntfy."""
 
     def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
         super(WebHook, self).__init__(config, reservations, favorites)
@@ -59,7 +59,7 @@ class Ntfy(WebHook):
                 raise NtfyConfigurationError(exc.message) from exc
 
     def _send(self, item: Union[Item, Reservation]) -> None:
-        """Sends item information via configured Ntfy endpoint"""
+        """Sends item information via configured Ntfy endpoint."""
         if isinstance(item, Item):
             title = item.unmask(self.title).encode("utf-8")
             message = item.unmask(self.message).encode("utf-8")
