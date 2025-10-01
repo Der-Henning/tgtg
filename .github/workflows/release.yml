@@ -3,9 +3,9 @@ name: Releases
 on:
   push:
     branches:
-    - main
+      - main
     tags:
-    - v[0-9]+.[0-9]+.[0-9]+
+      - v[0-9]+.[0-9]+.[0-9]+
   pull_request:
 
 jobs:
@@ -19,70 +19,70 @@ jobs:
       fail-fast: ${{ github.event_name == 'push' }}
       matrix:
         include:
-        - base: slim
-          suffix: ''
-          file: ./docker/Dockerfile
-          context: ./
-        - base: alpine
-          suffix: -alpine
-          file: ./docker/Dockerfile.alpine
-          context: ./
+          - base: slim
+            suffix: ""
+            file: ./docker/Dockerfile
+            context: ./
+          - base: alpine
+            suffix: -alpine
+            file: ./docker/Dockerfile.alpine
+            context: ./
     steps:
-    - uses: actions/checkout@v4
-    - uses: docker/metadata-action@v5
-      id: meta
-      with:
-        images: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}
-        flavor: |
-          suffix=${{ matrix.suffix }},onlatest=true
-        tags: |
-          type=edge,branch=main,suffix=${{ matrix.suffix }}
-          type=semver,pattern=v{{version}}
-          type=semver,pattern=v{{major}}.{{minor}}
-          type=semver,pattern=v{{major}}
-    - uses: docker/login-action@v2
-      if: github.event_name == 'push'
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-    - uses: docker/setup-qemu-action@v3
-    - uses: docker/setup-buildx-action@v3
-      id: buildx
-    - uses: docker/build-push-action@v5
-      with:
-        context: ${{ matrix.context }}
-        file: ${{ matrix.file }}
-        platforms: linux/arm64, linux/amd64, linux/arm/v7, linux/386, linux/arm/v6
-        push: ${{ github.event_name == 'push' }}
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-    - name: Extract Major and Minor Version
-      if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
-      run: |
-        TAG_NAME=${GITHUB_REF#refs/tags/}
-        echo "Full Tag: $TAG_NAME"
-        MAJOR=$(echo $TAG_NAME | cut -d. -f1)
-        MINOR=$(echo $TAG_NAME | cut -d. -f1,2)
-        echo "FULL_VERSION=$TAG_NAME" >> $GITHUB_ENV
-        echo "MAJOR_VERSION=$MAJOR" >> $GITHUB_ENV
-        echo "MINOR_VERSION=$MINOR" >> $GITHUB_ENV
-    - uses: iamazeem/substitute-action@v1
-      if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
-      with:
-        variables: |
-          FULL_VERSION
-          MAJOR_VERSION
-          MINOR_VERSION
-        input-files: |
-          ./docker/DOCKER_README.md
-    - uses: peter-evans/dockerhub-description@v4
-      if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-        repository: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}
-        short-description: ${{ github.event.repository.description }}
-        readme-filepath: ./docker/DOCKER_README.md
+      - uses: actions/checkout@v4
+      - uses: docker/metadata-action@v5
+        id: meta
+        with:
+          images: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}
+          flavor: |
+            suffix=${{ matrix.suffix }},onlatest=true
+          tags: |
+            type=edge,branch=main,suffix=${{ matrix.suffix }}
+            type=semver,pattern=v{{version}}
+            type=semver,pattern=v{{major}}.{{minor}}
+            type=semver,pattern=v{{major}}
+      - uses: docker/login-action@v2
+        if: github.event_name == 'push'
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+        id: buildx
+      - uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.file }}
+          platforms: linux/arm64, linux/amd64, linux/arm/v7, linux/386, linux/arm/v6
+          push: ${{ github.event_name == 'push' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      - name: Extract Major and Minor Version
+        if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          echo "Full Tag: $TAG_NAME"
+          MAJOR=$(echo $TAG_NAME | cut -d. -f1)
+          MINOR=$(echo $TAG_NAME | cut -d. -f1,2)
+          echo "FULL_VERSION=$TAG_NAME" >> $GITHUB_ENV
+          echo "MAJOR_VERSION=$MAJOR" >> $GITHUB_ENV
+          echo "MINOR_VERSION=$MINOR" >> $GITHUB_ENV
+      - uses: iamazeem/substitute-action@v1
+        if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+        with:
+          variables: |
+            FULL_VERSION
+            MAJOR_VERSION
+            MINOR_VERSION
+          input-files: |
+            ./docker/DOCKER_README.md
+      - uses: peter-evans/dockerhub-description@v4
+        if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}
+          short-description: ${{ github.event.repository.description }}
+          readme-filepath: ./docker/DOCKER_README.md
 
   releases:
     name: Build Release Files
@@ -91,50 +91,50 @@ jobs:
       fail-fast: ${{ github.event_name == 'push' }}
       matrix:
         include:
-        - os: ubuntu-latest
-          tag: linux
-        - os: windows-latest
-          tag: win
-        - os: macos-13
-          tag: macos
+          - os: ubuntu-latest
+            tag: linux
+          - os: windows-latest
+            tag: win
+          - os: macos-13
+            tag: macos
     steps:
-    - uses: actions/checkout@v4
-    - uses: ./.github/actions/setup-poetry-action
-      with:
-        without: test
-    - name: Run PyInstaller (linux/macos)
-      if: matrix.tag == 'linux' || matrix.tag == 'macos'
-      run: |
-        poetry run pyinstaller scanner.spec
-        cp ./config.sample.ini ./dist/config.ini
-        cp ./README.md ./dist/README.md
-        cp ./LICENSE ./dist/LICENSE
-        ./dist/scanner -v
-    - name: Run PyInstaller (win)
-      if: matrix.tag == 'win'
-      run: |
-        poetry run pyinstaller scanner_win.spec
-        cp ./config.sample.ini ./dist/scanner/config.ini
-        cp ./README.md ./dist/scanner/README.md
-        cp ./LICENSE ./dist/scanner/LICENSE
-        ./dist/scanner/scanner -v
-    - name: Make filename for archive
-      id: filename
-      shell: bash
-      run: echo "FILENAME=scanner-${{ github.ref_name }}-${{ matrix.tag }}.zip" | sed -r 's,/,-,g' >> $GITHUB_OUTPUT
-    - name: Zip files (linux/macos)
-      if: matrix.tag == 'linux' || matrix.tag == 'macos'
-      run: zip -j ./${{ steps.filename.outputs.FILENAME }} ./dist/*
-    - name: Zip files (win)
-      if: matrix.tag == 'win'
-      run: Compress-Archive ./dist/scanner/* ./${{ steps.filename.outputs.FILENAME }}
-    - name: Upload archive
-      uses: actions/upload-artifact@v4
-      with:
-        name: releases-${{ matrix.tag }}-${{ github.sha }}
-        path: ./${{ steps.filename.outputs.FILENAME }}
-    - name: Add archive to release
-      uses: softprops/action-gh-release@v2
-      if: github.ref_type == 'tag'
-      with:
-        files: ./${{ steps.filename.outputs.FILENAME }}
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-poetry-action
+        with:
+          without: test
+      - name: Run PyInstaller (linux/macos)
+        if: matrix.tag == 'linux' || matrix.tag == 'macos'
+        run: |
+          poetry run pyinstaller scanner.spec
+          cp ./config.sample.ini ./dist/config.ini
+          cp ./README.md ./dist/README.md
+          cp ./LICENSE ./dist/LICENSE
+          ./dist/scanner -v
+      - name: Run PyInstaller (win)
+        if: matrix.tag == 'win'
+        run: |
+          poetry run pyinstaller scanner_win.spec
+          cp ./config.sample.ini ./dist/scanner/config.ini
+          cp ./README.md ./dist/scanner/README.md
+          cp ./LICENSE ./dist/scanner/LICENSE
+          ./dist/scanner/scanner -v
+      - name: Make filename for archive
+        id: filename
+        shell: bash
+        run: echo "FILENAME=scanner-${{ github.ref_name }}-${{ matrix.tag }}.zip" | sed -r 's,/,-,g' >> $GITHUB_OUTPUT
+      - name: Zip files (linux/macos)
+        if: matrix.tag == 'linux' || matrix.tag == 'macos'
+        run: zip -j ./${{ steps.filename.outputs.FILENAME }} ./dist/*
+      - name: Zip files (win)
+        if: matrix.tag == 'win'
+        run: Compress-Archive ./dist/scanner/* ./${{ steps.filename.outputs.FILENAME }}
+      - name: Upload archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: releases-${{ matrix.tag }}-${{ github.sha }}
+          path: ./${{ steps.filename.outputs.FILENAME }}
+      - name: Add archive to release
+        uses: softprops/action-gh-release@v2
+        if: github.ref_type == 'tag'
+        with:
+          files: ./${{ steps.filename.outputs.FILENAME }}

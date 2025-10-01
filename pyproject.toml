@@ -3,22 +3,24 @@ build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core>=1.0.0"]
 
 [project]
-authors = [{name = "Henning Merklinger", email = "henning.merklinger@gmail.com"}]
+authors = [
+  { name = "Henning Merklinger", email = "henning.merklinger@gmail.com" },
+]
 dependencies = [
   'apprise (>=1.4.0,<2.0.0)',
   'babel (>=2.16.0,<3.0.0)',
   'colorlog (>=6.7.0,<7.0.0)',
-  'cron-descriptor (>=1.4.0,<2.0.0)',
+  'cron-descriptor (>=2.0.6,<3.0.0)',
   'discord (>=2.3.2,<3.0.0)',
   'googlemaps (>=4.10.0,<5.0.0)',
   'humanize (>=4.7.0,<5.0.0)',
   'packaging (>=25.0,<26.0)',
   'progress (>=1.6,<2.0)',
-  'prometheus-client (>=0.21.0,<0.22.0)',
+  'prometheus-client (>=0.21.0,<0.24.0)',
   'pycron (>=3.0.0,<4.0.0)',
   'python-pushsafer (>=1.1,<2.0)',
   'python-telegram-bot[callback-data] (>=22.0.0,<23.0.0)',
-  'requests (>=2.31.0,<3.0.0)'
+  'requests (>=2.31.0,<3.0.0)',
 ]
 description = "Notifications for Too Good To Go"
 dynamic = ["version"]
@@ -26,7 +28,7 @@ keywords = ["tgtg", "toogoodtogo", "notifications"]
 license = "GPL-3.0-or-later"
 name = "tgtg-scanner"
 readme = "README.md"
-requires-python = '>=3.9,<3.13'
+requires-python = '>=3.9,<3.14'
 
 [project.scripts]
 scanner = "tgtg_scanner.__main__:main"
@@ -37,9 +39,9 @@ documentation = "https://github.com/Der-Henning/tgtg/wiki"
 repository = "https://github.com/Der-Henning/tgtg"
 
 [tool.poetry]
-packages = [{include = "tgtg_scanner"}]
+packages = [{ include = "tgtg_scanner" }]
 requires-poetry = '>=2.0.0,<3.0.0'
-version = "1.23.0"
+version = "1.24.0"
 
 [tool.poetry.group.build.dependencies]
 pyinstaller = "^6.3.0"
@@ -47,13 +49,13 @@ pyinstaller = "^6.3.0"
 [tool.poetry.group.test.dependencies]
 pre-commit = "^4.0.1"
 pytest = "^8.0.0"
-pytest-cov = "^6.0.0"
+pytest-cov = "^7.0.0"
 pytest-mock = "^3.11.1"
 responses = "^0.25.0"
 
 [tool.pytest.ini_options]
 markers = [
-  "tgtg_api: test directly calls the tgtg API (deselect with '-m \"not tgtg_api\"')"
+  "tgtg_api: test directly calls the tgtg API (deselect with '-m \"not tgtg_api\"')",
 ]
 
 [tool.ruff]

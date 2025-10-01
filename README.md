@@ -79,7 +79,7 @@ The images are built for Linux on `amd64`, `arm64`, `armv7`, `armv6`, and `i386`
 
 1. Install Docker
 2. Copy and edit `docker-compose.yml` as described in the
-[Wiki](https://github.com/Der-Henning/tgtg/wiki/Configuration)
+   [Wiki](https://github.com/Der-Henning/tgtg/wiki/Configuration)
 3. Run `docker compose up -d`
 
 The container automatically creates a volume mounting `\tokens`
@@ -99,7 +99,7 @@ docker-compose up -d
 1. Install Git, Python>=3.9 and pip
 2. Run `pip install git+https://github.com/Der-Henning/tgtg`
 3. Create `config.ini` as described in the
-[Wiki](https://github.com/Der-Henning/tgtg/wiki/Configuration)
+   [Wiki](https://github.com/Der-Henning/tgtg/wiki/Configuration)
 4. Start scanner with `python -m tgtg_scanner`
 
 To update to the latest release run
@@ -118,7 +118,7 @@ Method for advanced usage.
 4. Run `poetry install --without test,build`
 5. Create config file `cp config.sample.ini config.ini`
 6. Modify `config.ini` as described in the
-[Wiki](https://github.com/Der-Henning/tgtg/wiki/Configuration)
+   [Wiki](https://github.com/Der-Henning/tgtg/wiki/Configuration)
 7. Run `poetry run scanner`
 
 Alternatively, you can use environment variables as described in the wiki.
@@ -156,7 +156,6 @@ accessed via optional command line arguments.
 Running `scanner[.exe] --help`, `poetry run scanner --help`, `python tgtg_scanner/__main__.py --help`
 or `python -m tgtg_scanner --help` displays the available commands.
 
-<!-- markdownlint-disable MD013 -->
 ```txt
 usage: scanner [-h] [-v] [-d] [-c config_file] [-l log_file] [-t | -f | -F | -a item_id [item_id ...] | -r item_id [item_id ...] | -R] [-j | -J] [--base_url BASE_URL]
 
@@ -182,7 +181,6 @@ options:
   -J, --json_pretty     output as pretty json
   --base_url BASE_URL   Overwrite TGTG API URL for testing
 ```
-<!-- markdownlint-enable MD013 -->
 
 Example (Unix only):
 
@@ -248,9 +246,9 @@ You can use an existing notifier as a template or build upon the webhook notifie
 E.g. see the [ifttt notifier](https://github.com/Der-Henning/tgtg/blob/main/tgtg_scanner/notifiers/ifttt.py).
 
 ---
+
 If you want to support me, feel free to buy me a coffee.
 
-<!-- markdownlint-disable MD033 -->
 <a href="https://www.buymeacoffee.com/henning" target="_blank">
 <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" width="200">
 </a>

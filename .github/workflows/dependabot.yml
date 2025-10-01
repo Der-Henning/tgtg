@@ -7,27 +7,27 @@ permissions:
 on:
   push:
     branches:
-    - dependabot/pip/**
+      - dependabot/pip/**
   pull_request:
     branches:
-    - dependabot/pip/**
+      - dependabot/pip/**
 
 jobs:
   run:
     name: Update requirements.txt and lock file
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.REPO_ACCESS_TOKEN }}
-    - uses: ./.github/actions/setup-poetry-action
-      with:
-        install-dependencies: false
-    - name: Update dependencies
-      run: |
-        poetry lock --no-update
-        poetry export -f requirements.txt --output requirements.txt --without-hashes
-    - uses: stefanzweifel/git-auto-commit-action@v5
-      with:
-        commit_message: Update requirements.txt
-        branch: ${{ github.head_ref }}
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+      - uses: ./.github/actions/setup-poetry-action
+        with:
+          install-dependencies: false
+      - name: Update dependencies
+        run: |
+          poetry lock --no-update
+          poetry export -f requirements.txt --output requirements.txt --without-hashes
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Update requirements.txt
+          branch: ${{ github.head_ref }}

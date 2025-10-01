@@ -1,54 +1,45 @@
 exclude: (build|dist)
 repos:
-- repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v5.0.0
-  hooks:
-  - id: trailing-whitespace
-  - id: check-added-large-files
-  - id: check-case-conflict
-  - id: detect-private-key
-  - id: end-of-file-fixer
-  - id: check-yaml
-  - id: check-toml
-  - id: check-added-large-files
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-added-large-files
 
-- repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.11.8
-  hooks:
-  - id: ruff
-    args: [--fix]
-  - id: ruff-format
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.13.2
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
 
-- repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-  rev: v2.14.0
-  hooks:
-  - id: pretty-format-toml
-    args: [--autofix]
-    exclude: poetry.lock
-  - id: pretty-format-yaml
-    args: [--autofix, --indent, '2']
-  - id: pretty-format-ini
-    args: [--autofix]
+  - repo: https://github.com/python-poetry/poetry
+    rev: 2.2.1
+    hooks:
+      - id: poetry-check
 
-- repo: https://github.com/igorshubovych/markdownlint-cli
-  rev: v0.44.0
-  hooks:
-  - id: markdownlint
-    args: [--fix]
+  - repo: https://github.com/python-poetry/poetry-plugin-export
+    rev: 1.9.0
+    hooks:
+      - id: poetry-export
+        args:
+          [
+            --no-cache,
+            -f,
+            requirements.txt,
+            -o,
+            requirements.txt,
+            --without-hashes,
+          ]
 
-- repo: https://github.com/python-poetry/poetry
-  rev: 2.1.2
-  hooks:
-  - id: poetry-check
-
-- repo: https://github.com/python-poetry/poetry-plugin-export
-  rev: 1.9.0
-  hooks:
-  - id: poetry-export
-    args: [--no-cache, -f, requirements.txt, -o, requirements.txt, --without-hashes]
-
-- repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v1.15.0
-  hooks:
-  - id: mypy
-    additional_dependencies: [types-requests]
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.18.2
+    hooks:
+      - id: mypy
+        additional_dependencies: [types-requests]

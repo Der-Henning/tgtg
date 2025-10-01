@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.13-slim
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -32,7 +32,6 @@ RUN --mount=type=bind,target=/context \
     pip install /context
 
 COPY ./docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
 
 RUN python -m tgtg_scanner -v
 
