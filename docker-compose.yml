@@ -1,28 +1,26 @@
-version: '3.3'
-
 services:
   scanner:
-    image: derhenning/tgtg:latest-alpine           ## pre build image from docker hub
+    image: derhenning/tgtg:latest-alpine ## pre build image from docker hub
     # image: tgtg-scanner:latest                   ## locally build image
     # build:                                       ## build image with compose
     #   context: .
     #   dockerfile: docker/Dockerfile.alpine
     environment:
-    # Configuration via environment variables.
-    # Basic example using Telegram notifications
-    # For more options and details visit https://github.com/Der-Henning/tgtg/wiki/Configuration
+      # Configuration via environment variables.
+      # Basic example using Telegram notifications
+      # For more options and details visit https://github.com/Der-Henning/tgtg/wiki/Configuration
 
-    - TGTG_USERNAME=
-    - SLEEP_TIME=60
-    - TZ=Europe/Berlin
-    - LOCALE=de_DE
+      - TGTG_USERNAME=
+      - SLEEP_TIME=60
+      - TZ=Europe/Berlin
+      - LOCALE=de_DE
 
-    - TELEGRAM=true
-    - TELEGRAM_TOKEN=
-    - TELEGRAM_CHAT_IDS=
+      - TELEGRAM=true
+      - TELEGRAM_TOKEN=
+      - TELEGRAM_CHAT_IDS=
 
     volumes:
-    - tokens:/tokens             ## volume to save TGTG credentials to reuse on next start up and avoid login mail
+      - tokens:/tokens ## volume to save TGTG credentials to reuse on next start up and avoid login mail
 
 volumes:
   tokens:

@@ -6,5 +6,5 @@ coverage:
         threshold: 1.0%
         base: auto
         branches:
-        - main
-        - dev
+          - main
+          - dev

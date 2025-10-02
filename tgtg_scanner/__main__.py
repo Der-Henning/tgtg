@@ -7,6 +7,7 @@ import os
 import platform
 import signal
 import sys
+from os import getenv
 from pathlib import Path
 from typing import Any, NoReturn, Union
 
@@ -37,8 +38,8 @@ SYS_PLATFORM = platform.system()
 IS_WINDOWS = SYS_PLATFORM.lower() in {"windows", "cygwin"}
 IS_EXECUTABLE = getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS")
 PROG_PATH = Path(sys.executable).parent if IS_EXECUTABLE else Path(os.getcwd())
-IS_DOCKER = os.environ.get("DOCKER", "False").lower() in {"true", "1", "t", "y", "yes"}
-LOGS_PATH = Path(os.environ.get("LOGS_PATH", PROG_PATH))
+IS_DOCKER = getenv("DOCKER", "False").lower() in {"true", "1", "t", "y", "yes"}
+LOGS_PATH = Path(getenv("LOGS_PATH", PROG_PATH))
 
 
 def main():
@@ -168,13 +169,13 @@ def main():
             elif args.json_pretty:
                 print(json.dumps(credentials, sort_keys=True, indent=4))
             else:
-                print("")
+                print()
                 print("Your TGTG credentials:")
                 print("Email:          ", credentials.get("email"))
                 print("Access Token:   ", credentials.get("access_token"))
                 print("Refresh Token:  ", credentials.get("refresh_token"))
                 print("Datadome Cookie:", credentials.get("datadome_cookie"))
-                print("")
+                print()
         elif args.favorites:
             favorites = scanner.get_favorites()
             if args.json:
@@ -182,10 +183,10 @@ def main():
             elif args.json_pretty:
                 print(json.dumps(favorites, sort_keys=True, indent=4))
             else:
-                print("")
+                print()
                 print("Your favorites:")
                 print(json.dumps(favorites, sort_keys=True, indent=4))
-                print("")
+                print()
         elif args.favorite_ids:
             favorites = scanner.get_favorites()
             item_ids = [fav.get("item", {}).get("item_id") for fav in favorites]
@@ -194,10 +195,10 @@ def main():
             elif args.json_pretty:
                 print(json.dumps(item_ids, sort_keys=True, indent=4))
             else:
-                print("")
+                print()
                 print("Item IDs:")
                 print(" ".join(item_ids))
-                print("")
+                print()
         elif args.add is not None:
             for item_id in args.add:
                 scanner.set_favorite(item_id)
@@ -232,21 +233,14 @@ def _get_config_file() -> Union[Path, None]:
     if config_file.is_file():
         return config_file
     # config.ini in project folder (same place as config.sample.ini)
-    config_file = Path(Path(__file__).parents[1], "config.ini")
+    config_file = Path(__file__).parents[1] / "config.ini"
     if config_file.is_file():
         return config_file
     # legacy: config.ini in src folder
-    config_file = Path(Path(__file__).parents[1], "src", "config.ini")
+    config_file = Path(__file__).parents[1] / "src" / "config.ini"
     if config_file.is_file():
         return config_file
     return None
-
-
-def _get_version_info() -> str:
-    lastest_release = _get_new_version()
-    if lastest_release is None:
-        return __version__
-    return f"{__version__} - Update available! See {lastest_release.get('html_url')}"
 
 
 def _run_scanner(scanner: Scanner) -> NoReturn:
@@ -300,7 +294,7 @@ def _register_signals() -> None:
     signal.signal(signal.SIGINT, _handle_exit_signal)
     signal.signal(signal.SIGTERM, _handle_exit_signal)
     if hasattr(signal, "SIGBREAK"):
-        signal.signal(getattr(signal, "SIGBREAK"), _handle_exit_signal)
+        signal.signal(signal.SIGBREAK, _handle_exit_signal)
     if not IS_WINDOWS:
         signal.signal(signal.SIGHUP, _handle_exit_signal)  # type: ignore[attr-defined]
         # TODO: SIGQUIT is ideally meant to terminate with core dumps
@@ -309,7 +303,7 @@ def _register_signals() -> None:
 
 def _handle_exit_signal(signum: int, _frame: Any) -> None:
     log = logging.getLogger("tgtg")
-    log.debug("Received signal %d" % signum)
+    log.debug("Received signal %d", signum)
     raise KeyboardInterrupt
 
 

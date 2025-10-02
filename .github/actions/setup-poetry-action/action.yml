@@ -20,36 +20,36 @@ inputs:
 runs:
   using: composite
   steps:
-  - uses: actions/setup-python@v5
-    with:
-      python-version: ${{ inputs.python-version }}
-  - if: ${{ inputs.poetry-version != 'latest' }}
-    shell: bash
-    run: python -m pip install --upgrade pip setuptools wheel poetry==${{ inputs.poetry-version }}
-  - if: ${{ inputs.poetry-version == 'latest' }}
-    shell: bash
-    run: python -m pip install --upgrade pip setuptools wheel poetry
-  - name: Configure Poetry
-    shell: bash
-    run: |
-      poetry config virtualenvs.create true
-      poetry config virtualenvs.in-project true
-      poetry config installer.max-workers 1
-  - uses: actions/cache@v4
-    if: inputs.without != '' && inputs.install-dependencies
-    with:
-      path: ./.venv
-      key: venv-without-${{ inputs.without }}-poetry-${{ inputs.poetry-version }}-python-${{ inputs.python-version }}-${{ hashFiles('poetry.lock') }}-${{ runner.os }}
-  - uses: actions/cache@v4
-    if: inputs.without == '' && inputs.install-dependencies
-    with:
-      path: ./.venv
-      key: venv-poetry-${{ inputs.poetry-version }}-python-${{ inputs.python-version }}-${{ hashFiles('poetry.lock') }}-${{ runner.os }}
-  - name: Install dependencies
-    if: inputs.without != '' && inputs.install-dependencies
-    shell: bash
-    run: poetry install --no-interaction --without ${{ inputs.without }}
-  - name: Install dependencies
-    if: inputs.without == '' && inputs.install-dependencies
-    shell: bash
-    run: poetry install --no-interaction
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+    - if: ${{ inputs.poetry-version != 'latest' }}
+      shell: bash
+      run: python -m pip install --upgrade pip setuptools wheel poetry==${{ inputs.poetry-version }}
+    - if: ${{ inputs.poetry-version == 'latest' }}
+      shell: bash
+      run: python -m pip install --upgrade pip setuptools wheel poetry
+    - name: Configure Poetry
+      shell: bash
+      run: |
+        poetry config virtualenvs.create true
+        poetry config virtualenvs.in-project true
+        poetry config installer.max-workers 1
+    - uses: actions/cache@v4
+      if: inputs.without != '' && inputs.install-dependencies
+      with:
+        path: ./.venv
+        key: venv-without-${{ inputs.without }}-poetry-${{ inputs.poetry-version }}-python-${{ inputs.python-version }}-${{ hashFiles('poetry.lock') }}-${{ runner.os }}
+    - uses: actions/cache@v4
+      if: inputs.without == '' && inputs.install-dependencies
+      with:
+        path: ./.venv
+        key: venv-poetry-${{ inputs.poetry-version }}-python-${{ inputs.python-version }}-${{ hashFiles('poetry.lock') }}-${{ runner.os }}
+    - name: Install dependencies
+      if: inputs.without != '' && inputs.install-dependencies
+      shell: bash
+      run: poetry install --no-interaction --without ${{ inputs.without }}
+    - name: Install dependencies
+      if: inputs.without == '' && inputs.install-dependencies
+      shell: bash
+      run: poetry install --no-interaction

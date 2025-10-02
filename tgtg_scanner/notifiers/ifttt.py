@@ -8,10 +8,9 @@ log = logging.getLogger("tgtg")
 
 
 class IFTTT(WebHook):
-    """
-    Notifier for IFTTT Webhooks.\n
-    For more information on IFTTT visit\n
-    https://ifttt.com/maker_webhooks
+    """Notifier for IFTTT Webhooks.
+
+    For more information on IFTTT visit https://ifttt.com/maker_webhooks.
     """
 
     def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):

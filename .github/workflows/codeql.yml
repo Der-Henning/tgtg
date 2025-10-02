@@ -4,7 +4,7 @@ on:
   push:
   pull_request:
   schedule:
-  - cron: 0 1 * * *
+    - cron: 0 1 * * *
 
 jobs:
   code-ql:
@@ -15,8 +15,8 @@ jobs:
       contents: read
       security-events: write
     steps:
-    - uses: actions/checkout@v4
-    - uses: github/codeql-action/init@v3
-      with:
-        languages: python
-    - uses: github/codeql-action/analyze@v3
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: python
+      - uses: github/codeql-action/analyze@v3

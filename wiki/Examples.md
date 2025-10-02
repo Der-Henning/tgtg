@@ -1,4 +1,3 @@
-<!-- markdownlint-disable-next-line MD041 -->
 ## Webhook Openhab example
 
 This configuration triggers an openhab switch every time new items are available.
@@ -8,11 +7,11 @@ I use it to make a LED lightstripe flash.
 
 ```yaml
 environment:
-- WEBHOOK=true
-- WEBHOOK_URL=http://openhab.domain/rest/items/TGTG_New_Item
-- WEBHOOK_METHOD=POST
-- WEBHOOK_BODY=ON
-- WEBHOOK_TIMEOUT=60
+  - WEBHOOK=true
+  - WEBHOOK_URL=http://openhab.domain/rest/items/TGTG_New_Item
+  - WEBHOOK_METHOD=POST
+  - WEBHOOK_BODY=ON
+  - WEBHOOK_TIMEOUT=60
 ```
 
 Openhab item file `tgtg.items`:

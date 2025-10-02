@@ -11,22 +11,22 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python: ['3.9', '3.10', '3.11', '3.12']
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
-    - uses: actions/checkout@v4
-    - uses: ./.github/actions/setup-poetry-action
-      with:
-        python-version: ${{ matrix.python }}
-        without: build
-    - uses: actions/cache@v4
-      with:
-        path: ~/.cache/pre-commit
-        key: pre-commit-python-${{ matrix.python }}-${{ hashFiles('poetry.lock', '.pre-commit-config.yaml') }}-${{ runner.os }}
-    - name: Run linting
-      run: poetry run pre-commit run -a
-    - name: Run tests
-      run: poetry run pytest -v -m "not tgtg_api" --cov=tgtg_scanner --cov-report=xml
-    - uses: codecov/codecov-action@v4
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        verbose: true
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-poetry-action
+        with:
+          python-version: ${{ matrix.python }}
+          without: build
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-python-${{ matrix.python }}-${{ hashFiles('poetry.lock', '.pre-commit-config.yaml') }}-${{ runner.os }}
+      - name: Run linting
+        run: poetry run pre-commit run -a
+      - name: Run tests
+        run: poetry run pytest -v -m "not tgtg_api" --cov=tgtg_scanner --cov-report=xml
+      - uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true

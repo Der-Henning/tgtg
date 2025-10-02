@@ -55,7 +55,7 @@ def _private(func):
 
 
 class Telegram(Notifier):
-    """Notifier for Telegram"""
+    """Notifier for Telegram."""
 
     MAX_RETRIES = 10
 
@@ -264,7 +264,7 @@ class Telegram(Notifier):
 
     @_private
     async def _mute(self, update: Update, context: CallbackContext) -> None:
-        """Deactivates Telegram Notifications for x days"""
+        """Deactivates Telegram Notifications for x days."""
         days = int(context.args[0]) if context.args and context.args[0].isnumeric() else 1
         self.mute = datetime.datetime.now() + datetime.timedelta(days=days)
         log.info("Deactivated Telegram Notifications for %s days", days)
@@ -275,7 +275,7 @@ class Telegram(Notifier):
 
     @_private
     async def _unmute(self, update: Update, _) -> None:
-        """Reactivate Telegram Notifications"""
+        """Reactivate Telegram Notifications."""
         self.mute = None
         log.info("Reactivated Telegram Notifications")
         await update.message.reply_text("Reactivated Telegram Notifications")
@@ -466,7 +466,7 @@ class Telegram(Notifier):
         log.warning('Update "%s" caused error "%s"', update, context.error)
 
     async def _get_chat_id(self) -> None:
-        """Initializes an interaction with the user
+        r"""Initializes an interaction with the user
         to obtain the telegram chat id. \n
         On using the config.ini configuration the
         chat id will be stored in the config.ini.

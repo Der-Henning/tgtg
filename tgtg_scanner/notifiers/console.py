@@ -10,7 +10,7 @@ log = logging.getLogger("tgtg")
 
 
 class Console(Notifier):
-    """Notifier for the console output"""
+    """Notifier for the console output."""
 
     def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
         super().__init__(config, reservations, favorites)

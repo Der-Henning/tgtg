@@ -8,9 +8,7 @@ log = logging.getLogger("tgtg")
 
 
 class Metrics:
-    """
-    Provides a prometheus metrics client.
-    """
+    """Provides a prometheus metrics client."""
 
     def __init__(self, port: int = 8000):
         self.port = port
@@ -28,16 +26,12 @@ class Metrics:
         )
 
     def enable_metrics(self) -> None:
-        """
-        Start the metrics http server.
-        """
+        """Start the metrics http server."""
         start_http_server(self.port)
-        log.info("Metrics server startet on port %s", self.port)
+        log.info("Metrics server started on port %s", self.port)
 
     def update(self, item: Item) -> None:
-        """
-        Update the metrics.
-        """
+        """Update the metrics."""
         try:
             self.item_count.labels(item.item_id, item.display_name).set(item.items_available)
             self.item_price.labels(item.item_id, item.display_name).set(item._price)
