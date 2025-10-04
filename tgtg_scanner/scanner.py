@@ -1,3 +1,4 @@
+import copy
 import logging
 import sys
 from random import random
@@ -99,6 +100,15 @@ class Scanner:
             except TgtgAPIError as err:
                 log.error(err)
         items += self._get_favorites()
+
+        # if state is empty (first scanning iteration), initialize it with the current favorite items
+        # and set `items_available` property to 0.
+        # It allows to be able to receive notifications at start if some magic bags are already available.
+        if not self.state:
+            self.state = {item.item_id: copy.deepcopy(item) for item in items}
+            for item in self.state.values():
+                item.items_available = 0
+
         for item in items:
             self._check_item(item)
 
