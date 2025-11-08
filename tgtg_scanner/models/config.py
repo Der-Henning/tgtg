@@ -533,6 +533,7 @@ class Config(BaseConfig):
     schedule_cron: Cron = field(default_factory=Cron)
     debug: bool = False
     locale: str = "en_US"
+    time_format: str = "24h"
     metrics: bool = False
     metrics_port: int = 8000
     disable_tests: bool = False
@@ -611,6 +612,7 @@ class Config(BaseConfig):
         self._ini_get_cron(parser, "MAIN", "ScheduleCron", "schedule_cron")
         self._ini_get_boolean(parser, "MAIN", "Debug", "debug")
         self._ini_get(parser, "MAIN", "Locale", "locale")
+        self._ini_get(parser, "MAIN", "TimeFormat", "time_format")
         self._ini_get_boolean(parser, "MAIN", "Metrics", "metrics")
         self._ini_get_int(parser, "MAIN", "MetricsPort", "metrics_port")
         self._ini_get_boolean(parser, "MAIN", "DisableTests", "disable_tests")
@@ -624,6 +626,7 @@ class Config(BaseConfig):
         self._env_get_cron("SCHEDULE_CRON", "schedule_cron")
         self._env_get_boolean("DEBUG", "debug")
         self._env_get("LOCALE", "locale")
+        self._env_get("TIME_FORMAT", "time_format")
         self._env_get_boolean("METRICS", "metrics")
         self._env_get_int("METRICS_PORT", "metrics_port")
         self._env_get_boolean("DISABLE_TESTS", "disable_tests")
