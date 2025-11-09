@@ -52,7 +52,7 @@ class Item:
     returns well formated data for notifications.
     """
 
-    def __init__(self, data: dict, location: Union[Location, None] = None, locale: str = "en_US"):
+    def __init__(self, data: dict, location: Union[Location, None] = None, locale: str = "en_US", time_format: str = "24h"):
         self.items_available: int = data.get("items_available", 0)
         self.display_name: str = data.get("display_name", "-")
         self.favorite: str = "Yes" if data.get("favorite", False) else "No"
@@ -88,6 +88,7 @@ class Item:
         self.scanned_on: str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.location = location
         self.locale = locale
+        self.time_format = time_format
 
     @property
     def rating(self) -> str:
@@ -171,7 +172,15 @@ class Item:
         now = datetime.datetime.now()
         pfr = self._datetimeparse(self.pickup_interval_start)
         pto = self._datetimeparse(self.pickup_interval_end)
-        prange = f"{pfr.hour:02d}:{pfr.minute:02d} - {pto.hour:02d}:{pto.minute:02d}"
+
+        # Format time based on time_format setting
+        if self.time_format == "12h":
+            # 12-hour format with AM/PM
+            prange = f"{pfr.strftime('%I:%M %p')} - {pto.strftime('%I:%M %p')}"
+        else:
+            # Default 24-hour format
+            prange = f"{pfr.hour:02d}:{pfr.minute:02d} - {pto.hour:02d}:{pto.minute:02d}"
+
         tomorrow = now + datetime.timedelta(days=1)
         if now.date() == pfr.date():
             return f"{humanize.naturalday(now)}, {prange}"
