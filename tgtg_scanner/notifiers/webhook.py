@@ -1,6 +1,5 @@
 import json
 import logging
-from typing import Union
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -20,13 +19,13 @@ class WebHook(Notifier):
         super().__init__(config, reservations, favorites)
         self.enabled: bool = config.webhook.enabled
         self.method: str = config.webhook.method
-        self.url: Union[str, None] = config.webhook.url
-        self.body: Union[str, None] = config.webhook.body
-        self.type: Union[str, None] = config.webhook.type
-        self.headers: dict[str, Union[str, bytes]] = config.webhook.headers
+        self.url: str | None = config.webhook.url
+        self.body: str | None = config.webhook.body
+        self.type: str | None = config.webhook.type
+        self.headers: dict[str, str | bytes] = config.webhook.headers
         self.auth = None
-        self.username: Union[str, None] = config.webhook.username
-        self.password: Union[str, None] = config.webhook.password
+        self.username: str | None = config.webhook.username
+        self.password: str | None = config.webhook.password
         self.timeout: int = config.webhook.timeout
         self.cron = config.webhook.cron
         if self.enabled:
@@ -41,14 +40,14 @@ class WebHook(Notifier):
             except MaskConfigurationError as exc:
                 raise WebHookConfigurationError(exc.message) from exc
 
-    def _send(self, item: Union[Item, Reservation]) -> None:
+    def _send(self, item: Item | Reservation) -> None:
         """Sends item information via configured Webhook endpoint."""
         if isinstance(item, Item):
             if self.url is None:
                 raise WebHookConfigurationError()
             url = item.unmask(self.url)
             log.debug("%s url: %s", self.name, url)
-            body: Union[bytes, None] = None
+            body: bytes | None = None
             headers = self.headers or dict()
             if self.type:
                 headers["Content-Type"] = self.type

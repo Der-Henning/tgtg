@@ -2,7 +2,6 @@ import logging
 import threading
 from abc import ABC, abstractmethod
 from queue import Queue
-from typing import Union
 
 from tgtg_scanner.models import Config, Cron, Favorites, Item, Reservations
 from tgtg_scanner.models.reservations import Reservation
@@ -21,7 +20,7 @@ class Notifier(ABC):
         self.favorites = favorites
         self.cron = Cron()
         self.thread = threading.Thread(target=self._run)
-        self.queue: Queue[Union[Item, Reservation, None]] = Queue()
+        self.queue: Queue[Item | Reservation | None] = Queue()
 
     @property
     def name(self):
@@ -49,7 +48,7 @@ class Notifier(ABC):
             log.debug("Starting %s Notifier thread", self.name)
             self.thread.start()
 
-    def send(self, item: Union[Item, Reservation]) -> None:
+    def send(self, item: Item | Reservation) -> None:
         """Send notification."""
         if not isinstance(item, (Item, Reservation)):
             log.error("Invalid item type: %s", type(item))
@@ -62,7 +61,7 @@ class Notifier(ABC):
                 self.start()
 
     @abstractmethod
-    def _send(self, item: Union[Item, Reservation]) -> None:
+    def _send(self, item: Item | Reservation) -> None:
         """Send Item information."""
 
     def stop(self) -> None:

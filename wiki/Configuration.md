@@ -74,6 +74,7 @@ You can combine multiple crons as semicolon separated list.
 | DisableTests | DISABLE_TESTS | disable test notifications on startup                                             | `false`     |
 | Quiet        | QUIET         | minimal console output                                                            | `false`     |
 | Locale       | LOCALE        | localization                                                                      | `en_US`     |
+| TimeFormat   | TIME_FORMAT   | 12h or 24h                                                                        | `24h`       |
 | Activity     | ACTIVITY      | show running indicator (always disabled in docker)                                | `true`      |
 |              | TZ            | timezone for docker based setups, e.g. `Berlin/Europe`                            |             |
 |              | UID           | set user id for docker container                                                  | `1000`      |

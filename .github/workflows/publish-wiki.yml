@@ -18,7 +18,7 @@ jobs:
   publish-wiki:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: impresscms-dev/strip-markdown-extensions-from-links-action@v1.1.3
         with:
           path: wiki

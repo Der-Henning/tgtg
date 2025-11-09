@@ -1,5 +1,4 @@
 import logging
-from typing import Union
 
 from pushsafer import Client
 
@@ -28,7 +27,7 @@ class PushSafer(Notifier):
                 raise PushSaferConfigurationError()
             self.client = Client(self.key)
 
-    def _send(self, item: Union[Item, Reservation]) -> None:
+    def _send(self, item: Item | Reservation) -> None:
         """Sends item information to the Pushsafer endpoint."""
         if isinstance(item, Item):
             message = f"New Amount: {item.items_available}"

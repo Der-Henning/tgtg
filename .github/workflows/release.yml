@@ -28,7 +28,7 @@ jobs:
             file: ./docker/Dockerfile.alpine
             context: ./
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: docker/metadata-action@v5
         id: meta
         with:
@@ -95,15 +95,15 @@ jobs:
             tag: linux
           - os: windows-latest
             tag: win
-          - os: macos-13
+          - os: macos-latest
             tag: macos
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-poetry-action
         with:
           without: test
       - name: Run PyInstaller (linux/macos)
-        if: matrix.tag == 'linux' || matrix.tag == 'macos'
+        if: matrix.tag != 'win'
         run: |
           poetry run pyinstaller scanner.spec
           cp ./config.sample.ini ./dist/config.ini
@@ -123,7 +123,7 @@ jobs:
         shell: bash
         run: echo "FILENAME=scanner-${{ github.ref_name }}-${{ matrix.tag }}.zip" | sed -r 's,/,-,g' >> $GITHUB_OUTPUT
       - name: Zip files (linux/macos)
-        if: matrix.tag == 'linux' || matrix.tag == 'macos'
+        if: matrix.tag != 'win'
         run: zip -j ./${{ steps.filename.outputs.FILENAME }} ./dist/*
       - name: Zip files (win)
         if: matrix.tag == 'win'

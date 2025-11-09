@@ -1,5 +1,4 @@
 import logging
-from typing import Union
 
 import apprise
 
@@ -34,7 +33,7 @@ class Apprise(Notifier):
             except MaskConfigurationError as exc:
                 raise AppriseConfigurationError(exc.message) from exc
 
-    def _send(self, item: Union[Item, Reservation]) -> None:
+    def _send(self, item: Item | Reservation) -> None:
         """Sends item information via configured Apprise URL."""
         if isinstance(item, Item):
             if self.url is None or self.body is None or self.title is None:

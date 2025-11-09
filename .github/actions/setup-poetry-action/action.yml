@@ -4,7 +4,7 @@ inputs:
   poetry-version:
     required: false
     type: string
-    default: 2.1.2
+    default: 2.2.1
   python-version:
     required: false
     type: string
@@ -20,7 +20,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: actions/setup-python@v5
+    - uses: actions/setup-python@v6
       with:
         python-version: ${{ inputs.python-version }}
     - if: ${{ inputs.poetry-version != 'latest' }}

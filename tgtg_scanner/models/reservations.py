@@ -1,6 +1,6 @@
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 from tgtg_scanner.models.item import Item
 from tgtg_scanner.tgtg import TgtgClient

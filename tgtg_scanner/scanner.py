@@ -2,7 +2,7 @@ import logging
 import sys
 from random import random
 from time import sleep
-from typing import NoReturn, Union
+from typing import NoReturn
 
 from progress.spinner import Spinner
 
@@ -52,8 +52,8 @@ class Scanner:
         self.item_ids = set(self.config.item_ids)
         self.cron = self.config.schedule_cron
         self.state: dict[str, Item] = {}
-        self.notifiers: Union[Notifiers, None] = None
-        self.location: Union[Location, None] = None
+        self.notifiers: Notifiers | None = None
+        self.location: Location | None = None
         self.tgtg_client = TgtgClient(
             email=self.config.tgtg.username,
             timeout=self.config.tgtg.timeout,
@@ -76,7 +76,7 @@ class Scanner:
             return items[0]
         items = sorted(
             [
-                Item(item, self.location, self.config.locale)
+                Item(item, self.location, self.config.locale, self.config.time_format)
                 for item in self.tgtg_client.get_items(favorites_only=False, latitude=53.5511, longitude=9.9937, radius=50)
             ],
             key=lambda x: x.items_available,
@@ -95,7 +95,7 @@ class Scanner:
             try:
                 if item_id != "":
                     item_dict = self.tgtg_client.get_item(item_id)
-                    items.append(Item(item_dict, self.location, self.config.locale))
+                    items.append(Item(item_dict, self.location, self.config.locale, self.config.time_format))
             except TgtgAPIError as err:
                 log.error(err)
         items += self._get_favorites()
@@ -127,7 +127,7 @@ class Scanner:
         except TgtgAPIError as err:
             log.error(err)
             return []
-        return [Item(item, self.location, self.config.locale) for item in items]
+        return [Item(item, self.location, self.config.locale, self.config.time_format) for item in items]
 
     def _check_item(self, item: Item) -> None:
         """Checks if the available item amount raised from zero to something
