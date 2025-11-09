@@ -5,7 +5,6 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formatdate
 from smtplib import SMTPException, SMTPServerDisconnected
-from typing import Union
 
 from tgtg_scanner.errors import MaskConfigurationError, SMTPConfigurationError
 from tgtg_scanner.models import Config, Favorites, Item, Reservations
@@ -20,7 +19,7 @@ class SMTP(Notifier):
 
     def __init__(self, config: Config, reservations: Reservations, favorites: Favorites):
         super().__init__(config, reservations, favorites)
-        self.server: Union[smtplib.SMTP, None] = None
+        self.server: smtplib.SMTP | None = None
         self.debug = config.debug
         self.enabled = config.smtp.enabled
         self.host = config.smtp.host
@@ -119,7 +118,7 @@ class SMTP(Notifier):
             self._connect()
             self.server.sendmail(self.sender, recipients, body)
 
-    def _send(self, item: Union[Item, Reservation]) -> None:
+    def _send(self, item: Item | Reservation) -> None:
         """Sends item information via Mail."""
         if isinstance(item, Item):
             self._send_mail(item.unmask(self.subject), item.unmask(self.body), item.item_id)

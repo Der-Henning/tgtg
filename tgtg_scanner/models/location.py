@@ -1,6 +1,5 @@
 import logging
 from dataclasses import dataclass
-from typing import Union
 
 import googlemaps
 
@@ -24,7 +23,7 @@ class Location:
     PUBLIC_TRANSPORT_MODE = "transit"
     BIKING_MODE = "bicycling"
 
-    def __init__(self, enabled: bool = False, api_key: Union[str, None] = None, origin: Union[str, None] = None) -> None:
+    def __init__(self, enabled: bool = False, api_key: str | None = None, origin: str | None = None) -> None:
         """Initializes Location class.
         First run flag important only for validating origin address.
         """
@@ -43,7 +42,7 @@ class Location:
         # cached DistanceTime object for each item_id+mode
         self.distancetime_dict: dict[str, DistanceTime] = {}
 
-    def calculate_distance_time(self, destination: str, travel_mode: str) -> Union[DistanceTime, None]:
+    def calculate_distance_time(self, destination: str, travel_mode: str) -> DistanceTime | None:
         """Calculates the distance and time taken to travel from origin to
         destination using the given mode of transportation.
         Returns distance and time in km and minutes respectively.

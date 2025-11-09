@@ -1,5 +1,4 @@
 import logging
-from typing import Union
 
 from requests.auth import HTTPBasicAuth
 
@@ -58,7 +57,7 @@ class Ntfy(WebHook):
             except MaskConfigurationError as exc:
                 raise NtfyConfigurationError(exc.message) from exc
 
-    def _send(self, item: Union[Item, Reservation]) -> None:
+    def _send(self, item: Item | Reservation) -> None:
         """Sends item information via configured Ntfy endpoint."""
         if isinstance(item, Item):
             title = item.unmask(self.title).encode("utf-8")

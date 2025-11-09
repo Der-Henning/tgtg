@@ -2,7 +2,7 @@ import datetime
 import logging
 import re
 from http import HTTPStatus
-from typing import Any, Union
+from typing import Any
 
 import babel.numbers
 import humanize
@@ -52,17 +52,17 @@ class Item:
     returns well formated data for notifications.
     """
 
-    def __init__(self, data: dict, location: Union[Location, None] = None, locale: str = "en_US", time_format: str = "24h"):
+    def __init__(self, data: dict, location: Location | None = None, locale: str = "en_US", time_format: str = "24h"):
         self.items_available: int = data.get("items_available", 0)
         self.display_name: str = data.get("display_name", "-")
         self.favorite: str = "Yes" if data.get("favorite", False) else "No"
-        self.pickup_interval_start: Union[str, None] = data.get("pickup_interval", {}).get("start")
-        self.pickup_interval_end: Union[str, None] = data.get("pickup_interval", {}).get("end")
+        self.pickup_interval_start: str | None = data.get("pickup_interval", {}).get("start")
+        self.pickup_interval_end: str | None = data.get("pickup_interval", {}).get("end")
         self.pickup_location: str = data.get("pickup_location", {}).get("address", {}).get("address_line", "-")
 
         item: dict = data.get("item", {})
         self.item_id: str = item.get("item_id")  # type: ignore[assignment]
-        self._rating: Union[float, None] = item.get("average_overall_rating", {}).get("average_overall_rating")
+        self._rating: float | None = item.get("average_overall_rating", {}).get("average_overall_rating")
         self.packaging_option: str = item.get("packaging_option", "-")
         self.item_name: str = item.get("name", "-")
         self.buffet: str = "Yes" if item.get("buffet", False) else "No"
@@ -130,7 +130,7 @@ class Item:
                 raise MaskConfigurationError(match.group(0))
 
     @staticmethod
-    def get_image(url: str) -> Union[bytes, None]:
+    def get_image(url: str) -> bytes | None:
         response = requests.get(url)
         if not response.status_code == HTTPStatus.OK:
             log.warning("Get Image Error: %s - %s", response.status_code, response.content)
@@ -138,11 +138,11 @@ class Item:
         return response.content
 
     @property
-    def item_logo_bytes(self) -> Union[bytes, None]:
+    def item_logo_bytes(self) -> bytes | None:
         return self.get_image(self.item_logo)
 
     @property
-    def item_cover_bytes(self) -> Union[bytes, None]:
+    def item_cover_bytes(self) -> bytes | None:
         return self.get_image(self.item_cover)
 
     @property
@@ -188,7 +188,7 @@ class Item:
             return f"{humanize.naturalday(tomorrow)}, {prange}"
         return f"{pfr.day}/{pfr.month}, {prange}"
 
-    def _get_distance_time(self, travel_mode: str) -> Union[DistanceTime, None]:
+    def _get_distance_time(self, travel_mode: str) -> DistanceTime | None:
         if self.location is None:
             return None
         return self.location.calculate_distance_time(self.pickup_location, travel_mode)

@@ -1,5 +1,4 @@
 import logging
-from typing import Union
 
 from tgtg_scanner.models import Config, Cron, Favorites, Item, Reservations
 from tgtg_scanner.models.reservations import Reservation
@@ -47,7 +46,7 @@ class Notifiers:
         """
         return len(self._enabled_notifiers)
 
-    def send(self, item: Union[Item, Reservation]) -> None:
+    def send(self, item: Item | Reservation) -> None:
         """Send notifications on all enabled notifiers.
 
         Args:

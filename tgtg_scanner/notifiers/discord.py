@@ -2,7 +2,6 @@ import asyncio
 import datetime
 import logging
 from queue import Empty
-from typing import Union
 
 import discord
 from discord.ext import commands, tasks
@@ -29,7 +28,7 @@ class Discord(Notifier):
         self.body = config.discord.body
         self.disable_commands = config.discord.disable_commands
         self.cron = config.discord.cron
-        self.mute: Union[datetime.datetime, None] = None
+        self.mute: datetime.datetime | None = None
         self.bot_id = None
         self.channel_id = None
         self.server_id = None
@@ -51,7 +50,7 @@ class Discord(Notifier):
             except MaskConfigurationError as exc:
                 raise DiscordConfigurationError(exc.message) from exc
 
-    async def _send(self, item: Union[Item, Reservation]) -> None:  # type: ignore[override]
+    async def _send(self, item: Item | Reservation) -> None:  # type: ignore[override]
         """Sends item information using Discord bot."""
         if self.mute and self.mute > datetime.datetime.now():
             return

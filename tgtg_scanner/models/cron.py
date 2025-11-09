@@ -1,5 +1,4 @@
 import logging
-from typing import Union
 
 import pycron
 from cron_descriptor import Options, get_description
@@ -8,7 +7,7 @@ log = logging.getLogger("tgtg")
 
 
 class Cron:
-    def __init__(self, cron_str: Union[str, None] = None) -> None:
+    def __init__(self, cron_str: str | None = None) -> None:
         self.crons = list(dict.fromkeys([cron.strip() for cron in cron_str.split(";")])) if cron_str else ["* * * * *"]
         self.options = Options()
         self.options.use_24hour_time_format = True

@@ -8,7 +8,6 @@ import warnings
 from functools import wraps
 from queue import Empty
 from time import sleep
-from typing import Union
 
 from telegram import BotCommand, InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
@@ -72,7 +71,7 @@ class Telegram(Notifier):
         self.disable_commands = config.telegram.disable_commands
         self.only_reservations = config.telegram.only_reservations
         self.cron = config.telegram.cron
-        self.mute: Union[datetime.datetime, None] = None
+        self.mute: datetime.datetime | None = None
         self.retries = 0
         if self.enabled:
             if not self.token or not self.body:
@@ -201,13 +200,13 @@ class Telegram(Notifier):
                 text = text.replace(match.group(0), val)
         return text
 
-    def _unmask_image(self, text: str, item: Item) -> Union[bytes, None]:
+    def _unmask_image(self, text: str, item: Item) -> bytes | None:
         if text in ["${{item_logo_bytes}}", "${{item_cover_bytes}}"]:
             matches = item._get_variables(text)
             return bytes(getattr(item, matches[0].group(1)))
         return None
 
-    async def _send(self, item: Union[Item, Reservation]) -> None:  # type: ignore[override]
+    async def _send(self, item: Item | Reservation) -> None:  # type: ignore[override]
         """Send item information as Telegram message.
 
         Reservation notifications are always send.
@@ -227,7 +226,7 @@ class Telegram(Notifier):
             return
         await self._send_message(message, image)
 
-    async def _send_message(self, message: str, image: Union[bytes, None] = None) -> None:
+    async def _send_message(self, message: str, image: bytes | None = None) -> None:
         log.debug("%s message: %s", self.name, message)
         fmt = ParseMode.MARKDOWN_V2
         for chat_id in self.chat_ids:

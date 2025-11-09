@@ -2,7 +2,7 @@ import logging
 import sys
 from random import random
 from time import sleep
-from typing import NoReturn, Union
+from typing import NoReturn
 
 from progress.spinner import Spinner
 
@@ -52,8 +52,8 @@ class Scanner:
         self.item_ids = set(self.config.item_ids)
         self.cron = self.config.schedule_cron
         self.state: dict[str, Item] = {}
-        self.notifiers: Union[Notifiers, None] = None
-        self.location: Union[Location, None] = None
+        self.notifiers: Notifiers | None = None
+        self.location: Location | None = None
         self.tgtg_client = TgtgClient(
             email=self.config.tgtg.username,
             timeout=self.config.tgtg.timeout,

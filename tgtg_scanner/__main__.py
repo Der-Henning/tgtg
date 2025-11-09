@@ -9,7 +9,7 @@ import signal
 import sys
 from os import getenv
 from pathlib import Path
-from typing import Any, NoReturn, Union
+from typing import Any, NoReturn
 
 import colorlog
 import requests
@@ -227,7 +227,7 @@ def main():
         sys.exit(1)
 
 
-def _get_config_file() -> Union[Path, None]:
+def _get_config_file() -> Path | None:
     # Default: config.ini in current working directory or next to executable
     config_file = Path(PROG_PATH, "config.ini")
     if config_file.is_file():
@@ -252,7 +252,7 @@ def _run_scanner(scanner: Scanner) -> NoReturn:
     scanner.run()
 
 
-def _get_new_version() -> Union[dict, None]:
+def _get_new_version() -> dict | None:
     log = logging.getLogger("tgtg")
     try:
         res = requests.get(VERSION_URL, timeout=60)

@@ -1,6 +1,5 @@
 import logging
 import subprocess
-from typing import Union
 
 from tgtg_scanner.errors import MaskConfigurationError, ScriptConfigurationError
 from tgtg_scanner.models import Config, Favorites, Item, Reservations
@@ -27,7 +26,7 @@ class Script(Notifier):
             except MaskConfigurationError as exc:
                 raise ScriptConfigurationError(exc.message) from exc
 
-    def _send(self, item: Union[Item, Reservation]) -> None:
+    def _send(self, item: Item | Reservation) -> None:
         if self.command is None:
             raise ScriptConfigurationError()
         if isinstance(item, Item):
