@@ -95,9 +95,9 @@ jobs:
             tag: linux
           - os: windows-latest
             tag: win
-          - os: macos-latest-large
+          - os: macos-15-intel
             tag: macos-intel
-          - os: macos-latest
+          - os: macos-15
             tag: macos-arm64
     steps:
       - uses: actions/checkout@v4
