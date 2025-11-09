@@ -28,7 +28,7 @@ jobs:
             file: ./docker/Dockerfile.alpine
             context: ./
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: docker/metadata-action@v5
         id: meta
         with:
@@ -98,7 +98,7 @@ jobs:
           - os: macos-latest
             tag: macos
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-poetry-action
         with:
           without: test
