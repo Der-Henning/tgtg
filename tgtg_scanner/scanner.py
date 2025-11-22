@@ -64,6 +64,8 @@ class Scanner:
             refresh_token=self.config.tgtg.refresh_token,
             datadome_cookie=self.config.tgtg.datadome,
             base_url=self.config.tgtg.base_url,
+            apk_version=self.config.tgtg.apk_version,
+            user_agent=self.config.tgtg.user_agent,
         )
         self.reservations = Reservations(self.tgtg_client)
         self.favorites = Favorites(self.tgtg_client)
