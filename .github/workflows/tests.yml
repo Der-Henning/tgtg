@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-15, macos-15-intel]
         python: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@v5
@@ -21,7 +21,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ~/.cache/pre-commit
-          key: pre-commit-python-${{ matrix.python }}-${{ hashFiles('poetry.lock', '.pre-commit-config.yaml') }}-${{ runner.os }}
+          key: pre-commit-python-${{ matrix.python }}-${{ hashFiles('poetry.lock', '.pre-commit-config.yaml') }}-${{ runner.os }}-${{ runner.arch }}
       - name: Run linting
         run: poetry run pre-commit run -a
       - name: Run tests

@@ -39,12 +39,12 @@ runs:
       if: inputs.without != '' && inputs.install-dependencies
       with:
         path: ./.venv
-        key: venv-without-${{ inputs.without }}-poetry-${{ inputs.poetry-version }}-python-${{ inputs.python-version }}-${{ hashFiles('poetry.lock') }}-${{ runner.os }}
+        key: venv-without-${{ inputs.without }}-poetry-${{ inputs.poetry-version }}-python-${{ inputs.python-version }}-${{ hashFiles('poetry.lock') }}-${{ runner.os }}-${{ runner.arch }}
     - uses: actions/cache@v4
       if: inputs.without == '' && inputs.install-dependencies
       with:
         path: ./.venv
-        key: venv-poetry-${{ inputs.poetry-version }}-python-${{ inputs.python-version }}-${{ hashFiles('poetry.lock') }}-${{ runner.os }}
+        key: venv-poetry-${{ inputs.poetry-version }}-python-${{ inputs.python-version }}-${{ hashFiles('poetry.lock') }}-${{ runner.os }}-${{ runner.arch }}
     - name: Install dependencies
       if: inputs.without != '' && inputs.install-dependencies
       shell: bash
