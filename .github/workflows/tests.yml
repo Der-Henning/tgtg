@@ -21,7 +21,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ~/.cache/pre-commit
-          key: pre-commit-python-${{ matrix.python }}-${{ hashFiles('poetry.lock', '.pre-commit-config.yaml') }}-${{ runner.os }}
+          key: pre-commit-python-${{ matrix.python }}-${{ hashFiles('poetry.lock', '.pre-commit-config.yaml') }}-${{ runner.os }}-${{ runner.arch }}
       - name: Run linting
         run: poetry run pre-commit run -a
       - name: Run tests
