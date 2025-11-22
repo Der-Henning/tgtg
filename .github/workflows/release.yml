@@ -95,8 +95,10 @@ jobs:
             tag: linux
           - os: windows-latest
             tag: win
-          - os: macos-latest
-            tag: macos
+          - os: macos-15
+            tag: macos-arm64
+          - os: macos-15-intel
+            tag: macos-intel
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/setup-poetry-action
