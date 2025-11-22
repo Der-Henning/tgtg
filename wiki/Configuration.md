@@ -92,6 +92,8 @@ You can combine multiple crons as semicolon separated list.
 | AccessTokenLifetime | TGTG_ACCESS_TOKEN_LIFETIME | access token lifetime in seconds        | `14400` |          |
 | MaxPollingTries     | TGTG_MAX_POLLING_TRIES     | max polling retries during login        | `24`    |          |
 | PollingWaitTime     | TGTG_POLLING_WAIT_TIME     | time between polling retries in seconds | `5`     |          |
+| APKVersion          | TGTG_APK_VERSION           | APK Version used in User Agent Header   | latest  |          |
+| UserAgent           | TGTG_USER_AGENT            | Fixed User Agent Header                 | auto    |          |
 
 ### [LOCATION] / Location settings
 

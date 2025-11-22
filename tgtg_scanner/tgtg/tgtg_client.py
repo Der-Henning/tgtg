@@ -115,6 +115,7 @@ class TgtgClient:
         access_token=None,
         refresh_token=None,
         datadome_cookie=None,
+        apk_version=None,
         user_agent=None,
         language="en-GB",
         proxies=None,
@@ -140,6 +141,7 @@ class TgtgClient:
         self.polling_wait_time = polling_wait_time
 
         self.device_type = device_type
+        self.apk_version = apk_version
         self.fixed_user_agent = user_agent
         self.user_agent = user_agent
         self.language = language
@@ -225,10 +227,13 @@ class TgtgClient:
         if self.fixed_user_agent:
             return self.fixed_user_agent
         version = DEFAULT_APK_VERSION
-        try:
-            version = self.get_latest_apk_version()
-        except Exception:
-            log.warning("Failed to get latest APK version!")
+        if self.apk_version is None:
+            try:
+                version = self.get_latest_apk_version()
+            except Exception:
+                log.warning("Failed to get latest APK version!")
+        else:
+            version = self.apk_version
         log.debug("Using APK version %s.", version)
         return random.choice(USER_AGENTS).format(version)
 

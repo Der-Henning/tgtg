@@ -472,6 +472,8 @@ class TgtgConfig(BaseConfig):
     access_token_lifetime: int = 14400
     max_polling_tries: int = 24
     polling_wait_time: int = 5
+    apk_version: str | None = None
+    user_agent: str | None = None
     base_url: str = BASE_URL
 
     def _read_ini(self, parser: configparser.ConfigParser):
@@ -483,6 +485,8 @@ class TgtgConfig(BaseConfig):
         self._ini_get_int(parser, "TGTG", "AccessTokenLifetime", "access_token_lifetime")
         self._ini_get_int(parser, "TGTG", "MaxPollingTries", "max_polling_tries")
         self._ini_get_int(parser, "TGTG", "PollingWaitTime", "polling_wait_time")
+        self._ini_get(parser, "TGTG", "APKVersion", "apk_version")
+        self._ini_get(parser, "TGTG", "UserAgent", "user_agent")
 
     def _read_env(self):
         self._env_get("TGTG_USERNAME", "username")
@@ -493,6 +497,8 @@ class TgtgConfig(BaseConfig):
         self._env_get_int("TGTG_ACCESS_TOKEN_LIFETIME", "access_token_lifetime")
         self._env_get_int("TGTG_MAX_POLLING_TRIES", "max_polling_tries")
         self._env_get_int("TGTG_POLLING_WAIT_TIME", "polling_wait_time")
+        self._env_get("TGTG_APK_VERSION", "apk_version")
+        self._env_get("TGTG_USER_AGENT", "user_agent")
 
 
 @dataclass

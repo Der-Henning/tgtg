@@ -28,7 +28,7 @@ jobs:
             file: ./docker/Dockerfile.alpine
             context: ./
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: docker/metadata-action@v5
         id: meta
         with:
@@ -100,10 +100,11 @@ jobs:
           - os: macos-15-intel
             tag: macos-intel
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./.github/actions/setup-poetry-action
         with:
           without: test
+          python-version: "3.13"
       - name: Run PyInstaller (linux/macos)
         if: matrix.tag != 'win'
         run: |
