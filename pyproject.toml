@@ -47,7 +47,7 @@ version = "1.24.2"
 pyinstaller = "^6.3.0"
 
 [tool.poetry.group.test.dependencies]
-pre-commit = "^4.0.1"
+pre-commit = "^4.5.1"
 pytest = "^9.0.0"
 pytest-cov = "^7.0.0"
 pytest-mock = "^3.11.1"
