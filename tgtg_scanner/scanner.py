@@ -144,10 +144,16 @@ class Scanner:
                 log.info("%s - amount changed from %s to %s", item.display_name, state_item.items_available, item.items_available)
                 if state_item.items_available == 0:
                     send_notification = True
-            if state_item.price != item.price:
-                log.info("%s - price changed from %ss to %s", item.display_name, state_item.price, item.price)
-                if self.config.price_monitoring and item.items_available > 0 and item._price < state_item._price:
-                    send_notification = True
+                if state_item.price != item.price:
+                    log.info("%s - price changed from %s to %s", item.display_name, state_item.price, item.price)
+                    # Flag the item if the price actually went down
+                    if self.config.price_monitoring and item.items_available > 0 and item._price < state_item._price:
+                        item.is_price_drop = True 
+                        send_notification = True
+                    else:
+                        item.is_price_drop = False
+                else:
+                    item.is_price_drop = False
             if send_notification:
                 self._send_messages(item)
                 self.metrics.send_notifications.labels(item.item_id, item.display_name).inc()
