@@ -171,6 +171,11 @@ class Item:
         if text in ["${{item_logo_bytes}}", "${{item_cover_bytes}}"]:
             matches = self._get_variables(text)
             return getattr(self, matches[0].group(1))
+            
+        # This creates a dynamic icon based on the state
+        is_drop = getattr(self, 'is_price_drop', False)
+        text = text.replace("${{price_drop_icon}}", "💰" if is_drop else "🛍️")
+        
         for match in self._get_variables(text):
             if hasattr(self, match.group(1)):
                 val = getattr(self, match.group(1))
