@@ -44,6 +44,7 @@ ATTRS = [
     "duration_driving",
     "duration_transit",
     "duration_biking",
+    "status_icon",
 ]
 
 log = logging.getLogger("tgtg")
@@ -112,6 +113,12 @@ class Item:
         if self._previous_price is None:
             return None
         return self._format_currency(self._previous_price)
+    
+    @property
+    def status_icon(self) -> str:
+        """Returns a bag icon for restocks and a money bag for price drops."""
+        is_drop = getattr(self, 'is_price_drop', False)
+        return "💰" if is_drop else "🛍️"
 
     @property
     def price_drop(self) -> str:
@@ -172,10 +179,6 @@ class Item:
             matches = self._get_variables(text)
             return getattr(self, matches[0].group(1))
             
-        # This creates a dynamic icon based on the state
-        is_drop = getattr(self, 'is_price_drop', False)
-        text = text.replace("${{status_icon}}", "💰" if is_drop else "🛍️")
-        
         for match in self._get_variables(text):
             if hasattr(self, match.group(1)):
                 val = getattr(self, match.group(1))
