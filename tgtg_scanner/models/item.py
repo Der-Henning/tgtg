@@ -174,7 +174,7 @@ class Item:
             
         # This creates a dynamic icon based on the state
         is_drop = getattr(self, 'is_price_drop', False)
-        text = text.replace("${{price_drop_icon}}", "💰" if is_drop else "🛍️")
+        text = text.replace("${{status_icon}}", "💰" if is_drop else "🛍️")
         
         for match in self._get_variables(text):
             if hasattr(self, match.group(1)):
