@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TGTG Scanner — Login PIN</title>
+    <style>
+      /* __CSS__ */
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <div class="badge">Too Good To Go · Scanner</div>
+      <h1>Enter your login PIN</h1>
+      <p>Too Good To Go sent a one-time PIN to:</p>
+      <span class="email">__EMAIL__</span>
+      <p>Open that email, copy the PIN, and enter it below.</p>
+      <form action="/submit" method="get" autocomplete="one-time-code">
+        <label for="pin">PIN code</label>
+        <input
+          id="pin"
+          name="value"
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          autocomplete="one-time-code"
+          autofocus
+          required
+          placeholder="••••••"
+        />
+        <button type="submit">Confirm login</button>
+        <p class="hint">Served locally by the scanner. You can close this tab after submitting.</p>
+      </form>
+    </main>
+  </body>
+</html>

@@ -16,8 +16,9 @@ from tgtg_scanner.models import (
     Metrics,
     Reservations,
 )
+from tgtg_scanner.models.stock_monitor import StockMonitor
 from tgtg_scanner.notifiers import Notifiers
-from tgtg_scanner.tgtg import TgtgClient
+from tgtg_scanner.tgtg_client import BASE_URL, TgtgClient, extract_datadome, normalize_cookie, resolve_user_agent
 
 log = logging.getLogger("tgtg")
 
@@ -49,110 +50,108 @@ class Scanner:
     def __init__(self, config: Config):
         self.config = config
         self.metrics = Metrics(self.config.metrics_port)
-        self.item_ids = set(self.config.item_ids)
+        self.item_ids = {item_id for item_id in self.config.item_ids if item_id}
         self.cron = self.config.schedule_cron
-        self.state: dict[str, Item] = {}
+        self.monitor = StockMonitor(price_monitoring=self.config.price_monitoring)
         self.notifiers: Notifiers | None = None
         self.location: Location | None = None
-        self.tgtg_client = TgtgClient(
-            email=self.config.tgtg.username,
-            timeout=self.config.tgtg.timeout,
-            access_token_lifetime=self.config.tgtg.access_token_lifetime,
-            max_polling_tries=self.config.tgtg.max_polling_tries,
-            polling_wait_time=self.config.tgtg.polling_wait_time,
-            access_token=self.config.tgtg.access_token,
-            refresh_token=self.config.tgtg.refresh_token,
-            datadome_cookie=self.config.tgtg.datadome,
-            base_url=self.config.tgtg.base_url,
-            apk_version=self.config.tgtg.apk_version,
-            user_agent=self.config.tgtg.user_agent,
-            port=self.config.port,
-        )
+        self.tgtg_client = self._build_client(config)
         self.reservations = Reservations(self.tgtg_client)
         self.favorites = Favorites(self.tgtg_client)
 
+    @staticmethod
+    def _build_client(config: Config) -> TgtgClient:
+        tgtg = config.tgtg
+        kwargs = {
+            "url": tgtg.base_url or BASE_URL,
+            "email": tgtg.username,
+            "access_token": tgtg.access_token,
+            "refresh_token": tgtg.refresh_token,
+            "cookie": normalize_cookie(tgtg.datadome),
+            "timeout": tgtg.timeout,
+            "access_token_lifetime": tgtg.access_token_lifetime,
+            "pin_port": config.port,
+            "max_polling_tries": tgtg.max_polling_tries,
+            "polling_wait_time": tgtg.polling_wait_time,
+        }
+        user_agent = resolve_user_agent(tgtg.user_agent, tgtg.apk_version)
+        if user_agent:
+            kwargs["user_agent"] = user_agent
+        return TgtgClient(**kwargs)
+
+    @property
+    def state(self) -> dict[str, Item]:
+        """Current item state from the stock monitor."""
+        return self.monitor.state
+
+    def _item_from_api(self, data: dict) -> Item:
+        return Item(data, self.location, self.config.locale, self.config.time_format)
+
+    def _save_tokens(self) -> None:
+        self.config.save_tokens(
+            self.tgtg_client.access_token or "",
+            self.tgtg_client.refresh_token or "",
+            extract_datadome(self.tgtg_client),
+        )
+
     def _get_test_item(self) -> Item:
         """Returns an item for test notifications."""
-        items = sorted(self._get_favorites(), key=lambda x: x.items_available, reverse=True)
-
+        items = sorted(self._load_favorite_items(), key=lambda x: x.items_available, reverse=True)
         if items:
             return items[0]
         items = sorted(
             [
-                Item(item, self.location, self.config.locale, self.config.time_format)
-                for item in self.tgtg_client.get_items(favorites_only=False, latitude=53.5511, longitude=9.9937, radius=50)
+                self._item_from_api(item)
+                for item in self.tgtg_client.get_items(
+                    favorites_only=False,
+                    latitude=53.5511,
+                    longitude=9.9937,
+                    radius=50,
+                )
             ],
             key=lambda x: x.items_available,
             reverse=True,
         )
-
         return items[0]
+
+    def _load_items(self) -> list[Item]:
+        """Fetch configured item IDs and account favorites as Items."""
+        items: list[Item] = []
+        for item_id in self.item_ids:
+            try:
+                items.append(self._item_from_api(self.tgtg_client.get_item(item_id)))
+            except TgtgAPIError as err:
+                log.error(err)
+        items.extend(self._load_favorite_items())
+        return items
+
+    def _load_favorite_items(self) -> list[Item]:
+        try:
+            return [self._item_from_api(item) for item in self.tgtg_client.get_favorites()]
+        except TgtgAPIError as err:
+            log.error(err)
+            self.metrics.get_favorites_errors.inc()
+            return []
 
     def _job(self) -> None:
         """Job iterates over all monitored items."""
         if self.notifiers is None:
             raise RuntimeError("Notifiers not initialized!")
 
-        items: list[Item] = []
-        for item_id in self.item_ids:
-            try:
-                if item_id != "":
-                    item_dict = self.tgtg_client.get_item(item_id)
-                    items.append(Item(item_dict, self.location, self.config.locale, self.config.time_format))
-            except TgtgAPIError as err:
-                log.error(err)
-        items += self._get_favorites()
-        for item in items:
-            self._check_item(item)
-
-        amounts = {item_id: item.items_available for item_id, item in self.state.items() if item is not None}
-        log.debug("new State: %s", amounts)
-        self.reservations.make_orders(self.state, self.notifiers.send)
-
-        if len(self.state) == 0:
-            log.warning("No items in observation! Did you add any favorites?")
-
-        self.config.save_tokens(
-            self.tgtg_client.access_token,
-            self.tgtg_client.refresh_token,
-            self.tgtg_client.datadome_cookie,
-        )
-
-    def _get_favorites(self) -> list[Item]:
-        """Get favorites as list of Items.
-
-        Returns:
-            List: List of items
-
-        """
-        try:
-            items = self.get_favorites()
-        except TgtgAPIError as err:
-            log.error(err)
-            return []
-        return [Item(item, self.location, self.config.locale, self.config.time_format) for item in items]
-
-    def _check_item(self, item: Item) -> None:
-        """Checks if the available item amount raised from zero to something or price changed
-        and triggers notifications.
-        """
-        state_item = self.state.get(item.item_id)
-        if state_item is not None:
-            item._previous_price = state_item._price
-            send_notification = False
-            if state_item.items_available != item.items_available:
-                log.info("%s - amount changed from %s to %s", item.display_name, state_item.items_available, item.items_available)
-                if state_item.items_available == 0:
-                    send_notification = True
-            if state_item.price != item.price:
-                log.info("%s - price changed from %ss to %s", item.display_name, state_item.price, item.price)
-                if self.config.price_monitoring and item.items_available > 0 and item._price < state_item._price:
-                    send_notification = True
-            if send_notification:
+        for item in self._load_items():
+            if self.monitor.observe(item):
                 self._send_messages(item)
                 self.metrics.send_notifications.labels(item.item_id, item.display_name).inc()
-        self.metrics.update(item)
-        self.state[item.item_id] = item
+            self.metrics.update(item)
+
+        amounts = {item_id: item.items_available for item_id, item in self.monitor.state.items()}
+        log.debug("new State: %s", amounts)
+        self.reservations.make_orders(self.monitor.state, self.notifiers.send)
+
+        if not self.monitor.state:
+            log.warning("No items in observation! Did you add any favorites?")
+
+        self._save_tokens()
 
     def _send_messages(self, item: Item) -> None:
         """Send notifications for Item."""
@@ -170,11 +169,7 @@ class Scanner:
         """Main Loop of the Scanner."""
         # test tgtg API
         self.tgtg_client.login()
-        self.config.save_tokens(
-            self.tgtg_client.access_token,
-            self.tgtg_client.refresh_token,
-            self.tgtg_client.datadome_cookie,
-        )
+        self._save_tokens()
         # activate location service
         self.location = Location(
             self.config.location.enabled,
@@ -206,9 +201,10 @@ class Scanner:
                     log.error("Job Error! - %s", sys.exc_info())
                 finally:
                     sleep_time = self.config.sleep_time * (0.9 + 0.2 * random())
-                    for _ in range(int(sleep_time)):
+                    steps = max(int(sleep_time), 1)
+                    for _ in range(steps):
                         activity.next()
-                        sleep(sleep_time / int(sleep_time))
+                        sleep(sleep_time / steps)
                         activity.flush()
             elif running:
                 log.info("Scanner disabled by cron schedule.")
@@ -225,8 +221,7 @@ class Scanner:
         """Returns current tgtg credentials.
 
         Returns:
-            dict: dictionary containing access token, refresh token,
-                  user id and datadome cookie
+            dict: dictionary containing access token, refresh token and datadome cookie
 
         """
         return self.tgtg_client.get_credentials()
@@ -281,7 +276,8 @@ class Scanner:
         """Remove all items from favorites."""
         item_ids = [item.get("item", {}).get("item_id") for item in self.get_favorites()]
         for item_id in item_ids:
-            self.unset_favorite(item_id)
+            if item_id:
+                self.unset_favorite(item_id)
 
 
 if __name__ == "__main__":

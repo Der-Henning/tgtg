@@ -13,7 +13,7 @@ dependencies = [
   'cron-descriptor (>=2.0.6,<3.0.0)',
   'discord (>=2.3.2,<3.0.0)',
   'googlemaps (>=4.10.0,<5.0.0)',
-  'humanize (>=4.7.0,<5.0.0)',
+  'humanize (>=4.7.0,<6.0.0)',
   'packaging (>=25.0,<26.0)',
   'progress (>=1.6,<2.0)',
   'prometheus-client (>=0.21.0,<0.24.0)',
@@ -21,6 +21,7 @@ dependencies = [
   'python-pushsafer (>=1.1,<2.0)',
   'python-telegram-bot[callback-data] (>=22.0.0,<23.0.0)',
   'requests (>=2.31.0,<3.0.0)',
+  'tgtg (>=0.19.0,<1.0.0)',
 ]
 description = "Notifications for Too Good To Go"
 dynamic = ["version"]
@@ -40,8 +41,9 @@ repository = "https://github.com/Der-Henning/tgtg"
 
 [tool.poetry]
 packages = [{ include = "tgtg_scanner" }]
+include = [{ path = "tgtg_scanner/static/*", format = ["sdist", "wheel"] }]
 requires-poetry = '>=2.0.0,<3.0.0'
-version = "1.25.0"
+version = "1.26.0"
 
 [tool.poetry.group.build.dependencies]
 pyinstaller = "^6.3.0"

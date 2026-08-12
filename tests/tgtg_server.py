@@ -6,8 +6,10 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urljoin
 
 import requests
+import tgtg
 
-from tgtg_scanner.tgtg.tgtg_client import API_ITEM_ENDPOINT, BASE_URL
+API_ITEM_ENDPOINT = tgtg.API_ITEM_ENDPOINT
+BASE_URL = tgtg.BASE_URL
 
 
 class RequestHandler(BaseHTTPRequestHandler):

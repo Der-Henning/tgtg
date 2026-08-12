@@ -11,10 +11,10 @@ from pathlib import Path
 from typing import IO, Any
 
 import humanize
+from tgtg import BASE_URL
 
 from tgtg_scanner.errors import ConfigurationError
 from tgtg_scanner.models.cron import Cron
-from tgtg_scanner.tgtg.tgtg_client import BASE_URL
 
 log = logging.getLogger("tgtg")
 

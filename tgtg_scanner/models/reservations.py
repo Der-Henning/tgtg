@@ -3,7 +3,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from tgtg_scanner.models.item import Item
-from tgtg_scanner.tgtg import TgtgClient
+from tgtg_scanner.tgtg_client import TgtgClient
 
 log = logging.getLogger("tgtg")
 
@@ -48,15 +48,18 @@ class Reservations:
             callback (Callable[[Reservation], None]): Callback for each order
 
         """
+        remaining: list[Reservation] = []
         for reservation in self.reservation_query:
             item = state.get(reservation.item_id)
             if item and item.items_available > 0:
                 try:
                     self._create_order(reservation)
-                    self.reservation_query.remove(reservation)
                     callback(reservation)
+                    continue
                 except Exception as exc:
                     log.warning("Order failed: %s", exc)
+            remaining.append(reservation)
+        self.reservation_query = remaining
 
     def update_active_orders(self) -> None:
         """Remove orders that are not active anymore."""
@@ -78,10 +81,9 @@ class Reservations:
         res = self.client.create_order(reservation.item_id, reservation.amount)
         order_id = res.get("id")
         if order_id:
-            order = Order(
+            self.active_orders[order_id] = Order(
                 order_id,
                 reservation.item_id,
                 reservation.amount,
                 reservation.display_name,
             )
-            self.active_orders[order_id] = order

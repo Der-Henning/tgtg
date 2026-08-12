@@ -64,7 +64,8 @@ class Ntfy(WebHook):
             message = item.unmask(self.message).encode("utf-8")
             tags = item.unmask(self.tags).encode("utf-8")
             click = item.unmask(self.click).encode("utf-8")
-            self.headers |= {
+            base_headers = {k: v for k, v in self.headers.items() if not str(k).startswith("X-")}
+            self.headers = base_headers | {
                 "X-Title": title,
                 "X-Message": message,
                 "X-Priority": self.priority,
