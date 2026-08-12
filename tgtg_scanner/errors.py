@@ -1,20 +1,34 @@
+"""Application errors.
+
+TGTG API exceptions are re-exported from the official ``tgtg`` package so call
+sites keep a stable import path while the HTTP client stays upstream.
+"""
+
+from tgtg.exceptions import TgtgAPIError, TgtgLoginError, TgtgPollingError
+
+__all__ = [
+    "Error",
+    "TgtgLoginError",
+    "TgtgAPIError",
+    "TgtgPollingError",
+    "ConfigurationError",
+    "MaskConfigurationError",
+    "TgtgConfigurationError",
+    "AppriseConfigurationError",
+    "ConsoleConfigurationError",
+    "IFTTTConfigurationError",
+    "NtfyConfigurationError",
+    "SMTPConfigurationError",
+    "PushSaferConfigurationError",
+    "WebHookConfigurationError",
+    "TelegramConfigurationError",
+    "ScriptConfigurationError",
+    "LocationConfigurationError",
+    "DiscordConfigurationError",
+]
+
+
 class Error(Exception):
-    pass
-
-
-class TgtgLoginError(Error):
-    pass
-
-
-class TgtgAPIError(Error):
-    pass
-
-
-class TgtgCaptchaError(TgtgAPIError):
-    pass
-
-
-class TgtgPollingError(TgtgAPIError):
     pass
 
 

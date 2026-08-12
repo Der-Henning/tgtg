@@ -47,7 +47,7 @@ class Apprise(Notifier):
             log.debug("Apprise body: %s", body)
 
             apobj = apprise.Apprise()
-            apobj.add(self.url)
+            apobj.add(url)
             apobj.notify(title=title, body=body)
             apobj.clear()
 

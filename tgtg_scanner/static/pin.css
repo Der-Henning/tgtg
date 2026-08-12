@@ -1,0 +1,137 @@
+:root {
+  color-scheme: light dark;
+  --bg: #0f1419;
+  --card: #1a2332;
+  --text: #e7ecf3;
+  --muted: #9aa8bc;
+  --accent: #00a87e;
+  --border: #2a3a4f;
+  --in: #0d1218;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f4f6f8;
+    --card: #fff;
+    --text: #15202b;
+    --muted: #5b6b7c;
+    --border: #d5dde6;
+    --in: #f8fafc;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  font-family: system-ui, sans-serif;
+  background:
+    radial-gradient(900px 400px at 0 0, rgba(0, 168, 126, 0.15), transparent),
+    var(--bg);
+  color: var(--text);
+}
+
+.card {
+  width: min(100%, 26rem);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 16px 40px #0003;
+}
+
+.badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 0.75rem;
+}
+
+h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+p {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+  line-height: 1.45;
+  font-size: 0.95rem;
+}
+
+.email {
+  display: block;
+  margin: 0 0 1rem;
+  padding: 0.65rem 0.8rem;
+  border-radius: 0.55rem;
+  border: 1px solid var(--border);
+  background: var(--in);
+  font-family: ui-monospace, monospace;
+  font-size: 0.9rem;
+  word-break: break-all;
+}
+
+form {
+  display: grid;
+  gap: 0.7rem;
+}
+
+label {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+input {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 0.55rem;
+  border: 1px solid var(--border);
+  background: var(--in);
+  color: var(--text);
+  font-size: 1.15rem;
+  letter-spacing: 0.15em;
+  text-align: center;
+}
+
+input:focus {
+  outline: 2px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  border-color: var(--accent);
+}
+
+button {
+  border: 0;
+  border-radius: 0.55rem;
+  padding: 0.8rem;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.hint {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+.done {
+  text-align: center;
+  border-color: #1f6b4a;
+  background: #13291f;
+}
+
+@media (prefers-color-scheme: light) {
+  .done {
+    background: #eefaf4;
+    border-color: #9fd9bf;
+  }
+}

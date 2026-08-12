@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from tgtg_scanner.errors import TgtgAPIError
 from tgtg_scanner.models.item import Item
-from tgtg_scanner.tgtg import TgtgClient
+from tgtg_scanner.tgtg_client import TgtgClient
 
 log = logging.getLogger("tgtg")
 
@@ -35,7 +35,7 @@ class Favorites:
             bool: true, if the provided item ID is in the favorites
 
         """
-        return any(item for item in self.client.get_favorites() if Item(item).item_id == item_id)
+        return any(Item(item).item_id == item_id for item in self.client.get_favorites())
 
     def get_item_by_id(self, item_id: str) -> Item:
         """Gets an item by the Item ID.
